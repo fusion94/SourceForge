@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: mod_bug.php,v 1.47 2000/05/31 09:20:39 tperdue Exp $
+// $Id: mod_bug.php,v 1.46 2000/04/17 10:53:47 tperdue Exp $
 
 bug_header(array ('title'=>'Modify a Bug'));
 
@@ -83,16 +83,6 @@ if (db_numrows($result) > 0) {
 			?>" MAXLENGTH="60">
 	</TD></TR>
 
-	<TR><TD COLSPAN="2"><B>Use a Canned Response:</B><BR>
-		<?php
-		echo bug_canned_response_box ($group_id,'canned_response');
-		echo '
-			<P>
-			<A HREF="/bugs/admin/index.php?group_id='.$group_id.'&create_canned=1">Define Custom Responses</A>';
-		?>
-	</TD></TR>
-
-
 	<TR><TD COLSPAN="2"><B>Add Comment:</B><BR>
 		<TEXTAREA NAME="details" ROWS="7" COLS="60" WRAP="SOFT"></TEXTAREA>
 		<P>
@@ -127,9 +117,9 @@ if (db_numrows($result) > 0) {
 	?>
 	</TD></TR>
 
-	<TR><TD COLSPAN="2">
-		<?php echo show_dependent_bugs($bug_id,$group_id); ?>
-	</TD></TR>
+        <TR><TD COLSPAN="2">
+                <?php echo show_dependent_bugs($bug_id,$group_id); ?>
+        </TD></TR>
 
 	<TR><TD COLSPAN="2">
 		<?php echo show_bughistory($bug_id); ?>

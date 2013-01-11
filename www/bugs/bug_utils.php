@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: bug_utils.php,v 1.157 2000/06/12 13:45:19 tperdue Exp $
+// $Id: bug_utils.php,v 1.145 2000/05/04 21:28:01 tperdue Exp $
 
 /*
 
@@ -23,14 +23,17 @@ function bug_header($params) {
 	html_tabs('bugs',$group_id);
 
 	if ($group_id) {
-		echo '<P><B><A HREF="/bugs/?func=addbug&group_id='.$group_id.'">Submit A Bug</A>
+		echo '<P><B><A HREF="/bugs/?func=addbug&group_id='.$group_id.'">Submit</A>
 		 | <A HREF="/bugs/?func=browse&group_id='.$group_id.'&set=open">Open Bugs</A>';
 		if (user_isloggedin()) {
 			echo ' | <A HREF="/bugs/?func=browse&group_id='.$group_id.'&set=my">My Bugs</A>';
-			echo ' | <A HREF="/bugs/?func=modfilters&group_id='.$group_id.'">Filters</A>';
-			echo ' | <A HREF="/bugs/reporting/?group_id='.$group_id.'">Reporting</A>';
 		}
-		echo ' | <A HREF="/bugs/admin/?group_id='.$group_id.'">Admin</A></B>';
+		echo ' | <A HREF="/bugs/?func=browse&group_id='.$group_id.'&set=closed">Closed Bugs</A>';
+		if (user_isloggedin()) {
+			echo ' | <A HREF="/bugs/?func=modfilters&group_id='.$group_id.'">Filters</A>';
+		}
+		echo ' | <A HREF="/bugs/reporting/?group_id='.$group_id.'">Reporting</A>
+		 | <A HREF="/bugs/admin/?group_id='.$group_id.'">Admin</A></B>';
 	}
 
 }
@@ -71,15 +74,6 @@ function bug_resolution_box ($name='bug_resolution_id',$checked='xyxy') {
 	*/
 	$result=bug_data_get_resolutions ();
 	return util_build_select_box ($result,$name,$checked);
-}
-
-function bug_canned_response_box ($group_id,$name='canned_response') {
-	if (!$group_id) {
-		return 'ERROR - No group_id';
-	} else {
-		$result=bug_data_get_canned_responses($group_id);
-		return util_build_select_box ($result,$name);
-	}
 }
 
 function bug_technician_box ($name='assigned_to',$group_id,$checked='xyxy') {
@@ -220,36 +214,32 @@ function show_buglist ($result,$offset,$set='open') {
 	</FORM>';
 }
 
-function mail_followup($bug_id,$more_addresses=false) {
+function mail_followup($bug_id) {
 	global $sys_datefmt,$feedback;
 	/*
 		Send a message to the person who opened this bug and the person it is assigned to
 	*/
 
 	$sql="SELECT bug.date,bug.details,bug.group_id,bug.priority,bug.bug_id,bug.summary,bug_resolution.resolution_name,bug_group.group_name,".
-		"bug.date,bug_category.category_name,bug_status.status_name,user.user_name,user.email,user2.email AS assigned_to_email, groups.group_name AS project_name ".
-		"FROM bug,user,user user2,bug_category,bug_status,bug_group,bug_resolution,groups ".
+		"bug.date,bug_category.category_name,bug_status.status_name,user.user_name,user.email,user2.email AS assigned_to_email ".
+		"FROM bug,user,user user2,bug_category,bug_status,bug_group,bug_resolution ".
 		"WHERE user2.user_id=bug.assigned_to AND bug.status_id=bug_status.status_id ".
 		"AND bug_resolution.resolution_id=bug.resolution_id AND bug_group.bug_group_id=bug.bug_group_id ".
-		"AND bug.category_id=bug_category.bug_category_id AND user.user_id=bug.submitted_by AND bug.bug_id='$bug_id' AND groups.group_id = bug.group_id";
+		"AND bug.category_id=bug_category.bug_category_id AND user.user_id=bug.submitted_by AND bug.bug_id='$bug_id'";
 
 	$result=db_query($sql);
 
-
-
 	if ($result && db_numrows($result) > 0) {
-			
-			
-		$body = 'Bug #'.db_result($result,0,'bug_id').', was updated on '.date($sys_datefmt,db_result($result,0,'date')).
-		"\nHere is a current snapshot of the bug.".
-		"\n\nProject: ".db_result($result,0,'project_name').
-		"\nCategory: ".db_result($result,0,'category_name').
-		"\nStatus: ".db_result($result,0,'status_name').
-		"\nResolution: ".db_result($result,0,'resolution_name').
-		"\nBug Group: ".db_result($result,0,'group_name').
-		"\nPriority: ".db_result($result,0,'priority').
-		"\nSummary: ".util_unconvert_htmlspecialchars(db_result($result,0,'summary')).
-		"\n\nDetails: ".util_unconvert_htmlspecialchars(db_result($result,0,'details'));
+
+		$body = 'Bug #'.db_result($result,0,'bug_id').', which you submitted on '.date($sys_datefmt,db_result($result,0,'date')).' has '.
+			"\nbeen updated. Here is a current snapshot of the bug.".
+			"\n\nCategory: ".db_result($result,0,'category_name').
+			"\nStatus: ".db_result($result,0,'status_name').
+			"\nResolution: ".db_result($result,0,'resolution_name').
+			"\nBug Group: ".db_result($result,0,'group_name').
+			"\nPriority: ".db_result($result,0,'priority').
+			"\nSummary: ".util_unconvert_htmlspecialchars(db_result($result,0,'summary')).
+			"\n\nDetails: ".util_unconvert_htmlspecialchars(db_result($result,0,'details'));
 
 		$sql="SELECT user.email,user.user_name,bug_history.date,bug_history.old_value FROM bug_history,user WHERE user.user_id=bug_history.mod_by AND bug_history.field_name='details' AND bug_history.bug_id='$bug_id'";
 		$result2=db_query($sql);
@@ -264,17 +254,13 @@ function mail_followup($bug_id,$more_addresses=false) {
 			}
 		}
 		$body .= "\n\nFor detailed info, follow this link:";
-		$body .= "\nhttp://$GLOBALS[HTTP_HOST]/bugs/?func=detailbug&bug_id=$bug_id&group_id=".db_result($result,0,'group_id');
+		$body .= "\nhttp://sourceforge.net/bugs/?func=detailbug&bug_id=$bug_id&group_id=".db_result($result,0,'group_id');
 
 		$subject='[Bug #'.db_result($result,0,'bug_id').'] '.util_unconvert_htmlspecialchars(db_result($result,0,'summary'));
 
-		$to=db_result($result,0,'email').','.db_result($result,0,'assigned_to_email');
+		$to=db_result($result,0,'email').', '.db_result($result,0,'assigned_to_email');
 
-		if ($more_addresses) {
-			$to .= ','.$more_addresses;
-		}
-
-		$more='From: noreply@'.$GLOBALS['HTTP_HOST'];
+		$more='From: noreply@sourceforge.net';
 
 		mail($to,$subject,$body,$more);
 

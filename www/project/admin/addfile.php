@@ -4,9 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: addfile.php,v 1.24 2000/07/12 21:01:41 tperdue Exp $
+// $Id: addfile.php,v 1.22 2000/01/26 10:44:32 tperdue Exp $
 
-require ('pre.php');    
+require "pre.php";    
+require "paths.php";
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
 session_require(array('group'=>$group_id,'admin_flags'=>'A'));
@@ -17,7 +18,7 @@ project_admin_header(array('title'=>'Release New File Version','group'=>$group_i
 html_box1_top("Releasing a New File Version: " . group_getname($group_id) ); ?>
 &nbsp;<BR>
 Before using this form, you must first send us the file to be released.
-Send the file via anonymous ftp to <B><?php echo $GLOBALS['sys_download_host']; ?></B>. Upload the file
+Send the file via anonymous ftp to <B>download.sourceforge.net</B>. Upload the file
 to the <B>/incoming</B> directory. There are NO downloads from this ftp server.
 
 <P>Once you have uploaded the file, enter the information below and submit.

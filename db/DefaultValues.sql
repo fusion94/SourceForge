@@ -109,8 +109,4 @@ INSERT INTO people_job_status VALUES ('1','Open');
 INSERT INTO people_job_status VALUES ('2','Filled');
 INSERT INTO people_job_status VALUES ('3','Deleted');
 
-#
-#  DEfault data for group_type
-#
-INSERT INTO group_type VALUES ('1','Project');
-INSERT INTO group_type VALUES ('2','Portal');
+

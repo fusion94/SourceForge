@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: verify.php,v 1.24 2000/05/17 21:51:43 tperdue Exp $
+// $Id: verify.php,v 1.23 2000/04/14 13:49:33 dtype Exp $
 
 require "pre.php";    
 
@@ -68,6 +68,6 @@ if (error_is_error()) {
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 
 ?>

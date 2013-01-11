@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: news_utils.php,v 1.60 2000/06/17 06:39:59 tperdue Exp $
+// $Id: news_utils.php,v 1.29 2000/01/26 17:50:15 tperdue Exp $
 
 /*
 	News System
@@ -36,7 +36,7 @@ function news_footer($params) {
 	site_footer($params);
 }
 
-function news_show_latest($group_id=714,$limit=10,$show_summaries=true) {
+function news_show_latest($group_id=714) {
 	global $sys_datefmt;
 	/*
 		Show a simple list of the latest news items with a link to the forum
@@ -48,103 +48,40 @@ function news_show_latest($group_id=714,$limit=10,$show_summaries=true) {
 		$wclause='news_bytes.is_approved=1';
 	}
 
-	$sql="SELECT groups.group_name,groups.unix_group_name,user.user_name,news_bytes.forum_id,news_bytes.summary,news_bytes.date,news_bytes.details ".
-		"FROM user,news_bytes,groups ".
-		"WHERE $wclause ".
-		"AND user.user_id=news_bytes.submitted_by ".
-		"AND news_bytes.group_id=groups.group_id ".
-		"ORDER BY date DESC LIMIT $limit";
+	$sql="SELECT user.user_name,news_bytes.forum_id,news_bytes.summary,news_bytes.date ".
+		"FROM user,news_bytes ".
+		"WHERE $wclause AND user.user_id=news_bytes.submitted_by ".
+		"ORDER BY date DESC LIMIT 10";
 
 	$result=db_query($sql);
 	$rows=db_numrows($result);
+
+	if ($group_id == 714) {
+		//show the box if not specific project news
+		$return .= html_box1_top('Latest News',0,$GLOBALS[COLOR_LTBACK2]);
+	}
 
 	if (!$result || $rows < 1) {
 		$return .= '<H3>No News Items Found</H3>';
 		$return .= db_error();
 	} else {
 		echo '
-			<DL COMPACT>';
+			<UL>';
 		for ($i=0; $i<$rows; $i++) {
-			if ($show_summaries) {
-				//get the first paragraph of the story
-				$arr=explode("\n",db_result($result,$i,'details'));
-				//if the first paragraph is short, and so are following paragraphs, add the next paragraph on
-				if ((strlen($arr[0]) < 200) && (strlen($arr[1].$arr[2]) < 300) && (strlen($arr[2]) > 5)) {
-					$summ_txt='<DD><FONT SIZE="-1">'. util_make_links( $arr[0].'<BR>'.$arr[1].'<BR>'.$arr[2] ).'</FONT></DD>';
-				} else {
-					$summ_txt='<DD><FONT SIZE="-1">'. util_make_links( $arr[0] ).'</FONT></DD>';
-				}
-				//show the project name 
-				$proj_name=' &nbsp; - &nbsp; <A HREF="/projects/'. strtolower(db_result($result,$i,'unix_group_name')) .'/">'. db_result($result,$i,'group_name') .'</A>';
-			} else {
-				$proj_name='';
-				$summ_txt='';
-			}
 			$return .= '
-				<DT><A HREF="/forum/forum.php?forum_id='. db_result($result,$i,'forum_id') .'"><B>'. db_result($result,$i,'summary') . '</B></A>
-				<BR><B><FONT SIZE="-1">'. db_result($result,$i,'user_name') .' - '.
-					date($sys_datefmt,db_result($result,$i,'date')) . $proj_name . '</FONT></B>
-				'. $summ_txt .'<BR>&nbsp;';
+				<LI><A HREF="/forum/forum.php?forum_id='.db_result($result,$i,'forum_id').'"><B>'.stripslashes(db_result($result,$i,'summary')).'</B></A>
+				<BR>&nbsp; &nbsp; &nbsp;<FONT SIZE="-1">'.db_result($result,$i,'user_name').' - '.
+					date($sys_datefmt,db_result($result,$i,'date')).'</FONT></LI>';
 		}
 		echo '
-			</DL>';
+			</UL>';
 	}
-	if ($group_id != 714) {
-		//you can only submit news from a project now
-		//you used to be able to submit general news
-		$return .= '<P><A HREF="/news/submit.php?group_id='.$group_id.'"><FONT SIZE="-1">[Submit News]</FONT></A><BR>&nbsp;';
+	$return .= '<P><A HREF="/news/submit.php?group_id='.$group_id.'"><B>Submit News</B></A><BR>&nbsp;';
+
+	if ($group_id == 714) {
+		$return .= html_box1_bottom(0);
 	}
-	return $return;
-}
 
-function news_portal_latest($group_id=0,$limit=5,$show_summaries=true) {
-	global $sys_datefmt;
-	/*
-		Show a the latest news for a portal 
-	*/
-
-	$sql="SELECT groups.group_name,groups.unix_group_name,user.user_name,news_bytes.forum_id,news_bytes.summary,news_bytes.date,news_bytes.details ".
-		"FROM user,news_bytes,groups,portal_news ".
-		"WHERE portal_news.portal_id='$group_id' ".
-		"AND user.user_id=news_bytes.submitted_by ".
-		"AND portal_news.news_id=news_bytes.id ".
-		"AND news_bytes.group_id=groups.group_id ".
-		"ORDER BY date DESC LIMIT $limit";
-
-	$result=db_query($sql);
-	$rows=db_numrows($result);
-
-	if (!$result || $rows < 1) {
-		$return .= '<H3>No News Items Found</H3>';
-		$return .= db_error();
-	} else {
-		echo '
-			<DL COMPACT>';
-		for ($i=0; $i<$rows; $i++) {
-			if ($show_summaries) {
-				//get the first paragraph of the story
-				$arr=explode("\n",db_result($result,$i,'details'));
-				if ((strlen($arr[0]) < 200) && (strlen($arr[1].$arr[2]) < 300) && (strlen($arr[2]) > 5)) {
-					$summ_txt='<DD><FONT SIZE="-1">'. util_make_links( $arr[0].'<BR>'.$arr[1].'<BR>'.$arr[2] ).'</FONT></DD>';
-				} else {
-					$summ_txt='<DD><FONT SIZE="-1">'. util_make_links( $arr[0] ).'</FONT></DD>';
-				}
-
-				//show the project name
-				$proj_name=' &nbsp; - &nbsp; <A HREF="/projects/'. strtolower(db_result($result,$i,'unix_group_name')) .'/">'. db_result($result,$i,'group_name') .'</A>';
-			} else {
-				$proj_name='';
-				$summ_txt='';
-			}
-			$return .= '
-				<DT><A HREF="/forum/forum.php?forum_id='. db_result($result,$i,'forum_id') .'"><B>'. db_result($result,$i,'summary') . '</B></A>
-				<BR><B><FONT SIZE="-1">'. db_result($result,$i,'user_name') .' - '.
-					date($sys_datefmt,db_result($result,$i,'date')) . $proj_name . '</FONT></B>
-				'. $summ_txt .'<BR>&nbsp;';
-		}
-		echo '
-			</DL>';
-	}
 	return $return;
 }
 

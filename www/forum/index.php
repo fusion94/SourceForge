@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.15 2000/07/02 17:03:31 tperdue Exp $
+// $Id: index.php,v 1.13 2000/01/13 18:36:35 precision Exp $
 
 require('pre.php');
 require('../forum/forum_utils.php');
@@ -38,15 +38,18 @@ if ($group_id) {
 		Put the result set (list of forums for this group) into a column with folders
 	*/
 
+	echo '<table WIDTH="100%" border=0>
+		<TR><TD VALIGN="TOP">'; 
+
 	for ($j = 0; $j < $rows; $j++) { 
-		echo '<A HREF="forum.php?forum_id='.db_result($result, $j, 'group_forum_id').'">'.
+		echo '<A HREF="forum.php?forum_id='.db_result($result, $j, 'group_forum_id').'&et=0">'.
 			'<IMG SRC="/images/ic/cfolder15.png" HEIGHT=13 WIDTH=15 BORDER=0> &nbsp;'.
 			db_result($result, $j, 'forum_name').'</A> ';
 		//message count
 		echo '('.db_result(db_query("SELECT count(*) FROM forum WHERE group_forum_id='".db_result($result, $j, 'group_forum_id')."'"),0,0).' msgs)';
 		echo "<BR>\n";
-		echo db_result($result,$j,'description').'<P>';
 	}
+	echo "</TD></TR></TABLE>";
 	forum_footer(array());
 
 } else {

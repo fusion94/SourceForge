@@ -109,7 +109,7 @@ function bug_data_add_history ($field_name,$old_value,$bug_id) {
 
 //
 //	Handles security
-/*
+//
 function bug_data_mass_update ($group_id,$bug_id,$status_id,$priority,$category_id,$assigned_to,$bug_group_id,$resolution_id) {
 	global $feedback;
 	//bug_id is an array of bugs that were checked. The other params are not arrays.
@@ -121,14 +121,14 @@ function bug_data_mass_update ($group_id,$bug_id,$status_id,$priority,$category_
 
 	}
 }
-*/
+
 //
 //       Handles security
 //
-function bug_data_handle_update ($group_id,$bug_id,$status_id,$priority,$category_id,$assigned_to,$summary,$bug_group_id,$resolution_id,$details,$dependent_on_task,$dependent_on_bug,$canned_response) {
+function bug_data_handle_update ($group_id,$bug_id,$status_id,$priority,$category_id,$assigned_to,$summary,$bug_group_id,$resolution_id,$details,$dependent_on_task,$dependent_on_bug) {
 	global $feedback;
 
-	if (!$group_id || !$bug_id || !$status_id || !$priority || !$category_id || !$assigned_to || !$summary || !$bug_group_id || !$resolution_id || !$canned_response) {
+	if (!$group_id || !$bug_id || !$status_id || !$priority || !$category_id || !$assigned_to || !$summary || !$bug_group_id || !$resolution_id) {
 		//force inclusion of parameters
 		exit_missing_param();
 	}
@@ -161,22 +161,6 @@ function bug_data_handle_update ($group_id,$bug_id,$status_id,$priority,$categor
 		{ bug_data_add_history ('resolution_id',db_result($result,0,'resolution_id'),$bug_id);  }
 
 	/*
-		Handle if canned response used
-	*/
-	if ($canned_response != 100) {
-		$sql="SELECT * FROM bug_canned_responses WHERE bug_canned_id='$canned_response'";
-		$res3=db_query($sql);
-
-		if ($res3 && db_numrows($res3) > 0) {
-			$details = addslashes(util_unconvert_htmlspecialchars(db_result($res3,0,'body')));
-			$feedback .= ' Canned Response Used ';
-		} else {
-			$feedback .= ' Unable to use Canned Response ';
-			echo db_error();
-		}
-	}
-
-	/*
 		Details field is handled a little differently
 	*/
 	if ($details != '')
@@ -200,14 +184,24 @@ function bug_data_handle_update ($group_id,$bug_id,$status_id,$priority,$categor
 	/*
 		DELETE THEN Insert the list of task dependencies
 	*/
-	bug_data_update_dependent_tasks($dependent_on_task,$bug_id);
+	$task_depend_count=count($dependent_on_task);
+	$toss=db_query("DELETE FROM bug_task_dependencies WHERE bug_id='$bug_id'");
+	for ($i=0; $i<$task_depend_count; $i++) {
+		$sql="INSERT INTO bug_task_dependencies VALUES ('','$bug_id','$dependent_on_task[$i]')";
+		//echo "\n$sql";
+		$result=db_query($sql);
+	}
 
 	/*
 		DELETE THEN Insert the list of bug dependencies
 	*/
-
-	bug_data_update_dependent_bugs($dependent_on_bug,$bug_id);
-
+	$bug_depend_count=count($dependent_on_bug);
+	$toss=db_query("DELETE FROM bug_bug_dependencies WHERE bug_id='$bug_id'");
+	for ($i=0; $i<$bug_depend_count; $i++) {
+		$sql="INSERT INTO bug_bug_dependencies VALUES ('','$bug_id','$dependent_on_bug[$i]')";
+		//echo "\n$sql";
+		$result=db_query($sql);
+	}
 
 	/*
 		Finally, update the bug itself
@@ -225,86 +219,12 @@ function bug_data_handle_update ($group_id,$bug_id,$status_id,$priority,$categor
 
 }
 
-function bug_data_insert_dependent_bugs($array,$bug_id) {
-	global $feedback;
-	/*
-		Insert the list of dependencies
-	*/
-	$depend_count=count($array);
-	if ($depend_count < 1) {
-		//if no tasks selected, insert task "none"
-		$sql="INSERT INTO bug_bug_dependencies VALUES ('','$bug_id','100')";
-		$result=db_query($sql);
-	} else {
-		for ($i=0; $i<$depend_count; $i++) {
-			if (($depend_count > 1) && ($array[$i]==100)) {
-				//don't insert the row if there's more
-				//than 1 item selected and this item is the "none task"
-			} else {
-				$sql="INSERT INTO bug_bug_dependencies VALUES ('','$bug_id','$array[$i]')";
-				//echo "\n$sql";
-				$result=db_query($sql);
-
-				if (!$result) {
-					$feedback .= ' ERROR inserting dependent_bugs '.db_error();
-				}
-			}
-		}
-	}
-}
-
-function bug_data_update_dependent_bugs($array,$bug_id) {
-	/*
-		DELETE THEN Insert the list of dependencies
-	*/
-	$toss=db_query("DELETE FROM bug_bug_dependencies WHERE bug_id='$bug_id'");
-	bug_data_insert_dependent_bugs($array,$bug_id);
-}
-
-function bug_data_insert_dependent_tasks($array,$bug_id) {
-	global $feedback;
-	/*
-		Insert the list of dependencies
-	*/
-	$depend_count=count($array);
-	if ($depend_count < 1) {
-		//if no tasks selected, insert task "none"
-		$sql="INSERT INTO bug_task_dependencies VALUES ('','$bug_id','100')";
-		$result=db_query($sql);
-	} else {
-		for ($i=0; $i<$depend_count; $i++) {
-			if (($depend_count > 1) && ($array[$i]==100)) {
-				//don't insert the row if there's more
-				//than 1 item selected and this item is the "none task"
-			} else {
-				$sql="INSERT INTO bug_task_dependencies VALUES ('','$bug_id','$array[$i]')";
-				//echo "\n$sql";
-				$result=db_query($sql);
-
-				if (!$result) {
-					$feedback .= ' ERROR inserting dependent_tasks '.db_error();
-				}
-			}
-		}
-	}
-}
-
-function bug_data_update_dependent_tasks($array,$bug_id) {
-	/*
-		DELETE THEN Insert the list of dependencies
-	*/
-	$toss=db_query("DELETE FROM bug_task_dependencies WHERE bug_id='$bug_id'");
-	bug_data_insert_dependent_tasks($array,$bug_id);
-}
-
 function bug_data_create_bug($group_id,$summary,$details,$category_id,$bug_group_id) {
 	if (!$category_id) {
-		//default category
 		$category_id=100;
 	}
 
 	if (!$bug_group_id) {
-		//default group
 		$bug_group_id=100;
 	}
 
@@ -323,18 +243,8 @@ function bug_data_create_bug($group_id,$summary,$details,$category_id,$bug_group
 		"submitted_by,assigned_to,date,summary,details,bug_group_id,resolution_id) ".
 		"VALUES ('0','$group_id','1','5','$category_id','$user','100','".time()."','".
 		htmlspecialchars($summary)."','".htmlspecialchars($details)."','$bug_group_id','100')";
-	$result=db_query($sql);
-	$bug_id=db_insertid($result);
 
-	/*
-		set up the default rows in the dependency table
-		both rows will be dependent on id=100
-	*/
-	bug_data_insert_dependent_bugs($array,$bug_id);
-	bug_data_insert_dependent_tasks($array,$bug_id);
-
-	//now return the bug_id
-	return $bug_id;
+	return db_query($sql);
 }
 
 function bug_data_get_status_name($string) {
@@ -389,17 +299,6 @@ function bug_data_get_group_name($bug_group_id) {
 	} else {
 		return 'Error - Not Found';
 	}
-}
-
-function bug_data_get_canned_responses ($group_id) {
-	/*
-		Show defined and site-wide responses
-	*/
-	$sql="SELECT bug_canned_id,title,body FROM bug_canned_responses WHERE ".
-		"(group_id='$group_id' OR group_id='0')";
-
-	// return handle for use by select box
-	return db_query($sql);
 }
 
 ?>

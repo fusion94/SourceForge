@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: delay.php,v 1.5 2000/05/17 21:51:55 tperdue Exp $
+// $Id: delay.php,v 1.4 2000/01/13 18:36:35 precision Exp $
 
 require "pre.php";    
 site_header(array(title=>"Documentation - The Delay"));
@@ -29,5 +29,5 @@ on the main documentation page is approximate.
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

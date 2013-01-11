@@ -4,12 +4,13 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.188 2000/07/13 17:20:50 tperdue Exp $
+// $Id: index.php,v 1.178 2000/04/19 13:03:55 tperdue Exp $
 
 require ('pre.php');    // Initial db and session library, opens session
 require ('cache.php');
 require($DOCUMENT_ROOT.'/forum/forum_utils.php');
 
+//generic_header(array('title'=>'Welcome'));
 site_header(array('title'=>'Welcome'));
 
 ?>
@@ -20,13 +21,9 @@ site_header(array('title'=>'Welcome'));
 <TABLE width=100% cellpadding=0 cellspacing=0 border=0>
 <TR><TD width="65%" VALIGN="TOP">
 
-<H3>News</H3>
-<P>
 <?php
-echo news_show_latest(714,5,true); ?>
-<P>
-<HR>
-<P>
+echo news_show_latest(); ?>
+
 SourceForge is a <B>free service to
 <A href="http://www.opensource.org">Open Source</A> developers</B> offering
 easy access to the best in CVS, mailing lists, bug tracking, message boards/forums,

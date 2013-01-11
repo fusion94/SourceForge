@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editjob.php,v 1.11 2000/06/05 12:20:31 tperdue Exp $
+// $Id: editjob.php,v 1.8 2000/05/03 10:53:35 tperdue Exp $
 
 require('pre.php');
 require('../people/people_utils.php');
@@ -117,8 +117,6 @@ if ($group_id && (user_ismember($group_id, 'A'))) {
 	*/
 	people_header(array('title'=>'Edit a job for your project'));
 
-	//html_tabs('home',$group_id);
-
 	//for security, include group_id
 	$sql="SELECT * FROM people_job WHERE job_id='$job_id' AND group_id='$group_id'";
 	$result=db_query($sql);
@@ -133,8 +131,6 @@ if ($group_id && (user_ismember($group_id, 'A'))) {
 		<P>
 		Now you can edit/change the list of skills attached to this posting. 
 		Developers will be able to match their skills with your requirements. 
-		<P>
-		All postings are automatically closed after two weeks.
 		<P>
 		<FORM ACTION="'.$PHP_SELF.'" METHOD="POST">
 		<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">

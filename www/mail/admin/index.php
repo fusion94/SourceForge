@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.28 2000/07/12 21:01:40 tperdue Exp $
+// $Id: index.php,v 1.26 2000/04/28 08:53:34 tperdue Exp $
 
 require('pre.php');
 require('../mail_utils.php');
@@ -18,8 +18,8 @@ if ($group_id && user_ismember($group_id,'A')) {
 
 		if ($add_list) {
 			$list_password = substr(md5($GLOBALS['session_hash'] . time() . rand(0,40000)),0,16);
-			if (!$list_name || strlen($list_name) < 4) {
-				exit_error('Error','Must Provide List Name That Is 4 or More Characters Long');
+			if (!$list_name || strlen($list_name) < 5) {
+				exit_error('Error','Must Provide List Name That Is 5 or More Characters Long');
 			}
 			$new_list_name=strtolower(group_getunixname($group_id).'-'.$list_name);
 
@@ -54,17 +54,17 @@ if ($group_id && user_ismember($group_id,'A')) {
 				// mail password to admin
 				$message = "A mailing list will be created on SourceForge in 6-24 hours \n"
 					. "and you are the list administrator.\n\n"
-					. "This list is: $new_list_name@" .$GLOBALS['sys_lists_host'] ."\n\n"
+					. "This list is: $new_list_name@lists.sourceforge.net\n\n"
 					. "Your mailing list info is at:\n"
-					. "http://".$GLOBALS['sys_lists_host']."/mailman/listinfo/$new_list_name\n\n"
+					. "http://mail1.sourceforge.net/mailman/listinfo/$new_list_name\n\n"
 					. "List administration can be found at:\n"
-					. "http://".$GLOBALS['sys_lists_host']."/mailman/admin/$new_list_name\n\n"
+					. "http://mail1.sourceforge.net/mailman/admin/$new_list_name\n\n"
 					. "Your list password is: $list_password\n"
 					. "You are encouraged to change this password as soon as possible.\n\n"
 					. "Thank you for registering your project with SourceForge.\n\n"
 					. " -- the SourceForge staff\n";
 
-				mail ($row_email['email'],"SourceForge New Mailing List",$message,"From: admin@$GLOBALS[sys_default_domain]");
+				mail ($row_email[email],"SourceForge New Mailing List",$message,"From: admin@sourceforge.net");
  
 				$feedback .= " Email sent with details to: $row_email[email] ";
 			}
@@ -94,7 +94,7 @@ if ($group_id && user_ismember($group_id,'A')) {
 		echo '
 			<H2>Add a Mailing List</H2>
 			<P>Lists are named in this manner: 
-			<BR><B>projectname-listname@<?php echo $GLOBALS['sys_lists_host']; ?></B>
+			<BR><B>projectname-listname@lists.sourceforge.net</B>
 			<P>It will take <B><FONT COLOR="RED">6-24 Hours</FONT></B> for your list 
 			to be created.
 			<P>';
@@ -178,7 +178,7 @@ if ($group_id && user_ismember($group_id,'A')) {
 						<FONT SIZE="-1">
 						<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Update Status">
 					</TD>
-					<TD><A href="http://".<?php echo $GLOBALS['sys_lists_host']; ?>."/mailman/admin/'
+					<TD><A href="http://lists.sourceforge.net/mailman/admin/'
 					.db_result($result,$i,'list_name').'">[Administrate this list in GNU Mailman]</A>
 					</TD></TR></FORM>';
 			}

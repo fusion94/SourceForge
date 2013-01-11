@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: message.php,v 1.39 2000/07/01 19:02:25 tperdue Exp $
+// $Id: message.php,v 1.34 2000/01/13 18:36:35 precision Exp $
 
 require('pre.php');
 require('vote_function.php');
@@ -12,6 +12,10 @@ require('../forum/forum_utils.php');
 
 if ($msg_id) {
  
+	if ($post_message == "y") {
+		post_message($thread_id, $is_followup_to, $subject, $body, $forum_id);
+	}
+
 	/*
 		Figure out which group this message is in, for the sake of the admin links
 	*/
@@ -44,19 +48,16 @@ if ($msg_id) {
 	echo "<TR><TD BGCOLOR=\"E3E3E3\">\n";
 	echo "BY: ".db_result($result,0, "user_name")."<BR>";
 	echo "DATE: ".date($sys_datefmt,db_result($result,0, "date"))."<BR>";
-	echo "SUBJECT: ". db_result($result,0, "subject")."<P>";
-	echo util_make_links(nl2br(db_result($result,0, 'body')));
+	echo "SUBJECT: ".stripslashes(db_result($result,0, "subject"))."<P>";
+	echo stripslashes(util_make_links(ereg_replace("\n","<BR>",db_result($result,0, 'body'))));
 	echo "</TD></TR></TABLE>";
-//	echo '<BR><CENTER>';
-//	vote_show_release_radios ($msg_id,3);
+	echo '<BR><CENTER>';
+	vote_show_release_radios ($msg_id,3);
 
 	/*
 		Show entire thread
 	*/
 	echo '<BR>&nbsp;<P><H3>Thread View</H3>';
-
-	//highlight the current message in the thread list
-	$current_message=$msg_id;
 	echo show_thread(db_result($result,0, 'thread_id'));
 
 	/*
@@ -75,6 +76,4 @@ if ($msg_id) {
 
 }
 
-forum_footer(array()); 
-
-?>
+forum_footer(array()); ?>

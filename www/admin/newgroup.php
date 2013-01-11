@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: newgroup.php,v 1.13 2000/06/17 08:24:35 tperdue Exp $
+// $Id: newgroup.php,v 1.11 2000/03/07 13:20:24 tperdue Exp $
 
 require "pre.php";    
 session_require(array('group'=>'1','admin_flags'=>'A'));
@@ -20,7 +20,7 @@ function submit_valid()	{
 	}
 	
 	if ($HTTP_POST_VARS['form_groupname']) {
-		db_query("INSERT INTO groups (group_name,is_public) "
+		db_query("INSERT INTO groups (group_name,public) "
 			. "values ('$HTTP_POST_VARS[form_groupname]',$HTTP_POST_VARS[form_public])");
 		return 1;
 	} else {
@@ -52,5 +52,5 @@ if (submit_valid()) {
 <?php
 }
 site_footer(array());
-
+site_cleanup(array());
 ?>

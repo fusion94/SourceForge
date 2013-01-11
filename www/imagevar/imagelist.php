@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: imagelist.php,v 1.5 2000/05/17 21:51:55 tperdue Exp $
+// $Id: imagelist.php,v 1.4 2000/01/20 11:50:06 dtype Exp $
 
 require "pre.php";    
 
@@ -24,5 +24,5 @@ while ($row_image = db_fetch_array($res_image)) {
 }
 
 site_footer(array());
-
+site_cleanup(array());
 ?>

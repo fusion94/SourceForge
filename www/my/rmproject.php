@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: rmproject.php,v 1.4 2000/07/12 21:01:40 tperdue Exp $
+// $Id: rmproject.php,v 1.2 2000/05/02 13:08:51 tperdue Exp $
 
 /*
 
@@ -26,7 +26,7 @@ if (user_isloggedin()) {
 
 	if (ereg("A",$row_flags['admin_flags'],$ereg_match)) {
 		exit_error("Error Removing Group Member","You cannot remove a group administrator. "
-		. "Email <A href=\"mailto:admin@$GLOBALS[HTTP_HOST]\">admin@$GLOBALS[HTTP_HOST]</A> "
+		. "Email <A href=\"mailto:admin@sourceforge.org\">admin@sourceforge.org</A> "
 		. "to request a change in project administration.");
 	} 
        
@@ -44,13 +44,13 @@ if (user_isloggedin()) {
 	if($to) {
 		$to = substr($to,0,-1);
 	}
-	$other = "From: noreply@$GLOBALS[sys_default_domain]";
+	$other = "From: noreply@sourceforge.net";
 	$subject = "[SourceForge] $user_id has been removed from project $group_id";
 	$body = "This message is being sent to notify the administrator(s) of".
 		"\nproject ID $group_id that user ID $user_id has chosen to".
 		"\nremove him/herself from the project.".
 		"\n\nFollow this link to see the current members of your project:".
-		"\nhttp://$GLOBALS[sys_default_domain]/project/memberlist.php?group_id=$group_id".
+		"\nhttp://sourceforge.net/project/memberlist.php?group_id=$group_id".
 		"\n\n";
 
 	mail($to,$subject,$body,$other);

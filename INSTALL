@@ -1,9 +1,6 @@
 There really is no SourceForge install procedure, since our
 site is spread across 21 servers.
 
-Visit http://sourceforge.net/forum/?group_id=1 and discuss 
-issues in the "Offsite Talk" forum.
-
 You can play with pieces of the site by setting up Apache/PHP
 and pointing the document root to this distribution. It will
 be necessary as well to setup MySQL and setup tables as described

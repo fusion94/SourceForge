@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: lostpw.php,v 1.7 2000/05/17 21:51:43 tperdue Exp $
+// $Id: lostpw.php,v 1.6 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
-site_header(array('title'=>"Lost Account Password"));
+site_header(array(title=>"Lost Account Password"));
 ?>
 
 <P><B>Lost your password?</B>
@@ -31,5 +31,5 @@ Login Name:
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

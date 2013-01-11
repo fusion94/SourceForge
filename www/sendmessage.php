@@ -4,9 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: sendmessage.php,v 1.12 2000/07/12 21:01:40 tperdue Exp $
+// $Id: sendmessage.php,v 1.8 2000/04/25 13:14:11 tperdue Exp $
 
 require ('pre.php');    
+site_header(array('title'=>'SorceForge Staff'));
 
 if (!$toaddress && !$touser) {
 	exit_error('Error','Error - some variables were not provided');
@@ -23,17 +24,12 @@ if ($touser) {
 	}
 }
 
-if ($toaddress && !eregi($GLOBALS['sys_default_domain'],$toaddress)) {
-	exit_error("error","You can only send to addresses @".$GLOBALS['sys_default_domain']);
-}
-
-
 if ($send_mail) {
-	if (!$subject || !$body || !$name || !$email) {
+	if (!$from_email || !$from_name || !$subject || !$body) {
 		/*
 			force them to enter all vars
 		*/
-		exit_missing_param();
+		exit_error('Error','Error - Go back and fill in all required info.');
 	}
 
 	if ($toaddress) {
@@ -41,9 +37,8 @@ if ($send_mail) {
 			send it to the toaddress
 		*/
 		$to=eregi_replace('_maillink_','@',$toaddress);
-		$from='From: '. $name .' <'. $email .'>';
+		$from='From: '.$from_name.' <'.$from_email.'>';
 		mail($to, stripslashes($subject),stripslashes($body) ,$from);
-		site_header(array('title'=>'SorceForge Contact'));
 		echo '<H2>Message sent</H2>';
 		site_footer(array());
 		exit;
@@ -52,19 +47,15 @@ if ($send_mail) {
 			figure out the user's email and send it there
 		*/
 		$to=db_result($result,0,'email');
-		$from='From: '. $name .' <'. $email .'>';
+		$from='From: '.$from_name.' <'.$from_email.'>';
 		mail($to, stripslashes($subject), stripslashes($body),$from);
-		site_header(array('title'=>'SorceForge Contact'));
 		echo '<H2>Message sent</H2>';
 		site_footer(array());
 		exit;
 	}
 }
 
-site_header(array('title'=>'SorceForge Staff'));
-
 ?>
-
 <H2>Send a Message to <?php 
 
 if ($toaddress) {
@@ -89,10 +80,10 @@ about a project, include your <B>project id</B> (<B>group_id</B>) and <B>Project
 <INPUT TYPE="HIDDEN" NAME="touser" VALUE="<?php echo $touser; ?>">
 
 <B>Your Email Address:</B><BR>
-<INPUT TYPE="TEXT" NAME="email" SIZE="30" MAXLENGTH="40" VALUE="">
+<INPUT TYPE="TEXT" NAME="from_email" SIZE="25" MAXLENGTH="40" VALUE="<?php echo ((user_isloggedin())?user_getname().'@users.sourceforge.net':''); ?>">
 <P>
 <B>Your Name:</B><BR>
-<INPUT TYPE="TEXT" NAME="name" SIZE="30" MAXLENGTH="40" VALUE="">
+<INPUT TYPE="TEXT" NAME="from_name" SIZE="20" MAXLENGTH="40" VALUE="<?php echo ((user_isloggedin())?user_getname():''); ?>">
 <P>
 <B>Subject:</B><BR>
 <INPUT TYPE="TEXT" NAME="subject" SIZE="30" MAXLENGTH="40" VALUE="<?php echo $subject; ?>">
@@ -106,5 +97,4 @@ about a project, include your <B>project id</B> (<B>group_id</B>) and <B>Project
 </FORM>
 <?php
 site_footer(array());
-
 ?>

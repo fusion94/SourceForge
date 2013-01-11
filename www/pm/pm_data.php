@@ -44,30 +44,30 @@ function pm_data_get_statuses () {
 }
 
 function pm_data_get_status_name($string) {
-	/*
-		simply return status_name from bug_status
-	*/
-	$sql="SELECT * FROM project_status WHERE status_id='$string'";
-	$result=db_query($sql);
-	if ($result && db_numrows($result) > 0) {
-		return db_result($result,0,'status_name');
-	} else {
-		return 'Error - Not Found';
-	}
+        /*
+                simply return status_name from bug_status
+        */
+        $sql="SELECT * FROM project_status WHERE status_id='$string'";
+        $result=db_query($sql);
+        if ($result && db_numrows($result) > 0) {
+                return db_result($result,0,'status_name');
+        } else {
+                return 'Error - Not Found';
+        }
 }
 
 function pm_data_get_group_name($group_project_id) {
-	/*
-		Simply return the resolution name for this id
-	*/
+        /*
+                Simply return the resolution name for this id
+        */
 
-	$sql="SELECT * FROM project_group_list WHERE group_project_id='$group_project_id'";
-	$result=db_query($sql);
-	if ($result && db_numrows($result) > 0) {
-		return db_result($result,0,'project_name');
-	} else {
-		return 'Error - Not Found';
-	}
+        $sql="SELECT * FROM project_group_list WHERE group_project_id='$group_project_id'";
+        $result=db_query($sql);
+        if ($result && db_numrows($result) > 0) {
+                return db_result($result,0,'project_name');
+        } else {
+                return 'Error - Not Found';
+        }
 }
 
 function pm_data_create_history ($field_name,$old_value,$project_task_id) {
@@ -91,23 +91,12 @@ function pm_data_insert_assigned_to($array,$project_task_id) {
 		Insert the people this task is assigned to
 	*/
 	$user_count=count($array);
-	if ($user_count < 1) {
-		//if no users selected, insert user "none"
-		$sql="INSERT INTO project_assigned_to VALUES ('','$project_task_id','100')";
+	for ($i=0; $i<$user_count; $i++) {
+		$sql="INSERT INTO project_assigned_to VALUES ('','$project_task_id','$array[$i]')";
+		//echo "\n$sql";
 		$result=db_query($sql);
-	} else {
-		for ($i=0; $i<$user_count; $i++) {
-			if (($user_count > 1) && ($array[$i]==100)) {
-				//don't insert the row if there's more 
-				//than 1 item selected and this item is the "none user"
-			} else {
-				$sql="INSERT INTO project_assigned_to VALUES ('','$project_task_id','$array[$i]')";
-				//echo "\n$sql";
-				$result=db_query($sql);
-				if (!$result) {
-					$feedback .= ' ERROR inserting project_assigned_to '.db_error();
-				}
-			}
+		if (!$result) {
+			$feedback .= ' ERROR inserting project_assigned_to '.db_error();
 		}
 	}
 }
@@ -126,24 +115,13 @@ function pm_data_insert_dependent_tasks($array,$project_task_id) {
 		Insert the list of dependencies
 	*/
 	$depend_count=count($array);
-	if ($depend_count < 1) {
-		//if no tasks selected, insert task "none"
-		$sql="INSERT INTO project_dependencies VALUES ('','$project_task_id','100')";
+	for ($i=0; $i<$depend_count; $i++) {
+		$sql="INSERT INTO project_dependencies VALUES ('','$project_task_id','$array[$i]')";
+		//echo "\n$sql";
 		$result=db_query($sql);
-	} else {
-		for ($i=0; $i<$depend_count; $i++) {
-			if (($depend_count > 1) && ($array[$i]==100)) {
-				//don't insert the row if there's more
-				//than 1 item selected and this item is the "none task"
-			} else {
-				$sql="INSERT INTO project_dependencies VALUES ('','$project_task_id','$array[$i]')";
-				//echo "\n$sql";
-				$result=db_query($sql);
-	
-				if (!$result) {
-					$feedback .= ' ERROR inserting dependent_tasks '.db_error();
-				}
-			}
+
+		if (!$result) {
+			$feedback .= ' ERROR inserting dependent_tasks '.db_error();
 		}
 	}
 }

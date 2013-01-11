@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: mostactive.php,v 1.4 2000/06/17 09:11:08 tperdue Exp $
+// $Id: mostactive.php,v 1.3 2000/05/04 00:46:00 tperdue Exp $
 
 require ('pre.php');    
 
@@ -16,14 +16,14 @@ if ($type == 'week') {
 	$sql="SELECT groups.group_name,groups.group_id,project_weekly_metric.ranking,project_weekly_metric.percentile ".
 		"FROM groups,project_weekly_metric ".
 		"WHERE groups.group_id=project_weekly_metric.group_id AND ".
-		"groups.is_public=1 ".
+		"groups.public=1 ".
 		"ORDER BY ranking ASC LIMIT $offset,50";
 	$title = 'Most Active This Week';
 } else {
 	$sql="SELECT groups.group_name,groups.group_id,project_metric.ranking,project_metric.percentile ".
 		"FROM groups,project_metric ".
 		"WHERE groups.group_id=project_metric.group_id AND ".
-		"groups.is_public=1 ".
+		"groups.public=1 ".
 		"ORDER BY ranking ASC LIMIT $offset,50";
 	$title = 'Most Active All Time';
 }

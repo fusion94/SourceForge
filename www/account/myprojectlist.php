@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: myprojectlist.php,v 1.7 2000/05/17 21:51:43 tperdue Exp $
+// $Id: myprojectlist.php,v 1.6 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
 site_header(array(title=>"My Project Listing"));
@@ -33,5 +33,5 @@ while ($row_proj = db_fetch_array($res_proj)) {
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

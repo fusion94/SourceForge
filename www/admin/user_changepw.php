@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: user_changepw.php,v 1.10 2000/05/17 21:51:55 tperdue Exp $
+// $Id: user_changepw.php,v 1.9 2000/03/07 13:20:24 tperdue Exp $
 
 require "pre.php";    
 require "account.php";
@@ -69,5 +69,5 @@ if (register_valid()) {
 <?php
 }
 site_footer(array());
-
+site_cleanup(array());
 ?>

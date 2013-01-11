@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: faq.php,v 1.31 2000/05/17 21:51:55 tperdue Exp $
+// $Id: faq.php,v 1.30 2000/04/25 09:30:06 dtype Exp $
 
 require "pre.php";    
 site_header(array(title=>"Frequently Asked Questions (FAQ)"));
@@ -356,5 +356,5 @@ after they see what I've written.
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

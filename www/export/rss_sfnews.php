@@ -19,9 +19,9 @@ print " <channel>\n";
 print "  <copyright>Copyright 1999-2000 VA Linux Systems, Inc.</copyright>\n";
 print "  <pubDate>".gmdate('D, d M Y g:i:s',time())." GMT</pubDate>\n";
 print "  <description>SourceForge Project News Highlights</description>\n";
-print "  <link>http://$GLOBALS[sys_default_domain]</link>\n";
+print "  <link>http://sourceforge.net</link>\n";
 print "  <title>SourceForge Project News</title>\n";
-print "  <webMaster>webmaster@$GLOBALS[sys_default_domain]</webMaster>\n";
+print "  <webMaster>webmaster@sourceforge.net</webMaster>\n";
 print "  <language>en-us</language>\n";
 // ## item outputs
 while ($row = db_fetch_array($res)) {
@@ -29,9 +29,9 @@ while ($row = db_fetch_array($res)) {
 	print "   <title>".htmlspecialchars($row[summary])."</title>\n";
 	// if news group, link is main page
 	if ($row[group_id] != 714) {
-		print "   <link>http://$GLOBALS[sys_default_domain]/project/?group_id=$row[group_id]</link>\n";
+		print "   <link>http://sourceforge.net/project/?group_id=$row[group_id]</link>\n";
 	} else {
-		print "   <link>http://$GLOBALS[sys_default_domain]/</link>\n";
+		print "   <link>http://sourceforge.net/</link>\n";
 	}
 	print "   <description>".rss_description($row[details])."</description>\n";
 	print "  </item>\n";

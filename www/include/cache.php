@@ -4,13 +4,13 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: cache.php,v 1.39 2000/07/12 21:06:00 tperdue Exp $
+// $Id: cache.php,v 1.36 2000/04/13 09:11:07 tperdue Exp $
 
 
 // #################################### function cache_display
 
 function cache_display($name,$function,$time) {
-	$filename = $GLOBALS['sf_cache_dir']."/sfcache_$name.sf";
+	$filename = "/sfcache/sfcache_$name.sf";
 
 	while ((filesize($filename)<=1) || ((time() - filectime($filename)) > $time)) {
 		// file is non-existant or expired, must redo, or wait for someone else to
@@ -59,7 +59,7 @@ function cache_display($name,$function,$time) {
 }
 
 function cache_get_new_data($function) {
-	$furl=fopen("http://$GLOBALS[sys_default_domain]/write_cache.php?function=".urlencode($function),'r');
+	$furl=fopen("http://localhost/write_cache.php?function=".urlencode($function),'r');
 	return stripslashes(fread($furl,200000));
 }
 ?>

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: why.php,v 1.4 2000/05/17 21:51:55 tperdue Exp $
+// $Id: why.php,v 1.3 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 site_header(array(title=>"Why Register?"));
@@ -61,6 +61,6 @@ interest from the community, we will obtain more computers for the project.
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>
 

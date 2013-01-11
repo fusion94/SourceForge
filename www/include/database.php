@@ -4,13 +4,15 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: database.php,v 1.32 2000/06/01 09:04:56 tperdue Exp $
+// $Id: database.php,v 1.29 2000/04/19 13:19:27 tperdue Exp $
 //
 // /etc/local.inc includes the machine specific database connect info
 
+require ('/etc/local.inc');
+
 function db_connect() {
 	global $sys_dbhost,$sys_dbuser,$sys_dbpasswd,$conn;
-	$conn = @mysql_connect($sys_dbhost,$sys_dbuser,$sys_dbpasswd);
+	$conn = @mysql_pconnect($sys_dbhost,$sys_dbuser,$sys_dbpasswd);
 	#return $conn;
 }
 

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.56 2000/06/14 00:03:18 tperdue Exp $
+// $Id: index.php,v 1.54 2000/01/13 18:36:36 precision Exp $
 
 require('pre.php');
 require('../pm/pm_utils.php');
@@ -24,30 +24,34 @@ if ($group_id) {
 	$result = db_query ($sql);
 	$rows = db_numrows($result); 
 	if (!$result || $rows < 1) {
-		echo "<H1>No Subprojects Found</H1>";
-		echo "<P>
-			<B>No subprojects have been set up, or you cannot view them.<P><FONT COLOR=RED>The Admin for this project ".
+		echo "<H1>No Projects found for ".group_getname($group_id)."</H1>";
+		echo "<P><B>No Projects have been set up, or you cannot view them. <FONT COLOR=RED>The Admin for this project ".
 			"will have to set up projects using the admin page</FONT></B>";
 		pm_footer(array());
 		exit;
 	}
 
 	echo '
-		<H3>Subprojects and Tasks</H3>
+		<H3>Projects and Tasks</H3>
 		<P>
-		Choose a Subproject and you can browse/edit/add tasks to it.
+		Choose a project and you can browse/edit/add tasks to it.
 		<P>';
 
 	/*
 		Put the result set (list of forums for this group) into a column with folders
 	*/
 
+	echo '
+		<table WIDTH="100%" border=0>
+			<TR><TD VALIGN="TOP">'; 
+
 	for ($j = 0; $j < $rows; $j++) { 
 		echo '
-		<A HREF="/pm/task.php?group_project_id='.db_result($result, $j, 'group_project_id').
-		'&group_id='.$group_id.'&func=browse"><IMG SRC="/images/ic/index.png" HEIGHT=13 WIDTH=15 BORDER=0> &nbsp;'.
-		db_result($result, $j, 'project_name').'</A><BR>';
+			<A HREF="/pm/task.php?group_project_id='.db_result($result, $j, 'group_project_id').
+			'&group_id='.$group_id.'&func=browse"><IMG SRC="/images/ic/index.png" HEIGHT=13 WIDTH=15 BORDER=0> &nbsp;'.
+			db_result($result, $j, 'project_name').'</A><BR>';
 	}
+	echo '</TD></TR></TABLE>';
 
 } else {
 	pm_header(array('title'=>'Choose a Group First'));

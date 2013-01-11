@@ -4,34 +4,14 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.26 2000/06/17 06:34:16 tperdue Exp $
+// $Id: index.php,v 1.24 2000/02/23 13:57:58 tperdue Exp $
 
 require('pre.php');
 require($DOCUMENT_ROOT.'/forum/forum_utils.php');
 
-if ($portal_id && user_ismember($portal_id,'A')) {
+if ($group_id && $group_id != 714 && user_ismember($group_id,'A')) {
 	/*
-
-		This is a simple page that portal admins
-			can access. It shows all news for all projects in this portal
-
-		The admin can then check a box and add the news item to their portal.
-
-		The admin cannot edit the news item unfortunately - only the project
-			admin can edit their news
-
-	*/
-
-} else if ($group_id && $group_id != 714 && user_ismember($group_id,'A')) {
-	/*
-
 		Per-project admin pages.
-
-		Shows their own news items so they can edit/update.
-
-		If their news is on the homepage, and they edit, it is removed from 
-			sf.net homepage.
-
 	*/
 	if ($post_changes) {
 		if ($approve) {
@@ -88,9 +68,9 @@ if ($portal_id && user_ismember($portal_id,'A')) {
                 <INPUT TYPE="RADIO" NAME="status" VALUE="4"> Delete<BR>
  
 		<B>Subject:</B><BR>
-		<INPUT TYPE="TEXT" NAME="summary" VALUE="'.db_result($result,0,'summary').'" SIZE="30" MAXLENGTH="60"><BR>
+		<INPUT TYPE="TEXT" NAME="summary" VALUE="'.stripslashes(stripslashes(db_result($result,0,'summary'))).'" SIZE="30" MAXLENGTH="60"><BR>
 		<B>Details:</B><BR>
-		<TEXTAREA NAME="details" ROWS="5" COLS="50" WRAP="SOFT">'.db_result($result,0,'details').'</TEXTAREA><P>
+		<TEXTAREA NAME="details" ROWS="5" COLS="50" WRAP="SOFT">'.stripslashes(stripslashes(db_result($result,0,'details'))).'</TEXTAREA><P>
 		<B>If this item is on the SourceForge home page and you edit it, it will be removed from the home page.</B><BR>
 		<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="SUBMIT">
 		</FORM>';
@@ -114,7 +94,7 @@ if ($portal_id && user_ismember($portal_id,'A')) {
 				echo '
 				<A HREF="/news/admin/?approve=1&id='.db_result($result,$i,'id').'&group_id='.
 					db_result($result,$i,'group_id').'">'.
-					db_result($result,$i,'summary').'</A><BR>';
+					stripslashes(db_result($result,$i,'summary')).'</A><BR>';
 			}
 		}
 
@@ -123,13 +103,7 @@ if ($portal_id && user_ismember($portal_id,'A')) {
 
 } else if (user_ismember(714,'A')) {
 	/*
-
 		News uber-user admin pages
-
-		Show all waiting news items except those already rejected.
-
-		Admin members of project #714 (news project) can edit/change/approve news items
-
 	*/
 	if ($post_changes) {
 		if ($approve) {
@@ -194,9 +168,9 @@ if ($portal_id && user_ismember($portal_id,'A')) {
 		<INPUT TYPE="RADIO" NAME="status" VALUE="0"> Do Nothing<BR>
 		<INPUT TYPE="RADIO" NAME="status" VALUE="2" CHECKED> Delete<BR>
 		<B>Subject:</B><BR>
-		<INPUT TYPE="TEXT" NAME="summary" VALUE="'.db_result($result,0,'summary').'" SIZE="30" MAXLENGTH="60"><BR>
+		<INPUT TYPE="TEXT" NAME="summary" VALUE="'.stripslashes(stripslashes(db_result($result,0,'summary'))).'" SIZE="30" MAXLENGTH="60"><BR>
 		<B>Details:</B><BR>
-		<TEXTAREA NAME="details" ROWS="5" COLS="50" WRAP="SOFT">'.db_result($result,0,'details').'</TEXTAREA><BR>
+		<TEXTAREA NAME="details" ROWS="5" COLS="50" WRAP="SOFT">'.stripslashes(stripslashes(db_result($result,0,'details'))).'</TEXTAREA><BR>
 		<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="SUBMIT">
 		</FORM>';
 
@@ -217,7 +191,7 @@ if ($portal_id && user_ismember($portal_id,'A')) {
 				<P>';
 			for ($i=0; $i<$rows; $i++) {
 				echo '
-				<A HREF="/news/admin/?approve=1&id='.db_result($result,$i,'id').'">'.db_result($result,$i,'summary').'</A><BR>';
+				<A HREF="/news/admin/?approve=1&id='.db_result($result,$i,'id').'">'.stripslashes(db_result($result,$i,'summary')).'</A><BR>';
 			}
 		}
 
@@ -238,7 +212,7 @@ if ($portal_id && user_ismember($portal_id,'A')) {
 				<P>';
 			for ($i=0; $i<$rows; $i++) {
 				echo '
-				<A HREF="/news/admin/?approve=1&id='.db_result($result,$i,'id').'">'.db_result($result,$i,'summary').'</A><BR>';
+				<A HREF="/news/admin/?approve=1&id='.db_result($result,$i,'id').'">'.stripslashes(db_result($result,$i,'summary')).'</A><BR>';
 			}
 		}
 
@@ -258,7 +232,7 @@ if ($portal_id && user_ismember($portal_id,'A')) {
 				<P>';
 			for ($i=0; $i<$rows; $i++) {
 				echo '
-				<A HREF="/news/admin/?approve=1&id='.db_result($result,$i,'id').'">'.db_result($result,$i,'summary').'</A><BR>';
+				<A HREF="/news/admin/?approve=1&id='.db_result($result,$i,'id').'">'.stripslashes(db_result($result,$i,'summary')).'</A><BR>';
 			}
 		}
 

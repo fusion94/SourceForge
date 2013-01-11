@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: exit.php,v 1.16 2000/07/06 17:35:10 tperdue Exp $
+// $Id: exit.php,v 1.11 2000/04/17 16:59:54 tperdue Exp $
 
 function exit_error($title,$text) {
 	site_header(array('title'=>'Exiting with Error'));
@@ -18,10 +18,7 @@ function exit_permission_denied() {
 }
 
 function exit_not_logged_in() {
-	global $REQUEST_URI;
-	//instead of a simple error page, now take them to the login page
-	header ("Location: /account/login.php?return_to=".urlencode($REQUEST_URI));
-	//exit_error('Not Logged In','Sorry, you have to be <A HREF="/account/login.php">logged in</A> to view this page.');
+	exit_error('Not Logged In','Sorry, you have to be <A HREF="https://'.getenv('HTTP_HOST').'/account/login.php">logged in</A> to view this page.');
 }
 
 function exit_no_group() {
@@ -31,5 +28,6 @@ function exit_no_group() {
 function exit_missing_param() {
 	exit_error('Error - Missing Params','ERROR - Missing Required Parameteres.');
 }
+
 
 ?>

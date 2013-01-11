@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editaliases-new.php,v 1.10 2000/07/12 21:01:41 tperdue Exp $
+// $Id: editaliases-new.php,v 1.9 2000/01/26 10:44:32 tperdue Exp $
 
 require "pre.php";    
 require "account.php";
@@ -23,7 +23,7 @@ if ($GLOBALS[Submit]) {
 		$res = db_query("INSERT INTO mailaliases (group_id,domain,user_name,email_forward) VALUES "
 			. "($group_id,'$row_domain[http_domain]','$form_username','$form_email')");	
 		if (!$res) exit_error('Error in Query','This database query had an unknown failure. Please email
-admin@'.$GLOBALS['sys_default_domain'].' with details of the problem.');
+admin@sourceforge.net with details of the problem.');
 		session_redirect("/project/admin/editaliases.php?group_id=$group_id");
 	}
 }

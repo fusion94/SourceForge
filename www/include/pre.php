@@ -4,59 +4,32 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: pre.php,v 1.382 2000/07/12 21:01:40 tperdue Exp $
+// $Id: pre.php,v 1.345 2000/04/19 12:58:01 tperdue Exp $
 
 /*
 	redirect to proper hostname to get around certificate problem on IE 5
 */
-
-// Defines all of the Source Forge hosts, databases, etc.
-// This needs to be loaded first becuase the lines below depend upon it.
-require ('/etc/local.inc');
-
-if (($HTTP_HOST != $GLOBALS['sys_default_domain']) && ($HTTP_HOST != 'localhost')) {
+if (($HTTP_HOST != 'sourceforge.net') && ($HTTP_HOST != 'webdev.sourceforge.net') && ($HTTP_HOST != 'prodigy') && ($HTTP_HOST != 'localhost')) {
 	if ($SERVER_PORT == '443') {
-		header ("Location: https://".$GLOBALS['sys_default_domain']."$REQUEST_URI");
+		header ("Location: https://sourceforge.net$REQUEST_URI");
 	} else {
-		header ("Location: http://".$GLOBALS['sys_default_domain']."$REQUEST_URI");
+		header ("Location: http://sourceforge.net$REQUEST_URI");
 	}
 	exit;
 }
 
-//various html utilities
 require('utils.php');
-
-//database abstraction
 require('database.php');
-
-//various html libs like button bar
 require('html.php');
-
-//security library
 require('session.php');
-
-//user functions like get_name, logged_in, etc
 require('user.php');
-
-//group functions like get_name, etc
 require('group.php');
-
-//exit_error library
 require('exit.php');
-
-//left-hand nav library
 require('menu.php');
-
-//library to determine/set/get error flags
 require('error.php');
-
-//library to set up context help
 require('help.php');
 
-//library to determine browser settings
-require('browser.php');
-
-$sys_datefmt = "Y-M-d H:i";
+$sys_datefmt = "m/d/y H:i";
 
 
 // ###################################### header
@@ -64,6 +37,11 @@ $sys_datefmt = "Y-M-d H:i";
 
 function generic_header($params) {
 
+	// printable option
+	if ($GLOBALS['printable']) {
+		return;
+	}
+	
 	global $G_USER, $G_SESSION;
 	
 	if (!$params['title']) { 
@@ -130,8 +108,8 @@ function generic_header($params) {
 	<?php 
 	if (!user_isloggedin()) {
  		print '<B>Status: Not Logged In</B>
-			<A href="/account/login.php">[Login]</A> |
-			<A href="/account/register.php">[New User]</A><BR>';
+			<A href="https://'.getenv('HTTP_HOST').'/account/login.php">[Login]</A> |
+			<A href="https://'.getenv('HTTP_HOST').'/account/register.php">[New User]</A><BR>';
 	}
 	?>
 
@@ -141,9 +119,8 @@ function generic_header($params) {
 	<A href="/top/">[Top Projects]</A>
 
 	<!-- VA Linux Stats Counter -->
- 	<?php 
-	if (!session_issecure()) {
-	 	print '<IMG src="http://www2.valinux.com/clear.gif?id=105" width=1 height=1 alt="Counter">';
+ 	<?php if (!session_issecure()) {
+ 	print '<IMG src="http://www2.valinux.com/clear.gif?id=105" width=1 height=1 alt="Counter">';
  	}
  	?>
 
@@ -161,6 +138,11 @@ function generic_header($params) {
 // ############################
 
 function generic_footer($params) {
+
+	// printable option
+	if ($GLOBALS['printable']) {
+		return;
+	}
 
 	global $IS_DEBUG,$QUERY_COUNT;
 	if ($IS_DEBUG && user_ismember(1,'A')) {
@@ -184,7 +166,19 @@ function generic_footer($params) {
 
 // ############################
 
+function site_cleanup($params) {
+	// function for any page cleanup later, no HTML
+	return true;
+	//@mysql_close($GLOBALS['conn']);
+}
+
+// ############################
+
 function site_footer($params) {
+	// printable option
+	if ($GLOBALS['printable']) {
+		return;
+	}
 	
 	?>
 	<!-- end content -->
@@ -203,8 +197,11 @@ function site_footer($params) {
 // ############################
 
 function site_header($params) {
-	
 	generic_header($params); 
+	// printable option
+	if ($GLOBALS['printable']) {
+		return;
+	}
 	
 	?>
 	<!-- content table -->
@@ -214,34 +211,18 @@ function site_header($params) {
 	<!-- menus -->
 	<?php
 
-	/*
-		See if this is a project or a portal
-		and show the correct nav menus
-	*/
-	if ($params['group'] && group_get_type_id($params['group']) == 1) {
-		//this is a project page
-		//sf global choices
-		echo menu_software();
-		echo menu_sourceforge();
-		echo menu_project ($params['group']);
-	} else if ($params['group']) {
-		//this is a portal page
-		echo menu_portal_projects ($params['group']);
-		echo menu_portal_guides($params['group']);
-		echo menu_portal ($params['group']);
-	} else {
-		echo menu_software();
-		echo menu_sourceforge();
-	}
+	//sf global choices
+	menu_main();
 
 	//login / logged in menu
 	if (user_isloggedin()) {
-		echo menu_loggedin($params['title']);
+		echo menu_loggedin(); 
 	} else {
 		echo menu_notloggedin();
 	}
-
-
+	if ($params['group']) {
+		echo menu_project($params['group']);
+	}
 	//search menu
 	echo menu_search();
 
@@ -257,8 +238,11 @@ function site_header($params) {
 	&nbsp;<BR>
 	<?php
 
-} //end funtion site_header
+}
 
+
+// #######################################################
+// ######################## Sitewide initialization
 
 // #### Connect to db
 
@@ -268,18 +252,10 @@ if (!$conn) {
 	exit_error("Could Not Connect to Database",db_error());
 }
 
-//insert this page view into the database
 require('logger.php');
 
 // #### set session
 
 session_set();
-
-//set up the user's timezone if they are logged in
-if (user_isloggedin()) {
-	putenv('TZ='.user_get_timezone());
-} else {
-	//just use pacific time as always
-}
 
 ?>

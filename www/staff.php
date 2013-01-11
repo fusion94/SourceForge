@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: staff.php,v 1.28 2000/06/09 02:21:27 tperdue Exp $
+// $Id: staff.php,v 1.26 2000/03/14 11:05:41 tperdue Exp $
 
 require ('pre.php');    
 site_header(array('title'=>'SorceForge Staff'));
@@ -22,6 +22,23 @@ site_header(array('title'=>'SorceForge Staff'));
 Dan is the new "Product Manager" for SourceForge. We're not sure what that means, only that he
 likes timelines and handles business development issues.
 </td>
+</tr>
+
+<tr valign=top>
+<td><a href="/sendmessage.php?toaddress=fusion94_maillink_users.sourceforge.net">Tony Guntharp</a></td>
+<td>(fusion94)</td>
+<td>Tony is originally from Texas. When he's not working you can usually find him enjoying a pint
+of Guinness somewhere in the Bay area.</td>
+</tr>
+
+<tr valign=top>
+<td><a href="/sendmessage.php?toaddress=dtype_maillink_users.sourceforge.net">Drew Streib</a></td>
+<td>(dtype)</td>
+<td>Drew is a developer and community liaison for SourceForge. He also sysadmins 
+the server for Linux International and was one of the original authors of the 
+VA Linux e-commerce system. He enjoys skydiving, jet piloting, and supermodel
+photography, but has never had a chance to do any of these things because
+he is always programming.</td>
 </tr>
 
 <tr valign=top>
@@ -49,28 +66,7 @@ with a smile on his face. He works from Australia.
 </td>
 </tr>
 
-<TR><TD COLSPAN="2"><B>Founders:</B></TD></TR>
-
-<tr valign=top>
-<td><a href="/sendmessage.php?toaddress=fusion94_maillink_users.sourceforge.net">Tony Guntharp</a></td>
-</tr>
-
-
-<tr valign=top>
-<td><a href="/sendmessage.php?toaddress=dtype_maillink_users.sourceforge.net">Drew Streib</a></td>
-</tr>
-
-
-<tr valign=top>
-<td><a href="/sendmessage.php?toaddress=bigdisk_maillink_users.sourceforge.net">Tim Perdue</a></td>
-</TR>
-
-
-<tr valign=top>
-<td><a href="/sendmessage.php?toaddress=precision_maillink_users.sourceforge.net">Uriah Welcome</a></td></TR>
-
-
-<TR><TD COLSPAN="2">&nbsp;<P><B>Signicant Outside Contributors:</B></TD></TR>
+<TR><TD COLSPAN="2"><B>Signicant Outside Contributors:</B></TD></TR>
 
 <tr valign=top>
 <td><a href="/sendmessage.php?toaddress=wallace_maillink_users.sourceforge.net">Wallace Lee</a></td>

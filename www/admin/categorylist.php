@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: categorylist.php,v 1.8 2000/05/17 21:51:55 tperdue Exp $
+// $Id: categorylist.php,v 1.7 2000/03/07 13:20:24 tperdue Exp $
 
 require "pre.php";    
 session_require(array('group'=>'1','admin_flags'=>'A'));
@@ -63,5 +63,5 @@ while ($cat = db_fetch_array($res)) {
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

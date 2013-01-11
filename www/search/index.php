@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.40 2000/06/17 08:24:35 tperdue Exp $
+// $Id: index.php,v 1.38 2000/02/10 14:54:08 tperdue Exp $
 
 require ('pre.php');
 
@@ -55,7 +55,7 @@ if ($type_of_search == "soft") {
 	*/
 	$sql = "SELECT group_name,group_id,short_description ".
 		"FROM groups ".
-		"WHERE status='A' AND is_public='1' AND ((group_name LIKE '%$words1%') OR (short_description LIKE '%$words2%') OR (unix_group_name LIKE '%$words3%')) LIMIT $offset,26";
+		"WHERE status='A' AND public='1' AND ((group_name LIKE '%$words1%') OR (short_description LIKE '%$words2%') OR (unix_group_name LIKE '%$words3%')) LIMIT $offset,25";
 	$result=db_query($sql);
 	$rows=db_numrows($result);
 
@@ -124,7 +124,7 @@ if ($type_of_search == "soft") {
 	*/
 	$sql="SELECT user_name,user_id,realname ".
 		"FROM user ".
-		"WHERE ((user_name LIKE '%$words1%') OR (realname LIKE '%$words2%')) AND (status='A') ORDER BY user_name LIMIT $offset,26";
+		"WHERE ((user_name LIKE '%$words1%') OR (realname LIKE '%$words2%')) AND (status='A') ORDER BY user_name LIMIT $offset,25";
 	
 	$result=db_query($sql);
 	$rows=db_numrows($result);
@@ -328,4 +328,5 @@ if ($type_of_search == "soft") {
 }
 
 site_footer(array());
+site_cleanup(array());
 ?>

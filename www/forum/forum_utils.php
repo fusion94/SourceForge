@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: forum_utils.php,v 1.167 2000/07/12 21:01:40 tperdue Exp $
+// $Id: forum_utils.php,v 1.142 2000/04/20 17:25:40 tperdue Exp $
 
 /*
 	Message Forums
@@ -19,11 +19,7 @@ function forum_header($params) {
 	site_header($params);
 
 	/*
-
-		bastardization for news
-
 		Show icon bar unless it's a news forum
-
 	*/
 	if ($group_id == 714) {
 		if ($forum_id) {
@@ -55,9 +51,7 @@ function forum_header($params) {
 				echo '<P>';
 			}
 			echo '</TD><TD VALIGN="TOP" WIDTH="35%">';
-			echo html_box1_top('Latest News',0,$GLOBALS['COLOR_LTBACK2']);
-			echo news_show_latest(714,5,false);
-			echo html_box1_bottom();
+			echo news_show_latest();
 			echo '</TD></TR></TABLE>';
 		}
 	} else {
@@ -65,18 +59,29 @@ function forum_header($params) {
 	}
 
 	/*
-		Show horizontal forum links
+		Show horizontal links
 	*/
 	if ($forum_id && $forum_name) {
 		echo '<P><H3>Discussion Forums: <A HREF="/forum/forum.php?forum_id='.$forum_id.'">'.$forum_name.'</A></H3>';
 	}
 	echo '<P><B>';
 
-	if ($forum_id && user_isloggedin() ) {
-		echo '<A HREF="/forum/monitor.php?forum_id='.$forum_id.'">' . 
-			html_image("ic/check.png",array()).' Monitor Forum</A> | '.
-			'<A HREF="/forum/save.php?forum_id='.$forum_id.'">';
-		echo  html_image("ic/save.png",array()) .' Save Place</A> | ';
+	if ((user_get_preference('forum_expand')  == 1) && $forum_id) {
+		echo '<A HREF="/forum/expand.php?et=0&forum_id='.$forum_id.'">Collapsed View</A>';
+		$et=1;
+	} else if($forum_id) {
+		echo '<A HREF="/forum/expand.php?et=1&forum_id='.$forum_id.'">Expanded View</A>';
+		$et=0;
+	}
+
+	if ($forum_id) {
+		echo ' | <A HREF="/forum/monitor.php?forum_id='.$forum_id.'">';
+		echo html_image("ic/check.png",array()).' Monitor Forum</A>
+			 | <A HREF="/forum/save.php?forum_id='.$forum_id.'">Save Place</A>';
+	}
+
+	if ($forum_id || $msg_id || $thread_id) {
+		echo ' | <A HREF="#_post">Post</A> | ';
 	}
 
 	echo '  <A HREF="/forum/admin/?group_id='.$group_id.'">Admin</A></B>';
@@ -89,13 +94,12 @@ function forum_footer($params) {
 	site_footer($params);
 }
 
-function forum_create_forum($group_id,$forum_name,$is_public=1,$create_default_message=1,$description='') {
+function forum_create_forum($group_id,$forum_name,$is_public=1,$create_default_message=1) {
 	global $feedback;
 	/*
 		Adding forums to this group
 	*/
-	$sql="INSERT INTO forum_group_list (group_id,forum_name,is_public,description) ".
-		"VALUES ('$group_id','". htmlspecialchars($forum_name) ."','$is_public','". htmlspecialchars($description) ."')";
+	$sql="INSERT INTO forum_group_list VALUES ('','$group_id','$forum_name','$is_public')";
 
 	$result=db_query($sql);
 	if (!$result) {
@@ -140,9 +144,9 @@ function show_thread($thread_id,$et=0) {
 
 		$et is whether or not the forum is "expanded" or in flat mode
 	*/
-	global $total_rows,$sys_datefmt,$is_followup_to,$subject,$forum_id,$current_message;
+	global $total_rows,$sys_datefmt,$is_followup_to,$subject,$forum_id;
 
-	$sql="SELECT user.user_name,forum.has_followups,forum.msg_id,forum.subject,forum.thread_id,forum.body,forum.date,forum.is_followup_to ".
+	$sql="SELECT user.user_name,forum.msg_id,forum.subject,forum.thread_id,forum.body,forum.date,forum.is_followup_to ".
 		"FROM forum,user WHERE forum.thread_id='$thread_id' AND user.user_id=forum.posted_by AND forum.is_followup_to='0' ".
 		"ORDER BY forum.date DESC, forum.subject ASC, forum.is_followup_to ASC;";
 
@@ -170,9 +174,8 @@ function show_thread($thread_id,$et=0) {
 */
 		for ($i=0; $i<$rows; $i++) {
 			$total_rows++;
-			$ret_val .= '<TR BGCOLOR="'. util_get_alt_row_color($total_rows) .'"><TD>'. 
-				(($current_message != db_result($result, $i, 'msg_id'))?'<A HREF="/forum/message.php?msg_id='.db_result($result, $i, 'msg_id').'">':'').
-				'<IMG SRC="/images/msg.gif" BORDER=0 HEIGHT=12 WIDTH=10> ';
+			$ret_val .= '<TR BGCOLOR="'. util_get_alt_row_color($total_rows) .'"><TD><A HREF="/forum/message.php?msg_id='.db_result($result, $i, 'msg_id').
+				'"><IMG SRC="/images/msg.gif" BORDER=0 HEIGHT=12 WIDTH=10> ';
 			/*
 				See if this message is new or not
 			*/
@@ -190,9 +193,7 @@ function show_thread($thread_id,$et=0) {
 				nl2br(db_result($result, $i, 'body')).'</TD><TR>';
 			}
 
-			if (db_result($result,$i,'has_followups') > 0) {
-				$ret_val .= show_submessages($thread_id,db_result($result, $i, 'msg_id'),1,$et);
-			}
+			$ret_val .= show_submessages($thread_id,db_result($result, $i, 'msg_id'),1,$et);
 		}
 		$ret_val .= '</TABLE>';
 	}
@@ -206,9 +207,9 @@ function show_submessages($thread_id, $msg_id, $level,$et=0) {
 		If there are, it calls itself, incrementing $level
 		$level is used for indentation of the threads.
 	*/
-	global $total_rows,$sys_datefmt,$forum_id,$current_message;
+	global $total_rows,$sys_datefmt,$forum_id;
 
-	$sql="SELECT user.user_name,forum.has_followups,forum.msg_id,forum.subject,forum.thread_id,forum.body,forum.date,forum.is_followup_to ".
+	$sql="SELECT user.user_name,forum.msg_id,forum.subject,forum.thread_id,forum.body,forum.date,forum.is_followup_to ".
 		"FROM forum,user WHERE forum.thread_id='$thread_id' AND user.user_id=forum.posted_by AND forum.is_followup_to='$msg_id' ".
 		"ORDER BY forum.date ASC, forum.subject ASC, forum.is_followup_to ASC;";
 
@@ -231,12 +232,8 @@ function show_submessages($thread_id, $msg_id, $level,$et=0) {
 				$ret_val .= ' &nbsp; &nbsp; &nbsp; ';
 			}
 
-			/*
-				If it this is the message being displayed, don't show a link to it
-			*/
-			$ret_val .= (($current_message != db_result($result, $i, 'msg_id'))?
-				'<A HREF="/forum/message.php?msg_id='.db_result($result, $i, 'msg_id').'">':'').
-				'<IMG SRC="/images/msg.gif" BORDER=0 HEIGHT=12 WIDTH=10> ';
+			$ret_val .= '<A HREF="/forum/message.php?msg_id='.db_result($result, $i, 'msg_id').
+				'"><IMG SRC="/images/msg.gif" BORDER=0 HEIGHT=12 WIDTH=10> ';
 			/*
 				See if this message is new or not
 			*/
@@ -255,12 +252,10 @@ function show_submessages($thread_id, $msg_id, $level,$et=0) {
 					nl2br(db_result($result, $i, 'body')).'</TD><TR>';
 			}
 
-			if (db_result($result,$i,'has_followups') > 0) {
-				/*
-					Call yourself, incrementing the level
-				*/
-				$ret_val .= show_submessages($thread_id,db_result($result, $i, 'msg_id'),($level+1),$et);
-			}
+			/*
+				Call yourself, incrementing the level
+			*/
+			$ret_val .= show_submessages($thread_id,db_result($result, $i, 'msg_id'),($level+1),$et);
 		}
 	}
 	return $ret_val;
@@ -312,42 +307,8 @@ function post_message($thread_id, $is_followup_to, $subject, $body, $group_forum
 		if (!$body || !$subject) {
 			exit_error('Error','Must include a message body and subject');
 		}
-
-	//see if that message has been posted already for all the idiots that double-post
-		$res3=db_query("SELECT * FROM forum ".
-			"WHERE is_followup_to='$is_followup_to' ".
-			"AND subject='". stripslashes( htmlspecialchars($subject) ) ."' ".
-			"AND group_forum_id='$group_forum_id' ".
-			"AND posted_by='". user_getid() ."'");
-
-		if (db_numrows($res3) > 0) {
-			//already posted this message
-			exit_error('Error','You appear to be double-posting this message, since it has the same subject and followup information as a prior post.');
-		} else {
-			echo db_error();
-		}
-
-		if (!$thread_id) {
+		if ($thread_id == 0) {
 			$thread_id=get_next_thread_id();
-			$is_followup_to=0;
-		} else {
-			if ($is_followup_to) {
-				//increment the parent's followup count if necessary
-				$res2=db_query("SELECT * FROM forum WHERE msg_id='$is_followup_to' AND thread_id='$thread_id' AND group_forum_id='$group_forum_id'");
-				if (db_numrows($res2) > 0) {
-					if (db_result($result,0,'has_followups') > 0) {
-						//parent already is marked with followups
-					} else {
-						//mark the parent with followups as an optimization later
-						db_query("UPDATE forum SET has_followups='1' WHERE msg_id='$is_followup_to' AND thread_id='$thread_id' AND group_forum_id='$group_forum_id'");
-					}
-				} else {
-					exit_error('Error','Trying to followup to a message that doesn\'t exist.');
-				}
-			} else {
-				//should never happen except with shoddy browsers or mucking with the HTML form
-				exit_error('Error','No followup ID present when trying to post to an existing thread.');
-			}
 		}
 
 		$sql="INSERT INTO forum (group_forum_id,posted_by,subject,body,date,is_followup_to,thread_id) ".
@@ -377,27 +338,26 @@ function post_message($thread_id, $is_followup_to, $subject, $body, $group_forum
 
 function show_post_form($forum_id, $thread_id=0, $is_followup_to=0, $subject="") {
 
+	global $PHP_SELF, $et;
+
+	echo "<A NAME=\"_post\">";
+
 	if (user_isloggedin()) {
-		if ($subject) {
-			//if this is a followup, put a RE: before it if needed
-			if (!eregi('RE:',$subject,$test)) {
-				$subject ='RE: '.$subject;
-			}
-		}
 
 		?>
 		<CENTER>
-		<FORM ACTION="/forum/forum.php" METHOD="POST">
+		<FORM ACTION="<?php echo $PHP_SELF; ?>" METHOD="POST">
 		<INPUT TYPE="HIDDEN" NAME="post_message" VALUE="y">
+		<INPUT TYPE="HIDDEN" NAME="et" VALUE="<?php echo $et; ?>">
 		<INPUT TYPE="HIDDEN" NAME="forum_id" VALUE="<?php echo $forum_id; ?>">
 		<INPUT TYPE="HIDDEN" NAME="thread_id" VALUE="<?php echo $thread_id; ?>">
 		<INPUT TYPE="HIDDEN" NAME="msg_id" VALUE="<?php echo $is_followup_to; ?>">
 		<INPUT TYPE="HIDDEN" NAME="is_followup_to" VALUE="<?php echo $is_followup_to; ?>">
 		<TABLE><TR><TD><B>Subject:</TD><TD>
-		<INPUT TYPE="TEXT" NAME="subject" VALUE="<?php echo $subject; ?>" SIZE="45" MAXLENGTH="45">
+		<INPUT TYPE="TEXT" NAME="subject" VALUE="<?php echo $subject; ?>" SIZE="15" MAXLENGTH="45">
 		</TD></TR>
 		<TR><TD><B>Message:</TD><TD>
-		<TEXTAREA NAME="body" VALUE="" ROWS="10" COLS="60" WRAP="SOFT"></TEXTAREA>
+		<TEXTAREA NAME="body" VALUE="" ROWS="10" COLS="70" WRAP="SOFT"></TEXTAREA>
 		</TD></TR>
 		<TR><TD COLSPAN="2" ALIGN="MIDDLE">
 		<B><FONT COLOR="RED">HTML tags will display in your post as text</FONT></B>
@@ -443,20 +403,20 @@ function handle_monitoring($forum_id,$msg_id) {
 		$result = db_query ($sql);
 
 		if ($result && db_numrows($result) > 0) {
-			$body = "To: noreply@$GLOBALS[HTTP_HOST]".
+			$body = "To: noreply@sourceforge.net".
 				"\nBCC: $tolist".
 				"\nSubject: [" .db_result($result,0,'unix_group_name'). " - " . db_result($result,0,'forum_name')."] " . 
 					util_unconvert_htmlspecialchars(db_result($result,0,'subject')).
 				"\n\nRead and respond to this message at: ".
-				"\nhttp://$GLOBALS[sys_default_domain]/forum/message.php?msg_id=".$msg_id.
+				"\nhttp://sourceforge.net/forum/message.php?msg_id=".$msg_id.
 				"\nBy: " . db_result($result,0, 'user_name') .
 				"\n\n" . util_unconvert_htmlspecialchars(db_result($result,0, 'body')).
 				"\n\n______________________________________________________________________".
 				"\nYou are receiving this email because you elected to monitor this forum.".
 				"\nTo stop monitoring this forum, login to SourceForge and visit: ".
-				"\nhttp://$GLOBALS[sys_default_domain]/forum/monitor.php?forum_id=$forum_id";
+				"\nhttp://sourceforge.net/forum/monitor.php?forum_id=$forum_id";
 
-			exec ("/bin/echo \"". util_prep_string_for_sendmail($body) ."\" | /usr/sbin/sendmail -fnoreply@$GLOBALS[HTTP_HOST] -t -i &");
+			exec ("/bin/echo \"". util_prep_string_for_sendmail($body) ."\" | /usr/sbin/sendmail -fnoreply@sourceforge.net -t &");
 
 			$feedback .= ' email sent - people monitoring ';
 		} else {

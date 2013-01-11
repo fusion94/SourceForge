@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: tos.php,v 1.11 2000/05/17 21:51:55 tperdue Exp $
+// $Id: tos.php,v 1.10 2000/02/11 11:02:06 fusion94 Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 site_header(array(title=>"Terms of Service Agreement"));
@@ -381,6 +381,6 @@ Please report any violations of the TOS to admin@sourceforge.net
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>
 

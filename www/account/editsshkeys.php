@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editsshkeys.php,v 1.12 2000/05/17 21:51:43 tperdue Exp $
+// $Id: editsshkeys.php,v 1.11 2000/03/06 13:57:41 dtype Exp $
 
 require "pre.php";    
 require "account.php";
@@ -62,5 +62,5 @@ After submitting, verify that the number of keys in your file is what you expect
 <?php
 }
 site_footer(array());
-
+site_cleanup(array());
 ?>

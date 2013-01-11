@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: groupedit-add.php,v 1.19 2000/07/12 21:01:40 tperdue Exp $
+// $Id: groupedit-add.php,v 1.16 2000/03/07 13:20:24 tperdue Exp $
 
 require "pre.php";
 require "account.php";
@@ -12,16 +12,16 @@ session_require(array('group'=>'1','admin_flags'=>'A'));
 
 // ########################################################
 
-if ($Submit) {
+if ($GLOBALS["Submit"]) {
 	// check for valid group name
-	if (!account_groupnamevalid($form_unixgrp)) {
-		exit_error("Invalid Group Name",$register_error);
+	if (!account_groupnamevalid($GLOBALS['form_unixgrp'])) {
+		exit_error("Invalid Group Name",$GLOBALS['register_error']);
 	}	
 
-	if ($group_idname) {
-	$newid = db_insertid(db_query("INSERT INTO groups (group_name,is_public,unix_group_name,http_domain,status) VALUES "
-		. "('$group_idname',$form_public,'$form_unixgrp'"
-		. ",'$form_unixgrp.$GLOBALS[sys_default_domain]','$form_status')")); 
+	if ($GLOBALS['group_idname']) {
+	$newid = db_insertid(db_query("INSERT INTO groups (group_name,public,unix_group_name,http_domain,status) VALUES "
+		. "('$GLOBALS[group_idname]',$GLOBALS[form_public],'$GLOBALS[form_unixgrp]'"
+		. ",'$GLOBALS[form_unixgrp].sourceforge.net','$form_status')")); 
 	} 
 	session_redirect("/admin/groupedit.php?group_id=$newid");
 } 
@@ -51,5 +51,5 @@ site_header(array('title'=>"Welcome to Project Alexandria"));
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

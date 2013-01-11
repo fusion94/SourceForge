@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: news.php,v 1.13 2000/05/17 21:51:55 tperdue Exp $
+// $Id: news.php,v 1.12 2000/02/25 23:20:39 dtype Exp $
 
 require "pre.php";    
 site_header(array(title=>"SorceForge Awards"));
@@ -71,5 +71,5 @@ on <A href="http://linux.com/">Linux.com</A>
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

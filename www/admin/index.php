@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.49 2000/05/28 13:41:35 q Exp $
+// $Id: index.php,v 1.48 2000/04/19 13:03:55 tperdue Exp $
 
 require "pre.php";
 session_require(array('group'=>'1','admin_flags'=>'A'));
@@ -32,14 +32,6 @@ fields blank, etc... Also, navigating the admin functions with the
 		echo "<a href=\"userlist.php?user_name_search=$abc_array[$i]\">$abc_array[$i]</a>|";
 	}
 ?>
-<br>
-Search (email,username,realname,userid):
-<br>
-<form name="usersrch" action="search.php" method="POST">
-  <input type="text" name="search">
-  <input type="hidden" name="usersearch" value="1">
-  <input type="submit" value="get">
-</form>
 <BR>&nbsp;
 <!-- 
 <li><a href="grouplist.php">Display Full Group List/Edit Groups</a>
@@ -51,18 +43,6 @@ Search (email,username,realname,userid):
 		echo "<a href=\"grouplist.php?group_name_search=$abc_array[$i]\">$abc_array[$i]</a>|";
 	}
 ?>
-
-Search (groupid,groupunixname,groupname):
-<br>
-<form name="gpsrch" action="search.php" method="POST">
-  <input type="text" name="search">
-  <input type="hidden" name="groupsearch" value="1">
-  <input type="submit" value="get">
-</form>
-
-<p>
-
-
 <LI>Groups in <a href="grouplist.php?status=I"><B>I</B> Status</A>
 <LI>Groups in <a href="approve-pending.php"><B>P</B> Status</A>
 <LI>Groups in <a href="grouplist.php?status=D"><B>D</B> Status</A>

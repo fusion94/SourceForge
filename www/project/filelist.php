@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: filelist.php,v 1.59 2000/07/12 21:01:41 tperdue Exp $
+// $Id: filelist.php,v 1.54 2000/05/04 22:19:22 dtype Exp $
 
 require "pre.php";    
 if ((!$group_id) && $form_grp) $group_id=$form_grp;
@@ -45,23 +45,24 @@ while ($row_module = db_fetch_array($res_module)) {
 		."filerelease.release_time AS release_time,"
 		."filerelease.group_id AS group_id,"
 		."filerelease.file_size AS file_size,"
-		."frs_dlstats_filetotal_agg.downloads AS downloads "
-		."FROM filerelease LEFT JOIN frs_dlstats_filetotal_agg ON "
-		."frs_dlstats_filetotal_agg.file_id=filerelease.filerelease_id WHERE "
+		."SUM(frs_dlstats_agg.downloads_http + frs_dlstats_agg.downloads_ftp) AS downloads "
+		."FROM filerelease,frs_dlstats_agg WHERE "
+		."frs_dlstats_agg.file_id=filerelease.filerelease_id AND "
 		."filemodule_id=$row_module[filemodule_id] AND status='A' "
-		."ORDER BY release_time DESC");
+		."GROUP BY frs_dlstats_agg.file_id "
+		."ORDER BY release_time DESC",1);
 	print '<TR><TD colspan=7>&nbsp;<BR>File Module: <B>'.$row_module['module_name'].'</B></TD></TR>';
 	while ($row_file = db_fetch_array($res_file)) {
 		$i++;
 		print '<TR BGCOLOR="'. util_get_alt_row_color($i) .'">';
-		print '<TD><A href="http://'.$GLOBALS['sys_download_host'].'/'
+		print '<TD><A href="http://download.sourceforge.net/'
 			.$row_grp['unix_group_name'].'/'.$row_file['filename'].'">';
 		print $row_file['filename'].'</A></TD>';
 		print "<TD align=right>$row_file[file_size]&nbsp;&nbsp;</TD>";
 		print "<TD align=right>$row_file[downloads]&nbsp;&nbsp;</TD>";
 		print "<TD align=right>$row_file[release_version]&nbsp;&nbsp;</TD>";
 		print "<TD>$row_file[file_type]</TD>";
-		print "<TD>" . date($sys_datefmt,$row_file['release_time']) . "</TD>";
+		print "<TD>" . date("m-d-Y",$row_file['release_time']) . "</TD>";
 		print "<TD>";
 		print "<A href=\"filenotes.php?group_id=$group_id&form_filemodule_id="
 			. "$row_module[filemodule_id]&form_release_version="

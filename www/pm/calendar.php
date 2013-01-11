@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: calendar.php,v 1.3 2000/05/17 21:51:55 tperdue Exp $
+// $Id: calendar.php,v 1.2 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 
@@ -32,5 +32,5 @@ $timedate = time();
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

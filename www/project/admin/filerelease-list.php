@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: filerelease-list.php,v 1.13 2000/07/03 15:31:21 tperdue Exp $
+// $Id: filerelease-list.php,v 1.12 2000/04/21 15:49:40 tperdue Exp $
 
 require "pre.php";    
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
@@ -38,7 +38,7 @@ while ($row_module = db_fetch_array($res_module)) {
 		print "<TD>$row_file[filename]</TD>";
 		print "<TD>$row_file[release_version]</TD>";
 		print "<TD>$row_file[file_type]</TD>";
-		print "<TD>" . date($sys_datefmt,$row_file['release_time']) . "</TD>";
+		print "<TD>" . date("M d, Y",$row_file['release_time']) . "</TD>";
 		print "</TR>\n";
 		print "<TR BGCOLOR=\"". util_get_alt_row_color($i) ."\"><TD colspan=3>";
 		print "<A href=\"../filenotes.php?group_id=$group_id&form_filemodule_id="

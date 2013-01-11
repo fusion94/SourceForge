@@ -4,14 +4,14 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: lostpw-confirm.php,v 1.11 2000/06/12 06:37:07 tperdue Exp $
+// $Id: lostpw-confirm.php,v 1.9 2000/03/28 10:38:36 dtype Exp $
 
-require ('pre.php');    
+require "pre.php";    
 
 $confirm_hash = md5($session_hash . strval(time()) . strval(rand()));
 
 $res_user = db_query("SELECT * FROM user WHERE user_name='$form_loginname'");
-if (db_numrows($res_user) < 1) exit_error("Invalid User","That user does not exist.");
+if (db_numrows($res_user) < 1) exit_error("Invalid User","That user does not exist on SourceForge.");
 $row_user = db_fetch_array($res_user);
 
 db_query("UPDATE user SET confirm_hash='$confirm_hash' WHERE user_id=$row_user[user_id]");
@@ -21,13 +21,14 @@ $message = "Someone (presumably you) on the SourceForge site requested a\n"
 	. "ignore this message and nothing will happen.\n\n"
 	. "If you requested this verification, visit the following URL\n"
 	. "to change your password:\n\n"
-	. "https://$GLOBALS[HTTP_HOST]/account/lostlogin.php?confirm_hash=$confirm_hash\n\n"
+	. "https://sourceforge.net/account/lostlogin.php?confirm_hash=$confirm_hash\n\n"
 	. " -- the SourceForge staff\n";
 
-mail ($row_user['email'],"SourceForge Verification",$message,"From: noreply@$GLOBALS[HTTP_HOST]");
+mail ($row_user[email],"SourceForge Verification",$message,"From: admin@sourceforge.net");
 
-site_header(array('title'=>"Lost Password Confirmation"));
+session_securitylog("lostpw","User #$row_user[user_id] requested lost pw confirm_hash");
 
+site_header(array(title=>"Lost Password Confirmation"));
 ?>
 
 <P><B>Confirmation mailed</B>
@@ -35,9 +36,9 @@ site_header(array('title'=>"Lost Password Confirmation"));
 <P>An email has been sent to the address you have on file. Follow
 the instructions in the email to change your account password.
 
-<P><A href="/">[ Home ]</A>
+<P><A href="/">[Return to SourceForge]</A>
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

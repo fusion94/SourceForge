@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.82 2000/05/17 21:51:55 tperdue Exp $
+// $Id: index.php,v 1.80 2000/01/13 18:36:35 precision Exp $
 
 require "pre.php";    
 require "vote_function.php";
@@ -19,6 +19,7 @@ $res_new = db_query("SELECT groups.group_name AS group_name,"
 		. "groups.unix_group_name AS unix_group_name,"
 		. "groups.short_description AS short_description,"
 		. "groups.license AS license,"
+		. "groups.file_downloads AS file_downloads,"
 		. "user.user_name AS user_name,"
 		. "user.user_id AS user_id,"
 		. "filemodule.filemodule_id AS filemodule_id,"
@@ -26,10 +27,8 @@ $res_new = db_query("SELECT groups.group_name AS group_name,"
 		. "filerelease.release_time AS release_time,"
 		. "filerelease.filename AS filename,"
 		. "filerelease.release_version AS release_version,"
-		. "filerelease.filerelease_id AS filerelease_id,"
-		. "frs_dlstats_grouptotal_agg.downloads AS downloads "
-		. "FROM user,filerelease,filemodule,groups "
-		. "LEFT JOIN frs_dlstats_grouptotal_agg USING (group_id) WHERE "
+		. "filerelease.filerelease_id AS filerelease_id "
+		. "FROM user,filerelease,filemodule,groups WHERE "
 		. "filerelease.user_id=user.user_id AND "
 		. "filerelease.group_id=groups.group_id AND "
 		. "filerelease.filemodule_id=filemodule.filemodule_id " 
@@ -84,7 +83,7 @@ if (!$res_new || db_numrows($res_new) < 1) {
 			// link to whole file list for downloads
 			print "&nbsp;<BR><A href=\"/project/filelist.php?group_id=$row_new[group_id]\">";
 			print "Download</A> ";
-			print '(Project Total: '.$row_new[downloads].') | ';
+			print '(Project Total: '.$row_new[file_downloads].') | ';
 			// notes for this release
 			print "<A href=\"/project/filenotes.php?"
 				. "group_id=$row_new[group_id]&"
@@ -117,5 +116,5 @@ if (!$res_new || db_numrows($res_new) < 1) {
 }
 
 site_footer(array());
-
+site_cleanup(array());
 ?>

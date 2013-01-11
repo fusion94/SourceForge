@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.17 2000/07/12 21:01:40 tperdue Exp $
+// $Id: index.php,v 1.16 2000/01/13 18:36:35 precision Exp $
 
 require('pre.php');
 require('../mail/mail_utils.php');
@@ -56,7 +56,7 @@ if ($group_id) {
 	for ($j = 0; $j < $rows; $j++) {
 		echo '<A HREF="http://www.geocrawler.com/redir-sf.php3?list='.
 			db_result($result, $j, 'list_name').'"><IMG SRC="/images/ic/cfolder15.png" HEIGHT=13 WIDTH=15 BORDER=0> &nbsp; '.db_result($result, $j, 'list_name').' Archives</A>'; 
-		echo ' (go to <A HREF="http://'.$GLOBALS['sys_lists_host'].'/mailman/listinfo/'.
+		echo ' (go to <A HREF="http://lists.sourceforge.net/mailman/listinfo/'.
 			db_result($result, $j, 'list_name').'">Subscribe/Unsubscribe/Preferences</A>)<BR>';
 	}
 	echo '</TD></TR></TABLE>';

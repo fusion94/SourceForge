@@ -4,11 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: session.php,v 1.105 2000/07/13 17:24:23 tperdue Exp $
+// $Id: session.php,v 1.88 2000/04/14 13:50:14 dtype Exp $
 //
 
-$G_SESSION=array();
-$G_USER=array();
+// ############################function session_checkip()
+// ## makes sure that IP is legal and from same subnet
 
 function session_login_valid($form_loginname,$form_pw,$allowpending=0)  {
 	global $session_hash;
@@ -35,7 +35,7 @@ function session_login_valid($form_loginname,$form_pw,$allowpending=0)  {
 
 	// if allowpending (for verify.php) then allow
 	if ($allowpending && ($usr['status'] == 'P')) {
-		//1;
+		1;
 	} else {
 
 		if ($usr['status'] == 'S') { 
@@ -85,13 +85,20 @@ function session_checkip($oldip,$newip) {
 	}
 }
 
+// ################################ function session_issecure()
+// ## binary. returns true if session is SSL
+
 function session_issecure() {
 	return (getenv('SERVER_PORT') == '443');
 }
 
+// ############################ function session_cookie()
+
 function session_cookie($n,$v) {
 	setcookie($n,$v,0,'/','',0);
 }
+
+// ######################### function session_redirect()
 
 function session_redirect($loc) {
 	header('Location: http' . (session_issecure()?'s':'') . '://' . getenv('HTTP_HOST') . $loc);
@@ -99,13 +106,22 @@ function session_redirect($loc) {
 	exit;
 }
 
+/// ************************ function session_securitylog
+
+function session_securitylog($cat,$desc) {
+	db_query("INSERT INTO security_log (session_hash,time,user_id,category,description) "
+		. "VALUES ("
+		. "'" . $GLOBALS['session_hash'] . "',"
+		. time() . ","
+		. user_getid() . ","
+		. "'" . $cat . "',"
+		. "'" . $desc . "')");
+}
+
+// ######################### function session_require
+
 function session_require($req) {
-	/*
-		SF admins always return true
-	*/
-	if (user_is_super_user()) {
-		return true;
-	}
+	if (user_ismember(1,'A')) { return 1; }
 
 	if ($req['group']) {
 		$query = "SELECT user_id FROM user_group WHERE user_id=" . user_getid()
@@ -137,29 +153,27 @@ function session_require($req) {
 	}
 }
 
-function session_setglobals($user_id) {
-	global $G_USER;
+// ######################### function session_setglobals()
 
-//	unset($G_USER);
+function session_setglobals() {
+	global $G_SESSION,$G_USER;
 
-	if ($user_id > 0) {
-		$result=db_query("SELECT user_id,user_name FROM user WHERE user_id='$user_id'");
-		if (!$result || db_numrows($result) < 1) {
-			//echo db_error();
-			$G_USER = array();
-		} else {
-			$G_USER = db_fetch_array($result);
-//			echo $G_USER['user_name'].'<BR>';
-		}
+	unset($G_USER);
+
+	if ($G_SESSION['user_id']) {
+		db_query("SELECT user_id,user_name FROM user WHERE user_id='$G_SESSION[user_id]'");
+		$G_USER = db_fetch_array();
 	} else {
-		$G_USER = array();
+		$G_USER = 0;
 	}
 }
+
+// ######################## function session_set_new()
 
 function session_set_new() {
 	global $G_SESSION;
 
-//	unset($G_SESSION);
+	unset($G_SESSION);
 
 	// concatinate current time, and random seed for MD5 hash
 	// continue until unique hash is generated (SHOULD only be once)
@@ -178,37 +192,40 @@ function session_set_new() {
 	// set global
 	$G_SESSION = db_fetch_array(db_query("SELECT * FROM session WHERE session_hash='$GLOBALS[session_hash]'"));
 
-	session_setglobals($G_SESSION['user_id']);
+	session_setglobals();
 }
 
-function session_set() {
-	global $G_SESSION,$G_USER;
+// ###################### function session_set()
 
-//	unset($G_SESSION);
+function session_set() {
+	global $G_SESSION;
+
+	unset($G_SESSION);
 
 	// assume bad session_hash and session. If all checks work, then allow
 	// otherwise make new session
 	$id_is_good = 0;
-
+	
 	// here also check for good hash, set if new session is needed
 	if ($GLOBALS['session_hash']) {
-		$result=db_query("SELECT * FROM session WHERE session_hash='$GLOBALS[session_hash]'");
-		$G_SESSION = db_fetch_array($result);
+		db_query("SELECT * FROM session WHERE session_hash='$GLOBALS[session_hash]'");
+		$G_SESSION = db_fetch_array();
 
 		// does hash exist?
 		if ($G_SESSION['session_hash']) {
 			if (session_checkip($G_SESSION['ip_addr'],$GLOBALS['REMOTE_ADDR'])) {
 				$id_is_good = 1;
-			} 
+			} // else ip is different
 		} // else hash was not in database
 	} // else (hash does not exist) or (session hash is bad)
+	
+	// Must create new session id... (need expired dialog?)
+	//if (! $id_is_good) {
+	//	session_set_new();
+	//}
 
-	if ($id_is_good) {
-		session_setglobals($G_SESSION['user_id']);
-	} else {
-		unset($G_SESSION);
-		unset($G_USER);
-	}
+	session_setglobals();
+	//return $GLOBALS['session_hash'];
 }
 
 ?>

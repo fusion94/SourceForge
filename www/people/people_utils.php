@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: people_utils.php,v 1.34 2000/06/05 12:20:31 tperdue Exp $
+// $Id: people_utils.php,v 1.28 2000/05/03 10:53:35 tperdue Exp $
 
 /*
 	Job/People finder 
@@ -14,9 +14,6 @@ function people_header($params) {
 	global $group_id,$job_id,$DOCUMENT_ROOT;
 	site_header($params);
 
-	if ($group_id) {
-		html_tabs('home',$group_id);
-	}
 	echo '
 		<H2>Project Help Wanted</H2>
 		<P><B>
@@ -35,7 +32,7 @@ function people_footer($params) {
 
 function people_skill_box($name='skill_id',$checked='xyxy') {
 	global $PEOPLE_SKILL;
-	if (!$PEOPLE_SKILL) {
+	if (!$PEOPLE_SKILL_YEAR) {
 		//will be used many times potentially on a single page
 		$sql="SELECT * FROM people_skill ORDER BY name ASC";
 		$PEOPLE_SKILL=db_query($sql);
@@ -345,11 +342,9 @@ function people_show_category_table() {
 		$return .= '<TR><TD><H2>No Categories Found</H2></TD></TR>';
 	} else {
 		for ($i=0; $i<$rows; $i++) {
-			$count_res=db_query("SELECT count(*) AS count FROM people_job WHERE category_id='". db_result($result,$i,'category_id') ."' AND status_id='1'");
-			echo db_error();
 			$return .= '<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD><A HREF="/people/?category_id='. 
 				db_result($result,$i,'category_id') .'">'. 
-				db_result($result,$i,'name') .'</A> ('. db_result($count_res,0,'count') .')</TD></TR>';
+				db_result($result,$i,'name') .'</A></TD></TR>';
 		}
 	}
 	$return .= '</TABLE>';

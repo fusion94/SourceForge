@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: rules.php,v 1.4 2000/05/17 21:51:55 tperdue Exp $
+// $Id: rules.php,v 1.3 2000/05/03 12:54:39 dtype Exp $
 
 require "pre.php";    
 site_header(array(title=>"Success Story Contest Rules"));
@@ -135,5 +135,5 @@ Company, P.O. Box 4312, Hollywood, CA 90078.</LI></OL>
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: memberlist.php,v 1.13 2000/05/17 21:51:55 tperdue Exp $
+// $Id: memberlist.php,v 1.12 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    
 if ((!$group_id) && $form_grp) $group_id=$form_grp;
@@ -38,5 +38,5 @@ while ($row_memb=db_fetch_array($res_memb)) {
 }
 
 site_footer(array());
-
+site_cleanup(array());
 ?>

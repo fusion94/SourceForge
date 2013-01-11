@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: proj_email.php,v 1.5 2000/07/12 21:11:54 tperdue Exp $
+// $Id: proj_email.php,v 1.2 2000/04/24 13:19:01 dtype Exp $
 
 function send_new_project_email($group_id) {
 
@@ -31,13 +31,13 @@ while ($row_admins = db_fetch_array($res_admins)) {
 
 Project Full Name:  '.$row_grp['group_name'].'
 Project Unix Name:  '.$row_grp['unix_group_name'].'
-CVS Server:         cvs.'.$row_grp['unix_group_name'].'.'.$GLOBALS['sys_default_domain'].'
-Shell/Web Server:   '.$row_grp['unix_group_name'].'.'.$GLOBALS['sys_default_domain'].'
+CVS Server:         cvs.'.$row_grp['unix_group_name'].'.sourceforge.net
+Shell/Web Server:   '.$row_grp['unix_group_name'].'.sourceforge.net
 
 Your DNS will take up to a day to become active on our site. Your shell
 accounts will become active at the next 6-hour cron update. While
-waiting for your DNS to resolve, you may try shelling into 
-'. $GLOBALS['sys_shell_host']. ' and pointing CVS to '. $GLOBALS['sys_cvs_host'].'.
+waiting for your DNS to resolve, you may try shelling into
+shell1.sourceforge.net and pointing CVS to cvs1.sourceforge.net.
 
 If after six hours your shell accounts still do not work, please
 open a support ticket so that we may take a look at the problem.
@@ -68,7 +68,7 @@ if there is anything we can do to help you.
 
  -- the SourceForge crew';
 	
-	mail($row_admins['email'],"SourceForge Project Approved",$message,"From: noreply@$GLOBALS[HTTP_HOST]");
+	mail($row_admins['email'],"SourceForge Project Approved",$message,"From: noreply@sourceforge.net");
 
 }
 

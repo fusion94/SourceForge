@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: addfile_done.php,v 1.62 2000/07/12 21:01:41 tperdue Exp $
+// $Id: addfile_done.php,v 1.60 2000/04/03 16:25:14 dtype Exp $
 
 require "pre.php";    
 require "filechecks.php";
@@ -33,13 +33,11 @@ if ($unix_release_time > time()) {
 	$unix_release_time = time();
 }
 
-
 // check and see if any releases have been made in
 // this filemodule in the last 6 hours.
 
 $then=(time()-21600);
 $result=db_query("SELECT * FROM filerelease WHERE filemodule_id='$form_filemodule' AND post_time > '$then'");
-
 
 // add to filerelease
 
@@ -48,8 +46,6 @@ db_query("INSERT INTO filerelease (group_id,user_id,unix_box,unix_partition,text
 	. "($group_id," . user_getid() . ",'remission',3,'$form_text_notes','$form_text_changes',"
 	. "'$form_release_version','$form_filename',$form_filemodule,'$form_filetype',$unix_release_time,"
 	. "$form_filesize," . time() . ",'$form_text_format','N')");
-
-
 
 // make this the most recent release in module
 
@@ -79,18 +75,18 @@ if ($result && db_numrows($result) < 1) {
 
 		$subject='SourceForge File Release Notice';
 
-		$body = "To: noreply@$GLOBALS[HTTP_HOST]".
+		$body = "To: noreply@sourceforge.net".
 			"\nBCC: $list".
 			"\nSubject: $subject".
 			"\n\nA new version of ". db_result($result,0,'module_name')." has been released. ".
 			"\nYou can download it from SourceForge by following this link: ".
-			"\n\nhttp://".$GLOBALS['sys_download_host']."/".db_result($result,0,'unix_group_name')."/$form_filename ".
+			"\n\nhttp://download.sourceforge.net/".db_result($result,0,'unix_group_name')."/$form_filename ".
 			"\n\nYou requested to be notified when new versions of this file ".
 			"\nwere released. If you don't wish to be notified in the ".
 			"\nfuture, please login to SourceForge and click this link: ".
-			"\nhttp://$GLOBALS[HTTP_HOST]/project/filemodule_monitor.php?filemodule_id=$form_filemodule ";
+			"\nhttp://sourceforge.net/project/filemodule_monitor.php?filemodule_id=$form_filemodule ";
 
-		exec ("/bin/echo \"$body\" | /usr/sbin/sendmail -fnoreply@$GLOBALS[HTTP_HOST] -t");
+		exec ("/bin/echo \"$body\" | /usr/sbin/sendmail -fnoreply@sourceforge.net -t");
 		$feedback .= ' email sent - users tracking ';
 	} else {
 		echo db_error();

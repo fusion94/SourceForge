@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editaliases-edit.php,v 1.14 2000/05/17 21:54:41 tperdue Exp $
+// $Id: editaliases-edit.php,v 1.13 2000/01/26 10:44:32 tperdue Exp $
 
 require "pre.php";    
 require "account.php";
@@ -12,10 +12,11 @@ require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
 session_require(array('group'=>$group_id,'admin_flags'=>'A'));
 
-if ($Submit) {
+if ($GLOBALS[Submit]) {
 	// check security for update
 	$res_alias = db_query("SELECT * FROM mailaliases WHERE mailaliases_id=$form_mailid AND group_id=$group_id");
 	if (db_numrows($res_alias) < 1) {
+		session_securitylog('editaliases','Attempt to edit mailaliases_id '.$form_mailid);
 		exit_error('Query Error','Either that alias does not exist or you are trying to edit another group
 			alias. This attempt has been logged.');
 	}
@@ -30,6 +31,7 @@ if ($Submit) {
 // Get current alias and check security
 $res_alias = db_query("SELECT * FROM mailaliases WHERE mailaliases_id=$form_mailid AND group_id=$group_id");
 if (db_numrows($res_alias) < 1) {
+	session_securitylog('editaliases','Attempt to edit mailaliases_id '.$form_mailid);
 	exit_error('Query Error','Either that alias does not exist or you are trying to edit another group
 		alias. This attempt has been logged.');
 }
@@ -41,9 +43,9 @@ project_admin_header(array('title'=>'Add Mail Alias','group'=>$group_id));
 
 <P><FORM action="editaliases-edit.php" method="post">
 New username:
-<BR><INPUT type="text" name="form_username" value="<?php print $row_alias['user_name']; ?>">
+<BR><INPUT type="text" name="form_username" value="<?php print $row_alias[user_name]; ?>">
 <P>New email forward address:
-<BR><INPUT type="text" name="form_email" value="<?php print $row_alias['email_forward']; ?>">
+<BR><INPUT type="text" name="form_email" value="<?php print $row_alias[email_forward]; ?>">
 <INPUT type="hidden" name="form_mailid" value="<?php print $form_mailid; ?>">
 <INPUT type="hidden" name="group_id" value="<?php print $group_id; ?>">
 <BR><INPUT type="submit" name="Submit" value="Submit">

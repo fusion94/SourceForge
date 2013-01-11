@@ -4,11 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: pm_nav.php,v 1.10 2000/05/16 23:45:23 tperdue Exp $
+// $Id: pm_nav.php,v 1.9 2000/01/13 18:36:36 precision Exp $
 
 html_tabs('pm',$group_id);
 
-echo "<P><B><A HREF=\"/pm/?group_id=$group_id\">Project List</A>".
+echo "<P><B><A HREF=\"/pm/?group_id=$group_id\">Main</A>".
 	" | <A HREF=\"/pm/admin/?group_id=$group_id\">Admin</A>";
 
 if ($group_project_id) {

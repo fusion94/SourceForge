@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: massmail.php,v 1.21 2000/07/12 21:01:40 tperdue Exp $
+// $Id: massmail.php,v 1.19 2000/03/07 13:20:24 tperdue Exp $
 
 require "pre.php";    
 session_require(array('group'=>'1','admin_flags'=>'A'));
@@ -67,11 +67,11 @@ Send to all users, regardless of their preferences ('
 <BR><TEXTAREA name="mail_message" cols="70" rows="40" wrap="physical">
 
 ---------------------
-This email was sent from <?php print $GLOBALS['sys_default_domain']; ?>. To change your email receipt
+This email was sent from SourceForge.net. To change your email receipt
 preferences, please visit the site and edit your account via the
 "Account Maintenance" link.
 
-Direct any questions to admin@<?php print $GLOBALS['sys_default_domain']; ?>, or reply to this email.
+Direct any questions to admin@sourceforge.net, or reply to this email.
 </TEXTAREA>
 </PRE>
 <P><INPUT type="submit" name="Submit" value="Submit">
@@ -80,5 +80,5 @@ Direct any questions to admin@<?php print $GLOBALS['sys_default_domain']; ?>, or
 ';
 
 site_footer(array());
-
+site_cleanup(array());
 ?>

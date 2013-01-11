@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: change_pw.php,v 1.16 2000/05/17 21:51:43 tperdue Exp $
+// $Id: change_pw.php,v 1.14 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
 require "account.php";
@@ -19,15 +19,10 @@ function register_valid()	{
 	}
 	
 	// check against old pw
-	db_query("SELECT user_pw, status FROM user WHERE user_id=" . user_getid());
+	db_query("SELECT user_pw FROM user WHERE user_id=" . user_getid());
 	$row_pw = db_fetch_array();
 	if ($row_pw[user_pw] != md5($GLOBALS[form_oldpw])) {
 		$GLOBALS[register_error] = "Old password is incorrect.";
-		return 0;
-	}
-
-	if ($row_pw[status] != 'A') {
-		$GLOBALS[register_error] = "Account must be active to change password.";
 		return 0;
 	}
 
@@ -81,5 +76,5 @@ which will happen within the next 6 hours.
 <?php
 }
 site_footer(array());
-
+site_cleanup(array());
 ?>

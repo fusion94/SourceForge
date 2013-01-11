@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: pending.php,v 1.4 2000/05/17 21:51:43 tperdue Exp $
+// $Id: pending.php,v 1.3 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
 site_header(array(title=>"Suspended Account"));
@@ -23,5 +23,5 @@ email will be sent to the email address you provided in registration.
  
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

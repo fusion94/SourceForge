@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.66 2000/07/03 15:31:21 tperdue Exp $
+// $Id: index.php,v 1.64 2000/04/28 08:53:34 tperdue Exp $
 
 require "pre.php";    
 session_require(array('isloggedin'=>'1'));
@@ -32,35 +32,24 @@ to view your developer/consultant profiles and ratings.
 <?php html_box1_top("Personal Information"); ?>
 &nbsp;<BR>
 <TABLE width=100% cellpadding=0 cellspacing=0 border=0>
-
 <TR valign=top>
 <TD>Member Since: </TD>
-<TD><B><?php print date($sys_datefmt,$row_user['add_date']); ?></B></TD>
+<TD><B><?php print date("M d, Y",$row_user['add_date']); ?></B></TD>
 </TR>
 <TR valign=top>
 <TD>User ID: </TD>
 <TD><B><?php print $row_user['user_id']; ?></B></TD>
 </TR>
-
 <TR valign=top>
 <TD>Login Name: </TD>
 <TD><B><?php print $row_user['user_name']; ?></B>
 <BR><A href="change_pw.php">[Change Password]</A></TD>
 </TR>
-
-<TR valign=top>
-<TD>Timezone: </TD>
-<TD><B><?php print $row_user['timezone']; ?></B>
-<BR><A href="change_timezone.php">[Change Timezone]</A></TD>
-</TR>
-
-
 <TR valign=top>
 <TD>Real Name: </TD>
 <TD><B><?php print $row_user['realname']; ?></B>
 <BR><A href="change_realname.php">[Change Real Name]</A></TD>
 </TR>
-
 <TR valign=top>
 <TD>Email Addr: </TD>
 <TD><B><?php print $row_user['email']; ?></B>

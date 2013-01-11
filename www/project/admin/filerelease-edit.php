@@ -4,9 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: filerelease-edit.php,v 1.34 2000/07/06 19:04:00 tperdue Exp $
+// $Id: filerelease-edit.php,v 1.31 2000/04/03 16:10:51 dtype Exp $
 
 require "pre.php";    
+require "paths.php";
 require "filechecks.php";
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
@@ -106,7 +107,7 @@ print '<P>Filename
 
 <P>Release Date
 <BR><I>(YYYY-MM-DD) example: 1999-10-25. </I>
-<BR><INPUT type=text name="form_release_time" value="<?php print date('Y-m-d',$row_file[release_time]); ?>">
+<BR><INPUT type=text name="form_release_time" value="<?php print date("Y-m-d",$row_file[release_time]); ?>">
 
 <P>Module Name
 <BR><I>Use the same module name for subsequent releases of the same product.

@@ -5,7 +5,7 @@ header("Content-Type: text/plain");
 
 // ## group_id must be specified
 $res_grp = db_query('SELECT group_id,group_name FROM groups '
-	.'WHERE is_public=1 AND status=\'A\' AND group_id='.$group_id);
+	.'WHERE public=1 AND status=\'A\' AND group_id='.$group_id);
 if (db_numrows($res_grp) < 1) {
 	print 'ERROR: This URL must be called with a valid group_id parameter';
 	exit;
@@ -14,7 +14,7 @@ if (db_numrows($res_grp) < 1) {
 }
 
 print '<?xml version="1.0"?>
-<!DOCTYPE sf_forum SYSTEM "http://".$GLOBALS[sys_default_domain]."/exports/sf_forum_0.1.dtd">
+<!DOCTYPE sf_forum SYSTEM "http://sourceforge.net/exports/sf_forum_0.1.dtd">
 ';
 print "<group name=\"$row_grp[group_name]\">";
 

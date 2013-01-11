@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: toplist.php,v 1.29 2000/07/12 21:01:41 tperdue Exp $
+// $Id: toplist.php,v 1.27 2000/05/04 00:28:57 tperdue Exp $
 
 require "pre.php";    
 
@@ -15,7 +15,7 @@ if ($GLOBALS[type] == 'downloads_week') {
 }
 else if ($GLOBALS[type] == 'pageviews_proj') {
 	$rankfield = 'pageviews_proj';
-	$title = 'Top Weekly Project Pageviews at *.'.$GLOBALS['sys_default_domain'].' (from impressions of SF logo)';
+	$title = 'Top Project Pageviews at *.sourceforge.net (from impressions of SF logo)';
 	$column1 = 'Pageviews';
 }
 else if ($GLOBALS[type] == 'forumposts_week') {

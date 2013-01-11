@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: trove_cat_edit.php,v 1.12 2000/05/17 21:51:55 tperdue Exp $
+// $Id: trove_cat_edit.php,v 1.11 2000/04/10 15:16:55 dtype Exp $
 
 require "pre.php";
 require "trove.php";
@@ -65,5 +65,5 @@ while ($row_parent = db_fetch_array($res_parent)) {
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

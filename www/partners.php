@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: partners.php,v 1.6 2000/05/17 21:51:55 tperdue Exp $
+// $Id: partners.php,v 1.5 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
 site_header(array(title=>"Partners"));
@@ -30,5 +30,5 @@ of innovative software solutions.
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: pm_utils.php,v 1.60 2000/06/14 01:28:20 q Exp $
+// $Id: pm_utils.php,v 1.51 2000/04/21 14:01:25 tperdue Exp $
 
 /*
 
@@ -17,24 +17,8 @@
 function pm_header($params) {
 	global $group_id,$is_pm_page,$words,$group_project_id,$DOCUMENT_ROOT,$order;
 	$params['group']=$group_id;
-
 	site_header($params);
-
-	html_tabs('pm',$group_id);
-
-	echo "<P><B>";
-
-	if ($group_project_id) {
-		echo "<A HREF=\"/pm/?group_id=$group_id\">Project List</A>";
-		if (user_isloggedin()) {
-                        echo " | <A HREF=\"/pm/task.php?group_id=$group_id&group_project_id=$group_project_id&func=addtask\">Add Task</A>";
-			echo " | <A HREF=\"/pm/task.php?group_id=$group_id&group_project_id=$group_project_id&func=browse&set=my\">My Tasks</A>";
-		}
-		echo " | <A HREF=\"/pm/task.php?group_id=$group_id&group_project_id=$group_project_id&func=browse&set=open\">Browse Open Tasks</A> | ";
-	}
-	echo " <A HREF=\"/pm/admin/?group_id=$group_id\">Admin</A>";
-	echo "</B>";
-
+	include ($DOCUMENT_ROOT.'/pm/pm_nav.php');
 }
 
 function pm_footer($params) {
@@ -46,15 +30,6 @@ function pm_footer($params) {
 function pm_status_box($name='status_id',$checked='xyxy') {
 	$result=pm_data_get_statuses();
 	return util_build_select_box($result,$name,$checked);
-}
-
-function pm_tech_select_box($name='assigned_to',$group_id=false,$checked='xzxz') {
-	if (!$group_id) {
-		return 'ERROR - no group_id';
-	} else {
-		$result=pm_data_get_technicians ($group_id);
-		return util_build_select_box($result,$name,$checked);
-	}
 }
 
 function pm_multiple_task_depend_box ($name='dependent_on[]',$group_project_id=false,$project_task_id=false) {
@@ -74,18 +49,18 @@ function pm_multiple_task_depend_box ($name='dependent_on[]',$group_project_id=f
 }
 
 function pm_multiple_assigned_box ($name='assigned_to[]',$group_id=false,$project_task_id=false) {
-	if (!$group_id) {
-		return 'ERROR - no group_id';
-	} else {
-		$result=pm_data_get_technicians ($group_id);
-		if ($project_task_id) {
+        if (!$group_id) {
+                return 'ERROR - no group_id';
+        } else {
+                $result=pm_data_get_technicians ($group_id);
+                if ($project_task_id) {
 			//get the data so we can mark items as SELECTED
-			$result2=pm_data_get_assigned_to ($project_task_id);
-			return util_build_multiple_select_box ($result,$name,util_result_column_to_array($result2));
-		} else {
-			return util_build_multiple_select_box ($result,$name,array());
-		}
-	}
+                        $result2=pm_data_get_assigned_to ($project_task_id);
+                        return util_build_multiple_select_box ($result,$name,util_result_column_to_array($result2));
+                } else {
+                        return util_build_multiple_select_box ($result,$name,array());
+                }
+        }
 }
 
 function pm_show_percent_complete_box($name='percent_complete',$selected=0) {

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: filechecks.php,v 1.42 2000/07/12 22:39:56 tperdue Exp $
+// $Id: filechecks.php,v 1.41 2000/04/03 16:37:39 dtype Exp $
 
 function filechecks_islegalname($filename) {
 	if (strstr($filename,' ') || strstr($filename,'\\')
@@ -137,7 +137,7 @@ function filechecks_getfiletype($filename) {
 		exit_error ("File does not exist","You must supply a filename.");
 	}
 
-	if (!file_exists("$GLOBALS[FTPINCOMING_DIR]/$filename")) {
+	if (!file_exists("/nfs/remission/u7/ftp/incoming/$filename")) {
 		exit_error ("File does not exist","File $filename is not in incoming FTP directory.");
 	}
 	return $filetype;

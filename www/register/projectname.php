@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: projectname.php,v 1.33 2000/07/12 21:09:26 tperdue Exp $
+// $Id: projectname.php,v 1.28 2000/02/16 00:19:33 precision Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 session_require(array('isloggedin'=>'1'));
@@ -17,7 +17,7 @@ if ($insert_purpose && $form_purpose) {
 	$random_num=rand(0,1000000);
 
 	// make group entry
-	$result = db_query("INSERT INTO groups (group_name,is_public,unix_group_name,http_domain,homepage,status,"
+	$result = db_query("INSERT INTO groups (group_name,public,unix_group_name,http_domain,homepage,status,"
 		. "unix_box,cvs_box,license,register_purpose,register_time,license_other,rand_hash) VALUES ("
 		. "'__$random_num',"
 		. "1," // public
@@ -33,7 +33,7 @@ if ($insert_purpose && $form_purpose) {
 		. "'__$random_num','__".md5($random_num)."')");
 
 	if (!$result) {
-		exit_error('ERROR','INSERT QUERY FAILED. Please notify admin@'.$GLOBALS['sys_default_domain']);
+		exit_error('ERROR','INSERT QUERY FAILED. Please notify admin@sourceforge.net');
 	} else {
 		$group_id=db_insertid($result);
 	}
@@ -72,10 +72,10 @@ used in so many places around the site. They are:
 many things, including:
 
 <UL>
-<LI>A web site at unixname.<?php echo $GLOBALS['sys_default_domain']; ?> 
-<LI>Email at aliases@unixname.<?php echo $GLOBALS['sys_default_domain']; ?> 
+<LI>A web site at unixname.SourceForge.net
+<LI>Email at aliases@unixname.SourceForge.net
 <LI>A CVS Repository root of /cvsroot/unixname
-<LI>Shell access to unixname.<?php echo $GLOBALS['sys_default_domain']; ?> 
+<LI>Shell access to unixname.SourceForge.net
 <LI>Search engines throughout the site
 </UL>
 
@@ -89,10 +89,10 @@ many things, including:
 <INPUT TYPE="HIDDEN" NAME="rand_hash" VALUE="<?php echo md5($random_num); ?>">
 Full Name:
 <BR>
-<INPUT size="30" maxlength="30" type=text name="form_full_name">
+<INPUT size=40 maxlength=40 type=text name="form_full_name">
 <P>Unix Name:
 <BR>
-<INPUT type=text maxlength="15" SIZE="15" name="form_unix_name">
+<INPUT type=text maxlength=20 name="form_unix_name">
 <P>
 <H2><FONT COLOR="RED">Do Not Back Arrow After This Point</FONT></H2>
 <INPUT type=submit name="Submit" value="Step 5: License">
@@ -101,6 +101,6 @@ Full Name:
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>
 

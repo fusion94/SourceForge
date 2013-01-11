@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: image_add.php,v 1.30 2000/05/17 21:51:55 tperdue Exp $
+// $Id: image_add.php,v 1.29 2000/01/20 10:58:13 dtype Exp $
 
 require 'pre.php';    
 require 'imagevar.php';
@@ -35,7 +35,7 @@ if ($GLOBALS[Submit] && $GLOBALS[form_imagedata]) {
 print '</B>
 ';
 	site_footer(array());
-	
+	site_cleanup(array());
 	exit;
 }
 
@@ -53,5 +53,5 @@ print '<P>Adding image for project: <B>'.group_getname($group_id).'</B>
 </FORM>';
 
 site_footer(array());
-
+site_cleanup(array());
 ?>

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: hardware.php,v 1.30 2000/05/17 21:51:55 tperdue Exp $
+// $Id: hardware.php,v 1.29 2000/03/29 17:09:11 precision Exp $
 
 require "pre.php";    
 site_header(array(title=>"Welcome to Project Alexandria"));
@@ -94,5 +94,5 @@ site_header(array(title=>"Welcome to Project Alexandria"));
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

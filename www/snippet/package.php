@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: package.php,v 1.11 2000/05/08 15:27:00 tperdue Exp $
+// $Id: package.php,v 1.10 2000/03/29 12:27:29 tperdue Exp $
 
 require ('pre.php');
 require ('../snippet/snippet_utils.php');
@@ -132,13 +132,13 @@ then add them using the new window link shown above.
 	<TD><B>Language:</B><BR>
 		<?php echo util_build_select_box_from_array ($SCRIPT_LANGUAGE,'language'); ?>
 		<BR>
-		<A HREF="/support/?func=addsupport&group_id=1">Suggest a Language</A>
+		<A HREF="/sendmessage.php?toaddress=admin_maillink_sourceforge.net">Suggest a Language</A>
 	</TD>
 
 	<TD><B>Category:</B><BR>
 		<?php echo util_build_select_box_from_array ($SCRIPT_CATEGORY,'category'); ?>
 		<BR>
-		<A HREF="/support/?func=addsupport&group_id=1">Suggest a Category</A>
+		<A HREF="/sendmessage.php?toaddress=admin_maillink_sourceforge.net">Suggest a Category</A>
 	</TD>
 	</TR>
  

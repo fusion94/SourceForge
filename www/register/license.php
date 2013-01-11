@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: license.php,v 1.29 2000/07/12 21:01:41 tperdue Exp $
+// $Id: license.php,v 1.26 2000/02/14 14:38:04 fusion94 Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 require "vars.php";
@@ -16,7 +16,7 @@ if ($insert_group_name && $group_id && $rand_hash && $form_full_name && $form_un
 		check for valid group name
 	*/
 	if (!account_groupnamevalid($form_unix_name)) {
-		exit_error("Invalid Group Name",$register_error);
+		exit_error("Invalid Group Name",$GLOBALS[register_error]);
 	}
 	/*
 		See if it's taken already
@@ -27,14 +27,14 @@ if ($insert_group_name && $group_id && $rand_hash && $form_full_name && $form_un
 	/*
 		Hash prevents them from updating a live, existing group account
 	*/
-	$sql="UPDATE groups SET unix_group_name='". strtolower($form_unix_name) ."', group_name='$form_full_name', ".
-		"http_domain='$form_unix_name.$GLOBALS[sys_default_domain]', homepage='$form_unix_name.$GLOBALS[sys_default_domain]' ".
+	$sql="UPDATE groups SET unix_group_name='$form_unix_name', group_name='$form_full_name', ".
+		"http_domain='$form_unix_name.sourceforge.net', homepage='$form_unix_name.sourceforge.net' ".
 		"WHERE group_id='$group_id' AND rand_hash='__$rand_hash'";
 	$result=db_query($sql);
 
 } else {
 	exit_error('Error','Missing Info Or Invalid State. Some form variables were missing. 
-		If you are certain you entered everything, <B>PLEASE</B> report to admin@'. $GLOBALS['sys_default_domain'].' and
+		If you are certain you entered everything, <B>PLEASE</B> report to admin@sourceforge.net and
 		include info on your browser and platform configuration');
 }
 
@@ -117,6 +117,6 @@ not be approved.
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>
 

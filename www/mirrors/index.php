@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.23 2000/05/17 21:51:55 tperdue Exp $
+// $Id: index.php,v 1.22 2000/03/10 08:41:08 dtype Exp $
 
 require "pre.php";    
 site_header(array(title=>"Mirrors of Other Sites"));
@@ -119,5 +119,5 @@ on the planet.
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

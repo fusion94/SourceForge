@@ -4,16 +4,14 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: squal_pre.php,v 1.4 2000/06/12 14:53:27 tperdue Exp $
+// $Id: squal_pre.php,v 1.2 2000/04/17 16:59:54 tperdue Exp $
 
-require ('/etc/local.inc');
 require('database.php');
 require('session.php');
 require('user.php');
 //require('group.php');
 require('error.php');
 require('squal_exit.php');
-require('browser.php');
 
 $sys_datefmt = "m/d/y H:i";
 

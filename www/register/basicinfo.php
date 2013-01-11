@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: basicinfo.php,v 1.15 2000/05/17 21:51:55 tperdue Exp $
+// $Id: basicinfo.php,v 1.14 2000/01/25 09:27:18 tperdue Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 session_require(array('isloggedin'=>'1'));
@@ -39,5 +39,6 @@ staff member and we will assist you in getting a new statement approved.
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>
+

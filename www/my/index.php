@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.64 2000/06/11 03:23:03 tperdue Exp $
+// $Id: index.php,v 1.58 2000/05/02 13:04:43 tperdue Exp $
 
 require ('pre.php');
 require ('vote_function.php');
@@ -217,52 +217,23 @@ if (user_isloggedin()) {
 	}
 
 	/*
-	       Personal bookmarks
-	*/
-	echo html_box1_middle('My Bookmarks');
-
-	$result = db_query("SELECT bookmark_url, bookmark_title, bookmark_id from user_bookmarks where ".
-		"user_id='". user_getid() ."' ORDER BY bookmark_title");
-	$rows=db_numrows($result);
-	if (!$result || $rows < 1) {
-		echo '
-			<H3>You currently do not have any bookmarks saved</H3>';
-		echo db_error();
-	} else {
-		for ($i=0; $i<$rows; $i++) {
-			echo '
-				<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD ALIGN="MIDDLE">
-				<A HREF="/my/bookmark_delete.php?bookmark_id='. db_result($result,$i,'bookmark_id') .'">
-				<IMG SRC="/images/ic/trash.png" HEIGHT="16" WIDTH="16" BORDER="0"></A></TD>
-				<TD><B><A HREF="'. db_result($result,$i,'bookmark_url') .'">'.
-				db_result($result,$i,'bookmark_title') .'</A></B> &nbsp;
-				<SMALL><A HREF="/my/bookmark_edit.php?bookmark_id='. db_result($result,$i,'bookmark_id') .'">[Edit]</A></SMALL></TD</TR>';
-		}
-	}
-
-
-	/*
 		PROJECT LIST
 	*/
 
 	echo html_box1_middle('My Projects');
-	$result = db_query("SELECT groups.group_name,"
-		. "groups.group_id,"
-		. "groups.unix_group_name,"
-		. "groups.status,"
-		. "user_group.admin_flags "
+	$result = db_query("SELECT groups.group_name AS group_name,"
+		. "groups.group_id AS group_id,"
+		. "groups.status AS status,"
+		. "user_group.admin_flags AS admin_flags "
 		. "FROM groups,user_group WHERE "
 		. "groups.group_id=user_group.group_id AND "
 		. "user_group.user_id=" . user_getid());
-	$rows=db_numrows($result);
-	if (!$result || $rows < 1) {
+
+	if (!$result || db_numrows($result) < 1) {
 		echo "You're not a member of any projects";
 	} else {
-		for ($i=0; $i<$rows; $i++) {
-			echo '
-				<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD ALIGN="MIDDLE">
-				<A href="rmproject.php?group_id='. db_result($result,$i,'group_id') .'"><IMG SRC="/images/ic/trash.png" HEIGHT="16" WIDTH="16" BORDER="0"></A></TD>
-				<TD><A href="/projects/'. db_result($result,$i,'unix_group_name') .'/">'. db_result($result,$i,'group_name') .'</A></TD></TR>';
+		while ($row_proj = db_fetch_array($result)) {
+			print "<A href=\"/project/?group_id=$row_proj[group_id]\">$row_proj[group_name]</A> &nbsp; &nbsp; <A href=\"rmproject.php?group_id=$row_proj[group_id]\">[Remove]</A><BR>";
 		}
 	}
 	echo html_box1_bottom();

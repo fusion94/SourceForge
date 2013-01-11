@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: grouplist.php,v 1.44 2000/06/17 08:24:35 tperdue Exp $
+// $Id: grouplist.php,v 1.42 2000/03/07 13:20:24 tperdue Exp $
 
 require "pre.php";    
 session_require(array('group'=>'1','admin_flags'=>'A'));
@@ -12,33 +12,33 @@ session_require(array('group'=>'1','admin_flags'=>'A'));
 site_header(array('title'=>"Alexandria: Group List"));
 
 // start from root if root not passed in
-if (!$form_catroot) {
-	$form_catroot = 1;
+if (!$GLOBALS['form_catroot']) {
+	$GLOBALS['form_catroot'] = '1';
 }
 
 print "<br><a href=\"groupedit-add.php\">[Add Group]</a>";
 print "<p>Alexandria Group List for Category: ";
 
-if ($form_catroot == 1) {
+if ($GLOBALS['form_catroot'] == '1') {
 
 	if (isset($group_name_search)) {
 		print "<b>Groups that begin with $group_name_search</b>\n";
-		$res = db_query("SELECT group_name,unix_group_name,group_id,is_public,status,license "
+		$res = db_query("SELECT group_name,unix_group_name,group_id,public,status,license "
 			. "FROM groups WHERE group_name LIKE '$group_name_search%' "
 			. ($form_pending?"AND WHERE status='P' ":"")
 			. " ORDER BY group_name");
 	} else {
 		print "<b>All Categories</b>\n";
-		$res = db_query("SELECT group_name,unix_group_name,group_id,is_public,status,license "
+		$res = db_query("SELECT group_name,unix_group_name,group_id,public,status,license "
 			. "FROM groups "
 			. ($status?"WHERE status='$status' ":"")
 			. "ORDER BY group_name");
 	}
 } else {
-	print "<b>" . category_fullname($form_catroot) . "</b>\n";
+	print "<b>" . category_fullname($GLOBALS['form_catroot']) . "</b>\n";
 
 	$res = db_query("SELECT groups.group_name,groups.unix_group_name,groups.group_id,"
-		. "groups.is_public,"
+		. "groups.public,"
 		. "groups.license,"
 		. "groups.status "
 		. "FROM groups,group_category "
@@ -65,7 +65,7 @@ while ($grp = db_fetch_array($res)) {
 	print "<td><a href=\"groupedit.php?group_id=$grp[group_id]\">$grp[group_name]</a></td>";
 	print "<td>$grp[unix_group_name]</td>";
 	print "<td>$grp[status]</td>";
-	print "<td>$grp[is_public]</td>";
+	print "<td>$grp[public]</td>";
 	print "<td>$grp[license]</td>";
 	
 	// categories
@@ -85,5 +85,5 @@ while ($grp = db_fetch_array($res)) {
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

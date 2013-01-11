@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: groupedit.php,v 1.61 2000/06/17 08:24:35 tperdue Exp $
+// $Id: groupedit.php,v 1.59 2000/03/07 13:20:24 tperdue Exp $
 
 require "pre.php";    
 require "vars.php";
@@ -19,7 +19,7 @@ if ($group_idrm) {
 
 // group public choice
 if ($Update) {
-   db_query("UPDATE groups SET is_public=$form_public,status='$form_status',"
+   db_query("UPDATE groups SET public=$form_public,status='$form_status',"
 	. "license='$form_license',"
 	. "unix_box='$form_box',http_domain='$form_domain' WHERE group_id=$group_id");
 }
@@ -57,8 +57,8 @@ echo '<H2>'.$row_grp['group_name'].'</H2>' ;?>
 
 <B>Public?</B>
 <SELECT name="form_public">
-<OPTION <?php if ($row_grp['is_public'] == 1) print "selected "; ?> value="1">Yes
-<OPTION <?php if ($row_grp['is_public'] == 0) print "selected "; ?> value="0">No
+<OPTION <?php if ($row_grp['public'] == 1) print "selected "; ?> value="1">Yes
+<OPTION <?php if ($row_grp['public'] == 0) print "selected "; ?> value="0">No
 </SELECT>
 
 <P><B>License</B>
@@ -107,5 +107,5 @@ print "<P>Submitted Description:<P> $row_grp[register_purpose]";
 print "<P>License Other: <P> $row_grp[license_other]";
 
 site_footer(array());
-
+site_cleanup(array());
 ?>

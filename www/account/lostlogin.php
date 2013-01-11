@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: lostlogin.php,v 1.12 2000/05/17 21:51:43 tperdue Exp $
+// $Id: lostlogin.php,v 1.11 2000/04/14 15:21:29 dtype Exp $
 
 require "pre.php";    
 require "account.php";
@@ -21,19 +21,21 @@ if (db_numrows($res_lostuser) < 1) {
 }
 $row_lostuser = db_fetch_array($res_lostuser);
 
-if ($Update && $form_pw && !strcmp($form_pw,$form_pw2)) {
+if ($GLOBALS[Update] && $form_pw && !strcmp($form_pw,$form_pw2)) {
 	db_query("UPDATE user SET "
 		. "user_pw='" . md5($form_pw) . "',"
 		. "unix_pw='" . account_genunixpw($form_pw) . "' WHERE "
 		. "confirm_hash='$confirm_hash'");
 
+	session_securitylog("lostpw","User #$row_lostuser[user_id] successfully changed password via lostpw confirm_hash");
+
 	session_redirect("/");
 }
 
-site_header(array('title'=>"Lost Password Login"));
+site_header(array(title=>"Lost Password Login"));
 ?>
 <p><b>Lost Password Login</b>
-<P>Welcome, <?php print $row_lostuser['user_name']; ?>. You may now
+<P>Welcome, <?php print $row_lostuser[user_name]; ?>. You may now
 change your password.
 
 <FORM action="lostlogin.php">
@@ -47,5 +49,5 @@ change your password.
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

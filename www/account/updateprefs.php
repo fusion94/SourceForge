@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: updateprefs.php,v 1.8 2000/06/13 07:22:40 tperdue Exp $
+// $Id: updateprefs.php,v 1.7 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
-session_require(array('isloggedin'=>1));
+session_require(array(isloggedin=>1));
 
 db_query("UPDATE user SET "
 	. "mail_siteupdates=" . ($form_mail_site?"1":"0") . ","

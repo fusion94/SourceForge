@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: support_utils.php,v 1.40 2000/07/12 21:01:41 tperdue Exp $
+// $Id: support_utils.php,v 1.31 2000/04/21 14:10:53 tperdue Exp $
 
 /*
 
@@ -22,11 +22,12 @@ function support_header($params) {
 	html_tabs('support',$group_id);
 
 	if ($group_id) {
-		echo '<P><B><A HREF="/support/?func=addsupport&group_id='.$group_id.'">Submit A Request</A>';
+		echo '<P><B><A HREF="/support/?func=addsupport&group_id='.$group_id.'">Submit A Support Request</A>';
 		if (user_isloggedin()) {
-			echo ' | <A HREF="/support/?func=browse&group_id='.$group_id.'&set=my">My Requests</A>';
+			echo ' | <A HREF="/support/?func=browse&group_id='.$group_id.'&set=my">My Support Requests</A>';
 		}
-		echo ' | <A HREF="/support/?func=browse&group_id='.$group_id.'&set=open">Open Requests</A>';
+		echo ' | <A HREF="/support/?func=browse&group_id='.$group_id.'&set=closed">Closed</A>';
+		echo ' | <A HREF="/support/?func=browse&group_id='.$group_id.'&set=open">Open</A>';
 		echo ' | <A HREF="/support/admin/?group_id='.$group_id.'">Admin</A>';
 
 		echo '</B>';
@@ -123,14 +124,13 @@ function show_supportlist ($result,$offset,$set='open') {
 	echo '</TD></TR></TABLE>';
 }
 
-function mail_followup($support_id,$more_addresses=false) {
+function mail_followup($support_id) {
 	global $sys_datefmt,$feedback;
 	/*
 		Send a message to the person who opened this support and the person it is assigned to
 	*/
 
-	$sql="SELECT support.priority,support.group_id,support.support_id,support.summary,".
-		"support_status.status_name,support_category.category_name,support.open_date, ".
+	$sql="SELECT support.priority,support.group_id,support.support_id,support.summary,support_status.status_name,support_category.category_name, ".
 		"user.email,user2.email AS assigned_to_email ".
 		"FROM support,user,user user2,support_status,support_category ".
 		"WHERE user2.user_id=support.assigned_to ".
@@ -144,9 +144,9 @@ function mail_followup($support_id,$more_addresses=false) {
 		/*
 			Set up the body
 		*/
-		$body = "\n\nSupport Request #".db_result($result,0,'support_id').", was updated on ".date($sys_datefmt,db_result($result,0,'open_date')). 
-			"\nYou can respond by visiting: ".
-			"\nhttp://".$GLOBALS['sys_default_domain']."/support/?func=detailsupport&support_id=".db_result($result,0,"support_id")."&group_id=".db_result($result,0,"group_id").
+		$body = "\n\nSupport Request #".db_result($result,0,'support_id').", which you submitted on ".date($sys_datefmt,db_result($result,0,'open_date')). 
+			"\nhas been updated. You can respond by visiting: ".
+			"\nhttp://sourceforge.net/support/?func=detailsupport&support_id=".db_result($result,0,"support_id")."&group_id=".db_result($result,0,"group_id").
 			"\n\nCategory: ".db_result($result,0,'category_name').
 			"\nStatus: ".db_result($result,0,'status_name').
 			"\nPriority: ".db_result($result,0,'priority').
@@ -164,10 +164,12 @@ function mail_followup($support_id,$more_addresses=false) {
 		if ($email_res && $rows > 0) {
 			$mail_arr=result_column_to_array($email_res,0);
 			$emails=implode($mail_arr,', ');
+//			for ($i=0; $i<$rows; $i++) {
+//				$emails .= db_result($email_res,$i,'from_email').', ';
+//			}
 		}
-		if ($more_addresses) {
-			$emails .= ','.$more_addresses;
-		}
+
+//		$to=$emails;
 
 		/*
 			Now include the two most recent emails
@@ -189,19 +191,19 @@ function mail_followup($support_id,$more_addresses=false) {
 				"\n\n----------------------------------------------------------------------";
 			}
 			$body .= "\nYou can respond by visiting: ".
-			"\nhttp://$GLOBALS[HTTP_HOST]/support/?func=detailsupport&support_id=".db_result($result,0,'support_id')."&group_id=".db_result($result,0,'group_id');
+			"\nhttp://sourceforge.net/support/?func=detailsupport&support_id=".db_result($result,0,'support_id')."&group_id=".db_result($result,0,'group_id');
 		}
 
 		//attach the headers to the body
 
-		$body = "To: noreply@$GLOBALS[HTTP_HOST]".
+		$body = "To: noreply@sourceforge.net".
 			"\nBCC: $emails".
 			"\nSubject: $subject".
 			$body;
 		/*
 			Send the email
 		*/
-		exec ("/bin/echo \"". util_prep_string_for_sendmail($body) ."\" | /usr/sbin/sendmail -fnoreply@$GLOBALS[HTTP_HOST] -t &");
+		exec ("/bin/echo \"". util_prep_string_for_sendmail($body) ."\" | /usr/sbin/sendmail -fnoreply@sourceforge.net -t &");
 //		echo $body;
 		$feedback .= " Support Request Update Emailed ";
 

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: confirmation.php,v 1.52 2000/07/12 21:01:41 tperdue Exp $
+// $Id: confirmation.php,v 1.50 2000/04/24 13:13:35 dtype Exp $
 
 require 'pre.php';    // Initial db and session library, opens session
 session_require(array('isloggedin'=>'1'));
@@ -73,13 +73,13 @@ if ($show_confirm) {
 		"WHERE group_id='$group_id' AND rand_hash='__$rand_hash'");
 
 	if (db_affected_rows($result) < 1) {
-		exit_error('Error','UDPATING TO ACTIVE FAILED. <B>PLEASE</B> report to admin@'.$GLOBALS['sys_default_domain'].' '.db_error());
+		exit_error('Error','UDPATING TO ACTIVE FAILED. <B>PLEASE</B> report to admin@sourceforge.net'.db_error());
 	}
 
 	// define a module
 	$result=db_query("INSERT INTO filemodule (group_id,module_name) VALUES ('$group_id','".group_getunixname($group_id)."')");
 	if (!$result) {
-		exit_error('Error','INSERTING FILEMODULE FAILED. <B>PLEASE</B> report to admin@'.$GLOBALS['sys_default_domain'].' '.db_error());
+		exit_error('Error','INSERTING FILEMODULE FAILED. <B>PLEASE</B> report to admin@sourceforge.net'.db_error());
 	}
 
 	// make the current user an admin
@@ -90,13 +90,13 @@ if ($show_confirm) {
 		. "2," // bug flags
 		. "2)"); // forum_flags	
 	if (!$result) {
-		exit_error('Error','SETTING YOU AS OWNER FAILED. <B>PLEASE</B> report to admin@'.$GLOBALS['sys_default_domain'].' '.db_error());
+		exit_error('Error','SETTING YOU AS OWNER FAILED. <B>PLEASE</B> report to admin@sourceforge.net'.db_error());
 	}
 
 	//Add a couple of forums for this group
-	forum_create_forum($group_id,'Open Discussion',1,'General Discussion');
-	forum_create_forum($group_id,'Help',1,'Get Help');
-	forum_create_forum($group_id,'Developers',0,'Project Developer Discussion');
+	forum_create_forum($group_id,'Open Discussion',1);
+	forum_create_forum($group_id,'Help',1);
+	forum_create_forum($group_id,'Developers',0);
 
 	//Set up some mailing lists
 	//will be done at some point. needs to communicate with geocrawler
@@ -131,7 +131,7 @@ if ($show_confirm) {
 
 } else {
 	exit_error('Error','This is an invalid state. Some form variables were missing.
-		If you are certain you entered everything, <B>PLEASE</B> report to admin@'.$GLOBALS['sys_default_domain'].' and
+		If you are certain you entered everything, <B>PLEASE</B> report to admin@sourceforge.net and
 		include info on your browser and platform configuration');
 
 }

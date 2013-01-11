@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: utils.php,v 1.107 2000/07/01 18:05:32 tperdue Exp $
+// $Id: utils.php,v 1.103 2000/04/05 07:12:01 tperdue Exp $
 
 function util_prep_string_for_sendmail($body) {
 	$body=str_replace("\\","\\\\",$body);
@@ -63,7 +63,7 @@ function util_build_select_box_from_array ($vals,$select_name,$checked_val='xzxz
 	return $return;
 }
 
-function util_build_select_box_from_arrays ($vals,$texts,$select_name,$checked_val='xzxz',$show_100=true) {
+function util_build_select_box_from_arrays ($vals,$texts,$select_name,$checked_val='xzxz') {
 	/*
 		Takes two arrays, with the first array being the "id" or value
 		and the other array being the text you want displayed
@@ -75,12 +75,8 @@ function util_build_select_box_from_arrays ($vals,$texts,$select_name,$checked_v
 
 	$return .= '
 		<SELECT NAME="'.$select_name.'">';
-
-	//we don't always want the default 100 row shown
-	if ($show_100) {
-		$return .= '
+	$return .= '
 		<OPTION VALUE="100">None</OPTION>';
-	}
 
 	$rows=count($vals);
 	if (count($texts) != $rows) {
@@ -88,9 +84,7 @@ function util_build_select_box_from_arrays ($vals,$texts,$select_name,$checked_v
 	}
 
 	for ($i=0; $i<$rows; $i++) {
-		//  uggh - sorry - don't show the 100 row 
-		//  if it was shown above, otherwise do show it
-		if (($vals[$i] != '100') || ($vals[$i] == '100' && !$show_100)) {
+		if ($vals[$i] != '100') {
 			$return .= '
 				<OPTION VALUE="'.$vals[$i].'"';
 			if ($vals[$i] == $checked_val) {
@@ -346,7 +340,7 @@ Function GraphIt($name_string,$value_string,$title) {
 	$bars=array();
 
 	for ($i = 0; $i < $counter; $i++) {
-		$bars[$i]=$GLOBALS['COLOR_LTBACK1'];
+		$bars[$i]=$GLOBALS[COLOR_LTBACK1];
 	}
 
 	$counter=count($value_string);

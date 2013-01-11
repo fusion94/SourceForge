@@ -4,9 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: addfile_basicinfo.php,v 1.35 2000/07/03 15:31:21 tperdue Exp $
+// $Id: addfile_basicinfo.php,v 1.33 2000/01/26 10:44:32 tperdue Exp $
 
-require ('pre.php');    
+require "pre.php";    
+require "paths.php";
 require "filechecks.php";
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
@@ -40,7 +41,7 @@ project_admin_header(array('title'=>"File Release - Basic Information",'group'=>
 </TR>
 <TR valign=top>
 <TD>File Upload Time:</TD>
-<TD><B><?php print date($sys_datefmt,filemtime($FTPINCOMING_DIR . "/" . $form_filename)); ?></B></TD>
+<TD><B><?php print date("h:i A - F d, Y",filemtime($FTPINCOMING_DIR . "/" . $form_filename)); ?></B></TD>
 </TR>
 <TR valign=top>
 <TD>File Type:</TD>

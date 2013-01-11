@@ -4,13 +4,13 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: trove_list.php,v 1.134 2000/07/03 15:31:21 tperdue Exp $
+// $Id: trove_list.php,v 1.126 2000/05/03 23:59:45 dtype Exp $
 
 require "pre.php";    
 require "vars.php";
 require "trove.php";
 
-site_header(array('title'=>'Software Map'));
+site_header(array(title=>"Software Map"));
 
 // assign default. 18 is 'topic'
 if (!$form_cat) $form_cat = 18;
@@ -40,13 +40,8 @@ if ($discrim) {
 	// need one link for each "get out of this limit" links
 	$discrim_url = '&discrim=';
 
-	$lims=sizeof($expl_discrim);
-	if ($lims > 2) {
-		$lims=2;
-	}
-
 	// one per argument	
-	for ($i=0;$i<$lims;$i++) {
+	for ($i=0;$i<sizeof($expl_discrim);$i++) {
 		// make sure these are all ints, no url trickery
 		$expl_discrim[$i] = intval($expl_discrim[$i]);
 
@@ -95,6 +90,12 @@ Now limiting view to projects in the following categories:
 } 
 
 // #######################################
+
+// backwards compatibility. temporary
+if ($form_cat == 18) {
+	print '<P>For a short time, you can also view the
+<A href="sfmap1_list.php">deprecated software map</A>.';
+}
 
 print '<P>'.$discrim_desc;
 
@@ -173,23 +174,20 @@ print '</TD></TR></TABLE>';
 <?php
 // one listing for each project
 
-//BAD QUERY!!!
-
 // now do limiting query
-$query_projlist = "SELECT groups.group_id, "
-	. "groups.group_name, "
-	. "groups.unix_group_name, "
-	. "groups.status, "
-	. "groups.register_time, "
-	. "groups.short_description, "
-	. "project_metric.percentile, "
-	. "project_metric.ranking "
+$query_projlist = "SELECT groups.group_id AS group_id, "
+	. "groups.group_name AS group_name, "
+	. "groups.status AS status, "
+	. "groups.register_time AS register_time, "
+	. "groups.short_description AS short_description, "
+	. "project_metric.percentile AS percentile, "
+	. "project_metric.ranking AS ranking "
 	. "FROM groups "
 	. "LEFT JOIN project_metric USING (group_id) "
 	. ", trove_group_link "
 	. $discrim_queryalias
 	. "WHERE trove_group_link.group_id=groups.group_id AND "
-	. "(groups.is_public=1) AND "
+	. "(groups.public=1) AND "
 	. "(groups.status='A') AND "
 	. "trove_group_link.trove_cat_id=$form_cat "
 	. $discrim_queryand
@@ -250,10 +248,10 @@ for ($i_proj=1;$i_proj<=$querytotalcount;$i_proj++) {
 
 	if ($row_grp && $viewthisrow) {
 		print '<TABLE border="0" cellpadding="0" width="100%"><TR valign="top"><TD colspan="2">';
-		print "$i_proj. <a href=\"/projects/". strtolower($row_grp['unix_group_name']) ."/\"><B>"
-			.htmlspecialchars($row_grp['group_name'])."</B></a> ";
-		if ($row_grp['short_description']) {
-			print "- " . htmlspecialchars($row_grp['short_description']);
+		print "$i_proj. <a href=\"/project/?group_id=$row_grp[group_id]\"><B>"
+			.htmlspecialchars(stripslashes($row_grp[group_name]))."</B></a> ";
+		if ($row_grp[short_description]) {
+			print "- " . htmlspecialchars(stripslashes($row_grp[short_description]));
 		}
 
 		print '<BR>&nbsp;';
@@ -265,7 +263,7 @@ for ($i_proj=1;$i_proj<=$querytotalcount;$i_proj++) {
 		print '</TD>'."\n".'<TD align="right">'; // now the right side of the display
 		print 'Activity Percentile: <B>'.$row_grp['percentile'].'</B>';
 		print '<BR>Activity Ranking: <B>'.$row_grp['ranking'].'</B>';
-		print '<BR>Register Date: <B>'.date($sys_datefmt,$row_grp['register_time']).'</B>';
+		print '<BR>Register Date: <B>'.date('m/d/Y',$row_grp['register_time']).'</B>';
 		print '</TD></TR></TABLE>';
 		print '<HR>';
 	} // end if for row and range chacking
@@ -279,6 +277,9 @@ if ($querytotalcount > $TROVE_BROWSELIMIT) {
 // print '<P><FONT size="-1">This listing was produced by the following query: '
 //	.$query_projlist.'</FONT>';
 
-site_footer(array());
+?>
 
+<?php
+site_footer(array());
+site_cleanup(array());
 ?>

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: download.php,v 1.12 2000/07/12 21:01:40 tperdue Exp $
+// $Id: download.php,v 1.11 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
 
@@ -18,7 +18,7 @@ if ($fileid) {
 		. "filerelease.filerelease_id=$fileid");
 	if (db_numrows($res_file) < 1) exit_error("Invalid File ID","That file does not exist.");
 	$row_file = db_fetch_array($res_file);
-	$header = ("Location: http://$GLOBALS[sys_download_host]/$row_file[unix_group_name]/"
+	$header = ("Location: http://download.sourceforge.net/" . $row_file[unix_group_name] . "/"
 		. $row_file[filename]);
 
 }
@@ -38,7 +38,7 @@ else if ($expl_pathinfo[1] && $expl_pathinfo[2]) {
 		."groups.unix_group_name='$expl_pathinfo[1]'");
 	if (db_numrows($res_file) < 1) exit_error("Unknown file","That file does not exist.");
 	$row_file = db_fetch_array($res_file);
-	$header = ("Location: http://$GLOBALS[sys_download_host]/".$expl_pathinfo[1]
+	$header = ("Location: http://download.sourceforge.net/".$expl_pathinfo[1]
 		."/".$expl_pathinfo[2]);
 	$fileid = $row_file[filerelease_id];
 }

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: features_boxes.php,v 1.77 2000/06/17 08:24:35 tperdue Exp $
+// $Id: features_boxes.php,v 1.74 2000/05/04 19:31:41 dtype Exp $
 
 
 function show_features_boxes() {
@@ -26,17 +26,16 @@ function show_top_downloads() {
 	#get yesterdays day
 	$yesterday = gmdate("Ymd",time()-(3600*24));
 
-	$res_topdown = db_query("SELECT groups.group_id,"
-		."groups.group_name,"
-		."groups.unix_group_name,"
-		."frs_dlstats_group_agg.downloads "
+	$res_topdown = db_query("SELECT groups.group_id AS group_id,"
+		."groups.group_name AS group_name,"
+		."frs_dlstats_group_agg.downloads AS downloads "
 		."FROM frs_dlstats_group_agg,groups WHERE day=$yesterday "
 		."AND frs_dlstats_group_agg.group_id=groups.group_id "
 		."ORDER BY downloads DESC LIMIT 10");
 	// print each one
 	while ($row_topdown = db_fetch_array($res_topdown)) {
-		if ($row_topdown['downloads'] > 0) 
-			$return .= "<BR><A href=\"/projects/$row_topdown[unix_group_name]/\">"
+		if ($row_topdown[downloads] > 0) 
+			$return .= "<BR><A href=\"/project/?group_id=$row_topdown[group_id]\">"
 			. "$row_topdown[group_name]</A> ($row_topdown[downloads])\n";
 	}
 	$return .= '<P align="center"><A href="/top/">[More Top Projects]</A>';
@@ -77,34 +76,35 @@ function stats_getusers() {
 }
 
 function show_sitestats() {
-	$return .= 'Your webserver: <B>'.$GLOBALS['sys_name'].'</B>';
-	$return .= '<P>Hosted Projects: <B>'.stats_getprojects_active().'</B>';
+	$return .= 'Your webserver: <B>'.$GLOBALS[sys_name].'</B>';
+	$return .= '<P>Hosted Projects: <B>'.stats_getprojects_active().'</B>'
+		.' <A href="/search/fullprojectlist.php">[Full List]</A>';
 	$return .= '<BR>Registered Users: <B>'.stats_getusers().'</B>';
 	return $return;
 }
 
 function show_newest_projects() {
-	$res_newproj = db_query("SELECT group_id,unix_group_name,group_name,register_time FROM groups "
-		. "WHERE is_public=1 AND status IN ('A') "
+	$res_newproj = db_query("SELECT group_id,group_name,register_time FROM groups "
+		. "WHERE public=1 AND status IN ('A') "
 		. "AND register_time<" . strval(time()-(24*3600)) . " "
 		. "ORDER BY register_time DESC LIMIT 10");
 	// print each one
 	while ($row_newproj = db_fetch_array($res_newproj)) {
 		// dont print zero ones (only for launch)
-		if ($row_newproj['register_time']) {
-			$return .= "<A href=\"/projects/$row_newproj[unix_group_name]/\">"
+		if ($row_newproj[register_time]) {
+			$return .= "<A href=\"/project/?group_id=$row_newproj[group_id]\">"
 			. "$row_newproj[group_name]</A> ("
-			. date("m/d/Y",$row_newproj['register_time'])  . ")<BR>\n";
+			. date("m/d/Y",$row_newproj[register_time])  . ")<BR>\n";
 		}
 	}
 	return $return;
 }
 
 function show_highest_ranked_projects() {
-	$sql="SELECT groups.group_name,groups.unix_group_name,groups.group_id,project_weekly_metric.ranking,project_weekly_metric.percentile ".
+	$sql="SELECT groups.group_name,groups.group_id,project_weekly_metric.ranking,project_weekly_metric.percentile ".
 		"FROM groups,project_weekly_metric ".
 		"WHERE groups.group_id=project_weekly_metric.group_id AND ".
-		"groups.is_public=1 ".
+		"groups.public=1 ".
 		"ORDER BY ranking ASC LIMIT 20";
 	$result=db_query($sql);
 	if (!$result || db_numrows($result) < 1) {
@@ -112,7 +112,7 @@ function show_highest_ranked_projects() {
 	} else {
 		while ($row=db_fetch_array($result)) {
 			$return .= '<B>( '.$row['percentile'].'% )</B>'
-				.' <A HREF="/projects/'.$row['unix_group_name'].'/">'.$row['group_name'].'</A><BR>';
+				.' <A HREF="/project/?group_id='.$row['group_id'].'">'.$row['group_name'].'</A><BR>';
 		}
 		$return .= '<BR><CENTER><A href="/top/mostactive.php?type=week">[ more ]</A></CENTER>';
 	}

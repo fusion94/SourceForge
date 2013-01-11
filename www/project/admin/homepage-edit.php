@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: homepage-edit.php,v 1.9 2000/07/12 21:01:41 tperdue Exp $
+// $Id: homepage-edit.php,v 1.8 2000/01/26 10:44:32 tperdue Exp $
 
 require "pre.php";    
 require "account.php";
@@ -29,7 +29,7 @@ project_admin_header(array('title'=>'Edit Homepage URL','group'=>$group_id));
 
 <P><FORM action="homepage-edit.php" method="post">
 New URL:
-<BR><I>Without "http://". Example "myproject.<?php echo $GLOBALS['sys_default_domain']; ?>".</I>
+<BR><I>Without "http://". Example "myproject.sourceforge.net".</I>
 <BR><INPUT type="text" name="form_homepage" value="<?php print $row_grp[homepage]; ?>">
 <INPUT type="hidden" name="group_id" value="<?php print $group_id; ?>">
 <BR><INPUT type="submit" name="Submit" value="Submit">

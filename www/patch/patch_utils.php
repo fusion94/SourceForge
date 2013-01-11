@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: patch_utils.php,v 1.19 2000/07/12 21:01:40 tperdue Exp $
+// $Id: patch_utils.php,v 1.13 2000/04/21 13:23:37 tperdue Exp $
 
 /*
 
@@ -26,7 +26,9 @@ function patch_header($params) {
 		if (user_isloggedin()) {
 			echo ' | <A HREF="/patch/?func=browse&group_id='.$group_id.'&set=my">My Patches</A>';
 		}
-		echo ' | <A HREF="/patch/?func=browse&group_id='.$group_id.'&set=open">Open Patches</A>';
+		echo ' | <A HREF="/patch/?func=browse&group_id='.$group_id.'&set=closed">Closed</A>';
+		echo ' | <A HREF="/patch/?func=browse&group_id='.$group_id.'&set=postponed">Postponed</A>';
+		echo ' | <A HREF="/patch/?func=browse&group_id='.$group_id.'&set=open">Open</A>';
 		echo ' | <A HREF="/patch/admin/?group_id='.$group_id.'">Admin</A>';
 
 		echo '</B>';
@@ -150,7 +152,7 @@ function get_patch_category_name($string) {
 	}
 }
 
-function mail_followup($patch_id,$more_addresses=false) {
+function mail_followup($patch_id) {
 	global $sys_datefmt,$feedback;
 	/*
 		Send a message to the person who opened this patch and the person it is assigned to
@@ -167,18 +169,14 @@ function mail_followup($patch_id,$more_addresses=false) {
 	if ($result && db_numrows($result) > 0) {
 
 		$body = "Patch #".db_result($result,0,"patch_id")." has been updated. ".
-			"\nVisit $GLOBALS[sys_default_domain] for more info.".
-			"\n\nhttp://$GLOBALS[HTTP_HOST]/patch/?func=detailpatch&patch_id=". db_result($result,0,'patch_id') .'&group_id='. db_result($result,0,'group_id');
+			"\nVisit SourceForge.net for more info.".
+			"\n\nhttp://sourceforge.net/patch/?func=detailpatch&patch_id=".db_result($result,0,'patch_id'). '&group_id='. db_result($result,0,'group_id');
 
 		$subject="[Patch #".db_result($result,0,'patch_id').'] '.util_unconvert_htmlspecialchars(db_result($result,0,'summary'));
 
 		$to=db_result($result,0,'email'). ', '. db_result($result,0,'assigned_to_email');
 
-		if ($more_addresses) {
-			$to .= ','.$more_addresses;
-		}
-
-		$more='From: noreply@'.$GLOBALS['HTTP_HOST'];
+		$more='From: noreply@sourceforge.net';
 
 		mail($to,$subject,$body,$more);
 

@@ -1,8 +1,8 @@
-# MySQL dump 6.8
 #
-# Host: localhost    Database: alexandria
-#--------------------------------------------------------
-# Server version	3.22.30
+# SourceForge: Breaking Down the Barriers to Open Source Development
+# Copyright 1999-2000 (c) The SourceForge Crew
+# http://sourceforge.net
+#
 
 #
 # Table structure for table 'activity_log'
@@ -53,18 +53,6 @@ CREATE TABLE bug_bug_dependencies (
   PRIMARY KEY (bug_depend_id),
   KEY idx_bug_bug_dependencies_bug_id (bug_id),
   KEY idx_bug_bug_is_dependent_on_task_id (is_dependent_on_bug_id)
-);
-
-#
-# Table structure for table 'bug_canned_responses'
-#
-CREATE TABLE bug_canned_responses (
-  bug_canned_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  group_id int(11) DEFAULT '0' NOT NULL,
-  title text,
-  body text,
-  PRIMARY KEY (bug_canned_id),
-  KEY idx_bug_canned_response_group_id (group_id)
 );
 
 #
@@ -146,40 +134,41 @@ CREATE TABLE bug_task_dependencies (
 );
 
 #
-# Table structure for table 'doc_data'
+# Table structure for table 'category'
 #
-CREATE TABLE doc_data (
-  docid int(11) DEFAULT '0' NOT NULL auto_increment,
-  stateid int(11) DEFAULT '0' NOT NULL,
-  title varchar(255) DEFAULT '' NOT NULL,
-  data text NOT NULL,
-  updatedate int(11) DEFAULT '0' NOT NULL,
-  createdate int(11) DEFAULT '0' NOT NULL,
-  created_by int(11) DEFAULT '0' NOT NULL,
-  doc_group int(11) DEFAULT '0' NOT NULL,
-  description text,
-  PRIMARY KEY (docid),
-  KEY idx_doc_group_doc_group (doc_group)
+CREATE TABLE category (
+  category_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  category_name text NOT NULL,
+  sub_files int(11) DEFAULT '0' NOT NULL,
+  PRIMARY KEY (category_id)
 );
 
 #
-# Table structure for table 'doc_groups'
+# Table structure for table 'category_link'
 #
-CREATE TABLE doc_groups (
-  doc_group int(12) DEFAULT '0' NOT NULL auto_increment,
-  groupname varchar(255) DEFAULT '' NOT NULL,
+CREATE TABLE category_link (
+  category_link_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  parent int(11) DEFAULT '0' NOT NULL,
+  child int(11) DEFAULT '0' NOT NULL,
+  primary_parent int(1) DEFAULT '1' NOT NULL,
+  PRIMARY KEY (category_link_id),
+  KEY idx_category_link_child (child),
+  KEY idx_category_link_primary_parent (primary_parent),
+  KEY idx_category_link_parent (parent)
+);
+
+#
+# Table structure for table 'filecvstar'
+#
+CREATE TABLE filecvstar (
+  filecvstar_id int(11) DEFAULT '0' NOT NULL auto_increment,
   group_id int(11) DEFAULT '0' NOT NULL,
-  PRIMARY KEY (doc_group),
-  KEY idx_doc_groups_group (group_id)
-);
-
-#
-# Table structure for table 'doc_states'
-#
-CREATE TABLE doc_states (
-  stateid int(11) DEFAULT '0' NOT NULL auto_increment,
-  name varchar(255) DEFAULT '' NOT NULL,
-  PRIMARY KEY (stateid)
+  module_name varchar(30) DEFAULT '' NOT NULL,
+  unix_box varchar(20) DEFAULT 'remission' NOT NULL,
+  unix_partition int(11) DEFAULT '0' NOT NULL,
+  timestamp int(11) DEFAULT '0' NOT NULL,
+  PRIMARY KEY (filecvstar_id),
+  KEY idx_filecvstar_group_id (group_id)
 );
 
 #
@@ -257,7 +246,6 @@ CREATE TABLE forum (
   date int(11) DEFAULT '0' NOT NULL,
   is_followup_to int(11) DEFAULT '0' NOT NULL,
   thread_id int(11) DEFAULT '0' NOT NULL,
-  has_followups int(11) DEFAULT '0',
   PRIMARY KEY (msg_id),
   KEY idx_forum_group_forum_id (group_forum_id),
   KEY idx_forum_is_followup_to (is_followup_to),
@@ -272,7 +260,6 @@ CREATE TABLE forum_group_list (
   group_id int(11) DEFAULT '0' NOT NULL,
   forum_name text NOT NULL,
   is_public int(11) DEFAULT '0' NOT NULL,
-  description text,
   PRIMARY KEY (group_forum_id),
   KEY idx_forum_group_list_group_id (group_id)
 );
@@ -315,11 +302,7 @@ CREATE TABLE frs_dlstats_agg (
   file_id int(11) DEFAULT '0' NOT NULL,
   day int(11) DEFAULT '0' NOT NULL,
   downloads_http int(11) DEFAULT '0' NOT NULL,
-  downloads_ftp int(11) DEFAULT '0' NOT NULL,
-  KEY file_id_idx (file_id),
-  KEY day_idx (day),
-  KEY downloads_http_idx (downloads_http),
-  KEY downloads_ftp_idx (downloads_ftp)
+  downloads_ftp int(11) DEFAULT '0' NOT NULL
 );
 
 #
@@ -331,33 +314,25 @@ CREATE TABLE frs_dlstats_file_agg (
 );
 
 #
-# Table structure for table 'frs_dlstats_filetotal_agg'
-#
-CREATE TABLE frs_dlstats_filetotal_agg (
-  file_id int(11) DEFAULT '0' NOT NULL,
-  downloads int(11) DEFAULT '0' NOT NULL,
-  PRIMARY KEY (file_id)
-);
-
-#
 # Table structure for table 'frs_dlstats_group_agg'
 #
 CREATE TABLE frs_dlstats_group_agg (
   group_id int(11) DEFAULT '0' NOT NULL,
   day int(11) DEFAULT '0' NOT NULL,
-  downloads int(11) DEFAULT '0' NOT NULL,
-  KEY group_id_idx (group_id),
-  KEY day_idx (day),
-  KEY downloads_idx (downloads)
+  downloads int(11) DEFAULT '0' NOT NULL
 );
 
 #
-# Table structure for table 'frs_dlstats_grouptotal_agg'
+# Table structure for table 'group_category'
 #
-CREATE TABLE frs_dlstats_grouptotal_agg (
+CREATE TABLE group_category (
+  group_category_id int(11) DEFAULT '0' NOT NULL auto_increment,
   group_id int(11) DEFAULT '0' NOT NULL,
-  downloads int(11) DEFAULT '0' NOT NULL,
-  PRIMARY KEY (group_id)
+  category_id int(11) DEFAULT '0' NOT NULL,
+  primary_category int(1) DEFAULT '1' NOT NULL,
+  PRIMARY KEY (group_category_id),
+  KEY idx_group_category_group_id (group_id),
+  KEY idx_group_category_category_id (category_id)
 );
 
 #
@@ -375,12 +350,27 @@ CREATE TABLE group_cvs_history (
 );
 
 #
-# Table structure for table 'group_type'
+# Table structure for table 'group_env'
 #
-CREATE TABLE group_type (
-  type_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  name text,
-  PRIMARY KEY (type_id)
+CREATE TABLE group_env (
+  group_env_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  group_id int(11) DEFAULT '0' NOT NULL,
+  env_id int(11) DEFAULT '0' NOT NULL,
+  PRIMARY KEY (group_env_id),
+  KEY group_id_idx (group_id),
+  KEY env_id_idx (env_id)
+);
+
+#
+# Table structure for table 'group_language'
+#
+CREATE TABLE group_language (
+  group_language_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  group_id int(11) DEFAULT '0' NOT NULL,
+  language_id int(11) DEFAULT '0' NOT NULL,
+  PRIMARY KEY (group_language_id),
+  KEY group_id_idx (group_id),
+  KEY language_id_idx (language_id)
 );
 
 #
@@ -390,7 +380,7 @@ CREATE TABLE groups (
   group_id int(11) DEFAULT '0' NOT NULL auto_increment,
   group_name varchar(40),
   homepage varchar(128),
-  is_public int(11) DEFAULT '0' NOT NULL,
+  public int(11) DEFAULT '0' NOT NULL,
   status char(1) DEFAULT 'A' NOT NULL,
   unix_group_name varchar(30) DEFAULT '' NOT NULL,
   unix_box varchar(20) DEFAULT 'shell1' NOT NULL,
@@ -412,16 +402,9 @@ CREATE TABLE groups (
   use_cvs int(11) DEFAULT '1' NOT NULL,
   use_news int(11) DEFAULT '1' NOT NULL,
   use_support int(11) DEFAULT '1' NOT NULL,
-  new_bug_address text NOT NULL,
-  new_patch_address text NOT NULL,
-  new_support_address text NOT NULL,
-  type int(11) DEFAULT '1' NOT NULL,
-  use_docman int(11) DEFAULT '1' NOT NULL,
   PRIMARY KEY (group_id),
   KEY idx_groups_status (status),
-  KEY idx_groups_public (is_public),
-  KEY idx_groups_unix (unix_group_name),
-  KEY idx_groups_type (type)
+  KEY idx_groups_public (public)
 );
 
 #
@@ -724,6 +707,19 @@ CREATE TABLE project_weekly_metric (
 );
 
 #
+# Table structure for table 'security_log'
+#
+CREATE TABLE security_log (
+  security_log_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  session_hash varchar(32) DEFAULT '' NOT NULL,
+  time int(11) DEFAULT '0' NOT NULL,
+  user_id int(11) DEFAULT '0' NOT NULL,
+  category varchar(32),
+  description text,
+  PRIMARY KEY (security_log_id)
+);
+
+#
 # Table structure for table 'session'
 #
 CREATE TABLE session (
@@ -735,6 +731,17 @@ CREATE TABLE session (
   KEY idx_session_user_id (user_id),
   KEY time_idx (time),
   KEY idx_session_time (time)
+);
+
+#
+# Table structure for table 'session_text_vars'
+#
+CREATE TABLE session_text_vars (
+  session_hash varchar(32) DEFAULT '' NOT NULL,
+  name varchar(40) DEFAULT '' NOT NULL,
+  value text,
+  KEY session_var (session_hash,name),
+  PRIMARY KEY (session_hash,name)
 );
 
 #
@@ -839,6 +846,32 @@ CREATE TABLE stats_agg_pages_by_browser (
 #
 CREATE TABLE stats_agg_pages_by_day (
   day int(11),
+  count int(11)
+);
+
+#
+# Table structure for table 'stats_agg_pages_by_hour'
+#
+CREATE TABLE stats_agg_pages_by_hour (
+  hour int(11),
+  count int(11)
+);
+
+#
+# Table structure for table 'stats_agg_pages_by_plat_brow_ver'
+#
+CREATE TABLE stats_agg_pages_by_plat_brow_ver (
+  platform varchar(8),
+  browser varchar(8),
+  ver float(10,2),
+  count int(11)
+);
+
+#
+# Table structure for table 'stats_agg_pages_by_platform'
+#
+CREATE TABLE stats_agg_pages_by_platform (
+  platform varchar(8),
   count int(11)
 );
 
@@ -994,17 +1027,6 @@ CREATE TABLE surveys (
 );
 
 #
-# Table structure for table 'temp_trove_treesums'
-#
-CREATE TABLE temp_trove_treesums (
-  trove_treesums_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  trove_cat_id int(11) DEFAULT '0' NOT NULL,
-  limit_1 int(11) DEFAULT '0' NOT NULL,
-  subprojects int(11) DEFAULT '0' NOT NULL,
-  PRIMARY KEY (trove_treesums_id)
-);
-
-#
 # Table structure for table 'top_group'
 #
 CREATE TABLE top_group (
@@ -1062,9 +1084,7 @@ CREATE TABLE trove_group_link (
   trove_cat_version int(11) DEFAULT '0' NOT NULL,
   group_id int(11) DEFAULT '0' NOT NULL,
   trove_cat_root int(11) DEFAULT '0' NOT NULL,
-  PRIMARY KEY (trove_group_id),
-  KEY idx_trove_group_link_group_id (group_id),
-  KEY idx_trove_group_link_cat_id (trove_cat_id)
+  PRIMARY KEY (trove_group_id)
 );
 
 #
@@ -1076,6 +1096,24 @@ CREATE TABLE trove_treesums (
   limit_1 int(11) DEFAULT '0' NOT NULL,
   subprojects int(11) DEFAULT '0' NOT NULL,
   PRIMARY KEY (trove_treesums_id)
+);
+
+#
+# Table structure for table 'unix_user'
+#
+CREATE TABLE unix_user (
+  id int(11) DEFAULT '0' NOT NULL auto_increment,
+  status int(2) DEFAULT '0' NOT NULL,
+  username varchar(15) DEFAULT '' NOT NULL,
+  user_id int(11) DEFAULT '0' NOT NULL,
+  shell varchar(20) DEFAULT '/bin/bash' NOT NULL,
+  password varchar(40) DEFAULT '' NOT NULL,
+  md5_password varchar(32) DEFAULT '' NOT NULL,
+  added_by varchar(32) DEFAULT '' NOT NULL,
+  datetime int(14) DEFAULT '0' NOT NULL,
+  PRIMARY KEY (id),
+  KEY idx_unix_user_user_id (user_id),
+  KEY idx_unix_user_status (status)
 );
 
 #
@@ -1101,21 +1139,8 @@ CREATE TABLE user (
   email_new text,
   people_view_skills int(11) DEFAULT '0' NOT NULL,
   people_resume text NOT NULL,
-  timezone varchar(64) DEFAULT 'GMT',
   PRIMARY KEY (user_id),
   KEY idx_user_user (status)
-);
-
-#
-# Table structure for table 'user_bookmarks'
-#
-CREATE TABLE user_bookmarks (
-  bookmark_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  user_id int(11) DEFAULT '0' NOT NULL,
-  bookmark_url text,
-  bookmark_title text,
-  PRIMARY KEY (bookmark_id),
-  KEY idx_user_bookmark_user_id (user_id)
 );
 
 #
@@ -1131,7 +1156,6 @@ CREATE TABLE user_group (
   project_flags int(11) DEFAULT '2' NOT NULL,
   patch_flags int(11) DEFAULT '1' NOT NULL,
   support_flags int(11) DEFAULT '1' NOT NULL,
-  doc_flags int(11) DEFAULT '0' NOT NULL,
   PRIMARY KEY (user_group_id),
   KEY idx_user_group_user_id (user_id),
   KEY idx_user_group_group_id (group_id),

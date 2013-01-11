@@ -4,7 +4,9 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: browse_support.php,v 1.23 2000/06/29 14:36:50 tperdue Exp $
+// $Id: browse_support.php,v 1.7 2000/04/21 14:10:53 tperdue Exp $
+
+support_header(array ('title'=>'Browse Support Requests'));
 
 if (!$offset || $offset < 0) {
 	$offset=0;
@@ -15,7 +17,7 @@ if (!$offset || $offset < 0) {
 // Automatically discard invalid field names.
 //
 if ($order) {
-	if ($order=='support_id' || $order=='summary' || $order=='date' || $order=='assigned_to_user' || $order=='submitted_by' || $order=='priority') {
+	if ($order=='support_id' || $order=='summary' || $order=='date' || $order=='assigned_to_user' || $order=='submitted_by') {
 		if(user_isloggedin()) {
 			user_set_preference('support_browse_order', $order);
 		}
@@ -29,163 +31,89 @@ if ($order) {
 }
 
 if ($order) {
-	//if ordering by priority OR closed date, sort DESC
-	$order_by = " ORDER BY $order ".((($set=='closed' && $order=='date') || ($order=='priority')) ? ' DESC ':'');
+	$order_by = " ORDER BY $order ".(($set=='closed' && $order=='date') ? ' DESC ':'');
 } else {
 	$order_by = "";
 }
 
-if (!$set) {
-	/*
-		if no set is passed in, see if a preference was set
-		if no preference or not logged in, use open set
-	*/
-	if (user_isloggedin()) {
-		//echo 'logged in';
-		$custom_pref=user_get_preference('sup_brow_cust'.$group_id);
-		if ($custom_pref) {
-			//echo 'custom pref';
-			$pref_arr=explode('|',$custom_pref);
-			$_assigned_to=$pref_arr[0];
-			$_status=$pref_arr[1];
-			$_category=$pref_arr[2];
-			$set='custom';
-		} else {
-			//echo 'NOT custom pref';
-			$set='open';
-		}
-	} else {
-		$set='open';
-	}
-}
-
 if ($set=='my') {
 	/*
-		My requests - backwards compat can be removed 9/10
+		View this individual's supportes, whether submitted by or assigned to him
 	*/
-	$_status=1;
-	$_assigned_to=user_getid();
+	$sql="SELECT support.priority,support.group_id,support.support_id,support.summary,".
+		"support.open_date AS date,user.user_name AS submitted_by,user2.user_name AS assigned_to_user ".
+		"FROM support,user,user user2 ".
+		"WHERE support.support_status_id='1' ".
+		"AND user.user_id=support.submitted_by ".
+		"AND user2.user_id=support.assigned_to ".
+		"AND (support.assigned_to='".user_getid()."' ".
+		"OR support.submitted_by='".user_getid()."') ".
+		"AND group_id='$group_id'".
+		$order_by .
+		" LIMIT $offset,50";
 
-} else if ($set=='custom') {
-	/*
-		if this custom set is different than the stored one, reset preference
-	*/
-	$pref_=$_assigned_to.'|'.$_status.'|'.$_category;
-	if ($pref_ != user_get_preference('sup_brow_cust'.$group_id)) {
-		//echo 'setting pref';
-		user_set_preference('sup_brow_cust'.$group_id,$pref_);
-	}
+	$statement='Viewing Support Requests submitted by or assigned to you';
+
 } else if ($set=='closed') {
 	/*
-		Closed requests - backwards compat can be removed 9/10
+		Browse the closed supportes in this group
 	*/
-	unset($_assigned_to);
-	$_status='2';
+	$sql="SELECT support.priority,support.group_id,support.support_id,support.summary,".
+		"support.close_date AS date,user.user_name AS submitted_by,user2.user_name AS assigned_to_user ".
+		"FROM support,user,user user2 ".
+		"WHERE user.user_id=support.submitted_by ".
+		"AND support.support_status_id='2' ".
+		"AND user2.user_id=support.assigned_to ".
+		"AND group_id='$group_id'".
+		$order_by .
+		" LIMIT $offset,50";
+
+	$statement='Viewing Closed Support Requests';
+
 } else {
 	/*
-		Open requests - backwards compat can be removed 9/10
+		Just browse the supportes in this group
 	*/
-	unset($_assigned_to);
-	$_status='1';
+	$sql="SELECT support.priority,support.group_id,support.support_id,support.summary,".
+		"support.open_date AS date,user.user_name AS submitted_by,user2.user_name AS assigned_to_user ".
+		"FROM support,user,user user2 ".
+		"WHERE user.user_id=support.submitted_by ".
+		"AND support.support_status_id ='1' ".
+		"AND user2.user_id=support.assigned_to ".
+		"AND group_id='$group_id'".
+		$order_by .
+		" LIMIT $offset,50";
+
+	$statement='Viewing Open Support Requests';
 }
-
-/*
-	Display support requests based on the form post - by user or status or both
-*/
-
-//if status selected, add more to where clause
-if ($_status && ($_status != 100)) {
-	//for open tasks, add status=100 to make sure we show all
-	$status_str="AND support.support_status_id IN ($_status".(($_status==1)?',100':'').")";
-} else {
-	//no status was chosen, so don't add it to where clause
-	$status_str='';
-}
-
-//if assigned to selected, add to where clause
-if ($_assigned_to && ($_assigned_to != 100)) {
-	$assigned_str="AND (support.assigned_to='$_assigned_to' OR support.submitted_by='$_assigned_to')";
-} else {
-	//no assigned to was chosen, so don't add it to where clause
-	$assigned_str='';
-}
-
-//if category selected, add to where clause
-if ($_category && ($_category != 100)) {
-	$category_str="AND support.support_category_id='$_category'";
-} else {
-	//no assigned to was chosen, so don't add it to where clause
-	$category_str='';
-}
-
-//build page title to make bookmarking easier
-//if a user was selected, add the user_name to the title
-//same for status
-support_header(array('title'=>'Browse Support Requests'.
-	(($_assigned_to && ($_assigned_to != 100))?' For: '.user_getname($_assigned_to):'').
-	(($_status && ($_status != 100))?' By Status: '. support_data_get_status_name($_status):'')));
-
-//now build the query using the criteria built above
-$sql="SELECT support.priority,support.group_id,support.support_id,support.summary,".
-	"support.open_date AS date,user.user_name AS submitted_by,user2.user_name AS assigned_to_user ".
-	"FROM support,user,user user2 ".
-	"WHERE user.user_id=support.submitted_by ".
-	" $status_str $assigned_str $category_str ".
-	"AND user2.user_id=support.assigned_to ".
-	"AND group_id='$group_id'".
-	$order_by .
-	" LIMIT $offset,50";
-
-/*
-	Show the new pop-up boxes to select assigned to and/or status
-*/
-echo '<TABLE WIDTH="10%" BORDER="0"><FORM ACTION="'. $PHP_SELF .'" METHOD="GET">
-	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
-	<INPUT TYPE="HIDDEN" NAME="set" VALUE="custom">
-	<TR><TD COLSPAN="3" nowrap><b>Browse Requests by User/Status/Category:</b></TD></TR>
-	<TR><TD><FONT SIZE="-1">';
-echo support_technician_box ($group_id,'_assigned_to',$_assigned_to);
-echo '</TD><TD><FONT SIZE="-1">'. support_status_box('_status',$_status) .'</TD>'.
-	'<TD><FONT SIZE="-1">'. support_category_box ($group_id,$name='_category',$_category) .'</TD>'.
-'<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Browse"></TD></TR></FORM></TABLE>';
 
 $result=db_query($sql);
 
 if ($result && db_numrows($result) > 0) {
 
 	echo '
-		<P>
-		<h3>'.$statement.'</H3>
+		<h3>'.$statement.'</H3>';
+
+	echo '
 		<P>
 		<B>You can use the Support Manager to coordinate tech support</B>
 		<P>';
-
-	//create a new $set string to be used for next/prev button
-	if ($set=='custom') {
-		$set .= '&_assigned_to='.$_assigned_to.'&_status='.$_status.'&_category='.$_category;
-	}
 
 	show_supportlist($result,$offset,$set);
 
 	echo '* Denotes Requests > 15 Days Old';
 	show_priority_colors_key();
 
-	$url = "/support/?group_id=$group_id&set=$set&order=";
-	echo '<P>Click a column heading to sort by that column, or <A HREF="'.$url.'priority">Sort by Priority</A>';
-
 } else {
-
 	echo '
-		<P>
 		<H3>'.$statement.'</H3>
 		<P>
 		<B>You can use the Support Manager to coordinate tech support</B>
 		<P>';
 	echo '
-		<H1>No Support Requests Match Your Criteria</H1>';
+		<H1>No Such Support Requests Found for '.group_getname($group_id).'</H1>';
 	echo db_error();
-	//echo "<!-- $sql -->";
-
+	echo "<!-- $sql -->";
 }
 
 support_footer(array());

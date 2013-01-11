@@ -4,12 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.16 2000/05/29 20:32:39 tperdue Exp $ 
+// $Id: index.php,v 1.15 2000/03/08 19:10:04 tperdue Exp $ 
 
 require('pre.php');
 require('cache.php');
-
-session_require(array('group'=>'1','admin_flags'=>'A'));
 
 site_header(array('title'=>'Site Statistics'));
 

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.9 2000/06/03 13:31:03 tperdue Exp $
+// $Id: index.php,v 1.4 2000/04/21 13:40:26 tperdue Exp $
 
 require('pre.php');
 require('../support/support_utils.php');
@@ -18,19 +18,12 @@ if ($group_id) {
 			break;
 		}
 		case 'postaddsupport' : {
-			$support_id=support_data_create_support($group_id,$support_category_id,$user_email,$summary,$details);
-
-			//send an email to the submittor and default address for the project
-			mail_followup($support_id,group_get_new_support_address($group_id));
+			include '../support/postadd_support.php';
 			include '../support/browse_support.php';
 			break;
 		}
 		case 'postmodsupport' : {
-			echo support_data_handle_update ($group_id,$support_id,$priority,$support_status_id,
-				$support_category_id,$assigned_to,$summary,$canned_response,$details);
-			if ($mail_followup) {
-				mail_followup($support_id);
-			}
+			include '../support/postmod_support.php';
 			include '../support/browse_support.php';
 			break;
 		}
@@ -62,5 +55,4 @@ if ($group_id) {
 	exit_no_group();
 
 }
-
 ?>

@@ -1,49 +1,11 @@
 ------------------------------------------------------------------------------
-Thu Jul  13 10:45:26 PDT 2000
-
-1.5.0 
-	- Added a "portability" patch. Massive thanks to 
-	  William Hardeman and David HM Spector for this. SF deployers 
-	  everywhere will thank them
-
-	- Removed a lot of hard-coded references to SF.net everywhere, 
-	  including hard-coded user_id's of the SF core staff
-
-	- Wallace Lee continues to make numerous clean patches throughout 
-	  the site (naming forums/subprojects/mailing lists among others)
-
-	- Optimizations throughout the code base - added intelligence to the
-	  user.php and group.php library so database queries aren't wasted. 
-
-	- Tested under PHP4 and only one know issue was found and fixed.
-
-	- Starting the process of database portability. Changed the keyword 
-	  "public" in groups to "is_public". Changing the "user" table to 
-	  "users" is next in line, but it is a HUGE task.
-
-	- Tested some features on Postgres and found that LIMIT/OFFSET 
-	  syntax is incompatible. Postgres also cannot yet handle large 
-	  text fields that are > 8K in length (problem for the patch Mgr)
-
-	- Slick new "browse" options on the bug/task/support/project mgrs
-
-	- Changed project homepages to "/projects/*project_name*/" using 
-	  the .htaccess "files" directive. This is known to be problematic 
-	  on some other platforms.
-
-	- Laid groundwork for "portals" which are half-baked and considered 
-	  useless right now.
-
-	- Project Admin page modernized
-
-------------------------------------------------------------------------------
 Thu May  4 15:23:26 PDT 2000
 
 1.1.0 - Added Support Manager
 
       - Added Help Wanted System
 
-      - Data abstraction in all modules
+      - Data extraction in all modules
 
       - TROVE catorgization
 
@@ -62,7 +24,6 @@ Thu May  4 15:23:26 PDT 2000
       - Hooks Added to sitewide help
 
       - other fixes to numerous to list
-        
 ------------------------------------------------------------------------------
 Sun Jan 30 09:22:39 PST 2000
 

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.28 2000/05/17 21:51:55 tperdue Exp $
+// $Id: index.php,v 1.27 2000/01/13 18:36:35 precision Exp $
 
 require "pre.php";    
 site_header(array(title=>"Welcome to Project Alexandria"));
@@ -44,5 +44,5 @@ one of the project administrators.
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

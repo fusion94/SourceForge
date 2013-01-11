@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: stats_function.php,v 1.23 2000/05/17 21:51:55 tperdue Exp $
+// $Id: stats_function.php,v 1.16 2000/03/09 09:24:04 tperdue Exp $
 
 require('HTML_Graphs.php');
 
@@ -22,24 +22,7 @@ function stats_sf_stats() {
 		echo '<H1>Stats Problem</H1>';
 		echo db_error();
 	} else {
-		$j=0;
-		for ($i=0; $i<$rows; $i++) {
-			//echo $i." - ".($i%7)."<BR>";
-			if ($i % 7 == 0) {
-				//echo $i."<BR>";
-				//increment the new weekly array
-				//and set the beginning date for this week
-				$j++;
-				$name_string[$j]=db_result($result,$i,'day');
-				$vals[$j]=0;
-			}
-			//add today to the week
-                        $vals[$j] += db_result($result,$i,'count');
-		}
-		$j++;
-		$vals[$j]='';
-		$name_string[$j]='';
-		GraphIt($name_string,$vals,'Page Views By Week');
+		GraphResult($result,'Page Views By Day');
 	}
 
 	echo '<P>';

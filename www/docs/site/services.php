@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: services.php,v 1.14 2000/05/17 21:51:55 tperdue Exp $
+// $Id: services.php,v 1.13 2000/01/13 18:36:35 precision Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 site_header(array(title=>"Welcome to Project Alexandria"));
@@ -63,6 +63,6 @@ and access to your HTTP account for you and all of your developers.</I>
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>
 

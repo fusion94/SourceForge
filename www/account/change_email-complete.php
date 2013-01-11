@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: change_email-complete.php,v 1.7 2000/07/12 21:01:40 tperdue Exp $
+// $Id: change_email-complete.php,v 1.5 2000/04/28 08:26:36 dtype Exp $
 
 require "pre.php";    
 require "account.php";
@@ -22,23 +22,25 @@ if (db_numrows($res_user) < 1) {
 $row_user = db_fetch_array($res_user);
 
 db_query("UPDATE user SET "
-	. "email='" . $row_user['email_new'] . "',"
+	. "email='" . $row_user[email_new] . "',"
 	. "confirm_hash='none',"
-	. "email_new='" . $row_user['email'] . "' WHERE "
+	. "email_new='" . $row_user[email] . "' WHERE "
 	. "confirm_hash='$confirm_hash'");
 
-site_header(array('title'=>"Email Change Complete"));
+session_securitylog("changeemail","User #$row_user[user_id] successfully changed email");
+
+site_header(array(title=>"Email Change Complete"));
 ?>
 <p><b>Email Change Complete</b>
 <P>Welcome, <?php print $row_user[user_name]; ?>. Your email
 change is complete. Your new email address on file is 
 <B><?php print $row_user[email_new]; ?></B>. Mail sent to
-<?php print $row_user['user_name']; ?>@<?php print $GLOBALS['sys_users_host']; ?> will now
+<?php print $row_user[user_name]; ?>@users.sourceforge.net will now
 be forwarded to this account.
 
 <P><A href="/">[Return to SourceForge]</A>
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

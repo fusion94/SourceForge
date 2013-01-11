@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: trove_cat_list.php,v 1.12 2000/05/17 21:51:55 tperdue Exp $
+// $Id: trove_cat_list.php,v 1.11 2000/03/16 09:11:14 dtype Exp $
 
 require "pre.php";
 require "trove.php";
@@ -37,5 +37,5 @@ site_header(array(title=>"Trove - Category List"));
 printnode(0,"root");
 
 site_footer(array());
-
+site_cleanup(array());
 ?>

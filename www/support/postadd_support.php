@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: postadd_support.php,v 1.13 2000/07/12 21:01:41 tperdue Exp $
+// $Id: postadd_support.php,v 1.12 2000/04/21 13:23:37 tperdue Exp $
 
 if (!$support_category_id) {
 	$support_category_id=100;
@@ -19,7 +19,7 @@ if (!user_isloggedin()) {
 } else {
 	$user=user_getid();
 	//use their user_name if they are logged in
-	$user_email=user_getname().'@'.$GLOBALS['sys_users_host'];
+	$user_email=user_getname().'@users.sourceforge.net';
 }
 
 if (!$group_id || !$summary || !$details) {

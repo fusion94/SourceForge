@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: postadd_comment.php,v 1.8 2000/07/12 21:01:41 tperdue Exp $
+// $Id: postadd_comment.php,v 1.7 2000/04/21 13:44:46 tperdue Exp $
 
 if (!user_isloggedin()) {
 	if (!$user_email) {
@@ -13,7 +13,7 @@ if (!user_isloggedin()) {
 	}
 } else {
 	//use their user_name if they are logged in
-	$user_email=user_getname().'@'.$GLOBALS['sys_users_host'];
+	$user_email=user_getname().'@users.sourceforge.net';
 }
 
 if ($details != '') {

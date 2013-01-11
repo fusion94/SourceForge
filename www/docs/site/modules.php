@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: modules.php,v 1.8 2000/05/17 21:51:55 tperdue Exp $
+// $Id: modules.php,v 1.7 2000/01/13 18:36:35 precision Exp $
 
 require "pre.php";    
 site_header(array(title=>"Documentation - File Modules"));
@@ -60,5 +60,5 @@ SourceForge.
 
 <?php
 site_footer(array());
-
+site_cleanup(array());
 ?>

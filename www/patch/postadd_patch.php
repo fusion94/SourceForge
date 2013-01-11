@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: postadd_patch.php,v 1.13 2000/06/03 13:10:20 tperdue Exp $
+// $Id: postadd_patch.php,v 1.12 2000/05/01 15:38:28 tperdue Exp $
 
 if (!$patch_category_id) {
 	$patch_category_id=100;
@@ -50,7 +50,5 @@ if (!$result) {
 } else {
 	$feedback .= ' Successfully Added Patch ';
 }
-
-mail_followup(db_insertid($result),group_get_new_patch_address($group_id));
 
 ?>

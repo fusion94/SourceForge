@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: viewjob.php,v 1.14 2000/06/05 12:20:31 tperdue Exp $
+// $Id: viewjob.php,v 1.12 2000/05/03 10:53:35 tperdue Exp $
 
 require('pre.php');
 require('../people/people_utils.php');
@@ -15,8 +15,6 @@ if ($group_id && $job_id) {
 		Fill in the info to create a job
 	*/
 	people_header(array('title'=>'View a Job'));
-
-	//html_tabs('home',$group_id);
 
 	//for security, include group_id
 	$sql="SELECT groups.group_name,people_job_category.name AS category_name,".

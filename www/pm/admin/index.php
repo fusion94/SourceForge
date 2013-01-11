@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.16 2000/06/14 00:03:18 tperdue Exp $
+// $Id: index.php,v 1.15 2000/03/17 12:25:37 tperdue Exp $
 
 require('pre.php');
 require('../pm_utils.php');
@@ -34,7 +34,7 @@ if ($group_id && user_ismember($group_id,'P2')) {
 				$feedback .= " Error inserting value ";
 			}
 
-			$feedback .= " Subproject Inserted ";
+			$feedback .= " Project Inserted ";
 
 	       } else if ($change_status) {
 			/*
@@ -55,10 +55,10 @@ if ($group_id && user_ismember($group_id,'P2')) {
 			$sql="UPDATE project_group_list SET project_name='$project_name' WHERE group_project_id='$project_cat_id' AND group_id='$group_id'";
 			$result=db_query($sql);
 			if (!$result || db_affected_rows($result) < 1) {
-				$feedback .= ' Error modifying subproject name ';
+				$feedback .= ' Error modifying project name ';
 				echo db_error();
 			} else {
-				$feedback .= ' Subproject Name Modified ';
+				$feedback .= ' Project Name Modified ';
 			}
 
 		}
@@ -75,7 +75,7 @@ if ($group_id && user_ismember($group_id,'P2')) {
 
 		pm_header(array ('title'=>'Add Projects'));
 
-		echo '<H1>Add Subprojects to the Project/Task Manager</H1>';
+		echo '<H1>Add Projects to the Project/Task Manager</H1>';
 
 		/*
 			List of possible categories for this group
@@ -84,9 +84,9 @@ if ($group_id && user_ismember($group_id,'P2')) {
 		$result=db_query($sql);
 		echo "<P>";
 		if ($result && db_numrows($result) > 0) {
-			ShowResultSet($result,"Existing Subprojects","pm_project");
+			ShowResultSet($result,"Existing Projects","pm_project");
 		} else {
-			echo "\n<H1>No Subprojects in this group</H1>";
+			echo "\n<H1>No Projects in this group</H1>";
 		}
 		?>
 		<P>
@@ -124,7 +124,7 @@ if ($group_id && user_ismember($group_id,'P2')) {
 
 		if (!$result || $rows < 1) {
 			echo '
-				<H2>No Subprojects Found</H2>
+				<H2>No Projects Found</H2>
 				<P>
 				None found for this project';
 			echo db_error();
@@ -132,18 +132,24 @@ if ($group_id && user_ismember($group_id,'P2')) {
 			echo '
 				<H2>Update Project/Task Manager Status</H2>
 				<P>
-				You can make subprojects in the Project/Task Manager private from here. Please note that private subprojects
+				You can make projects in the Project/Task Manager private from here. Please note that private projects
 				can still be viewed by members of your project, but not the general public.<P>';
 
 			echo '<TABLE BORDER="0">
-				<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+				<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
 				<TD><FONT COLOR="#FFFFFF"><B>Project</TD>
 				<TD><FONT COLOR="#FFFFFF"><B>Status</TD>
 				<TD><FONT COLOR="#FFFFFF"><B>Update</TD></TR>';
 
 			for ($i=0; $i<$rows; $i++) {
+				if ($i % 2 != 0) {
+					$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+				} else {
+					$row_color=' BGCOLOR="#FFFFFF"';
+				}
+
 				echo '
-					<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.db_result($result,$i,'project_name').'</TD>';
+					<TR'.$row_color.'><TD>'.db_result($result,$i,'project_name').'</TD>';
 				echo '
 					<FORM ACTION="'.$PHP_SELF.'" METHOD="POST">
 					<INPUT TYPE="HIDDEN" NAME="post_changes" VALUE="y">
@@ -171,10 +177,10 @@ if ($group_id && user_ismember($group_id,'P2')) {
 		/*
 			Form for modifying a project name
 		*/
-		pm_header(array('title'=>'Modify a Subproject Name'));
+		pm_header(array('title'=>'Modify a Project Name'));
 
 		echo '
-			<H1>Modify a Subproject Name</H3>';
+			<H1>Modify a Project Name</H3>';
 
 		$sql="SELECT group_project_id,project_name FROM project_group_list WHERE group_project_id='$project_cat_id' AND group_id='$group_id'";
 		$result=db_query($sql);
@@ -202,7 +208,7 @@ if ($group_id && user_ismember($group_id,'P2')) {
 			<?php
 		} else {
 			echo '
-			<H1>The Subproject that you requested a change on was not found.</H1>';
+			<H1>The project that you requested a change on was not found.</H1>';
 		}
 
 		pm_footer(array());
@@ -217,11 +223,11 @@ if ($group_id && user_ismember($group_id,'P2')) {
 		echo '
 			<H2>Project/Task Manager Administration</H2>
 			<P>
-			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&projects=1">Add A Subproject</A><BR>
+			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&projects=1">Add A Project</A><BR>
 			Add a project, which can contain a set of tasks. This is different than creating a new task.
 			<BR>
 			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&change_status=1">Set Public/Private</A><BR>
-			Determine whether non-project-members can view Subprojects in the Project/Task Manager';
+			Determine whether non-project-members can view Projects in the Project/Task Manager';
 
 		pm_footer(array());
 	}

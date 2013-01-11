@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: usergroup.php,v 1.50 2000/05/17 21:51:55 tperdue Exp $
+// $Id: usergroup.php,v 1.49 2000/03/07 13:20:24 tperdue Exp $
 
 require "pre.php";    
 require "account.php";
@@ -180,5 +180,5 @@ Add User to Group (group_id):
 <?php
 html_feedback_bottom($feedback);
 site_footer(array());
-
+site_cleanup(array());
 ?>
