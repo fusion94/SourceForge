@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: rmproject.php,v 1.5 2000/09/01 19:32:30 q Exp $
+// $Id: rmproject.php,v 1.4 2000/07/12 21:01:40 tperdue Exp $
 
 /*
 
@@ -26,7 +26,8 @@ if (user_isloggedin()) {
 
 	if (ereg("A",$row_flags['admin_flags'],$ereg_match)) {
 		exit_error("Error Removing Group Member","You cannot remove a group administrator. "
-		. "Remove this persons admininstrator privileges on the user permissions page before attempting to remove them from the project. </A> ");
+		. "Email <A href=\"mailto:admin@$GLOBALS[HTTP_HOST]\">admin@$GLOBALS[HTTP_HOST]</A> "
+		. "to request a change in project administration.");
 	} 
        
 	db_query("DELETE FROM user_group WHERE user_id='$user_id' AND group_id='$group_id'");

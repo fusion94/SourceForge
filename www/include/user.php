@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: user.php,v 1.76 2000/08/30 21:15:40 tperdue Exp $
+// $Id: user.php,v 1.74 2000/07/13 17:20:50 tperdue Exp $
 
 unset($USER_IS_SUPER_USER);
 $USER_RES=array();
@@ -27,19 +27,14 @@ function user_is_super_user() {
 	if (isset($USER_IS_SUPER_USER)) {
 		return $USER_IS_SUPER_USER;
 	} else {
-		if (user_isloggedin()) {
-			$sql="SELECT * FROM user_group WHERE user_id='". user_getid() ."' AND group_id='1' AND admin_flags='A'";
-			$result=db_query($sql);
-			if (!$result || db_numrows($result) < 1) {
-				$USER_IS_SUPER_USER=false;
-				return $USER_IS_SUPER_USER;
-			} else {
-				//matching row was found - set and save this knowledge for later
-				$USER_IS_SUPER_USER=true;
-				return $USER_IS_SUPER_USER;
-			}
-		} else {
+		$sql="SELECT * FROM user_group WHERE user_id='". user_getid() ."' AND group_id='1' AND admin_flags='A'";
+		$result=db_query($sql);
+		if (!$result || db_numrows($result) < 1) {
 			$USER_IS_SUPER_USER=false;
+			return $USER_IS_SUPER_USER;
+		} else {
+			//matching row was found - set and save this knowledge for later
+			$USER_IS_SUPER_USER=true;
 			return $USER_IS_SUPER_USER;
 		}
 	}
@@ -199,19 +194,6 @@ function user_get_result_set($user_id) {
 		return $USER_RES["_".$user_id."_"];
 	}
 }
-
-function user_get_result_set_from_unix($user_name) {
-	//create a common set of user result sets,
-	//so it doesn't have to be fetched each time
-		
-	global $USER_RES;
-	if (!$USER_RES["_".$user_id."_"]) {
-		$USER_RES["_".$user_id."_"]=db_query("SELECT * FROM user WHERE user_name='$user_name'");
-		return $USER_RES["_".$user_id."_"];
-	} else {
-		return $USER_RES["_".$user_id."_"];
-	}
-}       
 
 function user_get_timezone() {
 	if (user_isloggedin()) {

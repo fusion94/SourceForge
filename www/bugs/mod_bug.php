@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: mod_bug.php,v 1.54 2000/08/26 05:26:51 tperdue Exp $
+// $Id: mod_bug.php,v 1.47 2000/05/31 09:20:39 tperdue Exp $
 
 bug_header(array ('title'=>'Modify a Bug'));
 
@@ -21,20 +21,10 @@ if (db_numrows($result) > 0) {
 		"<INPUT TYPE=\"HIDDEN\" NAME=\"group_id\" VALUE=\"$group_id\">\n".
 		"<INPUT TYPE=\"HIDDEN\" NAME=\"bug_id\" VALUE=\"$bug_id\">";
 
-	echo	"\n<TABLE WIDTH=\"100%\">
-	<TR><TD><B>Submitted By:</B><BR>".user_getname(db_result($result,0,"submitted_by"))."</TD>
-		<TD><B>Group:</B><BR>".group_getname($group_id)."</TD></TR>
+	echo	"\n<TABLE WIDTH=\"100%\">".
+		"\n<TR><TD><B>Submitted By:</B><BR>".user_getname(db_result($result,0,"submitted_by"))."</TD><TD><B>Group:</B><BR>".group_getname($group_id)."</TD></TR>".
 
-	<TR>
-		<TD><B>Date Submitted:</B><BR>
-		". date($sys_datefmt,db_result($result,0,'date')) ."
-		</TD>
-		<TD><FONT SIZE=\"-1\">
-		<INPUT TYPE=\"SUBMIT\" NAME=\"SUBMIT\" VALUE=\"Submit Changes\">
-		</TD>
-	</TR>
-
-	<TR><TD><B>Category:</B><BR>\n";
+		"\n<TR><TD><B>Category:</B><BR>\n";
 	/*
 		List of bug_categories for this project.
 	*/
@@ -146,6 +136,8 @@ if (db_numrows($result) > 0) {
 	</TD></TR>
 
 	<TR><TD COLSPAN="2" ALIGN="MIDDLE">
+		<INPUT TYPE="CHECKBOX" NAME="mail_followup" VALUE="y" Checked>Send Followup to Submittor
+		<P>
 		<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Submit Changes">
 		</FORM>
 	</TD></TR>

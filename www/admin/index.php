@@ -4,19 +4,17 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.53 2000/09/05 18:46:50 kingdon Exp $
+// $Id: index.php,v 1.49 2000/05/28 13:41:35 q Exp $
 
 require "pre.php";
-require($DOCUMENT_ROOT.'/admin/admin_utils.php');
-
 session_require(array('group'=>'1','admin_flags'=>'A'));
 
-site_admin_header(array('title'=>"Alexandria Admin"));
+site_header(array('title'=>"Alexandria Admin"));
 
 $abc_array = array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9');
 
 ?>
- 
+
 <p>Administrative Functions
 <p><i><b>Warning!</b> These functions currently have minimal error checking,
 if any. They are fine to play with but may not act as expected if you leave
@@ -65,9 +63,13 @@ Search (groupid,groupunixname,groupname):
 <p>
 
 
-<LI>Groups in <a href="grouplist.php?status=I"><B>I</B> (incomplete) Status</A>
-<LI>Groups in <a href="approve-pending.php"><B>P</B> (pending) Status</A>
-<LI>Groups in <a href="grouplist.php?status=D"><B>D</B> (deleted) Status</A>
+<LI>Groups in <a href="grouplist.php?status=I"><B>I</B> Status</A>
+<LI>Groups in <a href="approve-pending.php"><B>P</B> Status</A>
+<LI>Groups in <a href="grouplist.php?status=D"><B>D</B> Status</A>
+<BR>&nbsp;
+<li><a href="categorylist.php">Display Full Category List/Edit Categories</a>
+<BR>&nbsp;
+<li><a href="orglist.php">Display Full Organization List/Edit Organizations</a>
 </ul>
 
 <P><B>Statistics</B>
@@ -101,5 +103,5 @@ Search (groupid,groupunixname,groupname):
 
 
 <?php
-site_admin_footer(array());
+site_footer(array());
 ?>

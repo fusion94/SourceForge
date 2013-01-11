@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: change_realname.php,v 1.9 2000/08/31 06:07:52 gherteg Exp $
+// $Id: change_realname.php,v 1.8 2000/05/17 21:51:43 tperdue Exp $
 
 require "pre.php";    
 require "account.php";
@@ -33,7 +33,7 @@ function register_valid()	{
 if (register_valid()) {
 	session_redirect("/account/");
 } else { // not valid registration, or first time to page
-	$HTML->header(array(title=>"Change RealName"));
+	site_header(array(title=>"Change RealName"));
 
 ?>
 <p><b>RealName Change</b>
@@ -46,6 +46,6 @@ if (register_valid()) {
 
 <?php
 }
-$HTML->footer(array());
+site_footer(array());
 
 ?>

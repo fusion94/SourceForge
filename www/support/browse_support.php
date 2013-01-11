@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: browse_support.php,v 1.29 2000/08/10 03:01:37 tperdue Exp $
+// $Id: browse_support.php,v 1.23 2000/06/29 14:36:50 tperdue Exp $
 
 if (!$offset || $offset < 0) {
 	$offset=0;
@@ -41,19 +41,20 @@ if (!$set) {
 		if no preference or not logged in, use open set
 	*/
 	if (user_isloggedin()) {
+		//echo 'logged in';
 		$custom_pref=user_get_preference('sup_brow_cust'.$group_id);
 		if ($custom_pref) {
+			//echo 'custom pref';
 			$pref_arr=explode('|',$custom_pref);
 			$_assigned_to=$pref_arr[0];
 			$_status=$pref_arr[1];
 			$_category=$pref_arr[2];
 			$set='custom';
 		} else {
-			$_assigned_to=0;
+			//echo 'NOT custom pref';
 			$set='open';
 		}
 	} else {
-		$_assigned_to=0;
 		$set='open';
 	}
 }
@@ -78,13 +79,13 @@ if ($set=='my') {
 	/*
 		Closed requests - backwards compat can be removed 9/10
 	*/
-	$_assigned_to=0;
+	unset($_assigned_to);
 	$_status='2';
 } else {
 	/*
 		Open requests - backwards compat can be removed 9/10
 	*/
-	$_assigned_to=0;
+	unset($_assigned_to);
 	$_status='1';
 }
 
@@ -102,8 +103,8 @@ if ($_status && ($_status != 100)) {
 }
 
 //if assigned to selected, add to where clause
-if ($_assigned_to) {
-	$assigned_str="AND support.assigned_to='$_assigned_to'";
+if ($_assigned_to && ($_assigned_to != 100)) {
+	$assigned_str="AND (support.assigned_to='$_assigned_to' OR support.submitted_by='$_assigned_to')";
 } else {
 	//no assigned to was chosen, so don't add it to where clause
 	$assigned_str='';
@@ -121,7 +122,7 @@ if ($_category && ($_category != 100)) {
 //if a user was selected, add the user_name to the title
 //same for status
 support_header(array('title'=>'Browse Support Requests'.
-	(($_assigned_to)?' For: '.user_getname($_assigned_to):'').
+	(($_assigned_to && ($_assigned_to != 100))?' For: '.user_getname($_assigned_to):'').
 	(($_status && ($_status != 100))?' By Status: '. support_data_get_status_name($_status):'')));
 
 //now build the query using the criteria built above
@@ -136,30 +137,16 @@ $sql="SELECT support.priority,support.group_id,support.support_id,support.summar
 	" LIMIT $offset,50";
 
 /*
-        creating a custom technician box which includes "any" and "unassigned"
-*/
-
-$res_tech=support_data_get_technicians ($group_id);
-
-$tech_id_arr=util_result_column_to_array($res_tech,0);
-$tech_id_arr[]='0';  //this will be the 'any' row
-
-$tech_name_arr=util_result_column_to_array($res_tech,1);
-$tech_name_arr[]='Any';
-
-$tech_box=html_build_select_box_from_arrays ($tech_id_arr,$tech_name_arr,'_assigned_to',$_assigned_to,true,'Unassigned');
-
-
-
-/*
 	Show the new pop-up boxes to select assigned to and/or status
 */
 echo '<TABLE WIDTH="10%" BORDER="0"><FORM ACTION="'. $PHP_SELF .'" METHOD="GET">
 	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
 	<INPUT TYPE="HIDDEN" NAME="set" VALUE="custom">
 	<TR><TD COLSPAN="3" nowrap><b>Browse Requests by User/Status/Category:</b></TD></TR>
-	<TR><TD><FONT SIZE="-1">'. $tech_box .'</TD><TD><FONT SIZE="-1">'. support_status_box('_status',$_status,'Any') .'</TD>'.
-	'<TD><FONT SIZE="-1">'. support_category_box ($group_id,$name='_category',$_category,'Any') .'</TD>'.
+	<TR><TD><FONT SIZE="-1">';
+echo support_technician_box ($group_id,'_assigned_to',$_assigned_to);
+echo '</TD><TD><FONT SIZE="-1">'. support_status_box('_status',$_status) .'</TD>'.
+	'<TD><FONT SIZE="-1">'. support_category_box ($group_id,$name='_category',$_category) .'</TD>'.
 '<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Browse"></TD></TR></FORM></TABLE>';
 
 $result=db_query($sql);
@@ -170,7 +157,6 @@ if ($result && db_numrows($result) > 0) {
 		<P>
 		<h3>'.$statement.'</H3>
 		<P>
-		<HR NoShade SIZE="1">
 		<B>You can use the Support Manager to coordinate tech support</B>
 		<P>';
 
@@ -193,7 +179,6 @@ if ($result && db_numrows($result) > 0) {
 		<P>
 		<H3>'.$statement.'</H3>
 		<P>
-		<HR NoShade SIZE="1">
 		<B>You can use the Support Manager to coordinate tech support</B>
 		<P>';
 	echo '

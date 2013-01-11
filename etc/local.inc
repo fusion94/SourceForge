@@ -27,38 +27,38 @@
 // The default SourceForge domain
 // this is used where ever the "naked" form of the SourceForge domain
 // might be used.  E.g., "mailto:admin@sourceforge.net"
-$sys_default_domain = "webdev.company.com";
+$sys_default_domain = "webdev.sourceforge.net";
  
 // Machine that hosts CVS
-$sys_cvs_host = "cvs.company.com";
+$sys_cvs_host = "cvs.sourceforge.net";
  
 // Machine used for downloading sources/packages
-$sys_download_host = "download.company.com";
+$sys_download_host = "download.sourceforge.net";
  
 // Machine(s) that host users' shell accounts
 //  N.B. to the SourceForge Crew: What's the difference between the user
 // host and the shell host?  They are clearly two different hostnames
 // in the source code, but they seem to serve the same purpose..?
-$sys_shell_host = "shell.company.com";
-$sys_users_host = "users.company.com";
+$sys_shell_host = "shell.sourceforge.net";
+$sys_users_host = "users.sourceforge.net";
  
 // Machine that hosts docs (such as the FAQs and the various software
 // licenses (*BSD, [L]GPL, etc.).  You REALLY want this to be the same
 // machine that the SourceForge code is running on because all of the
 // PHP makes reference to these documents in terms of relative paths that
 // are part of the SourceForge code tree.
-$sys_docs_host = "sfdocs.company.com";
+$sys_docs_host = "sfdocs.sourceforge.net";
  
 // Machine that hosts the SourceForge mailing lists (This could also be
 // the mail host if you have enough horsepower & bandwidth)
-$sys_lists_host = "lists.company.com";
+$sys_lists_host = "lists.sourceforge.net";
  
 // Domain Name Servers
 //    N.B.: Use terminated FQDNs here (with the final ".") so the resolver
 //    doesn't attempt to recurse in the case of a slightly broken DNS
 //    configuration
-$sys_dns1_host = "ns1.company.com";
-$sys_dns2_host = "ns2.company.com";
+$sys_dns1_host = "ns1.sourceforge.net.";
+$sys_dns2_host = "ns2.sourceforge.net.";
 
 // Part II - Databases, html/php/other paths
 $sys_dbhost="localhost";
@@ -68,10 +68,7 @@ $sys_dbpasswd="";
 $sys_server="mysql";
  
 // Where files are placed when uploaded
-$FTPINCOMING_DIR = "/nfs/remission/u7/ftp/incoming";
-
-// Where the released files are located
-$FTPFILES_DIR = "/nfs/garbage/sourceforge";
+$FTP_INCOMING_DIR = "/nfs/remission/u7/ftp/incoming";
  
 // Where the SourceForge files are placed
 // *** IMPORTANT: sys_urlroot *MUST* be an ABSOLUTE FILEYSTEM PATH NAME
@@ -92,9 +89,5 @@ $sys_name="prodigy";
 //    See the top of the file include/html.php, this is where the menu colors
 //    and colors used throughout SourceForge are defined.
  
-// Themeing related vars... Some of this needs to change in the session stuff
-// The theme base directory, everything else is handled by theme_sysinit()
-$sys_themeroot=$sys_urlroot."themes/";
-
 // End of customizations -- place nothing after the closing PHP tag!
 ?>

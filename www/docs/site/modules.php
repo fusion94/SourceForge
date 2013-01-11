@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: modules.php,v 1.9 2000/08/31 06:07:53 gherteg Exp $
+// $Id: modules.php,v 1.8 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"Documentation - File Modules"));
+site_header(array(title=>"Documentation - File Modules"));
 ?>
 
 <P><B>File Modules</B>
@@ -59,6 +59,6 @@ be separated. They would have been two modules under one project in
 SourceForge.
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

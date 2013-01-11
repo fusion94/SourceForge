@@ -4,16 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: postadd_comment.php,v 1.11 2000/08/30 03:41:45 tperdue Exp $
+// $Id: postadd_comment.php,v 1.10 2000/04/20 15:23:38 tperdue Exp $
 
 if ($details != '') { 
 	patch_history_create('details',htmlspecialchars($details),$patch_id);  
 	$feedback .= ' Comment added to patch ';
-	$project=project_get_object($group_id);
-	if ($project->sendAllPatchUpdates()) {
-		$address=$project->getNewPatchAddress();
-	}
-	mail_followup($patch_id,$address);
+	mail_followup($patch_id);
 }
 
 //user is uploading a new version of the patch
@@ -24,7 +20,7 @@ if ($upload_new && user_isloggedin()) {
 	if (!$result || db_numrows($result) < 1) {
 		exit_error('ERROR','Only the original submittor of a patch can upload a new version.
 			If you submitted your patch anonymously, contact the admin of this project for instructions.');
-		echo db_error();
+                echo db_error();
 	} else {
 		//patch for this user was found, so update it now
 
@@ -49,5 +45,6 @@ if ($upload_new && user_isloggedin()) {
 } else if ($upload_new) {
 	exit_not_logged_in();
 }
+
 
 ?>

@@ -4,13 +4,21 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: utils.php,v 1.121 2000/08/31 15:46:57 gherteg Exp $
+// $Id: utils.php,v 1.107 2000/07/01 18:05:32 tperdue Exp $
 
 function util_prep_string_for_sendmail($body) {
 	$body=str_replace("\\","\\\\",$body);
 	$body=str_replace("\"","\\\"",$body);
 	$body=str_replace("\$","\\\$",$body);
 	return $body;
+}
+
+function util_get_alt_row_color ($i) {
+	if ($i % 2 == 0) {
+		return '#FFFFFF';
+	} else {
+		return $GLOBALS['COLOR_LTBACK1'];
+	}
 }
 
 function util_unconvert_htmlspecialchars($string) {
@@ -26,82 +34,174 @@ function util_unconvert_htmlspecialchars($string) {
 	}
 }
 
+function util_build_select_box_from_array ($vals,$select_name,$checked_val='xzxz') {
+	/*
+		Takes one array, with the first array being the "id" or value
+		and the array being the text you want displayed
+
+		The second parameter is the name you want assigned to this form element
+
+		The third parameter is optional. Pass the value of the item that should be checked
+	*/
+
+	$return .= '
+		<SELECT NAME="'.$select_name.'">';
+
+	$rows=count($vals);
+
+	for ($i=0; $i<$rows; $i++) {
+		$return .= '
+			<OPTION VALUE="'.$i.'"';
+		if ($i == $checked_val) {
+			$return .= ' SELECTED';
+		}
+		$return .= '>'.$vals[$i].'</OPTION>';
+	}
+	$return .= '
+		</SELECT>';
+
+	return $return;
+}
+
+function util_build_select_box_from_arrays ($vals,$texts,$select_name,$checked_val='xzxz',$show_100=true) {
+	/*
+		Takes two arrays, with the first array being the "id" or value
+		and the other array being the text you want displayed
+
+		The third parameter is the name you want assigned to this form element
+
+		The fourth parameter is optional. Pass the value of the item that should be checked
+	*/
+
+	$return .= '
+		<SELECT NAME="'.$select_name.'">';
+
+	//we don't always want the default 100 row shown
+	if ($show_100) {
+		$return .= '
+		<OPTION VALUE="100">None</OPTION>';
+	}
+
+	$rows=count($vals);
+	if (count($texts) != $rows) {
+		$return .= 'ERROR - uneven row counts';
+	}
+
+	for ($i=0; $i<$rows; $i++) {
+		//  uggh - sorry - don't show the 100 row 
+		//  if it was shown above, otherwise do show it
+		if (($vals[$i] != '100') || ($vals[$i] == '100' && !$show_100)) {
+			$return .= '
+				<OPTION VALUE="'.$vals[$i].'"';
+			if ($vals[$i] == $checked_val) {
+				$return .= ' SELECTED';
+			}
+			$return .= '>'.$texts[$i].'</OPTION>';
+		}
+	}
+	$return .= '
+		</SELECT>';
+	return $return;
+}
+
+function util_build_select_box ($result, $name, $checked_val="xzxz") {
+	/*
+		Takes a result set, with the first column being the "id" or value
+		and the second column being the text you want displayed
+
+		The second parameter is the name you want assigned to this form element
+
+		The third parameter is optional. Pass the value of the item that should be checked
+	*/
+
+	return util_build_select_box_from_arrays (util_result_column_to_array($result,0),util_result_column_to_array($result,1),$name,$checked_val);
+}
+
+//deprecated
+function build_select_box ($result, $name, $checked_val="xzxz") {
+	/*
+		backwards compatibility
+	*/
+	echo util_build_select_box ($result,$name,$checked_val);
+}
+
+function util_build_multiple_select_box ($result,$name,$checked_array,$size='8') {
+	/*
+		Takes a result set, with the first column being the "id" or value
+		and the second column being the text you want displayed
+
+		The second parameter is the name you want assigned to this form element
+
+		The third parameter is an array of checked values;
+
+		The fourth parameter is optional. Pass the size of this box
+	*/
+
+	$checked_count=count($checked_array);
+//	echo '-- '.$checked_count.' --';
+	$return .= '
+		<SELECT NAME="'.$name.'" MULTIPLE SIZE="'.$size.'">';
+	/*
+		Put in the default NONE box
+	*/
+	$return .= '
+		<OPTION VALUE="100"';
+	for ($j=0; $j<$checked_count; $j++) {
+		if ($checked_array[$j] == '100') {
+			$return .= ' SELECTED';
+		}
+	}
+	$return .= '>None</OPTION>';
+
+	$rows=db_numrows($result);
+
+	for ($i=0; $i<$rows; $i++) {
+		if (db_result($result,$i,0) != '100') {
+			$return .= '
+				<OPTION VALUE="'.db_result($result,$i,0).'"';
+			/*
+				Determine if it's checked
+			*/
+			$val=db_result($result,$i,0);
+			for ($j=0; $j<$checked_count; $j++) {
+				if ($val == $checked_array[$j]) {
+					$return .= ' SELECTED';
+				}
+			}
+			$return .= '>'.$val.'-'. substr(db_result($result,$i,1),0,35). '</OPTION>';
+		}
+	}
+	$return .= '
+		</SELECT>';
+	return $return;
+}
+
+//deprecated
+function build_multiple_select_box ($result,$name,$checked_array,$size='8') {
+	/*
+		backwards compatibility
+	*/
+	echo util_build_multiple_select_box ($result,$name,$checked_array,$size);
+}
+
 function util_result_column_to_array($result, $col=0) {
 	/*
 		Takes a result set and turns the optional column into
 		an array
 	*/
 	$rows=db_numrows($result);
-
-	if ($rows > 0) {
-		$arr=array();
-		for ($i=0; $i<$rows; $i++) {
-			$arr[$i]=db_result($result,$i,$col);
-		}
-	} else {
-		$arr=array();
+	for ($i=0; $i<$rows; $i++) {
+		$arr[$i]=db_result($result,$i,$col);
 	}
 	return $arr;
 }
 
+//deprecated
 function result_column_to_array($result, $col=0) {
 	/*
 		backwards compatibility
 	*/
 	return util_result_column_to_array($result, $col);
-}
-
-function util_wrap_find_space($string,$wrap) {
-	//echo"\n";
-	$start=$wrap-5;
-	$try=1;
-	$found=false;
-	
-	while (!$found) {
-		//find the first space starting at $start
-		$pos=@strpos($string,' ',$start);
-		
-		//if that space is too far over, go back and start more to the left
-		if (($pos > ($wrap+5)) || !$pos) {
-			$try++;
-			$start=($wrap-($try*5));
-			//if we've gotten so far left , just truncate the line
-			if ($start<=10) {
-				return $wrap;
-			}       
-			$found=false;
-		} else {
-			$found=true;
-		}       
-	}       
-	
-	return $pos;
-}
-
-function util_line_wrap ($text, $wrap = 80, $break = "\n") {
-	$paras = explode("\n", $text);
-			
-	$result = array();
-	$i = 0;
-	while ($i < count($paras)) {
-		if (strlen($paras[$i]) <= $wrap) {
-			$result[] = $paras[$i];
-			$i++;
-		} else {
-			$pos=util_wrap_find_space($paras[$i],$wrap);
-			
-			$result[] = substr($paras[$i], 0, $pos);
-			
-			$new = trim(substr($paras[$i], $pos, strlen($paras[$i]) - $pos));
-			if ($new != '') {
-				$paras[$i] = $new;
-				$pos=util_wrap_find_space($paras[$i],$wrap);
-			} else {
-				$i++;
-			}       
-		}       
-	}		       
-	return implode($break, $result);
 }
 
 function util_make_links ($data='') {
@@ -131,10 +231,23 @@ function show_priority_colors_key() {
 }
 
 
+/*
+	Set up the priority color array one time only
+*/
+$bgpri[1] = '#dadada';
+$bgpri[2] = '#dad0d0';
+$bgpri[3] = '#dacaca';
+$bgpri[4] = '#dac0c0';
+$bgpri[5] = '#dababa';
+$bgpri[6] = '#dab0b0';
+$bgpri[7] = '#daaaaa';
+$bgpri[8] = '#da9090';
+$bgpri[9] = '#da8a8a';
+
+
 function get_priority_color ($index) {
 	/*
 		Return the color value for the index that was passed in
-		(defined in $sys_urlroot/themes/<selected theme>/theme.php)
 	*/
 	global $bgpri;
 	
@@ -263,12 +376,12 @@ Function GraphIt($name_string,$value_string,$title) {
 	/*
 		I create a wrapper table around the graph that holds the title
 	*/
+	echo '
+		<!-- Start outer graph table -->
+		<TABLE BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'" BORDER="0" CELLSPACING="0" CELLPADDING="2">
+		<TR><TD BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'"><FONT COLOR="WHITE"><B>'.$title.'</TD>
+		</TR><TR><TD>';
 
-	$title_arr=array();
-	$title_arr[]=$title;
-
-	echo html_build_list_table_top ($title_arr);
-	echo '<TR><TD>';
 	/*
 		Create an associate array to pass in. I leave most of it blank
 	*/
@@ -310,7 +423,7 @@ Function GraphIt($name_string,$value_string,$title) {
 }
 
 Function  ShowResultSet($result,$title="Untitled",$linkify=false)  {
-	global $group_id,$HTML;
+	global $group_id;
 	/*
 		Very simple, plain way to show a generic result set
 		Accepts a result set and title
@@ -325,22 +438,20 @@ Function  ShowResultSet($result,$title="Untitled",$linkify=false)  {
 			<TABLE BORDER="0" WIDTH="100%">';
 
 		/*  Create the title  */
-
 		echo '
-		<TR BGCOLOR="'.$HTML->COLOR_HTMLBOX_TITLE.'">
-		<TD COLSPAN="'.$cols.'"><B><FONT COLOR="'. $HTML->FONTCOLOR_HTMLBOX_TITLE .'">'.$title.'</B></TD></TR>';
+			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'"><TD COLSPAN="'.$cols.'"><B><FONT COLOR="WHITE">'.$title.'</B></TD></TR>';
 
 		/*  Create  the  headers  */
 		echo '
 			<tr>';
 		for ($i=0; $i < $cols; $i++) {
-			echo '<td><B>'.db_fieldname($result,  $i).'</B></TD>';
+			echo '<td><B>'.db_fieldname($result,  $i).'</TD>';
 		}
 		echo '</tr>';
 
 		/*  Create the rows  */
 		for ($j = 0; $j < $rows; $j++) {
-			echo '<TR BGCOLOR="'. html_get_alt_row_color($j) .'">';
+			echo '<TR BGCOLOR="'. util_get_alt_row_color($j) .'">';
 			for ($i = 0; $i < $cols; $i++) {
 				if ($linkify && $i == 0) {
 					$link = '<A HREF="'.$PHP_SELF.'?';
@@ -375,18 +486,4 @@ Function  ShowResultSet($result,$title="Untitled",$linkify=false)  {
 // Email Verification
 function validate_email ($address) {
 	return (ereg('^[-!#$%&\'*+\\./0-9=?A-Z^_`a-z{|}~]+'. '@'. '[-!#$%&\'*+\\/0-9=?A-Z^_`a-z{|}~]+\.' . '[-!#$%&\'*+\\./0-9=?A-Z^_`a-z{|}~]+$', $address));
-}
-
-function util_is_valid_filename ($file) {
-	if (ereg("[]~`! ~@#\"$%^,&*();=|[{}<>?/]",$file)) {
-		return false;
-	} else {
-		if (strstr($file,'..')) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-}
-
-?>
+}       

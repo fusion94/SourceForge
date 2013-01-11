@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: thanks.php,v 1.8 2000/08/31 06:07:52 gherteg Exp $
+// $Id: thanks.php,v 1.7 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"About SorceForge"));
+site_header(array(title=>"About SorceForge"));
 ?>
 
 <P>
@@ -44,7 +44,7 @@ The Developers of SourceForge would like to thank the following people for their
 
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>
 

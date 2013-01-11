@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: browse_task.php,v 1.38 2000/08/31 06:26:00 gherteg Exp $
+// $Id: browse_task.php,v 1.31 2000/06/16 08:57:11 tperdue Exp $
 
 if (!$offset || $offset < 0) {
 	$offset=0;
@@ -53,7 +53,6 @@ if (!$set) {
 		}
 	} else {
 		$set='open';
-		$_assigned_to=0;
 	}
 }
 
@@ -77,13 +76,13 @@ if ($set=='my') {
 	/*
 		Closed tasks - backwards compat can be removed 9/10
 	*/
-	$_assigned_to=0;
+	unset($_assigned_to);
 	$_status='2';
 } else {
 	/*
 		Open tasks - backwards compat can be removed 9/10
 	*/
-	$_assigned_to=0;
+	unset($_assigned_to);
 	$_status='1';
 }
 
@@ -101,7 +100,7 @@ if ($_status && ($_status != 100)) {
 }
 
 //if assigned to selected, and more to where clause
-if ($_assigned_to) {
+if ($_assigned_to && ($_assigned_to != 100)) {
 	$assigned_str="AND project_assigned_to.assigned_to_id='$_assigned_to'";
 
 	//workaround for old tasks that do not have anyone assigned to them
@@ -118,7 +117,7 @@ if ($_assigned_to) {
 //if a user was selected, add the user_name to the title
 //same for status
 pm_header(array('title'=>'Browse Tasks'.
-	(($_assigned_to)?' For: '.user_getname($_assigned_to):'').
+	(($_assigned_to && ($_assigned_to != 100))?' For: '.user_getname($_assigned_to):'').
 	(($_status && ($_status != 100))?' By Status: '.pm_data_get_status_name($_status):'')));
 
 $sql="SELECT project_task.priority,project_task.group_project_id,project_task.project_task_id,".
@@ -134,31 +133,17 @@ $message="Browsing Custom Task List";
 $result=db_query($sql);
 
 /*
-        creating a custom technician box which includes "any" and "unassigned"
-*/
-
-$res_tech=pm_data_get_technicians ($group_id);
-
-$tech_id_arr=util_result_column_to_array($res_tech,0);
-$tech_id_arr[]='0';  //this will be the 'any' row
-
-$tech_name_arr=util_result_column_to_array($res_tech,1);
-$tech_name_arr[]='Any';
-
-$tech_box=html_build_select_box_from_arrays ($tech_id_arr,$tech_name_arr,'_assigned_to',$_assigned_to,true,'Unassigned');
-
-
-
-/*
 	Show the new pop-up boxes to select assigned to and/or status
 */
 echo '<TABLE WIDTH="10%" BORDER="0"><FORM ACTION="'. $PHP_SELF .'" METHOD="GET">
 	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
 	<INPUT TYPE="HIDDEN" NAME="set" VALUE="custom">
-	<TR><TD COLSPAN="4" nowrap><b>Browse Tasks by User and/or Status:</b></TD></TR>
-	<TR><TD>'. pm_show_subprojects_box('group_project_id',$group_id,$group_project_id) .'</TD>'.
-		'<TD><FONT SIZE="-1">'. $tech_box .'</TD><TD><FONT SIZE="-1">'. pm_status_box('_status',$_status,'Any') .'</TD>'.
-		'<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Browse"></TD></TR></FORM></TABLE>';
+	<INPUT TYPE="HIDDEN" NAME="group_project_id" VALUE="'.$group_project_id.'">
+	<TR><TD COLSPAN="3" nowrap><b>Browse Tasks by User and/or Status:</b></TD></TR>
+	<TR><TD><FONT SIZE="-1">';
+echo pm_tech_select_box('_assigned_to',$group_id,$_assigned_to);
+echo '</TD><TD><FONT SIZE="-1">'. pm_status_box('_status',$_status) .'</TD>'.
+'<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Browse"></TD></TR></FORM></TABLE>';
 
 
 if (db_numrows($result) < 1) {
@@ -168,9 +153,7 @@ if (db_numrows($result) < 1) {
 		<P>
 		<B>Add tasks using the link above</B>';
 	echo db_error();
-	echo '
 
-<!-- '. $sql .' -->';
 } else {
 
 	//create a new $set string to be used for next/prev button

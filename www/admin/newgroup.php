@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: newgroup.php,v 1.14 2000/08/31 06:07:52 gherteg Exp $
+// $Id: newgroup.php,v 1.13 2000/06/17 08:24:35 tperdue Exp $
 
 require "pre.php";    
 session_require(array('group'=>'1','admin_flags'=>'A'));
@@ -33,7 +33,7 @@ function submit_valid()	{
 if (submit_valid()) {
 	session_redirect("/admin/index.php");
 } else { // not valid registration, or first time to page
-	$HTML->header(array('title'=>"Alexandria: Admin: New Group"));
+	site_header(array('title'=>"Alexandria: Admin: New Group"));
 
 ?>
 <p><b>Alexandria New Group Creation</b>
@@ -51,6 +51,6 @@ if (submit_valid()) {
 
 <?php
 }
-$HTML->footer(array());
+site_footer(array());
 
 ?>

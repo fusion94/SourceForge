@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: contact.php,v 1.12 2000/08/31 06:07:52 gherteg Exp $
+// $Id: contact.php,v 1.11 2000/06/09 02:22:39 tperdue Exp $
 
 require "pre.php";    // Initial db and session library, opens session
-$HTML->header(array('title'=>'Contact Us'));
+site_header(array('title'=>'Contact Us'));
 ?>
 
 <P>You may contact any of the <A href="staff.php"><B>[ staff ]</B></A> directly via email.
@@ -24,5 +24,5 @@ please <A HREF="/bugs/?func=addbug&group_id=1"><B>[ submit a bug ]</B></A>.
 </UL>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 ?>

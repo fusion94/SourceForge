@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: mod_task.php,v 1.31 2000/08/26 05:06:13 tperdue Exp $
+// $Id: mod_task.php,v 1.28 2000/04/21 13:09:01 tperdue Exp $
 
 pm_header(array('title'=>'Modify A Task'));
 
@@ -23,17 +23,6 @@ $result=db_query($sql);
 <INPUT TYPE="HIDDEN" NAME="project_task_id" VALUE="<?php echo $project_task_id; ?>">
 
 <TABLE BORDER="0" WIDTH="100%">
-	<TR>    
-		<TD><B>Subproject:</B>
-		<BR>
-		<?php echo pm_show_subprojects_box('new_group_project_id',$group_id,$group_project_id); ?>
-		</TD>
-
-		<TD><FONT SIZE="-1">
-		<INPUT TYPE="submit" value="Submit Changes" name="submit"></FONT>
-		</TD>
-	</TR>
-
 	<TR>
 		<TD><B>Percent Complete:</B>
 		<BR>
@@ -154,8 +143,8 @@ $result=db_query($sql);
 	</TR>
 
 	<TR>
-		<TD COLSPAN="2" ALIGN="MIDDLE">
-		<INPUT TYPE="submit" value="Submit Changes" name="submit">
+		<TD COLSPAN="2">
+		<INPUT TYPE="submit" value="Submit" name="submit">
 		</TD>
 		</form>
 	</TR>

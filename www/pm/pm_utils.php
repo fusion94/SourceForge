@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: pm_utils.php,v 1.67 2000/08/30 22:34:20 tperdue Exp $
+// $Id: pm_utils.php,v 1.60 2000/06/14 01:28:20 q Exp $
 
 /*
 
@@ -16,29 +16,18 @@
 
 function pm_header($params) {
 	global $group_id,$is_pm_page,$words,$group_project_id,$DOCUMENT_ROOT,$order;
-
-	//required by site_project_header
 	$params['group']=$group_id;
-	$params['toptab']='pm';
 
-	//only projects can use the bug tracker, and only if they have it turned on
-	$project=project_get_object($group_id);
+	site_header($params);
 
-	if (!$project->isProject()) {
-		exit_error('Error','Only Projects Can Use The Task Manager');
-	}
-	if (!$project->usesPm()) {
-		exit_error('Error','This Project Has Turned Off The Task Manager');
-	}
-
-	site_project_header($params);
+	html_tabs('pm',$group_id);
 
 	echo "<P><B>";
 
 	if ($group_project_id) {
 		echo "<A HREF=\"/pm/?group_id=$group_id\">Project List</A>";
 		if (user_isloggedin()) {
-			echo " | <A HREF=\"/pm/task.php?group_id=$group_id&group_project_id=$group_project_id&func=addtask\">Add Task</A>";
+                        echo " | <A HREF=\"/pm/task.php?group_id=$group_id&group_project_id=$group_project_id&func=addtask\">Add Task</A>";
 			echo " | <A HREF=\"/pm/task.php?group_id=$group_id&group_project_id=$group_project_id&func=browse&set=my\">My Tasks</A>";
 		}
 		echo " | <A HREF=\"/pm/task.php?group_id=$group_id&group_project_id=$group_project_id&func=browse&set=open\">Browse Open Tasks</A> | ";
@@ -49,12 +38,14 @@ function pm_header($params) {
 }
 
 function pm_footer($params) {
-	site_project_footer($params);
+	global $feedback;
+	html_feedback_bottom($feedback);
+	site_footer($params);
 }
 
-function pm_status_box($name='status_id',$checked='xyxy',$text_100='None') {
+function pm_status_box($name='status_id',$checked='xyxy') {
 	$result=pm_data_get_statuses();
-	return html_build_select_box($result,$name,$checked,true,$text_100);
+	return util_build_select_box($result,$name,$checked);
 }
 
 function pm_tech_select_box($name='assigned_to',$group_id=false,$checked='xzxz') {
@@ -62,7 +53,7 @@ function pm_tech_select_box($name='assigned_to',$group_id=false,$checked='xzxz')
 		return 'ERROR - no group_id';
 	} else {
 		$result=pm_data_get_technicians ($group_id);
-		return html_build_select_box($result,$name,$checked);
+		return util_build_select_box($result,$name,$checked);
 	}
 }
 
@@ -75,20 +66,11 @@ function pm_multiple_task_depend_box ($name='dependent_on[]',$group_project_id=f
 			$result=pm_data_get_other_tasks ($group_project_id,$project_task_id);
 			//get the data so we can mark items as SELECTED
 			$result2=pm_data_get_dependent_tasks ($project_task_id);
-			return html_build_multiple_select_box ($result,$name,util_result_column_to_array($result2));
+			return util_build_multiple_select_box ($result,$name,util_result_column_to_array($result2));
 		} else {
-			return html_build_multiple_select_box ($result,$name,array());
+			return util_build_multiple_select_box ($result,$name,array());
 		}
 	}
-}
-
-function pm_show_subprojects_box($name='group_project_id',$group_id=false,$group_project_id=false) {
-	if (!$group_id || !$group_project_id) {
-		return 'ERROR - no group_id defined';
-	} else {
-		$result=pm_data_get_subprojects($group_id);
-		return html_build_select_box($result,$name,$group_project_id,false);
-	}       
 }
 
 function pm_multiple_assigned_box ($name='assigned_to[]',$group_id=false,$project_task_id=false) {
@@ -99,9 +81,9 @@ function pm_multiple_assigned_box ($name='assigned_to[]',$group_id=false,$projec
 		if ($project_task_id) {
 			//get the data so we can mark items as SELECTED
 			$result2=pm_data_get_assigned_to ($project_task_id);
-			return html_build_multiple_select_box ($result,$name,util_result_column_to_array($result2));
+			return util_build_multiple_select_box ($result,$name,util_result_column_to_array($result2));
 		} else {
-			return html_build_multiple_select_box ($result,$name,array());
+			return util_build_multiple_select_box ($result,$name,array());
 		}
 	}
 }
@@ -198,24 +180,17 @@ function pm_show_tasklist ($result,$offset,$set='open') {
 	*/
 
 	$rows=db_numrows($result);
+	echo '
+		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">';
 
 	$url = "/pm/task.php?group_id=$group_id&group_project_id=$group_project_id&func=browse&set=$set&order=";
-
-	$title_arr=array();
-	$title_arr[]='Task ID';
-	$title_arr[]='Summary';
-	$title_arr[]='Start Date';
-	$title_arr[]='End Date';
-	$title_arr[]='Percent Complete';
-
-	$links_arr=array();
-	$links_arr[]=$url.'project_task_id';
-	$links_arr[]=$url.'summary';
-	$links_arr[]=$url.'start_date';
-	$links_arr[]=$url.'end_date';
-	$links_arr[]=$url.'percent_complete';
-
-	echo html_build_list_table_top ($title_arr,$links_arr);
+	echo '
+		<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'project_task_id"><FONT COLOR="#FFFFFF"><B>Task ID</a></TD>
+		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'summary"><FONT COLOR="#FFFFFF"><B>Summary</a></TD>
+		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'start_date"><FONT COLOR="#FFFFFF"><B>Start Date</a></TD>
+		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'end_date"><FONT COLOR="#FFFFFF"><B>End Date</a></TD>
+		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'percent_complete"><FONT COLOR="#FFFFFF"><B>Percent Complete</a></TD></TR>';
 
 	$now=time();
 
@@ -268,14 +243,12 @@ function pm_show_dependent_tasks ($project_task_id,$group_id,$group_project_id) 
 
 	if ($rows > 0) {
 		echo '
-		<H3>Tasks That Depend on This Task</H3>
-		<P>';
-
-		$title_arr=array();
-		$title_arr[]='Task ID';
-		$title_arr[]='Summary';
-
-		echo html_build_list_table_top ($title_arr);
+			<H3>Tasks That Depend on This Task</H3>';
+		echo '
+			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+				<TD><FONT COLOR="#FFFFFF"><B>Task ID</TD>
+				<TD><FONT COLOR="#FFFFFF"><B>Summary</TD></TR>';
 
 		for ($i=0; $i < $rows; $i++) {
 			echo '
@@ -305,13 +278,12 @@ function pm_show_dependent_bugs ($project_task_id,$group_id,$group_project_id) {
 
 	if ($rows > 0) {
 		echo '
-		<H3>Bugs That Depend on This Task</H3>
-		<P>';
-		$title_arr=array();
-		$title_arr[]='Bug ID';
-		$title_arr[]='Summary';
-		
-		echo html_build_list_table_top ($title_arr);
+			<H3>Bugs That Depend on This Task</H3>';
+		echo '
+			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+				<TD><FONT COLOR="#FFFFFF"><B>Bug ID</TD>
+				<TD><FONT COLOR="#FFFFFF"><B>Summary</TD></TR>';
 
 		for ($i=0; $i < $rows; $i++) {
 			echo '
@@ -344,15 +316,13 @@ function pm_show_task_details ($project_task_id) {
 
 	if ($rows > 0) {
 		echo '
-		<H3>Followups</H3>
-		<P>';
-
-		$title_arr=array();
-		$title_arr[]='Comment';
-		$title_arr[]='Date';
-		$title_arr[]='By';
-		
-		echo html_build_list_table_top ($title_arr);
+			<H3>Followups</H3>';
+		echo '
+			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+				<TD><FONT COLOR="#FFFFFF"><B>Comment</TD>
+				<TD><FONT COLOR="#FFFFFF"><B>Date</TD>
+				<TD><FONT COLOR="#FFFFFF"><B>By</TD></TR>';
 
 		for ($i=0; $i < $rows; $i++) {
 			echo '
@@ -385,16 +355,14 @@ function pm_show_task_history ($project_task_id) {
 	if ($rows > 0) {
 
 		echo '
-		<H3>Task Change History</H3>
-		<P>';
-
-		$title_arr=array();
-		$title_arr[]='Field';
-		$title_arr[]='Old Value';
-		$title_arr[]='Date';
-		$title_arr[]='By';
-
-		echo html_build_list_table_top ($title_arr);
+			<H3>Task Change History</H3>';
+		echo '
+			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+			<TD><FONT COLOR="#FFFFFF"><B>Field</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Old Value</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Date</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>By</TD></TR>';
 
 		for ($i=0; $i < $rows; $i++) {
 			$field=db_result($result, $i, 'field_name');

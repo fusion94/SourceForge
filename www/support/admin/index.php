@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.14 2000/08/13 15:43:44 tperdue Exp $
+// $Id: index.php,v 1.13 2000/03/17 12:25:37 tperdue Exp $
 
 require('pre.php');
 require('../support_utils.php');
@@ -129,15 +129,19 @@ if ($group_id && user_ismember($group_id,'S2')) {
 			//code to show existing responses and link to update page
 			echo '
 			<H2>Existing Responses:</H2>
-			<P>';
-			$title_arr=array();
-			$title_arr[]='ID';
-			$title_arr[]='Title';
-
-			echo html_build_list_table_top ($title_arr);
-
+			<P>
+			<TABLE BORDER="0" CELLSPACING="1" CELLPADDING="2">
+				<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
+				<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>ID</B></TD>
+				<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Title</B></TD>
+				</TR>';
 			for ($i=0; $i < $rows; $i++) {
-				echo '<TR BGCOLOR="'. html_get_alt_row_color($i) .'">'.
+				if ($i % 2 == 0) {
+					$row_color = ' BGCOLOR="#FFFFFF"';
+				} else {
+					$row_color = ' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+				}
+				echo '<TR'.$row_color.'>'.
 					'<TD>'.db_result($result, $i, 'support_canned_id').'</TD>'.
 					'<TD><A HREF="'.$PHP_SELF.'?update_canned=1&support_canned_id='.
 						db_result($result, $i, 'support_canned_id').'&group_id='.$group_id.'">'.

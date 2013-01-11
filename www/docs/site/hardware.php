@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: hardware.php,v 1.31 2000/08/31 06:07:53 gherteg Exp $
+// $Id: hardware.php,v 1.30 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"Welcome to Project Alexandria"));
+site_header(array(title=>"Welcome to Project Alexandria"));
 ?>
 
 <P><H1>SourceForge Hardware Summary</H1></P>
@@ -93,6 +93,6 @@ $HTML->header(array(title=>"Welcome to Project Alexandria"));
 
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

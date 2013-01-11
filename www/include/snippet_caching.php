@@ -4,13 +4,13 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: snippet_caching.php,v 1.8 2000/08/11 18:33:22 gherteg Exp $
+// $Id: snippet_caching.php,v 1.5 2000/03/08 09:10:37 tperdue Exp $
 require ($DOCUMENT_ROOT.'/snippet/snippet_utils.php');
 
 function snippet_mainpage() {
 	global $SCRIPT_LANGUAGE,$SCRIPT_CATEGORY;
 	?>
-	<FONT face="arial, helvetica">
+	<H2>Welcome to the Source Code Snippet Library</H2>
 	<P>
 	The purpose of this archive is to let you share your code snippets, scripts, 
 	and functions with the Open Source Software Community.
@@ -33,7 +33,6 @@ function snippet_mainpage() {
 	</TD></TR>
 
 	<TR><TD>
-	<FONT face="arial, helvetica">
 	<B>Browse by Language:</B>
 	<P>
 	<?php
@@ -50,7 +49,6 @@ function snippet_mainpage() {
 	?>
 	</TD>
 	<TD>
-	<FONT face="arial, helvetica">
 	<B>Browse by Category:</B>
 	<P>
 	<?php

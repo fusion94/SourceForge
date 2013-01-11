@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: faq.php,v 1.33 2000/09/04 01:38:15 tperdue Exp $
+// $Id: faq.php,v 1.31 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"Frequently Asked Questions (FAQ)"));
+site_header(array(title=>"Frequently Asked Questions (FAQ)"));
 ?>
 
 <P><B>SourceForge Frequently Asked Questions (FAQ)</B>
@@ -355,6 +355,6 @@ after they see what I've written.
 <P>Yes.
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

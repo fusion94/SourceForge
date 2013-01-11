@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: delay.php,v 1.6 2000/08/31 06:07:53 gherteg Exp $
+// $Id: delay.php,v 1.5 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"Documentation - The Delay"));
+site_header(array(title=>"Documentation - The Delay"));
 ?>
 
 <P><B>The 6 hour cron delay</B>
@@ -28,6 +28,6 @@ on the main documentation page is approximate.
 <P><A href="/docs/site/">[Return to Site Documentation]</A>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

@@ -4,14 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: grouplist.php,v 1.45 2000/08/10 22:13:31 tperdue Exp $
+// $Id: grouplist.php,v 1.44 2000/06/17 08:24:35 tperdue Exp $
 
 require "pre.php";    
-require($DOCUMENT_ROOT.'/admin/admin_utils.php');
-
 session_require(array('group'=>'1','admin_flags'=>'A'));
 
-site_admin_header(array('title'=>"Alexandria: Group List"));
+site_header(array('title'=>"Alexandria: Group List"));
 
 // start from root if root not passed in
 if (!$form_catroot) {
@@ -86,6 +84,6 @@ while ($grp = db_fetch_array($res)) {
 </TABLE>
 
 <?php
-site_admin_footer(array());
+site_footer(array());
 
 ?>

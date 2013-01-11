@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: snippet_utils.php,v 1.25 2000/08/31 20:15:01 gherteg Exp $
+// $Id: snippet_utils.php,v 1.21 2000/05/02 12:57:03 tperdue Exp $
 
 /*
 	Code Snippet System
@@ -69,14 +69,12 @@ $SCRIPT_LANGUAGE[14] = 'JavaScript';
 $SCRIPT_LANGUAGE[15] = 'SQL';
 
 function snippet_header($params) {
-	global $DOCUMENT_ROOT,$HTML;
+	global $DOCUMENT_ROOT;
+	site_header($params);
 
-	$HTML->header($params);
 	/*
 		Show horizontal links
 	*/
-	echo '<FONT face="arial, helvetica">';
-	echo '<H2>' . $params['header'] . '</H2>';
 	echo '<P><B>';
 	echo '<A HREF="/snippet/">Browse</A>
 		 | <A HREF="/snippet/submit.php">Submit A New Snippet</A>
@@ -85,10 +83,9 @@ function snippet_header($params) {
 }
 
 function snippet_footer($params) {
-	GLOBAL $HTML;
 	global $feedback;
 	html_feedback_bottom($feedback);
-	$HTML->footer($params);
+	site_footer($params);
 }
 
 function snippet_show_package_snippets($version) {
@@ -103,17 +100,16 @@ function snippet_show_package_snippets($version) {
 	$result=db_query($sql);
 	$rows=db_numrows($result);
 	echo '
-	<P>
-	<H3>Snippets In This Package:</H3>
-	<P>';
-
-	$title_arr=array();
-	$title_arr[]='Snippet ID';
-	$title_arr[]='Download Version';
-	$title_arr[]='Title';
-	$title_arr[]='Author';
-
-	echo html_build_list_table_top ($title_arr,$links_arr);
+		<P>
+		<H3>Snippets In This Package:</H3>
+		<P>
+		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+		<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Snippet ID</B></TD>
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Download Version</B></TD>
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Title</B></TD>
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Author</B></TD>
+		</TR>';
 
 	if (!$result || $rows < 1) {
 		echo db_error();
@@ -126,7 +122,7 @@ function snippet_show_package_snippets($version) {
 
 		for ($i=0; $i<$rows; $i++) {
 			echo '
-			<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.db_result($result,$i,'snippet_version_id').
+				<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.db_result($result,$i,'snippet_version_id').
 				'</TD><TD><A HREF="/snippet/download.php?type=snippet&id='.
 				db_result($result,$i,'snippet_version_id').'">'.
 				db_result($result,$i,'version').'</A></TD><TD>'.

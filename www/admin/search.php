@@ -8,7 +8,7 @@
 require "pre.php";
 session_require(array('group'=>'1','admin_flags'=>'A'));
 
-$HTML->header(array('title'=>"Alexandria Admin"));
+site_header(array('title'=>"Alexandria Admin"));
 
 ?>
 
@@ -74,5 +74,5 @@ if ($groupsearch) {
 } //end if($groupsearch)
 
 
-$HTML->footer(array());
+site_footer(array());
 ?>

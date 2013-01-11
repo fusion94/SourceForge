@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.224 2000/08/12 04:55:39 tperdue Exp $
+// $Id: index.php,v 1.223 2000/06/03 04:35:28 tperdue Exp $
 
 require ('pre.php');    
 
@@ -21,6 +21,6 @@ if (!$group_id) {
 	exit_error("Missing Group Argument","A group must be specified for this page.");
 }
 
-header ("Location: /projects/". group_getunixname($group_id) ."/");
+include ('project_home.php');
 
 ?>

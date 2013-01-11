@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: change_timezone.php,v 1.6 2000/08/31 06:07:52 gherteg Exp $
+// $Id: change_timezone.php,v 1.4 2000/06/30 19:03:34 tperdue Exp $
 
 require ('pre.php');
 require ('account.php');
@@ -24,7 +24,7 @@ if ($submit) {
 	}
 }
 
-$HTML->header(array('title'=>"Change Timezone"));
+site_header(array('title'=>"Change RealName"));
 
 ?>
 <H3>Timezone Change</h3>
@@ -37,7 +37,7 @@ as if it were in your neighborhood.
 
 echo '<H4>'.$feedback.'</H4>';
 
-echo html_build_select_box_from_arrays ($TZs,$TZs,'timezone',user_get_timezone());
+echo util_build_select_box_from_arrays ($TZs,$TZs,'timezone',user_get_timezone());
 
 ?>
 <input type="submit" name="submit" value="Update">
@@ -45,6 +45,6 @@ echo html_build_select_box_from_arrays ($TZs,$TZs,'timezone',user_get_timezone()
 
 <?php
 
-$HTML->footer(array());
+site_footer(array());
 
 ?>

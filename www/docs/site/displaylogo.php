@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: displaylogo.php,v 1.10 2000/08/31 06:07:53 gherteg Exp $
+// $Id: displaylogo.php,v 1.9 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"Displaying the SourceForge Logo"));
+site_header(array(title=>"Displaying the SourceForge Logo"));
 
 print '<P><B>Displaying the SourceForge Logo</B>
 
@@ -51,6 +51,6 @@ with any questions you may have.
 ';
 
 
-$HTML->footer(array());
+site_footer(array());
 
 ?>

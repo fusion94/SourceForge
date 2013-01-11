@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: toplist.php,v 1.34 2000/08/31 06:11:36 gherteg Exp $
+// $Id: toplist.php,v 1.29 2000/07/12 21:01:41 tperdue Exp $
 
 require "pre.php";    
 
@@ -31,7 +31,7 @@ else {
 }
 
 
-$HTML->header(array('title'=>$title));
+site_header(array('title'=>$title));
 
 print '<P><B><FONT size="+1">'.$title.'</FONT></B>
 <BR><I>(Updated Daily)</I>
@@ -47,19 +47,13 @@ print '<P><B><FONT size="+1">'.$title.'</FONT></B>
 <TD align="right"><B>Change</B>&nbsp;&nbsp;&nbsp;</TD></TR>
 ';
 
-$res_top = db_query("SELECT groups.group_id,groups.group_name,groups.unix_group_name,top_group.$rankfield,".
-	"top_group.rank_$rankfield,top_group.rank_".$rankfield."_old ".
-	"FROM groups,top_group ".
-	"WHERE top_group.$rankfield > 0 ".
-	"AND top_group.group_id=groups.group_id ".
-	"ORDER BY top_group.rank_$rankfield LIMIT 100");
-
-echo db_error();
+$res_top = db_query("SELECT group_id,group_name,$rankfield,rank_$rankfield,rank_".$rankfield."_old FROM "
+	."top_group WHERE $rankfield > 0 ORDER BY rank_$rankfield LIMIT 100");
 
 while ($row_top = db_fetch_array($res_top)) {
 	$i++;
 	print '<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>&nbsp;&nbsp;'.$row_top["rank_$rankfield"]
-		.'</TD><TD><A href="/projects/'. strtolower($row_top['unix_group_name']) .'/">'
+		.'</TD><TD><A href="/project/?group_id='.$row_top['group_id'].'">'
 		.stripslashes($row_top['group_name'])."</A>"
 		.'</TD><TD align="right">'.$row_top["$rankfield"]
 		.'&nbsp;&nbsp;&nbsp;</TD><TD align="right">'.$row_top["rank_$rankfield"."_old"]
@@ -87,5 +81,5 @@ while ($row_top = db_fetch_array($res_top)) {
 
 print '</TABLE>';
 
-$HTML->footer(array());
+site_footer(array());
 ?>

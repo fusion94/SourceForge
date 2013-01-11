@@ -4,50 +4,19 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.24 2000/09/05 19:22:25 msnelham Exp $ 
-require('pre.php');
-require('site_stats_utils.php');
+// $Id: index.php,v 1.16 2000/05/29 20:32:39 tperdue Exp $ 
 
-   // require you to be a member of the super-admin group
+require('pre.php');
+require('cache.php');
+
 session_require(array('group'=>'1','admin_flags'=>'A'));
 
-$HTML->header(array(title=>"SourceForge Site Statistics "));
+site_header(array('title'=>'Site Statistics'));
 
-//
-// BEGIN PAGE CONTENT CODE
-//
+echo '<P><B> <A HREF="/stats/project.php">Project Stats</A> | <A HREF="/stats/">SourceForge Stats</A> </B>';
+echo '<P>';
 
-echo "\n\n";
+echo cache_display("stats_sf_stats",'1',1800);
 
-print '<DIV ALIGN="CENTER">' . "\n";
-print '<font size="+1"><b>Sitewide Agregate Statistics </b></font><BR>' . "\n";
-?>
-
-<HR>
-
-<table width="100%" cellpadding="0" cellspacing="0" border="0">
-<tr>
-<td align="center"><B>OVERVIEW STATS</B></td>
-<td align="center"><a href="projects.php">PROJECT STATS</a></td>
-<td align="center"><a href="graphs.php">SITE GRAPHS</a></td>
-</tr>
-</table>
-
-<HR>
-
-<?php
-
-stats_site_agregate( $group_id );
-print '<BR><BR>' . "\n";
-stats_site_projects_daily( 14 );
-print '<BR><BR>' . "\n";
-//stats_site_projects_weekly( 52 );
-print '<BR><BR>' . "\n";
-print '</DIV>' . "\n";
-
-//
-// END PAGE CONTENT CODE
-//
-
-$HTML->footer( array() );
+site_footer(array());
 ?>

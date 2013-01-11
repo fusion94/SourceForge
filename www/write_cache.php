@@ -4,12 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: write_cache.php,v 1.14 2000/08/10 03:01:37 tperdue Exp $
-
-// Try to avoid 'sploits by requiring the request to come from localhost
-if ($HTTP_HOST != 'localhost') {
-	exit;
-}
+// $Id: write_cache.php,v 1.13 2000/03/31 13:33:15 tperdue Exp $
 
 require ('pre.php');
 require ($DOCUMENT_ROOT.'/include/vote_function.php');
@@ -21,7 +16,6 @@ require ($DOCUMENT_ROOT.'/include/snippet_caching.php');
 	list of valid cacheable functions to
 	overcome possible exploit found by rilel
 */
-
 
 $function= intval($function);
 

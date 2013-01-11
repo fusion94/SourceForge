@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: services-web.php,v 1.6 2000/08/31 06:07:53 gherteg Exp $
+// $Id: services-web.php,v 1.5 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"Services - Web Server"));
+site_header(array(title=>"Services - Web Server"));
 ?>
 
 <P><B>SourceForge Services - Web Server</B>
@@ -26,6 +26,6 @@ access your MySQL database.
 <P><A href="/docs/site/services.php">[Return to Site Service Documentation]</A>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: cvssshquick.php,v 1.4 2000/08/31 06:07:53 gherteg Exp $
+// $Id: cvssshquick.php,v 1.3 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"CVS/SSH SourceForge Documentation"));
+site_header(array(title=>"CVS/SSH SourceForge Documentation"));
 ?>
 
 <B>Documentation CVS de SourceForge</B>
@@ -63,6 +63,6 @@ les commandes cvs, sans le marqueur -d. Par exemple :
 </UL>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

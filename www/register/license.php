@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: license.php,v 1.30 2000/08/31 06:11:36 gherteg Exp $
+// $Id: license.php,v 1.29 2000/07/12 21:01:41 tperdue Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 require "vars.php";
@@ -38,7 +38,7 @@ if ($insert_group_name && $group_id && $rand_hash && $form_full_name && $form_un
 		include info on your browser and platform configuration');
 }
 
-$HTML->header(array('title'=>'License'));
+site_header(array('title'=>'License'));
 ?>
 
 <H2>Step 5: License</H2>
@@ -116,7 +116,7 @@ not be approved.
 </FONT>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>
 

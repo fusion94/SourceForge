@@ -16,8 +16,7 @@ function support_data_get_technicians ($group_id) {
 		"FROM user,user_group ".
 		"WHERE user.user_id=user_group.user_id ".
 		"AND user_group.support_flags IN (1,2) ".
-		"AND user_group.group_id='$group_id' ".
-		"ORDER BY user.user_name";
+		"AND user_group.group_id='$group_id'";
 	return db_query($sql);
 }
 
@@ -135,21 +134,12 @@ function support_data_create_support ($group_id,$support_category_id,$user_email
 		exit_error('Missing Info','Go Back and fill in all the information requested');
 	}
 
-	//make sure we aren't double-submitting this code
-	$res=db_query("SELECT * FROM support WHERE submitted_by='$user' AND summary='". htmlspecialchars ($summary) ."'");
-	if ($res && db_numrows($res) > 0) {
-		$feedback .= ' ERROR - DOUBLE SUBMISSION. You are trying to double-submit this request. Please do not double-submit requests. ';
-		return 0;
-	}
-
-	//now insert the request
 	$sql="INSERT INTO support (priority,close_date,group_id,support_status_id,support_category_id,submitted_by,assigned_to,open_date,summary) ".
 		"VALUES ('5','0','$group_id','1','$support_category_id','$user','100','". time() ."','". htmlspecialchars($summary) ."')";
 
 	$result=db_query($sql);
-	$support_id=db_insertid($result);
 
-	if (!$result || !$support_id) {
+	if (!$result) {
 		exit_error('Error','Data insertion failed '.db_error());
 	} else {
 

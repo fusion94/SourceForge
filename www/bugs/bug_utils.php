@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: bug_utils.php,v 1.170 2000/08/30 22:34:19 tperdue Exp $
+// $Id: bug_utils.php,v 1.157 2000/06/12 13:45:19 tperdue Exp $
 
 /*
 
@@ -16,41 +16,32 @@
 
 function bug_header($params) {
 	global $group_id,$is_bug_page,$DOCUMENT_ROOT;
-
-	//used so the search box will add the necessary element to the pop-up box
 	$is_bug_page=1;
-
-	//required params for site_project_header();
 	$params['group']=$group_id;
-	$params['toptab']='bugs';
+	site_header($params);
 
-	$project=project_get_object($group_id);
+	html_tabs('bugs',$group_id);
 
-	//only projects can use the bug tracker, and only if they have it turned on
-	if (!$project->isProject()) {
-		exit_error('Error','Only Projects Can Use The Bug Tracker');
+	if ($group_id) {
+		echo '<P><B><A HREF="/bugs/?func=addbug&group_id='.$group_id.'">Submit A Bug</A>
+		 | <A HREF="/bugs/?func=browse&group_id='.$group_id.'&set=open">Open Bugs</A>';
+		if (user_isloggedin()) {
+			echo ' | <A HREF="/bugs/?func=browse&group_id='.$group_id.'&set=my">My Bugs</A>';
+			echo ' | <A HREF="/bugs/?func=modfilters&group_id='.$group_id.'">Filters</A>';
+			echo ' | <A HREF="/bugs/reporting/?group_id='.$group_id.'">Reporting</A>';
+		}
+		echo ' | <A HREF="/bugs/admin/?group_id='.$group_id.'">Admin</A></B>';
 	}
-	if (!$project->usesBugs()) {
-		exit_error('Error','This Project Has Turned Off The Bug Tracker');
-	}
-	echo site_project_header($params);
 
-	echo '<P><B><A HREF="/bugs/?func=addbug&group_id='.$group_id.'">Submit A Bug</A>
-	 | <A HREF="/bugs/?func=browse&group_id='.$group_id.'&set=open">Open Bugs</A>';
-	if (user_isloggedin()) {
-		echo ' | <A HREF="/bugs/?func=browse&group_id='.$group_id.'&set=my">My Bugs</A>';
-		echo ' | <A HREF="/bugs/?func=modfilters&group_id='.$group_id.'">Filters</A>';
-		echo ' | <A HREF="/bugs/reporting/?group_id='.$group_id.'">Reporting</A>';
-	}
-	echo ' | <A HREF="/bugs/admin/?group_id='.$group_id.'">Admin</A></B>';
-	echo ' <hr width="300" size="1" align="left" noshade>';
 }
 
 function bug_footer($params) {
-	site_project_footer($params);
+	global $feedback;
+	html_feedback_bottom($feedback);
+	site_footer($params);
 }
 
-function bug_category_box ($name='bug_category_id',$group_id=false,$checked='xyxy',$text_100='None') {
+function bug_category_box ($name='bug_category_id',$group_id=false,$checked='xyxy') {
 	/*
 		Returns a select box populated with categories defined for this project
 	*/
@@ -58,11 +49,11 @@ function bug_category_box ($name='bug_category_id',$group_id=false,$checked='xyx
 		return 'ERROR - no group_id';
 	} else {
 		$result=bug_data_get_categories ($group_id);
-		return html_build_select_box ($result,$name,$checked,true,$text_100);
+		return util_build_select_box ($result,$name,$checked);
 	}
 }
 
-function bug_group_box ($name='bug_group_id',$group_id=false,$checked='xyxy',$text_100='None') {
+function bug_group_box ($name='bug_group_id',$group_id=false,$checked='xyxy') {
 	/*
 		Returns a select box populated with groups defined for this project
 	*/
@@ -70,7 +61,7 @@ function bug_group_box ($name='bug_group_id',$group_id=false,$checked='xyxy',$te
 		return 'ERROR - no group_id';
 	} else {
 		$result=bug_data_get_groups ($group_id);
-		return html_build_select_box ($result,$name,$checked,true,$text_100);
+		return util_build_select_box ($result,$name,$checked);
 	}
 }
 
@@ -79,7 +70,7 @@ function bug_resolution_box ($name='bug_resolution_id',$checked='xyxy') {
 		Returns a select box populated with our predefined resolutions
 	*/
 	$result=bug_data_get_resolutions ();
-	return html_build_select_box ($result,$name,$checked);
+	return util_build_select_box ($result,$name,$checked);
 }
 
 function bug_canned_response_box ($group_id,$name='canned_response') {
@@ -87,7 +78,7 @@ function bug_canned_response_box ($group_id,$name='canned_response') {
 		return 'ERROR - No group_id';
 	} else {
 		$result=bug_data_get_canned_responses($group_id);
-		return html_build_select_box ($result,$name);
+		return util_build_select_box ($result,$name);
 	}
 }
 
@@ -99,16 +90,16 @@ function bug_technician_box ($name='assigned_to',$group_id,$checked='xyxy') {
 		return 'ERROR - no group_id';
 	} else {
 		$result=bug_data_get_technicians ($group_id);
-		return html_build_select_box ($result,$name,$checked);
+		return util_build_select_box ($result,$name,$checked);
 	}
 }
 
-function bug_status_box ($name='bug_status_id',$checked='xyxy',$text_100='None') {
+function bug_status_box ($name='bug_status_id',$checked='xyxy') {
 	/*
 		Returns a select box populated with the pre-defined bug statuses
 	*/
 	$result=bug_data_get_statuses ();
-	return html_build_select_box ($result,$name,$checked,true,$text_100);
+	return util_build_select_box ($result,$name,$checked);
 }
 
 function bug_multiple_task_depend_box ($name='dependent_on_task[]',$group_id=false,$bug_id=false) {
@@ -119,7 +110,7 @@ function bug_multiple_task_depend_box ($name='dependent_on_task[]',$group_id=fal
 	} else {
 		$result=bug_data_get_tasks ($group_id);
 		$result2=bug_data_get_dependent_tasks ($bug_id);
-		return html_build_multiple_select_box ($result,$name,util_result_column_to_array($result2));
+		return util_build_multiple_select_box ($result,$name,util_result_column_to_array($result2));
 
 	}
 }
@@ -132,7 +123,7 @@ function bug_multiple_bug_depend_box ($name='dependent_on_bug[]',$group_id=false
 	} else {
 		$result=bug_data_get_valid_bugs ($group_id,$bug_id);
 		$result2=bug_data_get_dependent_bugs ($bug_id);
-		return html_build_multiple_select_box($result,$name,util_result_column_to_array($result2));
+		return util_build_multiple_select_box($result,$name,util_result_column_to_array($result2));
 	}
 }
 
@@ -143,37 +134,31 @@ function show_buglist ($result,$offset,$set='open') {
 		the table, and it should be joined to USER to get the user_name.
 	*/
 
-//      $IS_BUG_ADMIN=false; //user_ismember($group_id,'B2');
+//	$IS_BUG_ADMIN=false; //user_ismember($group_id,'B2');
+
+	$rows=db_numrows($result);
+	$url = "/bugs/?group_id=$group_id&set=$set&order=";
+
 /*
 	echo '
 		<FORM ACTION="'. $PHP_SELF .'" METHOD="POST">
 		<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
 		<INPUT TYPE="HIDDEN" NAME="func" VALUE="massupdate">';
-*/      
-
-	$rows=db_numrows($result);
-	$url = "/bugs/?group_id=$group_id&set=$set&order=";
-
-	$title_arr=array();
-	$title_arr[]='Bug ID';
-	$title_arr[]='Summary';
-	$title_arr[]='Date';
-	$title_arr[]='Assigned To';
-	$title_arr[]='Submitted By';
-
-	$links_arr=array();
-	$links_arr[]=$url.'bug_id';
-	$links_arr[]=$url.'summary';
-	$links_arr[]=$url.'date';
-	$links_arr[]=$url.'assigned_to_user';
-	$links_arr[]=$url.'submitted_by';
-
-	echo html_build_list_table_top ($title_arr,$links_arr);
+*/
+	echo '
+		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+		<TR BGCOLOR="'. $GLOBALS['COLOR_MENUBARBACK'] .'">
+		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'bug_id"><FONT COLOR="#FFFFFF"><B>Bug ID</A></TD>
+		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'summary"><FONT COLOR="#FFFFFF"><B>Summary</A></TD>
+		<TD ALIGN="MIDDLE" nowrap><a class=sortbutton href="'.$url.'date"><FONT COLOR="#FFFFFF"><B>Date</A></TD>
+		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'assigned_to_user"><FONT COLOR="#FFFFFF"><B>Assigned To</A></TD>
+		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'submitted_by"><FONT COLOR="#FFFFFF"><B>Submitted By</A></TD>
+		</TR>';
 
 	//see if the bugs are too old - so we can highlight them
 	$then=(time()-2592000);
 
-	for ($i=0; ($i < $rows && $i < 50); $i++) {
+	for ($i=0; $i < $rows; $i++) {
 		//(($IS_BUG_ADMIN)?'<INPUT TYPE="CHECKBOX" NAME="bug_id[]" VALUE="'. db_result($result, $i, 'bug_id') .'"> ':'')
 		echo '
 		<TR BGCOLOR="'. get_priority_color(db_result($result, $i, 'priority')) .'">'.
@@ -198,16 +183,16 @@ function show_buglist ($result,$offset,$set='open') {
 	}
 	echo '</TD><TD>&nbsp;</TD><TD COLSPAN="2">';
 	
-	if ($rows > 50) {
+	if ($rows==50) {
 		echo '<A HREF="'.$PHP_SELF.'?func=browse&group_id='.$group_id.'&set='.$set.'&offset='.($offset+50).'"><B>Next 50 --></B></A>';
 	} else {
 		echo '&nbsp;';
 	}
 	echo '</TD></TR>';
 
-       /*
+	/*
 		Mass Update Code
-	* /     
+	* /
 	if ($IS_BUG_ADMIN) {
 		echo '<TR><TD COLSPAN="5">
 		<TABLE WIDTH="100%" BORDER="0">
@@ -231,9 +216,8 @@ function show_buglist ($result,$offset,$set='open') {
 
 	*/
 
-
-	echo '</TABLE>';
-
+	echo '</TABLE>
+	</FORM>';
 }
 
 function mail_followup($bug_id,$more_addresses=false) {
@@ -267,11 +251,7 @@ function mail_followup($bug_id,$more_addresses=false) {
 		"\nSummary: ".util_unconvert_htmlspecialchars(db_result($result,0,'summary')).
 		"\n\nDetails: ".util_unconvert_htmlspecialchars(db_result($result,0,'details'));
 
-		$sql="SELECT user.email,user.user_name,bug_history.date,bug_history.old_value ".
-			"FROM bug_history,user ".
-			"WHERE user.user_id=bug_history.mod_by ".
-			"AND bug_history.field_name='details' ".
-			"AND bug_history.bug_id='$bug_id'";
+		$sql="SELECT user.email,user.user_name,bug_history.date,bug_history.old_value FROM bug_history,user WHERE user.user_id=bug_history.mod_by AND bug_history.field_name='details' AND bug_history.bug_id='$bug_id'";
 		$result2=db_query($sql);
 		$rows=db_numrows($result2);
 		if ($result2 && $rows > 0) {
@@ -284,7 +264,7 @@ function mail_followup($bug_id,$more_addresses=false) {
 			}
 		}
 		$body .= "\n\nFor detailed info, follow this link:";
-		$body .= "\nhttp://$GLOBALS[sys_default_domain]/bugs/?func=detailbug&bug_id=$bug_id&group_id=".db_result($result,0,'group_id');
+		$body .= "\nhttp://$GLOBALS[HTTP_HOST]/bugs/?func=detailbug&bug_id=$bug_id&group_id=".db_result($result,0,'group_id');
 
 		$subject='[Bug #'.db_result($result,0,'bug_id').'] '.util_unconvert_htmlspecialchars(db_result($result,0,'summary'));
 
@@ -294,11 +274,11 @@ function mail_followup($bug_id,$more_addresses=false) {
 			$to .= ','.$more_addresses;
 		}
 
-		$more='From: noreply@'.$GLOBALS['sys_default_domain'];
+		$more='From: noreply@'.$GLOBALS['HTTP_HOST'];
 
 		mail($to,$subject,$body,$more);
 
-		$feedback .= ' Bug Update Sent '; //to '.$to;
+		$feedback .= ' Bug Update Sent to '.$to;
 
 	} else {
 
@@ -318,12 +298,11 @@ function show_dependent_bugs ($bug_id,$group_id) {
 	if ($rows > 0) {
 		echo '
 			<H3>Other Bugs That Depend on This Bug</H3>';
-
-		$title_arr=array();
-		$title_arr[]='Bug ID';
-		$title_arr[]='Summary';
-	
-		echo html_build_list_table_top ($title_arr);
+		echo '
+			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+				<TD><FONT COLOR="#FFFFFF"><B>Bug ID</TD>
+				<TD><FONT COLOR="#FFFFFF"><B>Summary</TD></TR>';
 
 		for ($i=0; $i < $rows; $i++) {
 			echo '
@@ -352,15 +331,10 @@ function show_bug_details ($bug_id) {
 	if ($rows > 0) {
 		echo '
 			<H3>Followups</H3>
-			<P>';
-
-		$title_arr=array();
-		$title_arr[]='Comment';
-		$title_arr[]='Date';
-		$title_arr[]='By';
-	
-		echo html_build_list_table_top ($title_arr);
-
+			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'"><TD><FONT COLOR="#FFFFFF"><B>Comment</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Date</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>By</TD></TR>';
 		for ($i=0; $i < $rows; $i++) {
 			echo '<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.
 				ereg_replace("\n","<BR>",db_result($result, $i, 'old_value')).'</TD>'.
@@ -386,15 +360,12 @@ function show_bughistory ($bug_id) {
 	if ($rows > 0) {
 
 		echo '
-		<H3>Bug Change History</H3>
-		<P>';
-		$title_arr=array();
-		$title_arr[]='Field';
-		$title_arr[]='Old Value';
-		$title_arr[]='Date';
-		$title_arr[]='By';
-
-		echo html_build_list_table_top ($title_arr);
+			<H3>Bug Change History</H3>
+			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'"><TD><FONT COLOR="#FFFFFF"><B>Field</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Old Value</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Date</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>By</TD></TR>';
 
 		for ($i=0; $i < $rows; $i++) {
 			$field=db_result($result, $i, 'field_name');

@@ -4,17 +4,13 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: trove_list.php,v 1.141 2000/08/31 18:48:55 tperdue Exp $
+// $Id: trove_list.php,v 1.134 2000/07/03 15:31:21 tperdue Exp $
 
 require "pre.php";    
 require "vars.php";
 require "trove.php";
 
-$HTML->header(array('title'=>'Software Map'));
-echo'
-	<FONT face="arial, helvetica" size="5"><B>Software Map</B></FONT>
-	<HR NoShade>
-';
+site_header(array('title'=>'Software Map'));
 
 // assign default. 18 is 'topic'
 if (!$form_cat) $form_cat = 18;
@@ -23,7 +19,6 @@ $form_cat = intval($form_cat);
 // get info about current folder
 $res_trove_cat = db_query('SELECT * FROM trove_cat WHERE trove_cat_id='.$form_cat);
 if (db_numrows($res_trove_cat) < 1) {
-	echo db_error();
 	exit_error('Invalid Trove Category','That Trove category does not exist.');
 }
 $row_trove_cat = db_fetch_array($res_trove_cat);
@@ -106,7 +101,7 @@ print '<P>'.$discrim_desc;
 // ######## two column table for key on right
 // first print all parent cats and current cat
 print '<TABLE width=100% border="0" cellspacing="0" cellpadding="0">
-<TR valign="top"><TD><FONT face="arial, helvetica" size="3">';
+<TR valign="top"><TD>';
 $folders = explode(" :: ",$row_trove_cat['fullpath']);
 $folders_ids = explode(" :: ",$row_trove_cat['fullpath_ids']);
 $folders_len = count($folders);
@@ -140,7 +135,6 @@ $res_sub = db_query('SELECT trove_cat.trove_cat_id AS trove_cat_id,'
 	.'WHERE (trove_treesums.limit_1=0 '
 	.'OR trove_treesums.limit_1 IS NULL) AND ' // need no discriminators
 	.'trove_cat.parent='.$form_cat.' ORDER BY fullname');
-echo db_error();
 while ($row_sub = db_fetch_array($res_sub)) {
 	for ($sp=0;$sp<($folders_len*2);$sp++) {
 		print " &nbsp; ";
@@ -152,11 +146,10 @@ while ($row_sub = db_fetch_array($res_sub)) {
 		.' projects)</I><BR>');
 }
 // ########### right column: root level
-print '</TD><TD><FONT face="arial, helvetica" size="3">';
+print '</TD><TD>';
 // here we print list of root level categories, and use open folder for current
 $res_rootcat = db_query('SELECT trove_cat_id,fullname FROM trove_cat WHERE '
 	.'parent=0 ORDER BY fullname');
-echo db_error();
 print 'Browse by:';
 while ($row_rootcat = db_fetch_array($res_rootcat)) {
 	// print open folder if current, otherwise closed
@@ -197,17 +190,12 @@ $query_projlist = "SELECT groups.group_id, "
 	. $discrim_queryalias
 	. "WHERE trove_group_link.group_id=groups.group_id AND "
 	. "(groups.is_public=1) AND "
-	. "(groups.type=1) AND "
 	. "(groups.status='A') AND "
 	. "trove_group_link.trove_cat_id=$form_cat "
 	. $discrim_queryand
 	. "GROUP BY groups.group_id ORDER BY groups.group_name "
 	. "LIMIT ".$TROVE_HARDQUERYLIMIT;
-
-//echo "\n\n\n".$query_projlist."\n\n\n";
-
 $res_grp = db_query($query_projlist);
-echo db_error();
 $querytotalcount = db_numrows($res_grp);
 	
 // #################################################################
@@ -215,9 +203,7 @@ $querytotalcount = db_numrows($res_grp);
 
 // no funny stuff with get vars
 $page = intval($page);
-if (!$page) {
-	$page = 1;
-}
+if (!$page) $page = 1;
 
 // store this as a var so it can be printed later as well
 $html_limit = '<SPAN><CENTER><FONT size="-1">';
@@ -263,7 +249,7 @@ for ($i_proj=1;$i_proj<=$querytotalcount;$i_proj++) {
 	}	
 
 	if ($row_grp && $viewthisrow) {
-		print '<TABLE border="0" cellpadding="0" width="100%"><TR valign="top"><TD colspan="2"><FONT face="arial, helvetica" size="3">';
+		print '<TABLE border="0" cellpadding="0" width="100%"><TR valign="top"><TD colspan="2">';
 		print "$i_proj. <a href=\"/projects/". strtolower($row_grp['unix_group_name']) ."/\"><B>"
 			.htmlspecialchars($row_grp['group_name'])."</B></a> ";
 		if ($row_grp['short_description']) {
@@ -272,11 +258,11 @@ for ($i_proj=1;$i_proj<=$querytotalcount;$i_proj++) {
 
 		print '<BR>&nbsp;';
 		// extra description
-		print '</TD></TR><TR valign="top"><TD><FONT face="arial, helvetica" size="3">';
+		print '</TD></TR><TR valign="top"><TD>';
 		// list all trove categories
 		trove_getcatlisting($row_grp['group_id'],1,0);
 
-		print '</TD>'."\n".'<TD align="right"><FONT face="arial, helvetica" size="3">'; // now the right side of the display
+		print '</TD>'."\n".'<TD align="right">'; // now the right side of the display
 		print 'Activity Percentile: <B>'.$row_grp['percentile'].'</B>';
 		print '<BR>Activity Ranking: <B>'.$row_grp['ranking'].'</B>';
 		print '<BR>Register Date: <B>'.date($sys_datefmt,$row_grp['register_time']).'</B>';
@@ -293,6 +279,6 @@ if ($querytotalcount > $TROVE_BROWSELIMIT) {
 // print '<P><FONT size="-1">This listing was produced by the following query: '
 //	.$query_projlist.'</FONT>';
 
-$HTML->footer(array());
+site_footer(array());
 
 ?>

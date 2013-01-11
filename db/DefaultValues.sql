@@ -113,42 +113,4 @@ INSERT INTO people_job_status VALUES ('3','Deleted');
 #  DEfault data for group_type
 #
 INSERT INTO group_type VALUES ('1','Project');
-INSERT INTO group_type VALUES ('2','Foundry');
-
-##
-## Default data for new filerelease system
-##
-INSERT INTO frs_filetype VALUES ('1000','.deb');
-INSERT INTO frs_filetype VALUES ('2000','.rpm');
-INSERT INTO frs_filetype VALUES ('3000','.zip');
-INSERT INTO frs_filetype VALUES ('','.bz2');
-INSERT INTO frs_filetype VALUES ('','.gz');
-INSERT INTO frs_filetype VALUES ('5000','Source .zip');
-INSERT INTO frs_filetype VALUES ('','Source .bz2');
-INSERT INTO frs_filetype VALUES ('','Source .gz');
-INSERT INTO frs_filetype VALUES ('5100','Source .rpm');
-INSERT INTO frs_filetype VALUES ('5900','Other Source File');
-INSERT INTO frs_filetype VALUES ('8000','.jpg');
-INSERT INTO frs_filetype VALUES ('','text');
-INSERT INTO frs_filetype VALUES ('','html');
-INSERT INTO frs_filetype VALUES ('','pdf');
-INSERT INTO frs_filetype VALUES ('9999','Other');
-
-INSERT INTO frs_status VALUES ('1','Active');
-INSERT INTO frs_status VALUES ('3','Hidden');
-
-INSERT INTO frs_processor VALUES ('1000','i386');
-INSERT INTO frs_processor VALUES ('6000','IA64');
-INSERT INTO frs_processor VALUES ('7000','Alpha');
-INSERT INTO frs_processor VALUES ('8000','Any');
-INSERT INTO frs_processor VALUES ('2000','PPC');
-INSERT INTO frs_processor VALUES ('3000','MIPS');
-INSERT INTO frs_processor VALUES ('4000','Sparc');
-INSERT INTO frs_processor VALUES ('5000','UltraSparc');
-INSERT INTO frs_processor VALUES ('9999','Other');
-
-
-
-##
-## EOF
-##
+INSERT INTO group_type VALUES ('2','Portal');

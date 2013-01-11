@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.8 2000/08/13 16:57:19 tperdue Exp $
+// $Id: index.php,v 1.7 2000/01/30 09:54:28 precision Exp $
 
 require('pre.php');
 require('vote_function.php');
@@ -21,15 +21,21 @@ Function  ShowResultsGroupSurveys($result) {
 	$rows  =  db_numrows($result);
 	$cols  =  db_numfields($result);
 
-	$title_arr=array();
-	$title_arr[]='Survey ID';
-	$title_arr[]='Survey Title';
-
-	echo html_build_list_table_top ($title_arr);
+	echo /*"<TABLE BGCOLOR=\"NAVY\"><TR><TD BGCOLOR=\"NAVY\">*/ "<table border=0>\n";
+	/*  Create  the  headers  */
+	echo "<tr BGCOLOR=\"$GLOBALS[COLOR_MENUBARBACK]\">\n";
+	echo "<th><FONT COLOR=\"WHITE\"><B>Survey ID</th><th><FONT COLOR=\"WHITE\"><B>Survey Title</th>\n";
+	echo "</tr>";
 
 	for($j=0; $j<$rows; $j++)  {
 
-		echo "<tr BGCOLOR=\"". html_get_alt_row_color($j) ."\">\n";
+		if ($j%2==0) {
+			$row_bg="#FFFFFF";
+		} else {
+			$row_bg="$GLOBALS[COLOR_LTBACK1]";
+		}
+
+		echo "<tr BGCOLOR=\"$row_bg\">\n";
 
 		echo "<TD><A HREF=\"survey.php?group_id=$group_id&survey_id=".db_result($result,$j,"survey_id")."\">".
 			db_result($result,$j,"survey_id")."</TD>";

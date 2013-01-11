@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: myprojectlist.php,v 1.8 2000/08/31 06:07:52 gherteg Exp $
+// $Id: myprojectlist.php,v 1.7 2000/05/17 21:51:43 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"My Project Listing"));
+site_header(array(title=>"My Project Listing"));
 
 $res_proj = db_query("SELECT groups.group_name AS group_name,"
 		. "groups.group_id AS group_id,"
@@ -32,6 +32,6 @@ while ($row_proj = db_fetch_array($res_proj)) {
 </TABLE>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

@@ -25,11 +25,7 @@ if($group_id) {
 			exit_error('Error','No Valid Document Group Was Selected');
 		}
 
-		if (!$title || !$description) { 
-			exit_missing_param();
-		}
-
-		if (!$upload_instead && !$data) {
+		if (!$title || !$description || !$data) {
 			exit_missing_param();
 		}
 
@@ -43,7 +39,7 @@ if($group_id) {
 		        $data = addslashes(fread( fopen($uploaded_data, 'r'), filesize($uploaded_data)));
         		if ((strlen($data) > 20) && (strlen($data) < 512000)) {
                 		//size is fine
-                		$feedback .= ' Document Uploaded ';
+                		$feedback .= ' Patch Uploaded ';
         		} else {
                 		//too big or small
                 		$feedback .= ' ERROR - patch must be > 20 chars and < 512000 chars in length ';

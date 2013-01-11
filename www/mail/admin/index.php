@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.34 2000/09/07 21:26:45 tperdue Exp $
+// $Id: index.php,v 1.28 2000/07/12 21:01:40 tperdue Exp $
 
 require('pre.php');
 require('../mail_utils.php');
@@ -23,44 +23,36 @@ if ($group_id && user_ismember($group_id,'A')) {
 			}
 			$new_list_name=strtolower(group_getunixname($group_id).'-'.$list_name);
 
-			//see if that's a valid email address
-			if (validate_email($new_list_name.'@lists.sourceforge.net')) {
+			$result=db_query("SELECT * FROM mail_group_list WHERE lower(list_name)='$new_list_name'");
 
-				$result=db_query("SELECT * FROM mail_group_list WHERE lower(list_name)='$new_list_name'");
+			if (db_numrows($result) > 0) {
 
-				if (db_numrows($result) > 0) {
+				$feedback .= " ERROR - List Already Exists ";
 
-					$feedback .= " ERROR - List Already Exists ";
-
-				} else {
-					$sql = "INSERT INTO mail_group_list "
-					. "(group_id,list_name,is_public,password,list_admin,status,description) VALUES ("
+			} else {
+				$sql = "INSERT INTO mail_group_list "
+					. "(group_id,list_name,is_public,password,list_admin,status) VALUES ("
 					. "$group_id,"
 					. "'$new_list_name',"
 					. "'$is_public',"
 					. "'$list_password',"
 					. "'".user_getid()."',"
-					. "1,"
-					. "'". htmlspecialchars($description) ."')";
+					. "1)";
 
-
-					$result=db_query($sql);
-					if (!$result) {
-						$feedback .= " Error Adding List ";
-						echo db_error();
-					} else {
-						$feedback .= " List Added ";
-					}
+				$result=db_query($sql);
+				if (!$result) {
+					$feedback .= " Error Adding List ";
+				} else {
+					$feedback .= " List Added ";
+				}
 			
-					// get email addr
-					$res_email = db_query("SELECT email FROM user WHERE user_id='".user_getid()."'");
-					if (db_numrows($res_email) < 1) {
-						exit_error("Invalid userid","Does not compute.");
-					}
-					$row_email = db_fetch_array($res_email);
+				// get email addr
+				$res_email = db_query("SELECT email FROM user WHERE user_id='".user_getid()."'");
+				if (db_numrows($res_email) < 1) exit_error("Invalid userid","Does not compute.");
+				$row_email = db_fetch_array($res_email);
 
-					// mail password to admin
-					$message = "A mailing list will be created on SourceForge in 6-24 hours \n"
+				// mail password to admin
+				$message = "A mailing list will be created on SourceForge in 6-24 hours \n"
 					. "and you are the list administrator.\n\n"
 					. "This list is: $new_list_name@" .$GLOBALS['sys_lists_host'] ."\n\n"
 					. "Your mailing list info is at:\n"
@@ -72,27 +64,20 @@ if ($group_id && user_ismember($group_id,'A')) {
 					. "Thank you for registering your project with SourceForge.\n\n"
 					. " -- the SourceForge staff\n";
 
-					mail ($row_email['email'],"SourceForge New Mailing List",$message,"From: admin@$GLOBALS[sys_default_domain]");
+				mail ($row_email['email'],"SourceForge New Mailing List",$message,"From: admin@$GLOBALS[sys_default_domain]");
  
-					$feedback .= " Email sent with details to: $row_email[email] ";
-				}
-			} else {
-
-				$feedback .= " Invalid List Name ";
-
+				$feedback .= " Email sent with details to: $row_email[email] ";
 			}
 
 		} else if ($change_status) {
 			/*
-				Change a list to public/private and description
+				Change a list to public/private
 			*/
-			$sql="UPDATE mail_group_list SET is_public='$is_public', ".
-				"description='". htmlspecialchars($description) ."' ".
+			$sql="UPDATE mail_group_list SET is_public='$is_public' ".
 				"WHERE group_list_id='$group_list_id' AND group_id='$group_id'";
 			$result=db_query($sql);
 			if (!$result || db_affected_rows($result) < 1) {
 				$feedback .= " Error Updating Status ";
-				echo db_error();
 			} else {
 				$feedback .= " Status Updated Successfully ";
 			}
@@ -109,7 +94,7 @@ if ($group_id && user_ismember($group_id,'A')) {
 		echo '
 			<H2>Add a Mailing List</H2>
 			<P>Lists are named in this manner: 
-			<BR><B>projectname-listname@'. $GLOBALS['sys_lists_host'] .'</B>
+			<BR><B>projectname-listname@<?php echo $GLOBALS['sys_lists_host']; ?></B>
 			<P>It will take <B><FONT COLOR="RED">6-24 Hours</FONT></B> for your list 
 			to be created.
 			<P>';
@@ -127,8 +112,6 @@ if ($group_id && user_ismember($group_id,'A')) {
 			<B>Is Public?</B><BR>
 			<INPUT TYPE="RADIO" NAME="is_public" VALUE="1" CHECKED> Yes<BR>
 			<INPUT TYPE="RADIO" NAME="is_public" VALUE="0"> No<P>
-			<B>Description:</B><BR>
-			<INPUT TYPE="TEXT" NAME="description" VALUE="" SIZE="40" MAXLENGTH="80"><BR>
 			<P>
 			<B><FONT COLOR="RED">Once created, this list will ALWAYS be attached to your project 
 			and cannot be deleted!</FONT></B>
@@ -144,7 +127,7 @@ if ($group_id && user_ismember($group_id,'A')) {
 		*/
 		mail_header(array('title'=>'Update Mailing Lists'));
 
-		$sql="SELECT list_name,group_list_id,is_public,description ".
+		$sql="SELECT list_name,group_list_id,is_public ".
 			"FROM mail_group_list ".
 			"WHERE group_id='$group_id'";
 		$result=db_query($sql);
@@ -158,22 +141,27 @@ if ($group_id && user_ismember($group_id,'A')) {
 			echo db_error();
 		} else {
 			echo '
-			<H2>Update Mailing Lists</H2>
-			<P>
-			You can administrate lists from here. Please note that private lists
-			can still be viewed by members of your project, but are not listed on SourceForge.<P>';
+				<H2>Update Mailing Lists</H2>
+				<P>
+				You can administrate lists from here. Please note that private lists
+				can still be viewed by members of your project, but are not listed on SourceForge.<P>';
 
-			$title_arr=array();
-			$title_arr[]='List';
-			$title_arr[]='Status';
-			$title_arr[]='Update';
-			$title_arr[]='List Admin';
-
-			echo html_build_list_table_top ($title_arr);
+			echo '<TABLE BORDER="0">
+				<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+				<TD><FONT COLOR="#FFFFFF"><B>List</TD>
+				<TD><FONT COLOR="#FFFFFF"><B>Status</TD>
+				<TD><FONT COLOR="#FFFFFF"><B>Update</TD>
+				<TD><FONT COLOR="#FFFFFF"><B>List Admin</TD></TR>';
 
 			for ($i=0; $i<$rows; $i++) {
+				if ($i % 2 != 0) {
+					$row_color=' BGCOLOR="'.$GLOBALS['COLOR_LTBACK1'].'"';
+				} else {
+					$row_color=' BGCOLOR="#FFFFFF"';
+				}
+
 				echo '
-					<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.db_result($result,$i,'list_name').'</TD>';
+					<TR'.$row_color.'><TD>'.db_result($result,$i,'list_name').'</TD>';
 				echo '
 					<FORM ACTION="'.$PHP_SELF.'" METHOD="POST">
 					<INPUT TYPE="HIDDEN" NAME="post_changes" VALUE="y">
@@ -188,15 +176,10 @@ if ($group_id && user_ismember($group_id,'A')) {
 						<INPUT TYPE="RADIO" NAME="is_public" VALUE="9"'.((db_result($result,$i,'is_public')=='9')?' CHECKED':'').'> Deleted<BR>
 					</TD><TD>
 						<FONT SIZE="-1">
-						<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Update">
+						<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Update Status">
 					</TD>
-					<TD><A href="http://'. $GLOBALS['sys_lists_host'] .'/mailman/admin/'
+					<TD><A href="http://".<?php echo $GLOBALS['sys_lists_host']; ?>."/mailman/admin/'
 					.db_result($result,$i,'list_name').'">[Administrate this list in GNU Mailman]</A>
-				       </TD></TR>
-				       <TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD COLSPAN="3">
-				       		<B>Description:</B><BR>
-						<INPUT TYPE="TEXT" NAME="description" VALUE="'.
-						db_result($result,$i,'description') .'" SIZE="40" MAXLENGTH="80"><BR>
 					</TD></TR></FORM>';
 			}
 			echo '</TABLE>';
@@ -216,7 +199,7 @@ if ($group_id && user_ismember($group_id,'A')) {
 			<H2>Mailing List Administration</H2>
 			<P>
 			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&add_list=1">Add Mailing List</A><BR>
-			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&change_status=1">Administrate/Update Lists</A>';
+			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&change_status=1">Administrate Lists</A>';
 		mail_footer(array());
 	}
 

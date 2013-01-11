@@ -4,14 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: forum.php,v 1.55 2000/08/23 22:43:49 tperdue Exp $
-
-/*
-
-	Forum written 11/99 by Tim Perdue
-	Massive re-write 7/2000 by Tim Perdue (nesting/multiple views/etc)
-
-*/
+// $Id: forum.php,v 1.50 2000/07/03 15:42:58 tperdue Exp $
 
 require('pre.php');
 require('../forum/forum_utils.php');
@@ -30,8 +23,8 @@ function forum_show_a_nested_message ($result,$row=0) {
 	$ret_val = '
 		<TABLE BORDER="0">
 			<TR>
-				<TD BGCOLOR="#DDDDDD" NOWRAP>By: <A HREF="/users/'.
-					db_result($result, $row, 'user_name') .'/">'. 
+				<TD BGCOLOR="#DDDDDD" NOWRAP>By: <A HREF="/developer/?form_dev='.
+					db_result($result, $row, 'user_id') .'">'. 
 					db_result($result, $row, 'user_name') .'</A>'.
 					' ( ' .db_result($result, $row, 'realname') . ' ) '.
 					'<BR><A HREF="/forum/message.php?msg_id='.
@@ -55,7 +48,7 @@ function forum_show_nested_messages ($thread_id, $msg_id) {
 
 	$sql="SELECT user.user_name,forum.has_followups,user.realname,user.user_id,forum.msg_id,forum.subject,forum.thread_id,forum.body,forum.date,forum.is_followup_to ".
 		"FROM forum,user WHERE forum.thread_id='$thread_id' AND user.user_id=forum.posted_by AND forum.is_followup_to='$msg_id' ".
-		"ORDER BY forum.date ASC;";
+		"ORDER BY forum.date ASC, forum.subject ASC, forum.is_followup_to ASC;";
 
 	$result=db_query($sql);
 	$rows=db_numrows($result);
@@ -134,8 +127,8 @@ if ($forum_id) {
 					user_set_preference ('forum_style',$_pref);
 				}
 			} else {
-					//set the pref
-					user_set_preference ('forum_style',$_pref);
+                                        //set the pref
+                                        user_set_preference ('forum_style',$_pref);
 			}
 		} else {
 			if (user_get_preference('forum_style')) {
@@ -181,7 +174,7 @@ if ($forum_id) {
 
 	$sql="SELECT user.user_name,user.realname,forum.has_followups,user.user_id,forum.msg_id,forum.subject,forum.thread_id,forum.body,forum.date,forum.is_followup_to ".
 		"FROM forum,user WHERE forum.group_forum_id='$forum_id' AND user.user_id=forum.posted_by $threading_sql ".
-		"ORDER BY forum.date DESC LIMIT $offset,".($max_rows+1);
+		"ORDER BY forum.date DESC, forum.subject ASC, forum.is_followup_to ASC LIMIT $offset,".($max_rows+1);
 
 	$result=db_query($sql);
 	$rows=db_numrows($result);
@@ -210,29 +203,27 @@ if ($forum_id) {
 		} else {
 			$public_flag='1';
 		}
-		if ($group_id==714) {
-			echo '<INPUT TYPE="HIDDEN" NAME="forum_id" VALUE="'.$forum_id.'">';
-		} else {
-			$res=db_query("SELECT group_forum_id,forum_name ".
-					"FROM forum_group_list ".
-					"WHERE group_id='$group_id' AND is_public IN ($public_flag)");
-			$vals=util_result_column_to_array($res,0);
-			$texts=util_result_column_to_array($res,1);
 
-			$forum_popup = html_build_select_box_from_arrays ($vals,$texts,'forum_id',$forum_id,false);
-		}
+		$res=db_query("SELECT group_forum_id,forum_name ".
+				"FROM forum_group_list ".
+				"WHERE group_id='$group_id' AND is_public IN ($public_flag)");
+		$vals=util_result_column_to_array($res,0);
+		$texts=util_result_column_to_array($res,1);
+
+		$forum_popup = util_build_select_box_from_arrays ($vals,$texts,'forum_id',$forum_id,false);
+
 	//create a pop-up select box showing options for viewing threads
 
 		$vals=array('nested','flat','threaded','nocomments');
 		$texts=array('Nested','Flat','Threaded','No Comments');
 
-		$options_popup=html_build_select_box_from_arrays ($vals,$texts,'style',$style,false);
+		$options_popup=util_build_select_box_from_arrays ($vals,$texts,'style',$style,false);
 
 	//create a pop-up select box showing options for max_row count
 		$vals=array(25,50,75,100);
 		$texts=array('Show 25','Show 50','Show 75','Show 100');
 
-		$max_row_popup=html_build_select_box_from_arrays ($vals,$texts,'max_rows',$max_rows,false);
+		$max_row_popup=util_build_select_box_from_arrays ($vals,$texts,'max_rows',$max_rows,false);
 
 	//now show the popup boxes in a form
 		$ret_val .= '<TABLE BORDER="0" WIDTH="50%">
@@ -253,14 +244,11 @@ if ($forum_id) {
 
 				different header for default threading and flat now
 			*/
-
-			$title_arr=array();
-			$title_arr[]='Thread';
-			$title_arr[]='Author';
-			$title_arr[]='Date';
-
-			$ret_val .= html_build_list_table_top ($title_arr);
-
+			$ret_val .= '<TABLE WIDTH="100%" CELLPADDING="2" CELLSPACING="0" BGCOLOR="#FFFFFF" BORDER="0">
+				<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+				<TD WIDTH="25%"><FONT COLOR=#FFFFFF><B>Thread/Subject</TD>
+				<TD><FONT COLOR=#FFFFFF><B>Author</TD>
+				<TD><FONT COLOR="#FFFFFF"><B>Date/Time</TD></TR>';
 		}
 
 		$i=0;

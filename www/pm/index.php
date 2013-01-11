@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.57 2000/07/16 05:02:17 tperdue Exp $
+// $Id: index.php,v 1.56 2000/06/14 00:03:18 tperdue Exp $
 
 require('pre.php');
 require('../pm/pm_utils.php');
@@ -13,11 +13,11 @@ if ($group_id) {
 
 	pm_header(array('title'=>'Projects for '.group_getname($group_id)));
 
-	if (user_isloggedin() && user_ismember($group_id)) {
-		$public_flag='0,1';
-	} else {
-		$public_flag='1';
-	}
+        if (user_isloggedin() && user_ismember($group_id)) {
+                $public_flag='0,1';
+        } else {
+                $public_flag='1';
+        }
 
 	$sql="SELECT * FROM project_group_list WHERE group_id='$group_id' AND is_public IN ($public_flag)";
 
@@ -46,8 +46,7 @@ if ($group_id) {
 		echo '
 		<A HREF="/pm/task.php?group_project_id='.db_result($result, $j, 'group_project_id').
 		'&group_id='.$group_id.'&func=browse"><IMG SRC="/images/ic/index.png" HEIGHT=13 WIDTH=15 BORDER=0> &nbsp;'.
-		db_result($result, $j, 'project_name').'</A><BR>'.
-		db_result($result, $j, 'description').'<P>';
+		db_result($result, $j, 'project_name').'</A><BR>';
 	}
 
 } else {

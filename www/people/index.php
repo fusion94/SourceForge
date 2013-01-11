@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.11 2000/08/28 23:59:44 tperdue Exp $
+// $Id: index.php,v 1.10 2000/06/05 12:20:31 tperdue Exp $
 
 require('pre.php');
 require('../people/people_utils.php');
@@ -12,6 +12,8 @@ require('../people/people_utils.php');
 people_header(array('title'=>'Help Wanted System'));
 
 if ($group_id) {
+
+	//html_tabs('home',$group_id);
 
 	echo '<H3>Project Help Wanted for '. group_getname($group_id) .'</H3>
 	<P>

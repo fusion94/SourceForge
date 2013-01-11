@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: news.php,v 1.14 2000/08/31 06:07:53 gherteg Exp $
+// $Id: news.php,v 1.13 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"SorceForge Awards"));
+site_header(array(title=>"SorceForge Awards"));
 ?>
 
 <P>
@@ -70,6 +70,6 @@ The Tony Guntharp interview</A>
 on <A href="http://linux.com/">Linux.com</A>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: category.php,v 1.19 2000/08/31 06:11:35 gherteg Exp $
+// $Id: category.php,v 1.18 2000/07/12 21:01:41 tperdue Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 require "vars.php";
@@ -28,7 +28,7 @@ if ($group_id && $insert_license && $rand_hash && $form_license) {
 		include info on your browser and platform configuration');
 }
 
-$HTML->header(array('title'=>'Project Category'));
+site_header(array('title'=>'Project Category'));
 ?>
 
 <H2>Step 6: Category</H2>
@@ -59,7 +59,7 @@ following the instructions in the email you will receive.
 </FONT>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>
 

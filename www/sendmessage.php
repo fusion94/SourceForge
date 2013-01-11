@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: sendmessage.php,v 1.13 2000/08/31 06:07:52 gherteg Exp $
+// $Id: sendmessage.php,v 1.12 2000/07/12 21:01:40 tperdue Exp $
 
 require ('pre.php');    
 
@@ -43,9 +43,9 @@ if ($send_mail) {
 		$to=eregi_replace('_maillink_','@',$toaddress);
 		$from='From: '. $name .' <'. $email .'>';
 		mail($to, stripslashes($subject),stripslashes($body) ,$from);
-		$HTML->header(array('title'=>'SorceForge Contact'));
+		site_header(array('title'=>'SorceForge Contact'));
 		echo '<H2>Message sent</H2>';
-		$HTML->footer(array());
+		site_footer(array());
 		exit;
 	} else if ($touser) {
 		/*
@@ -54,14 +54,14 @@ if ($send_mail) {
 		$to=db_result($result,0,'email');
 		$from='From: '. $name .' <'. $email .'>';
 		mail($to, stripslashes($subject), stripslashes($body),$from);
-		$HTML->header(array('title'=>'SorceForge Contact'));
+		site_header(array('title'=>'SorceForge Contact'));
 		echo '<H2>Message sent</H2>';
-		$HTML->footer(array());
+		site_footer(array());
 		exit;
 	}
 }
 
-$HTML->header(array('title'=>'SorceForge Staff'));
+site_header(array('title'=>'SorceForge Staff'));
 
 ?>
 
@@ -105,6 +105,6 @@ about a project, include your <B>project id</B> (<B>group_id</B>) and <B>Project
 </CENTER>
 </FORM>
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

@@ -4,21 +4,18 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: people_utils.php,v 1.41 2000/08/31 23:33:27 kingdon Exp $
+// $Id: people_utils.php,v 1.34 2000/06/05 12:20:31 tperdue Exp $
 
 /*
 	Job/People finder 
 	By Tim Perdue, Sourceforge, March 2000
 */
 function people_header($params) {
-	global $group_id,$job_id,$DOCUMENT_ROOT,$HTML;
+	global $group_id,$job_id,$DOCUMENT_ROOT;
+	site_header($params);
 
 	if ($group_id) {
-		$params['toptab']='people';
-		$params['group']=$group_id;
-		echo site_project_header($params);
-	} else {
-		echo $HTML->header($params);
+		html_tabs('home',$group_id);
 	}
 	echo '
 		<H2>Project Help Wanted</H2>
@@ -31,9 +28,9 @@ function people_header($params) {
 }
 
 function people_footer($params) {
-	global $feedback, $HTML;
+	global $feedback;
 	html_feedback_bottom($feedback);
-	$HTML->footer($params);
+	site_footer($params);
 }
 
 function people_skill_box($name='skill_id',$checked='xyxy') {
@@ -43,7 +40,7 @@ function people_skill_box($name='skill_id',$checked='xyxy') {
 		$sql="SELECT * FROM people_skill ORDER BY name ASC";
 		$PEOPLE_SKILL=db_query($sql);
 	}
-	return html_build_select_box ($PEOPLE_SKILL,$name,$checked);
+	return util_build_select_box ($PEOPLE_SKILL,$name,$checked);
 }
 
 function people_skill_level_box($name='skill_level_id',$checked='xyxy') {
@@ -53,7 +50,7 @@ function people_skill_level_box($name='skill_level_id',$checked='xyxy') {
 		$sql="SELECT * FROM people_skill_level";
 		$PEOPLE_SKILL_LEVEL=db_query($sql);
 	}
-	return html_build_select_box ($PEOPLE_SKILL_LEVEL,$name,$checked);
+	return util_build_select_box ($PEOPLE_SKILL_LEVEL,$name,$checked);
 }
 
 function people_skill_year_box($name='skill_year_id',$checked='xyxy') {
@@ -63,19 +60,19 @@ function people_skill_year_box($name='skill_year_id',$checked='xyxy') {
 		$sql="SELECT * FROM people_skill_year";
 		$PEOPLE_SKILL_YEAR=db_query($sql);
 	}
-	return html_build_select_box ($PEOPLE_SKILL_YEAR,$name,$checked);
+	return util_build_select_box ($PEOPLE_SKILL_YEAR,$name,$checked);
 }
 
 function people_job_status_box($name='status_id',$checked='xyxy') {
 	$sql="SELECT * FROM people_job_status";
 	$result=db_query($sql);
-	return html_build_select_box ($result,$name,$checked);
+	return util_build_select_box ($result,$name,$checked);
 }
 
 function people_job_category_box($name='category_id',$checked='xyxy') {
 	$sql="SELECT * FROM people_job_category";
 	$result=db_query($sql);
-	return html_build_select_box ($result,$name,$checked);
+	return util_build_select_box ($result,$name,$checked);
 }
 
 function people_add_to_skill_inventory($skill_id,$skill_level_id,$skill_year_id) {
@@ -111,13 +108,13 @@ function people_show_skill_inventory($user_id) {
 		"AND people_skill.skill_id=people_skill_inventory.skill_id ".
 		"AND people_skill_inventory.user_id='$user_id'";
 	$result=db_query($sql);
+	echo '
+		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+		<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+			<TD><FONT COLOR="#FFFFFF"><B>Skill</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Level</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Experience</TD></TR>';
 
-	$title_arr=array();
-	$title_arr[]='Skill';
-	$title_arr[]='Level';
-	$title_arr[]='Experience';
-
-	echo html_build_list_table_top ($title_arr);
 
 	$rows=db_numrows($result);
 	if (!$result || $rows < 1) {
@@ -142,14 +139,13 @@ function people_edit_skill_inventory($user_id) {
 	global $PHP_SELF;
 	$sql="SELECT * FROM people_skill_inventory WHERE user_id='$user_id'";
 	$result=db_query($sql);
-
-	$title_arr=array();
-	$title_arr[]='Skill';
-	$title_arr[]='Level';
-	$title_arr[]='Experience';
-	$title_arr[]='Action';
-
-	echo html_build_list_table_top ($title_arr);
+	echo '
+		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+		<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+			<TD><FONT COLOR="#FFFFFF"><B>Skill</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Level</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Experience</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Action</TD></TR>';
 
 	$rows=db_numrows($result);
 	if (!$result || $rows < 1) {
@@ -223,13 +219,12 @@ function people_show_job_inventory($job_id) {
 		"AND people_skill.skill_id=people_job_inventory.skill_id ".
 		"AND people_job_inventory.job_id='$job_id'";
 	$result=db_query($sql);
-
-	$title_arr=array();
-	$title_arr[]='Skill';
-	$title_arr[]='Level';
-	$title_arr[]='Experience';
-			
-	echo html_build_list_table_top ($title_arr);
+	echo '
+		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+		<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+			<TD><FONT COLOR="#FFFFFF"><B>Skill</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Level</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Experience</TD></TR>';
 
 	$rows=db_numrows($result);
 	if (!$result || $rows < 1) {
@@ -284,14 +279,13 @@ function people_edit_job_inventory($job_id,$group_id) {
 	global $PHP_SELF;
 	$sql="SELECT * FROM people_job_inventory WHERE job_id='$job_id'";
 	$result=db_query($sql);
-
-	$title_arr=array();
-	$title_arr[]='Skill';
-	$title_arr[]='Level';
-	$title_arr[]='Experience';
-	$title_arr[]='Action';
-			
-	echo html_build_list_table_top ($title_arr);
+	echo '
+		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+		<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+			<TD><FONT COLOR="#FFFFFF"><B>Skill</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Level</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Experience</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Action</TD></TR>';
 
 	$rows=db_numrows($result);
 	if (!$result || $rows < 1) {
@@ -339,10 +333,10 @@ function people_show_category_table() {
 	//show a list of categories in a table
 	//provide links to drill into a detail page that shows these categories
 
-	$title_arr=array();
-	$title_arr[]='Category';
-
-	$return .= html_build_list_table_top ($title_arr);
+	$return .= '
+	<TABLE BORDER="0" CELLSPACING="1" CELLPADDING="2">
+	<TR BGCOLOR="'. $GLOBALS['COLOR_MENUBARBACK'] .'">
+		<TD><FONT COLOR="#FFFFFF"><B>Category</TD>';
 
 	$sql="SELECT * FROM people_job_category ORDER BY category_id";
 	$result=db_query($sql);
@@ -377,7 +371,7 @@ function people_show_project_jobs($group_id) {
 
 function people_show_category_jobs($category_id) {
 	//show open jobs for this category
-	$sql="SELECT people_job.group_id,people_job.job_id,groups.unix_group_name,groups.group_name,people_job.title,people_job.date,people_job_category.name AS category_name ".
+	$sql="SELECT people_job.group_id,people_job.job_id,groups.group_name,people_job.title,people_job.date,people_job_category.name AS category_name ".
 		"FROM people_job,people_job_category,groups ".
 		"WHERE people_job.category_id='$category_id' ".
 		"AND people_job.group_id=groups.group_id ".
@@ -394,13 +388,13 @@ function people_show_job_list($result) {
 
 	//query must contain 'group_id', 'job_id', 'title', 'category_name' and 'status_name'
 
-	$title_arr=array();
-	$title_arr[]='Title';
-	$title_arr[]='Category';
-	$title_arr[]='Date Opened';
-	$title_arr[]='SF Project';
-
-	$return .= html_build_list_table_top ($title_arr);
+	$return .= '
+		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+		<TR BGCOLOR="'. $GLOBALS['COLOR_MENUBARBACK'] .'">
+			<TD><FONT COLOR="#FFFFFF"><B>Title</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Category</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Date Opened</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>SF Project</TD></TR>';
 
 	$rows=db_numrows($result);
 	if ($rows < 1) {
@@ -414,9 +408,8 @@ function people_show_job_list($result) {
 					db_result($result,$i,'job_id') .'">'. 
 					db_result($result,$i,'title') .'</A></TD><TD>'. 
 					db_result($result,$i,'category_name') .'</TD><TD>'. 
-					date($sys_datefmt,db_result($result,$i,'date')) .
-					'</TD><TD><a href="/projects/'.strtolower(db_result($result,$i,'unix_group_name')).'/">'.
-					db_result($result,$i,'group_name') .'</a></TD></TR>';
+					date($sys_datefmt,db_result($result,$i,'date')) .'</TD><TD>'.
+					db_result($result,$i,'group_name') .'</TD></TR>';
 		}
 	}
 

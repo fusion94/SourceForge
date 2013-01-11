@@ -4,11 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: massmail.php,v 1.23 2000/08/31 06:07:52 gherteg Exp $
+// $Id: massmail.php,v 1.21 2000/07/12 21:01:40 tperdue Exp $
 
 require "pre.php";    
 session_require(array('group'=>'1','admin_flags'=>'A'));
-$HTML->header(array('title'=>"Administrative Mass Mail Engine"));
+site_header(array('title'=>"Administrative Mass Mail Engine"));
 
 // get numbers of users for each mailing
 $res_count = db_query("SELECT count(*) AS count FROM user WHERE status='A' AND mail_va=1");
@@ -67,11 +67,11 @@ Send to all users, regardless of their preferences ('
 <BR><TEXTAREA name="mail_message" cols="70" rows="40" wrap="physical">
 
 ---------------------
-This email was sent from '. $GLOBALS['sys_default_domain'] .'. To change your email receipt
+This email was sent from <?php print $GLOBALS['sys_default_domain']; ?>. To change your email receipt
 preferences, please visit the site and edit your account via the
 "Account Maintenance" link.
 
-Direct any questions to admin@'. $GLOBALS['sys_default_domain'].', or reply to this email.
+Direct any questions to admin@<?php print $GLOBALS['sys_default_domain']; ?>, or reply to this email.
 </TEXTAREA>
 </PRE>
 <P><INPUT type="submit" name="Submit" value="Submit">
@@ -79,6 +79,6 @@ Direct any questions to admin@'. $GLOBALS['sys_default_domain'].', or reply to t
 </FORM>
 ';
 
-$HTML->footer(array());
+site_footer(array());
 
 ?>

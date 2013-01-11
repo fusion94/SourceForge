@@ -4,14 +4,25 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.32 2000/08/31 23:40:17 kingdon Exp $
+// $Id: index.php,v 1.26 2000/06/17 06:34:16 tperdue Exp $
 
 require('pre.php');
-
-//common forum tools which are used during the creation/editing of news items
 require($DOCUMENT_ROOT.'/forum/forum_utils.php');
 
-if ($group_id && $group_id != 714 && user_ismember($group_id,'A')) {
+if ($portal_id && user_ismember($portal_id,'A')) {
+	/*
+
+		This is a simple page that portal admins
+			can access. It shows all news for all projects in this portal
+
+		The admin can then check a box and add the news item to their portal.
+
+		The admin cannot edit the news item unfortunately - only the project
+			admin can edit their news
+
+	*/
+
+} else if ($group_id && $group_id != 714 && user_ismember($group_id,'A')) {
 	/*
 
 		Per-project admin pages.
@@ -31,10 +42,6 @@ if ($group_id && $group_id != 714 && user_ismember($group_id,'A')) {
 				//may have tampered with HTML to get their item on the home page
 				$status=0;
 			}
-
-			//foundry stuff - remove this news from the foundry so it has to be re-approved by the admin
-			db_query("DELETE FROM foundry_news WHERE news_id='$id'");
-
 			$sql="UPDATE news_bytes SET is_approved='$status', summary='".htmlspecialchars($summary)."', ".
 				"details='".htmlspecialchars($details)."' WHERE id='$id' AND group_id='$group_id'";
 			$result=db_query($sql);
@@ -167,9 +174,7 @@ if ($group_id && $group_id != 714 && user_ismember($group_id,'A')) {
 			Show the submit form
 		*/
 
-		$sql="SELECT groups.unix_group_name,news_bytes.* ".
-			"FROM news_bytes,groups WHERE id='$id' ".
-			"AND news_bytes.group_id=groups.group_id ";
+		$sql="SELECT * FROM news_bytes WHERE id='$id'";
 		$result=db_query($sql);
 		if (db_numrows($result) < 1) {
 			exit_error('Error','Error - not found');
@@ -181,7 +186,7 @@ if ($group_id && $group_id != 714 && user_ismember($group_id,'A')) {
 		<FORM ACTION="'.$PHP_SELF.'" METHOD="POST">
 		<INPUT TYPE="HIDDEN" NAME="for_group" VALUE="'.db_result($result,0,'group_id').'">
 		<INPUT TYPE="HIDDEN" NAME="id" VALUE="'.db_result($result,0,'id').'">
-		<B>Submitted for group:</B> <a href="/projects/'.strtolower(db_result($result,0,'unix_group_name')).'/">'.group_getname(db_result($result,0,'group_id')).'</a><BR>
+		<B>Submitted for group:</B> '.group_getname(db_result($result,0,'group_id')).'<BR>
 		<B>Submitted by:</B> '.user_getname(db_result($result,0,'submitted_by')).'<BR>
 		<INPUT TYPE="HIDDEN" NAME="approve" VALUE="y">
 		<INPUT TYPE="HIDDEN" NAME="post_changes" VALUE="y">

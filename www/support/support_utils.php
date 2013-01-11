@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: support_utils.php,v 1.49 2000/08/30 22:34:20 tperdue Exp $
+// $Id: support_utils.php,v 1.40 2000/07/12 21:01:41 tperdue Exp $
 
 /*
 
@@ -16,45 +16,36 @@
 
 function support_header($params) {
 	global $group_id,$DOCUMENT_ROOT;
-
-	//required by new site_project_header
 	$params['group']=$group_id;
-	$params['toptab']='support';
+	site_header($params);
 
-	//only projects can use the bug tracker, and only if they have it turned on
-	$project=project_get_object($group_id);
+	html_tabs('support',$group_id);
 
-	if (!$project->isProject()) {
-		exit_error('Error','Only Projects Can Use The Tech Support Manager');
+	if ($group_id) {
+		echo '<P><B><A HREF="/support/?func=addsupport&group_id='.$group_id.'">Submit A Request</A>';
+		if (user_isloggedin()) {
+			echo ' | <A HREF="/support/?func=browse&group_id='.$group_id.'&set=my">My Requests</A>';
+		}
+		echo ' | <A HREF="/support/?func=browse&group_id='.$group_id.'&set=open">Open Requests</A>';
+		echo ' | <A HREF="/support/admin/?group_id='.$group_id.'">Admin</A>';
+
+		echo '</B>';
 	}
-	if (!$project->usesSupport()) {
-		exit_error('Error','This Project Has Turned Off The Tech Support Manager');
-	}
 
-
-	site_project_header($params);
-
-	echo '<P><B><A HREF="/support/?func=addsupport&group_id='.$group_id.'">Submit A Request</A>';
-	if (user_isloggedin()) {
-		echo ' | <A HREF="/support/?func=browse&group_id='.$group_id.'&set=my">My Requests</A>';
-	}
-	echo ' | <A HREF="/support/?func=browse&group_id='.$group_id.'&set=open">Open Requests</A>';
-	echo ' | <A HREF="/support/admin/?group_id='.$group_id.'">Admin</A>';
-
-	echo '</B>';
-	echo '<HR NoShade SIZE="1" SIZE="300">';
 }
 
 function support_footer($params) {
-	site_project_footer($params);
+	global $feedback;
+	html_feedback_bottom($feedback);
+	site_footer($params);
 }
 
-function support_category_box ($group_id,$name='support_category_id',$checked='xzxz',$text_100='None') {
+function support_category_box ($group_id,$name='support_category_id',$checked='xzxz') {
 	if (!$group_id) {
 		return 'ERROR - No group_id';
 	} else {
 		$result= support_data_get_categories ($group_id);
-		return html_build_select_box ($result,$name,$checked,true,$text_100);
+		return util_build_select_box ($result,$name,$checked);
 	}
 }
 
@@ -63,7 +54,7 @@ function support_technician_box ($group_id,$name='assigned_to',$checked='xzxz') 
 		return 'ERROR - No group_id';
 	} else {
 		$result= support_data_get_technicians ($group_id);
-		return html_build_select_box ($result,$name,$checked);
+		return util_build_select_box ($result,$name,$checked);
 	}
 }
 
@@ -72,13 +63,13 @@ function support_canned_response_box ($group_id,$name='canned_response',$checked
 		return 'ERROR - No group_id';
 	} else {
 		$result= support_data_get_canned_responses ($group_id);
-		return html_build_select_box ($result,$name,$checked);
+		return util_build_select_box ($result,$name,$checked);
 	}
 }
 
-function support_status_box ($name='status_id',$checked='xzxz',$text_100='None') {
+function support_status_box ($name='status_id',$checked='xzxz') {
 	$result=support_data_get_statuses();
-	return html_build_select_box($result,$name,$checked,true,$text_100);
+	return util_build_select_box($result,$name,$checked);
 }
 
 function show_supportlist ($result,$offset,$set='open') {
@@ -89,21 +80,14 @@ function show_supportlist ($result,$offset,$set='open') {
 	*/
 
 	$url = "/support/?group_id=$group_id&set=$set&order=";
-	$title_arr=array();
-	$title_arr[]='Request ID';
-	$title_arr[]='Summary';
-	$title_arr[]='Date';
-	$title_arr[]='Assigned To';
-	$title_arr[]='Submitted By';
-
-	$links_arr=array();
-	$links_arr[]=$url.'support_id';
-	$links_arr[]=$url.'summary';
-	$links_arr[]=$url.'date';
-	$links_arr[]=$url.'assigned_to_user';
-	$links_arr[]=$url.'submitted_by';
-
-	echo html_build_list_table_top ($title_arr,$links_arr);
+	echo '
+		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+		<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'support_id"><FONT COLOR="#FFFFFF"><B>Request ID</A></TD>
+		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'summary"><FONT COLOR="#FFFFFF"><B>Summary</A></TD>
+		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'date"><FONT COLOR="#FFFFFF"><B>Date</A></TD>
+		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'assigned_to_user"><FONT COLOR="#FFFFFF"><B>Assigned To</A></TD>
+		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'submitted_by"><FONT COLOR="#FFFFFF"><B>Submitted By</A></TD></TR>';
 
 	$then=(time()-1296000);
 	$rows=db_numrows($result);
@@ -239,19 +223,16 @@ function show_support_details ($support_id) {
 
 	if ($rows > 0) {
 		echo '
-		<H3>Followups</H3>
-		<P>';
-		$title_arr=array();
-		$title_arr[]='Message';
-
-		echo html_build_list_table_top ($title_arr);
-
+			<H3>Followups</H3>
+			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+			<TD><FONT COLOR="#FFFFFF"><B>Message</TD></TR>';
 		for ($i=0; $i < $rows; $i++) {
 			$email_arr=explode('@',db_result($result,$i,'from_email'));
 			echo '<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD><PRE>
 Date: '. date($sys_datefmt,db_result($result, $i, 'date')) .'
 Sender: '. $email_arr[0] . '
-'. util_line_wrap ( db_result($result, $i, 'body'),85,"\n"). '</PRE></TD></TR>';
+'. db_result($result, $i, 'body'). '</PRE></TD></TR>';
 		}
 		echo '</TABLE>';
 	} else {
@@ -270,18 +251,19 @@ function show_supporthistory ($support_id) {
 
 	if ($rows > 0) {
 
-		$title_arr=array();
-		$title_arr[]='Field';
-		$title_arr[]='Old Value';
-		$title_arr[]='Date';
-		$title_arr[]='By';
-
-		echo html_build_list_table_top ($title_arr);
+		echo '
+			<H3>Support Request Change History</H3>
+			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+			<TD><FONT COLOR="#FFFFFF"><B>Field</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Old Value</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Date</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>By</TD></TR>';
 
 		for ($i=0; $i < $rows; $i++) {
 			$field=db_result($result, $i, 'field_name');
 			echo '
-			<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.$field.'</TD><TD>';
+				<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.$field.'</TD><TD>';
 
 			if ($field == 'support_status_id') {
 
@@ -303,14 +285,14 @@ function show_supporthistory ($support_id) {
 
 				echo db_result($result, $i, 'old_value');
 
+			}
+			echo '</TD>'.
+				'<TD>'. date($sys_datefmt,db_result($result, $i, 'date')) .'</TD>'.
+				'<TD>'. db_result($result, $i, 'user_name'). '</TD></TR>';
 		}
-		echo '</TD>'.
-			'<TD>'. date($sys_datefmt,db_result($result, $i, 'date')) .'</TD>'.
-			'<TD>'. db_result($result, $i, 'user_name'). '</TD></TR>';
-	}
 
-	echo '
-		</TABLE>';
+		echo '
+			</TABLE>';
 	
 	} else {
 		echo '

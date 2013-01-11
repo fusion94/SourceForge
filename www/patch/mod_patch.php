@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: mod_patch.php,v 1.12 2000/08/31 19:53:02 tperdue Exp $
+// $Id: mod_patch.php,v 1.10 2000/04/20 14:33:32 tperdue Exp $
 
 patch_header(array ('title'=>'Modify a Patch'));
 
@@ -30,20 +30,11 @@ if (db_numrows($result) > 0) {
 	</TR>
 
 	<TR>
-		<TD><B>Date Submitted:</B><BR>
-		'. date($sys_datefmt,db_result($result,0,'open_date')) .'
-		</TD>
-		<TD><FONT SIZE="-1">
-		<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Submit Changes">
-		</TD>
-	</TR>
-
-	<TR>
 		<TD><B>Category:</B><BR>';
 
-		echo patch_category_box($group_id,'patch_category_id',db_result($result,0,'patch_category_id'));
+	echo patch_category_box($group_id,'patch_category_id',db_result($result,0,'patch_category_id'));
 
-		echo '
+	echo '
 		</TD>
 		<TD><B>Assigned To:</B><BR>';
 
@@ -87,7 +78,9 @@ if (db_numrows($result) > 0) {
 		<?php echo show_patchhistory($patch_id); ?>
 	</TD></TR>
 
-	<TR><TD COLSPAN="2" ALIGN="MIDDLE">
+	<TR><TD COLSPAN="2">
+		<INPUT TYPE="CHECKBOX" NAME="mail_followup" VALUE="y" Checked>Send Followup to Submittor
+		<P>
 		<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Submit Changes">
 		</FORM>
 	</TD></TR>

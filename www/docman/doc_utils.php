@@ -14,15 +14,15 @@
 function display_groups_option($group_id=false,$checkedval='xyxy') {
 
     if (!$group_id) {
-	exit_no_group();
+        exit_no_group();
     } else {
-	$query = "select doc_group, groupname "
-	    ."from doc_groups "
-	    ."where group_id = $group_id "
-	    ."order by groupname";
-	$result = db_query($query);
+        $query = "select doc_group, groupname "
+            ."from doc_groups "
+            ."where group_id = $group_id "
+            ."order by groupname";
+        $result = db_query($query);
 
-	echo html_build_select_box ($result,'doc_group',$checkedval);
+	echo util_build_select_box ($result,'doc_group',$checkedval);
 
     } //end else
 
@@ -39,13 +39,14 @@ function display_groups($group_id) {
 	if (db_numrows($result) < 1) {
 		print "<p>No groups currently exist.";
 	} else {
-
-		$title_arr=array();
-		$title_arr[]='Group ID';
-		$title_arr[]='Group Name';
-		$title_arr[]='Controls';
-
-		echo html_build_list_table_top ($title_arr);
+		echo '
+			<table border="0" width="100%" cellspacing="1" cellpadding="2">
+			 <tr bgcolor="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+			 <td width="10%"><font color="#FFFFFF"><b>Group ID</b></font></td>
+			 <td width="60%"><font color="#FFFFFF"><b>Group Name</b></font></td>
+		  	 <td><font color="#FFFFFF"><b>Controls</b></font></td>
+			</tr>
+		';
 
 		$i = 0;
 		while ($row = db_fetch_array($result)) {
@@ -85,14 +86,15 @@ function display_docs($style,$group_id) {
 		echo 'No '.$row['name'].' docs available <p>';
 
 	} else {
-
-		$title_arr=array();
-		$title_arr[]='Document ID';
-		$title_arr[]='Name';
-		$title_arr[]='Create Date';
-
-		echo html_build_list_table_top ($title_arr);
-
+		echo '
+			
+			<table border="0" width="100%" cellspacing="1" cellpadding="2">
+			 <tr bgcolor="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+			 <td width="10%"><font color="#FFFFFF"><b>Document ID</b></font></td>
+			 <td width="60%"><font color="#FFFFFF"><b>Name</b></font></td>
+		  	 <td><font color="#FFFFFF"><b>Create Date</b></font></td>
+			</tr>
+		';
 		$i = 0;
 		while ($row = db_fetch_array($result)) {
 			print 	"<tr bgcolor=\"".util_get_alt_row_color($i)."\">"
@@ -110,17 +112,8 @@ function docman_header($title,$pagehead,$style='xyz') {
 
 	global $group_id;
 
-	$project=project_get_object($group_id);
-	
-	if (!$project->isProject()) {
-		exit_error('Error','Only Projects Can Use The Doc Manager');
-	}
-	if (!$project->usesDocman()) {
-		exit_error('Error','This Project Has Turned Off The Doc Manager');
-	}
-
-	site_project_header(array('title'=>$title,'group'=>$group_id,'toptab'=>'docman'));
-
+	site_header(array('title'=>$title,'group'=>$group_id));
+	html_tabs('docman',$group_id);
 	print "<p><b><a href=\"/docman/new.php?group_id=".$group_id."\">Submit new documentation</a> | ".
 		"<a href=\"/docman/index.php?group_id=".$group_id."\">View Documentation</a> | ".
 		"<a href=\"/docman/admin/index.php?group_id=".$group_id."\">Admin</a></b>"; 
@@ -132,18 +125,20 @@ function docman_header($title,$pagehead,$style='xyz') {
 	} 
 	print "<p>";
 	print "<h3>$pagehead</h3>\n<P>\n";
-
 }
 
 function doc_get_state_box() {
 	$res_states=db_query("select * from doc_states;");
-	echo html_build_select_box ($res_states, 'stateid', $row['stateid']);
+	echo util_build_select_box ($res_states, 'stateid', $row['stateid']);
 
 }
 
 function docman_footer($params) {
-	site_project_footer($params);
+        global $feedback;
+        html_feedback_bottom($feedback);
+        site_footer($params);
 
 }
+
 
 ?>

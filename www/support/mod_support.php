@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: mod_support.php,v 1.12 2000/08/26 05:26:51 tperdue Exp $
+// $Id: mod_support.php,v 1.10 2000/04/20 14:52:41 tperdue Exp $
 
 support_header(array ('title'=>'Modify a Support Request'));
 
@@ -27,15 +27,6 @@ if (db_numrows($result) > 0) {
 	<TR>
 		<TD><B>Submitted By:</B><BR>'.user_getname(db_result($result,0,'submitted_by')).'</TD>
 		<TD WIDTH="99%"><B>Group:</B><BR>'.group_getname($group_id).'</TD>
-	</TR>
-
-	<TR>
-		<TD><B>Date Submitted:</B><BR>
-		'. date($sys_datefmt,db_result($result,0,'open_date')) .'
-		</TD>
-		<TD><FONT SIZE="-1">
-		<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Submit Changes">
-		</TD>
 	</TR>
 
 	<TR>
@@ -98,7 +89,9 @@ if (db_numrows($result) > 0) {
 		?>
 	</TD></TR>
 
-	<TR><TD COLSPAN="2" ALIGN="MIDDLE">
+	<TR><TD COLSPAN="2">
+		<INPUT TYPE="CHECKBOX" NAME="mail_followup" VALUE="y" Checked>Send Followup to Submittor
+		<P>
 		<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Submit Changes">
 		</FORM>
 	</TD></TR>

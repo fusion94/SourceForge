@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.102 2000/09/06 22:23:15 tperdue Exp $
+// $Id: index.php,v 1.94 2000/07/12 21:01:41 tperdue Exp $
 
 require ('pre.php');    
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
@@ -34,20 +34,12 @@ if ($func) {
 			add user to this project
 		*/
 		account_add_user_to_group ($group_id,$form_unix_name);
-
-		group_add_history ('Added User',$form_unix_name,$group_id);
 	} else if ($func=='rmuser') {
 		/*
 			remove a user from this portal
 		*/
-		$res=db_query("DELETE FROM user_group WHERE group_id='$group_id' AND user_id='$rm_id' AND admin_flags <> 'A'");
-		if (!$res || db_affected_rows($res) < 1) {
-			$feedback .= ' User Not Removed - You cannot remove admins from a project. 
-			You must first turn off their admin flag and/or find another admin for the project ';
-		} else {
-			$feedback .= ' Removed a User ';
-			group_add_history ('removed user',$rm_id,$group_id);
-		}
+		$feedback .= ' Removed a User ';
+		db_query("DELETE FROM user_group WHERE group_id='$group_id' AND user_id='$rm_id' AND admin_flags <> 'A'");
 	}
 
 }
@@ -61,7 +53,7 @@ project_admin_header(array('title'=>"Project Admin: ".group_getname($group_id),'
 echo '<TABLE width=100% cellpadding=2 cellspacing=2 border=0>
 <TR valign=top><TD width=50%>';
 
-$HTML->box1_top("Group Edit: " . group_getname($group_id)); 
+html_box1_top("Group Edit: " . group_getname($group_id)); 
 
 print '&nbsp;
 <BR>
@@ -93,13 +85,13 @@ print '
 .'<B>[Edit Trove Categorization]</B></A>
 ';
 
-$HTML->box1_bottom(); 
+html_box1_bottom(); 
 
 echo '
 </TD><TD>&nbsp;</TD><TD width=50%>';
 
 
-$HTML->box1_top("Group Members");
+html_box1_top("Group Members");
 
 /*
 
@@ -107,24 +99,19 @@ $HTML->box1_top("Group Members");
 
 */
 
-$res_memb = db_query("SELECT user.realname,user.user_id,user.user_name ".
+$res_memb = db_query("SELECT user.realname,user.user_id ".
 		"FROM user,user_group ".
 		"WHERE user.user_id=user_group.user_id ".
 		"AND user_group.group_id=$group_id");
 
-	print '<TABLE WIDTH="100%" BORDER="0">
-';
 	while ($row_memb=db_fetch_array($res_memb)) {
 		print '
 		<FORM ACTION="'. $PHP_SELF .'" METHOD="POST"><INPUT TYPE="HIDDEN" NAME="func" VALUE="rmuser">'.
 		'<INPUT TYPE="HIDDEN" NAME="rm_id" VALUE="'.$row_memb['user_id'].'">'.
 		'<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'. $group_id .'">'.
 		'<TR><TD ALIGN="MIDDLE"><INPUT TYPE="IMAGE" NAME="DELETE" SRC="/images/ic/trash.png" HEIGHT="16" WIDTH="16" BORDER="0"></TD></FORM>'.
-		'<TD><A href="/users/'.$row_memb['user_name'].'/">'.$row_memb['realname'].'</A></TD></TR>';
+		'<TD><A href="/developer/index.php?form_dev='.$row_memb['user_id'].'">'.$row_memb['realname'].'</A></TD></TR>';
 	}
-	print '</TABLE>
-	<HR NoShade SIZE="1">
-';
 
 /*
 	Add member form
@@ -134,19 +121,14 @@ echo '
 	<FORM ACTION="'. $PHP_SELF .'" METHOD="POST">
 	<INPUT TYPE="hidden" NAME="func" VALUE="adduser">
 	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'. $group_id .'">
-	<TABLE WIDTH="100%" BORDER="0">
 	<TR><TD><B>Unix Name:</B></TD><TD><INPUT TYPE="TEXT" NAME="form_unix_name" VALUE=""></TD></TR>
 	<TR><TD COLSPAN="2" ALIGN="CENTER"><INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Add User"></TD></TR></FORM>
-	</TABLE>
 
-	<HR NoShade SIZE="1">
-	<div align="center">
-        <A href="/project/admin/userperms.php?group_id='. $group_id.'">[Edit Member Permissions]</A>
-	</div>
-	</TD></TR>
+	<TR><TD colspan="2" align="center">
+        <BR><A href="/project/admin/userperms.php?group_id='. $group_id.'">[Edit Member Permissions]</A></TD></TR>
 ';
  
-$HTML->box1_bottom();
+html_box1_bottom();
 
 
 echo '</TD></TR>
@@ -157,7 +139,7 @@ echo '</TD></TR>
 	Tool admin pages
 */
 
-$HTML->box1_top('Tool Admin');
+html_box1_top('Tool Admin');
 
 echo '
 <BR>
@@ -171,7 +153,7 @@ echo '
 <A HREF="/forum/admin/?group_id='.$group_id.'">Forum Admin</A><BR>
 ';
 
-$HTML->box1_bottom(); 
+html_box1_bottom(); 
 
 
 
@@ -186,23 +168,32 @@ echo '</TD>
 	Show filerelease info
 */
 
-$HTML->box1_top("File Releases"); ?>
+html_box1_top("File Releases"); ?>
 	&nbsp;<BR>
 	<CENTER>
-	<A href="editpackages.php?group_id=<?php print $group_id; ?>"><B>[Edit/Add File Releases]</B></A>
+	<A href="filerelease-list.php?group_id=<?php print $group_id; ?>"><B>[Edit File Releases]</B></A>
+	<BR><A href="addfile.php?group_id=<?php print $group_id; ?>">[Release New File]</A>
 	</CENTER>
 
 	<HR>
-	<B>Packages:</B> <A href="/docs/site/modules.php">Documentation</A> (Very Important!)
+	<B>Modules:</B> <A href="/docs/site/modules.php">Documentation</A> (Very Important!)
 
-	<P><?php
-
-	$res_module = db_query("SELECT * FROM frs_package WHERE group_id=$group_id");
+	<BR>&nbsp;<?php
+	$res_module = db_query("SELECT * FROM filemodule WHERE group_id=$group_id");
+	?>
+	<TABLE width=100% cellspacing=0 cellpadding=0 border=0>
+		<TR><TD><B>Name</B></TD><TD><B>Release</B></TD><TD>&nbsp;</TD></TR><?php
 	while ($row_module = db_fetch_array($res_module)) {
-		print "$row_module[name]<BR>";
+		print "<TR><TD>$row_module[module_name]</TD>";
+		print "<TD>$row_module[recent_filerelease]</TD>";
+		print "<TD><A href=\"module-edit.php?group_id=$group_id&"
+			. "form_filemodule_id=$row_module[filemodule_id]\">[Edit]</A></TD></TR>";
 	}
+	?>
+	</TD></TR></TABLE>
+	<P align=center><A href="module-add.php?group_id=<?php print $group_id; ?>">[Define New Module]</A>
 
-	echo $HTML->box1_bottom(); ?>
+	<?php html_box1_bottom(); ?>
 </TD>
 </TR>
 </TABLE>

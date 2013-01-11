@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: change_email-complete.php,v 1.8 2000/08/31 06:07:52 gherteg Exp $
+// $Id: change_email-complete.php,v 1.7 2000/07/12 21:01:40 tperdue Exp $
 
 require "pre.php";    
 require "account.php";
@@ -27,7 +27,7 @@ db_query("UPDATE user SET "
 	. "email_new='" . $row_user['email'] . "' WHERE "
 	. "confirm_hash='$confirm_hash'");
 
-$HTML->header(array('title'=>"Email Change Complete"));
+site_header(array('title'=>"Email Change Complete"));
 ?>
 <p><b>Email Change Complete</b>
 <P>Welcome, <?php print $row_user[user_name]; ?>. Your email
@@ -39,6 +39,6 @@ be forwarded to this account.
 <P><A href="/">[Return to SourceForge]</A>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

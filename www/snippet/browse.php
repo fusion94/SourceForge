@@ -4,12 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: browse.php,v 1.14 2000/08/13 04:37:55 tperdue Exp $
+// $Id: browse.php,v 1.11 2000/05/02 12:57:03 tperdue Exp $
 
 require ('pre.php');
 require ('../snippet/snippet_utils.php');
 
-snippet_header(array('title'=>'Snippet Library', 'header'=>''));
+snippet_header(array('title'=>'Snippet Library'));
 
 if ($by=='lang') {
 
@@ -51,12 +51,13 @@ if ((!$result || $rows < 1) && (!$result2 || $rows2 < 1)) {
 	echo '<H2>No snippets found</H2>';
 } else {
 
-	$title_arr=array();
-	$title_arr[]='Snippet ID';
-	$title_arr[]='Title';
-	$title_arr[]='Creator';
+	echo '
+		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+		<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'"><TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Snippet ID</TD>
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Title</TD>
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Creator</TD>
+		</TR>';
 
-	echo html_build_list_table_top ($title_arr);
 
 	/*
 		List packages if there are any

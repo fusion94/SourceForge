@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: group_trove.php,v 1.32 2000/09/01 23:51:33 tperdue Exp $
+// $Id: group_trove.php,v 1.31 2000/04/24 16:11:48 dtype Exp $
 
 require "pre.php";    
 require "trove.php";
@@ -14,8 +14,6 @@ session_require(array('group'=>$group_id,'admin_flags'=>'A'));
 // Check for submission. If so, make changes and redirect
 
 if ($GLOBALS['Submit'] && $root1) {
-	group_add_history ('Changed Trove',$rm_id,$group_id);
-
 	// there is at least a $root1[xxx]
 	while (list($rootnode,$value) = each($root1)) {
 		// check for array, then clear each root node for group

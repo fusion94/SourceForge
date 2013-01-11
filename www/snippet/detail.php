@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: detail.php,v 1.32 2000/08/13 04:37:55 tperdue Exp $
+// $Id: detail.php,v 1.31 2000/05/01 21:23:23 tperdue Exp $
 
 require ('pre.php');
 require ('../snippet/snippet_utils.php');
@@ -44,16 +44,16 @@ if ($type=='snippet') {
 		echo '<H3>Error - no versions found</H3>';
 	} else {
 		echo '
-		<H3>Versions Of This Snippet:</H3>
-		<P>';
-		$title_arr=array();
-		$title_arr[]='Snippet ID';
-		$title_arr[]='Download Version';
-		$title_arr[]='Date Posted';
-		$title_arr[]='Author';
-		$title_arr[]='Delete';
-
-		echo html_build_list_table_top ($title_arr);
+			<H3>Versions Of This Snippet:</H3>
+			<P>
+			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Snippet ID</B></TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Download Version</B></TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Date Posted</B></TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Author</B></TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Delete</B></TD>
+			</TR>';
 
 		/*
 			get the newest version of this snippet, so we can display its code
@@ -61,8 +61,14 @@ if ($type=='snippet') {
 		$newest_version=db_result($result,0,'snippet_version_id');
 
 		for ($i=0; $i<$rows; $i++) {
+			if ($i % 2 == 0) {
+				$row_color=' BGCOLOR="#FFFFFF"';
+			} else {
+				$row_color=' BGCOLOR="'.$GLOBALS['COLOR_LTBACK1'].'"';
+			}
+
 			echo '
-				<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD>'.db_result($result,$i,'snippet_version_id').
+				<TR'.$row_color.'><TD>'.db_result($result,$i,'snippet_version_id').
 				'</TD><TD><A HREF="/snippet/download.php?type=snippet&id='.
 				db_result($result,$i,'snippet_version_id').'"><B>'.
 				db_result($result,$i,'version').'</B></A></TD><TD>'. 
@@ -71,7 +77,7 @@ if ($type=='snippet') {
 				db_result($result,$i,'snippet_version_id').
 				'"><IMG SRC="/images/ic/trash.png" HEIGHT="16" WIDTH="16" BORDER="0"></A></TD></TR>';
 
-				if ($i != ($rows - 1)) {
+	                        if ($i != ($rows - 1)) {
 					echo '
 					<TR'.$row_color.'><TD COLSPAN=5>Changes since last version:<BR>'.
 					nl2br(db_result($result,$i,'changes')).'</TD></TR>';
@@ -139,15 +145,15 @@ if ($type=='snippet') {
 		echo '<H3>Error - no versions found</H3>';
 	} else {
 		echo '
-		<H3>Versions Of This Package:</H3>
-		<P>';
-		$title_arr=array();
-		$title_arr[]='Package Version';
-		$title_arr[]='Date Posted';
-		$title_arr[]='Author';
-		$title_arr[]='Edit/Del';
-
-		echo html_build_list_table_top ($title_arr);
+			<H3>Versions Of This Package:</H3>
+			<P>
+			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Package Version</B></TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Date Posted</B></TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Author</B></TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Edit/Del</B></TD>
+			</TR>';
 
 		/*
 			determine the newest version of this package, 
@@ -156,8 +162,14 @@ if ($type=='snippet') {
 		$newest_version=db_result($result,0,'snippet_package_version_id');
 
 		for ($i=0; $i<$rows; $i++) {
+			if ($i % 2 == 0) {
+				$row_color=' BGCOLOR="#FFFFFF"';
+			} else {
+				$row_color=' BGCOLOR="'.$GLOBALS['COLOR_LTBACK1'].'"';
+			}
+
 			echo '
-			<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD><A HREF="/snippet/detail.php?type=packagever&id='.
+				<TR'.$row_color.'><TD><A HREF="/snippet/detail.php?type=packagever&id='.
 				db_result($result,$i,'snippet_package_version_id').'"><B>'.
 				db_result($result,$i,'version').'</B></A></TD><TD>'.
 				date($sys_datefmt,db_result($result,$i,'date')).'</TD><TD>'.

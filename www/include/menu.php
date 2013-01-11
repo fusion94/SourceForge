@@ -4,151 +4,154 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: menu.php,v 1.158 2000/08/31 06:11:35 gherteg Exp $
+// $Id: menu.php,v 1.127 2000/06/16 05:41:05 tperdue Exp $
 
-/* The correct theme.php must be included by this point -- Geoffrey */
 
 function menu_show_search_box() {
-	global $words,$forum_id,$group_id,$is_bug_page,$exact,$type_of_search;
-
-	  // if there is no search currently, set the default
-	if ( ! isset($type_of_search) ) {
-		$exact = 1;
-	}
-
-	print "\t<CENTER>\n";
-	print "\t<FONT SIZE=\"2\">\n";
-	print "\t<FORM action=\"/search/\" method=\"post\">\n";
-
-	print "\t<SELECT name=\"type_of_search\">\n";
+	global $words,$forum_id,$group_id,$is_bug_page;
+	?>
+	<CENTER>
+	<FONT SIZE="-2">
+	<FORM action="/search/" method=post>
+	<SELECT name="type_of_search">
+	<?php
 	if ($is_bug_page && $group_id) {
-		print "\t<OPTION value=\"bugs\"".( $type_of_search == "bugs" ? " SELECTED" : "" ).">Bugs</OPTION>\n";
+		echo '
+			<OPTION value="bugs">Bugs</OPTION>';
 	} else if ($group_id && $forum_id) {
-		print "\t<OPTION value=\"forums\"".( $type_of_search == "forums" ? " SELECTED" : "" ).">This Forum</OPTION>\n";
+		echo '
+			<OPTION value="forums">This Forum</OPTION>';
 	}
-	print "\t<OPTION value=\"soft\"".( $type_of_search == "soft" ? " SELECTED" : "" ).">Software/Group</OPTION>\n";
-	print "\t<OPTION value=\"people\"".( $type_of_search == "people" ? " SELECTED" : "" ).">People</OPTION>\n";
-	print "\t</SELECT>\n";
-
-	print "\t<BR>\n";
-	print "\t<INPUT TYPE=\"CHECKBOX\" NAME=\"exact\" VALUE=\"1\"".( $exact ? " CHECKED" : " UNCHECKED" )."> Require All Words \n";
-
-	print "\t<BR>\n";
-	if ( isset($forum_id) ) {
-		print "\t<INPUT TYPE=\"HIDDEN\" VALUE=\"$forum_id\" NAME=\"forum_id\">\n";
-	} 
-	if ( isset($is_bug_page) ) {
-		print "\t<INPUT TYPE=\"HIDDEN\" VALUE=\"$is_bug_page\" NAME=\"is_bug_page\">\n";
-	}
-	if ( isset($group_id) ) {
-		print "\t<INPUT TYPE=\"HIDDEN\" VALUE=\"$group_id\" NAME=\"group_id\">\n";
-	}
-
-	print "\t<INPUT TYPE=\"text\" SIZE=\"12\" NAME=\"words\" VALUE=\"$words\">\n";
-	print "\t<BR>\n";
-	print "\t<INPUT TYPE=\"submit\" NAME=\"Search\" VALUE=\"Search\">\n";
-	print "\t</FORM>\n";
+	?>
+	<OPTION value="soft">Software/Group</OPTION>
+	<OPTION value="people">People</OPTION>
+	</SELECT>
+	<BR>
+	<INPUT TYPE="CHECKBOX" NAME="exact" VALUE="1" CHECKED> Require All Words
+	<BR>
+	<INPUT TYPE="HIDDEN" VALUE="<?php echo $forum_id; ?>" NAME="forum_id">
+	<INPUT TYPE="HIDDEN" VALUE="<?php echo $is_bug_page; ?>" NAME="is_bug_page">
+	<INPUT TYPE="HIDDEN" VALUE="<?php echo $group_id; ?>" NAME="group_id">
+	<INPUT TYPE="text" SIZE="15" NAME="words" VALUE="<?php echo $words; ?>">
+	<BR>
+	<INPUT TYPE="submit" NAME="Search" VALUE="Search">
+	</FORM>
+	<?php
 }
 
-//depricated - theme wrapper
 function menuhtml_top($title) {
 	/*
 		Use only for the top most menu
 	*/
-	theme_menuhtml_top($title);
+	?>
+
+	<table cellspacing="0" cellpadding="3" width="100%" border="0" bgcolor="<?php echo $GLOBALS['COLOR_MENUBARBACK']; ?>">
+	<tr bgcolor="<?php echo $GLOBALS['COLOR_MENUBARBACK']; ?>">
+	<td align="center">
+	<?php html_blankimage(1,135); ?><BR>
+	<span class="titlebar"><font color="#ffffff"><?php print $title; ?></font></span></td>
+	</tr>
+	<tr align="right" BGCOLOR="<?php echo $GLOBALS['COLOR_MENUBACK']; ?>"><td>
+
+	<?php
 }
 
-//deprecated - theme wrapper
 function menuhtml_bottom() {
-	theme_menuhtml_bottom();
+	/*
+		End the table
+	*/
+	print '
+
+	</TD>
+	</TR></TABLE>
+';
 }
 
 function menu_software() {
-	GLOBAL $HTML;
-	$HTML->menuhtml_top('Software'); 
-		$HTML->menu_entry('/softwaremap/','Software Map');
-		$HTML->menu_entry('/new/','New Releases');
-		$HTML->menu_entry('/mirrors/','Other Site Mirrors');
-		$HTML->menu_entry('/snippet/','Code Snippet Library');
-	$HTML->menuhtml_bottom();
+	menuhtml_top('Software'); 
+	print '
+		<A class="menus" href="/softwaremap/">Software Map</A>
+		<BR><A class="menus" href="/new/">New Releases</a>
+		<BR><A class="menus" href="/mirrors/">Other Site Mirrors</A>
+		<BR><A class="menus" href="/snippet/">Code Snippet Library</A>';
+	menuhtml_bottom();
 }
 
 function menu_sourceforge() {
-	GLOBAL $HTML;
-	$HTML->menuhtml_top('SourceForge');
-		$HTML->menu_entry('/docs/site/','Site Documentation');
-		$HTML->menu_entry('/forum/?group_id=1','Discussion Forums');
-		$HTML->menu_entry('/people/','Project Help Wanted');
-		print '<P>';
-		$HTML->menu_entry('/compilefarm/','Compile Farm');
-		print '<P>';
-		$HTML->menu_entry('/contact.php','Contact Us');
-	$HTML->menuhtml_bottom();
+	menuhtml_top('SourceForge');
+	print '
+		<A class="menus" href="/docs/site/">Site Documentation</A>
+		<BR><A class="menus" href="/support/?func=addsupport&group_id=1">Request Support</A>
+		<BR><A class="menus" href="/forum/?group_id=1">Discussion Forums</A>
+		<BR><A class="menus" href="/people/">Project Help Wanted</A>
+		<P>
+		<A class="menus" href="/bugs/?group_id=1">Report SF Bug</A>
+		<BR><A class="menus" href="/patch/?group_id=1">Submit SF Patch</A>
+		<BR><A class="menus" href="/top/">Top Projects</A>
+		<P>
+		<A class="menus" href="/compilefarm/">Compile Farm</A>';
+	menuhtml_bottom();
 }
 
-function menu_foundry_links() {
-	GLOBAL $HTML;
-	$HTML->menuhtml_top('Sourceforge Foundries');
-		$HTML->menu_entry('/about_foundries.php', 'About Foundries');
-		echo '<P>
-';
-		$HTML->menu_entry('/foundry/'. strtolower(group_getunixname(6771)), '3D');
-		$HTML->menu_entry('/foundry/'. strtolower(group_getunixname(6772)), 'Games');
-		$HTML->menu_entry('/foundry/'. strtolower(group_getunixname(6770)), 'Java');
-		$HTML->menu_entry('/foundry/'. strtolower(group_getunixname(1872)), 'Printing');
-	$HTML->menuhtml_bottom();
-}
-
-function menu_search() {
-	GLOBAL $HTML;
-	$HTML->menuhtml_top('Search');
-	menu_show_search_box();
-	$HTML->menuhtml_bottom();
-}
-
-function menu_project($grp) {
-	GLOBAL $HTML;
-	$HTML->menuhtml_top('Project: ' . group_getname($grp));
-		$HTML->menu_entry('/projects/'. group_getunixname($grp) .'/','Project Summary');
-		print '<P>';
-		$HTML->menu_entry('/project/admin/?group_id='.$grp,'Project Admin');
-	$HTML->menuhtml_bottom();
-}
-
-function menu_foundry($grp) {
-	GLOBAL $HTML;
-	$unix_name=strtolower(group_getunixname($grp));
-	$HTML->menuhtml_top('Foundry: ' . group_getname($grp));
-		$HTML->menu_entry('/foundry/'. $unix_name .'/','Summary Page');
-		print '<P>';
-		$HTML->menu_entry('/foundry/'. $unix_name .'/admin/', 'Foundry Admin');
-	$HTML->menuhtml_bottom();
-}
-
-function menu_foundry_guides($grp) {
-	GLOBAL $HTML;
+function menu_portal_projects($portal_id) {
 	/*
 		Show list of projects in this portal
 	*/
-	$HTML->menuhtml_top('Foundry Guides');
-
-	$sql="SELECT db_images.width,db_images.height,db_images.id ".
-		"FROM db_images,foundry_data ".
-		"WHERE db_images.id=foundry_data.guide_image_id ".
-		"AND foundry_data.foundry_id='$grp'";
+	menuhtml_top('Member Projects');
+	$sql="SELECT groups.group_name,groups.unix_group_name ".
+		"FROM groups,portal_projects ".
+		"WHERE portal_projects.group_id=groups.group_id ".
+		"AND portal_projects.portal_id='$portal_id'";
 	$result=db_query($sql);
 	$rows=db_numrows($result);
-	
+
 	if (!$result || $rows < 1) {
-//		echo 'No Projects';
+		echo 'No Projects';
 		echo db_error();
 	} else {
-		echo '<IMG SRC="/dbimage.php?id='.db_result($result,$i,'id').'" HEIGHT="'.db_result($result,$i,'height').'" WIDTH="'.db_result($result,$i,'width').'"><BR>';
+		for ($i=0; $i<$rows; $i++) {
+			print '
+			<A class="menus" href="/projects/'. strtolower(db_result($result,$i,'unix_group_name')) .'/">'. db_result($result,$i,'group_name') .'</A><BR>';
+		}
 	}
+	menuhtml_bottom();
+}
 
-	//echo html_image('foundry/'.$grp.'admin.png',array()).'<BR>';
+function menu_search() {
+	menuhtml_top('Search');
+	menu_show_search_box();
+	menuhtml_bottom();
+}
 
-	$sql = "SELECT user.realname,user.user_id,user.user_name ".
+function menu_project($grp) {
+	menuhtml_top('Project: ' . group_getname($grp));
+	print '
+		<A class=menus href="/projects/'. group_getunixname($grp) .'/">Project Summary</A>
+		<P>
+		<A class=menus href="/project/admin/?group_id='.$grp.'">Project Admin</A>
+		<BR><A class=menus href="/project/admin/addfile.php?group_id='.$grp.'">File Release</A>
+		<BR><A class=menus href="/project/admin/userperms.php?group_id='.$grp.'">User Permissions</A>';
+	menuhtml_bottom();
+}
+
+function menu_portal($grp) {
+	menuhtml_top('Portal: ' . group_getname($grp));
+	$unix_name=strtolower(group_getunixname($grp));
+	print '
+		<A class=menus href="/portals/'. $unix_name .'/">Portal Page</A>
+		<P>
+		<A class=menus href="/portals/'. $unix_name .'/admin/">Portal Admin</A>
+		<BR><A class=menus href="/project/admin/userperms.php?group_id='.$grp.'">User Permissions</A>';
+	menuhtml_bottom();
+}
+
+function menu_portal_guides($grp) {
+	/*
+		Show list of projects in this portal
+	*/
+	menuhtml_top('Portal Guides');
+
+	$sql = "SELECT user.realname,user.user_id ".
 		"FROM user,user_group ".
 		"WHERE user.user_id=user_group.user_id ".
 		"AND user_group.admin_flags='A' ".
@@ -162,81 +165,43 @@ function menu_foundry_guides($grp) {
 		echo db_error();
 	} else {
 		for ($i=0; $i<$rows; $i++) {
-			$HTML->menu_entry('/users/'. db_result($result,$i,'user_name').'/', db_result($result,$i,'realname'));
+			print '
+			<A class="menus" href="/developer/?form_dev='. db_result($result,$i,'user_id') .'">'. db_result($result,$i,'realname') .'</A><BR>';
 		}
 	}
-	$HTML->menuhtml_bottom();
+	menuhtml_bottom();
 
 }
 
 function menu_loggedin($page_title) {
-	GLOBAL $HTML;
 	/*
 		Show links appropriate for someone logged in, like account maintenance, etc
 	*/
-	$HTML->menuhtml_top('Logged In: '.user_getname());
-		$HTML->menu_entry('/account/logout.php','Logout');
-		$HTML->menu_entry('/register/','Register New Project');
-		$HTML->menu_entry('/account/','Account Maintenance');
-		print '<P>';
-		$HTML->menu_entry('/themes/','Change My Theme');
-		$HTML->menu_entry('/my/','My Personal Page');
+	menuhtml_top('Logged In: '.user_getname());
+	print '
+		<A class=menus href="/account/logout.php">Logout</A>
+		<BR>
+		<A class=menus href="/register/">Register New Project</A>
+		<BR>
+		<A class=menus href="/account/">Account Maintenance</A>
+		<P>
+		<A class=menus href="/my/">My Personal Page</A>';
 
 		if (!$GLOBALS['HTTP_POST_VARS']) {
 			$bookmark_title = urlencode( str_replace('SourceForge: ', '', $page_title));
-			print '<P>';
-			$HTML->menu_entry('/my/bookmark_add.php?bookmark_url='.urlencode($GLOBALS['REQUEST_URI']).'&bookmark_title='.$bookmark_title,'Bookmark Page');
+			print '
+			<P><A class=menus href="/my/bookmark_add.php?bookmark_url='. urlencode($GLOBALS['REQUEST_URI']) .
+			'&bookmark_title='.$bookmark_title.'">Bookmark Page</A>';
 		}
-	$HTML->menuhtml_bottom();
+	menuhtml_bottom();
 }
 
 function menu_notloggedin() {
-	GLOBAL $HTML;
-	$HTML->menuhtml_top('Status:');
-		echo '<h4><FONT COLOR="#990000">NOT LOGGED IN</h4>';
-		$HTML->menu_entry('/account/login.php','Login via SSL');
-		$HTML->menu_entry('/account/register.php','New User via SSL');
-	$HTML->menuhtml_bottom();
+	menuhtml_top('Not Logged In');
+	print '
+		<A class=menus href="/account/login.php">Login via SSL</A>
+		<BR><A class=menus href="/account/register.php">New User via SSL</A>';
+	menuhtml_bottom();
 }
 
-function menu_print_sidebar($params) {
-	/*
-		See if this is a project or a foundry
-		and show the correct nav menus
-	*/
-	if (!user_isloggedin()) {
-		echo menu_notloggedin();
-	} else {
-		echo menu_loggedin($params['title']);
-	}
-
-	$grp=project_get_object($params['group']);
-
-	if ($params['group'] && $grp->isProject()) {
-		//this is a project page
-		//sf global choices
-		echo menu_project ($params['group']);
-		echo menu_software();
-		echo menu_sourceforge();
-	} else if ($params['group']) {
-		//this is a foundry page
-		echo menu_foundry_guides($params['group']);
-		echo menu_foundry($params['group']);
-	} else {
-		echo menu_software();
-		echo menu_sourceforge();
-	}
-
-	//Foundry Links
-	echo menu_foundry_links();
-
-	//search menu
-	echo menu_search();
-
-	?>
-	<div align="center">
-	<?php osdn_nav_dropdown(); ?>
-	</div>
-<?php
-}
 ?>

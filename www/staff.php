@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: staff.php,v 1.30 2000/08/31 06:07:52 gherteg Exp $
+// $Id: staff.php,v 1.28 2000/06/09 02:21:27 tperdue Exp $
 
 require ('pre.php');    
-$HTML->header(array('title'=>'SorceForge Staff'));
+site_header(array('title'=>'SorceForge Staff'));
 
 ?>
 <P>
@@ -49,15 +49,6 @@ with a smile on his face. He works from Australia.
 </td>
 </tr>
 
-<tr valign=top>
-<td><a href="/sendmessage.php?toaddress=kingdon_maillink_users.sourceforge.net">Jim Kingdon</a></td>
-<td>(kingdon)</td>
-<td>Jim is our "content and community relations manager".  And yes, we
- realize that is a long title.  Contact him concerning projects
- which are considering moving to sourceforge and foundries and the like.
-</td>
-</tr> 
-
 <TR><TD COLSPAN="2"><B>Founders:</B></TD></TR>
 
 <tr valign=top>
@@ -92,5 +83,5 @@ his efforts, as do the users who benefit from his contributions.
 </table>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 ?>

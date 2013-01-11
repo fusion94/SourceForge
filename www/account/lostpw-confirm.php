@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: lostpw-confirm.php,v 1.13 2000/08/31 06:07:52 gherteg Exp $
+// $Id: lostpw-confirm.php,v 1.11 2000/06/12 06:37:07 tperdue Exp $
 
 require ('pre.php');    
 
@@ -21,12 +21,12 @@ $message = "Someone (presumably you) on the SourceForge site requested a\n"
 	. "ignore this message and nothing will happen.\n\n"
 	. "If you requested this verification, visit the following URL\n"
 	. "to change your password:\n\n"
-	. "<https://$GLOBALS[HTTP_HOST]/account/lostlogin.php?confirm_hash=$confirm_hash\n\n>"
+	. "https://$GLOBALS[HTTP_HOST]/account/lostlogin.php?confirm_hash=$confirm_hash\n\n"
 	. " -- the SourceForge staff\n";
 
 mail ($row_user['email'],"SourceForge Verification",$message,"From: noreply@$GLOBALS[HTTP_HOST]");
 
-$HTML->header(array('title'=>"Lost Password Confirmation"));
+site_header(array('title'=>"Lost Password Confirmation"));
 
 ?>
 
@@ -38,6 +38,6 @@ the instructions in the email to change your account password.
 <P><A href="/">[ Home ]</A>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

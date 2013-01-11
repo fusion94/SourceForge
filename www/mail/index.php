@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.21 2000/08/31 20:19:12 gherteg Exp $
+// $Id: index.php,v 1.17 2000/07/12 21:01:40 tperdue Exp $
 
 require('pre.php');
 require('../mail/mail_utils.php');
@@ -13,6 +13,12 @@ if ($group_id) {
 
 	mail_header(array('title'=>'Mailing Lists for '.group_getname($group_id)));
 	
+	// html tab bar
+	html_tabs('mail',$group_id);
+
+	echo '
+		<P><B><A HREF="/mail/admin/?group_id='.$group_id.'">Admin</A></B><P>';
+
 	if (user_isloggedin() && user_ismember($group_id)) {
 		$public_flag='0,1';
 	} else {
@@ -30,7 +36,7 @@ if ($group_id) {
 			<H1>No Lists found for '.group_getname($group_id).'</H1>';
 		echo '
 			<P>Project administrators use the admin link to request mailing lists.';
-		$HTML->footer(array());
+		site_footer(array());
 		exit;
 	}
 
@@ -52,7 +58,6 @@ if ($group_id) {
 			db_result($result, $j, 'list_name').'"><IMG SRC="/images/ic/cfolder15.png" HEIGHT=13 WIDTH=15 BORDER=0> &nbsp; '.db_result($result, $j, 'list_name').' Archives</A>'; 
 		echo ' (go to <A HREF="http://'.$GLOBALS['sys_lists_host'].'/mailman/listinfo/'.
 			db_result($result, $j, 'list_name').'">Subscribe/Unsubscribe/Preferences</A>)<BR>';
-		echo '&nbsp;'.  db_result($result, $j, 'description') .'<P>';
 	}
 	echo '</TD></TR></TABLE>';
 

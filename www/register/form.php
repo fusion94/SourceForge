@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: form.php,v 1.13 2000/08/31 06:11:35 gherteg Exp $
+// $Id: form.php,v 1.12 2000/07/12 21:01:41 tperdue Exp $
 
 require "pre.php";    // Initial db and session library, opens session
-$HTML->header(array(title=>"New Project Registration"));
+site_header(array(title=>"New Project Registration"));
 ?>
 
 <p>
@@ -70,7 +70,7 @@ $HTML->header(array(title=>"New Project Registration"));
 
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>
 

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: trove.php,v 1.43 2000/08/12 22:13:55 tperdue Exp $
+// $Id: trove.php,v 1.40 2000/04/25 14:09:25 dtype Exp $
 
 // ################################## Trove Globals
 
@@ -137,6 +137,7 @@ function trove_getcatlisting($group_id,$a_filter,$a_cats) {
 	global $expl_discrim;
 	global $form_cat;
 
+	print '<FONT size="-1">';
 	$res_trovecat = db_query('SELECT trove_cat.fullpath AS fullpath,'
 		.'trove_cat.fullpath_ids AS fullpath_ids,'
 		.'trove_cat.trove_cat_id AS trove_cat_id '
@@ -152,9 +153,8 @@ function trove_getcatlisting($group_id,$a_filter,$a_cats) {
 	}
 
 	// first unset the vars were using here
-	$proj_discrim_used='';
+	unset($proj_discrim_used);
 	$isfirstdiscrim = 1;
-	echo '<UL>';
 	while ($row_trovecat = db_fetch_array($res_trovecat)) {
 		$folders = explode(" :: ",$row_trovecat['fullpath']);
 		$folders_ids = explode(" :: ",$row_trovecat['fullpath_ids']);
@@ -162,7 +162,7 @@ function trove_getcatlisting($group_id,$a_filter,$a_cats) {
 		// if first in discrim print root category
 		if (!$proj_discrim_used[$folders_ids[0]]) {
 			if (!$isfirstdiscrim) print '<BR>';
-				print ('<LI> '.$folders[0].': ');
+				print ($folders[0].': ');
 		}
 
 		// filter links, to add discriminators
@@ -197,7 +197,7 @@ function trove_getcatlisting($group_id,$a_filter,$a_cats) {
 		$proj_discrim_used[$folders_ids[0]] = 1;
 		$isfirstdiscrim = 0;
 	}
-	echo '</UL>';
+	print '</FONT>';
 }
 
 // returns cat fullname

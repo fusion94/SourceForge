@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: news_utils.php,v 1.72 2000/08/31 21:45:51 gherteg Exp $
+// $Id: news_utils.php,v 1.60 2000/06/17 06:39:59 tperdue Exp $
 
 /*
 	News System
@@ -12,18 +12,16 @@
 */
 
 function news_header($params) {
-	global $DOCUMENT_ROOT,$HTML,$group_id,$news_name,$news_id;
-
-	$params['toptab']='news';
+	global $DOCUMENT_ROOT,$group_id,$news_name,$news_id;
 	$params['group']=$group_id;
+	site_header($params);
 
 	/*
 		Show horizontal links
 	*/
 	if ($group_id && ($group_id != 714)) {
-		site_project_header($params);
+		html_tabs('news',$group_id);
 	} else {
-		$HTML->header($params);
 		echo '
 			<H2>SourceForge <A HREF="/news/">News</A></H2>';
 	}
@@ -33,8 +31,9 @@ function news_header($params) {
 }
 
 function news_footer($params) {
-	GLOBAL $HTML;
-	$HTML->footer($params);
+	global $feedback;
+	html_feedback_bottom($feedback);
+	site_footer($params);
 }
 
 function news_show_latest($group_id=714,$limit=10,$show_summaries=true) {
@@ -71,9 +70,9 @@ function news_show_latest($group_id=714,$limit=10,$show_summaries=true) {
 				$arr=explode("\n",db_result($result,$i,'details'));
 				//if the first paragraph is short, and so are following paragraphs, add the next paragraph on
 				if ((strlen($arr[0]) < 200) && (strlen($arr[1].$arr[2]) < 300) && (strlen($arr[2]) > 5)) {
-					$summ_txt='<BR>'. util_make_links( $arr[0].'<BR>'.$arr[1].'<BR>'.$arr[2] );
+					$summ_txt='<DD><FONT SIZE="-1">'. util_make_links( $arr[0].'<BR>'.$arr[1].'<BR>'.$arr[2] ).'</FONT></DD>';
 				} else {
-					$summ_txt='<BR>'. util_make_links( $arr[0] );
+					$summ_txt='<DD><FONT SIZE="-1">'. util_make_links( $arr[0] ).'</FONT></DD>';
 				}
 				//show the project name 
 				$proj_name=' &nbsp; - &nbsp; <A HREF="/projects/'. strtolower(db_result($result,$i,'unix_group_name')) .'/">'. db_result($result,$i,'group_name') .'</A>';
@@ -82,34 +81,35 @@ function news_show_latest($group_id=714,$limit=10,$show_summaries=true) {
 				$summ_txt='';
 			}
 			$return .= '
-				<A HREF="/forum/forum.php?forum_id='. db_result($result,$i,'forum_id') .'"><B>'. db_result($result,$i,'summary') . '</B></A>
-				<BR>&nbsp;&nbsp;&nbsp;&nbsp;<I>'. db_result($result,$i,'user_name') .' - '.
-					date($sys_datefmt,db_result($result,$i,'date')) .' <A HREF="/projects/'. strtolower(db_result($result,$i,'unix_group_name')) .'">'. $proj_name . '</A></I>
-				'. $summ_txt .'<HR width="100%" size="1" noshade>';
+				<DT><A HREF="/forum/forum.php?forum_id='. db_result($result,$i,'forum_id') .'"><B>'. db_result($result,$i,'summary') . '</B></A>
+				<BR><B><FONT SIZE="-1">'. db_result($result,$i,'user_name') .' - '.
+					date($sys_datefmt,db_result($result,$i,'date')) . $proj_name . '</FONT></B>
+				'. $summ_txt .'<BR>&nbsp;';
 		}
+		echo '
+			</DL>';
 	}
 	if ($group_id != 714) {
 		//you can only submit news from a project now
 		//you used to be able to submit general news
-		$return .= '<div align="center"><A HREF="/news/submit.php?group_id='.$group_id.'"><FONT SIZE="-1">[Submit News]</FONT></A></center>';
+		$return .= '<P><A HREF="/news/submit.php?group_id='.$group_id.'"><FONT SIZE="-1">[Submit News]</FONT></A><BR>&nbsp;';
 	}
 	return $return;
 }
 
-function news_foundry_latest($group_id=0,$limit=5,$show_summaries=true) {
+function news_portal_latest($group_id=0,$limit=5,$show_summaries=true) {
 	global $sys_datefmt;
 	/*
 		Show a the latest news for a portal 
 	*/
 
 	$sql="SELECT groups.group_name,groups.unix_group_name,user.user_name,news_bytes.forum_id,news_bytes.summary,news_bytes.date,news_bytes.details ".
-		"FROM user,news_bytes,groups,foundry_news ".
-		"WHERE foundry_news.foundry_id='$group_id' ".
+		"FROM user,news_bytes,groups,portal_news ".
+		"WHERE portal_news.portal_id='$group_id' ".
 		"AND user.user_id=news_bytes.submitted_by ".
-		"AND foundry_news.news_id=news_bytes.id ".
+		"AND portal_news.news_id=news_bytes.id ".
 		"AND news_bytes.group_id=groups.group_id ".
-		"AND foundry_news.is_approved=1 ".
-		"ORDER BY news_bytes.date DESC LIMIT $limit";
+		"ORDER BY date DESC LIMIT $limit";
 
 	$result=db_query($sql);
 	$rows=db_numrows($result);
@@ -118,14 +118,16 @@ function news_foundry_latest($group_id=0,$limit=5,$show_summaries=true) {
 		$return .= '<H3>No News Items Found</H3>';
 		$return .= db_error();
 	} else {
+		echo '
+			<DL COMPACT>';
 		for ($i=0; $i<$rows; $i++) {
 			if ($show_summaries) {
 				//get the first paragraph of the story
 				$arr=explode("\n",db_result($result,$i,'details'));
 				if ((strlen($arr[0]) < 200) && (strlen($arr[1].$arr[2]) < 300) && (strlen($arr[2]) > 5)) {
-					$summ_txt=util_make_links( $arr[0].'<BR>'.$arr[1].'<BR>'.$arr[2] );
+					$summ_txt='<DD><FONT SIZE="-1">'. util_make_links( $arr[0].'<BR>'.$arr[1].'<BR>'.$arr[2] ).'</FONT></DD>';
 				} else {
-					$summ_txt=util_make_links( $arr[0] );
+					$summ_txt='<DD><FONT SIZE="-1">'. util_make_links( $arr[0] ).'</FONT></DD>';
 				}
 
 				//show the project name
@@ -135,11 +137,13 @@ function news_foundry_latest($group_id=0,$limit=5,$show_summaries=true) {
 				$summ_txt='';
 			}
 			$return .= '
-				<A HREF="/forum/forum.php?forum_id='. db_result($result,$i,'forum_id') .'"><B>'. db_result($result,$i,'summary') . '</B></A>
-				<BR><I>'. db_result($result,$i,'user_name') .' - '.
-					date($sys_datefmt,db_result($result,$i,'date')) . $proj_name . '</I>
-				'. $summ_txt .'<HR WIDTH="100%" SIZE="1">';
+				<DT><A HREF="/forum/forum.php?forum_id='. db_result($result,$i,'forum_id') .'"><B>'. db_result($result,$i,'summary') . '</B></A>
+				<BR><B><FONT SIZE="-1">'. db_result($result,$i,'user_name') .' - '.
+					date($sys_datefmt,db_result($result,$i,'date')) . $proj_name . '</FONT></B>
+				'. $summ_txt .'<BR>&nbsp;';
 		}
+		echo '
+			</DL>';
 	}
 	return $return;
 }

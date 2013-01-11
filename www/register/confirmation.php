@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: confirmation.php,v 1.53 2000/08/31 06:11:35 gherteg Exp $
+// $Id: confirmation.php,v 1.52 2000/07/12 21:01:41 tperdue Exp $
 
 require 'pre.php';    // Initial db and session library, opens session
 session_require(array('isloggedin'=>'1'));
@@ -13,7 +13,7 @@ require('../forum/forum_utils.php');
 
 if ($show_confirm) {
 
-	$HTML->header(array('title'=>'Registration Complete'));
+	site_header(array('title'=>'Registration Complete'));
 
 	$sql="SELECT * FROM groups WHERE group_id='$group_id' AND rand_hash='__$rand_hash'";
 	$result=db_query($sql);
@@ -57,7 +57,7 @@ if ($show_confirm) {
 	<INPUT type=submit name="i_agree" value="I AGREE"> <INPUT type=submit name="i_disagree" value="I DISAGREE">
 	</FORM>';
 
-	$HTML->footer(array());
+	site_footer(array());
 
 } else if ($i_agree && $group_id && $rand_hash) {
 	/*
@@ -102,7 +102,7 @@ if ($show_confirm) {
 	//will be done at some point. needs to communicate with geocrawler
 
 	//
-	$HTML->header(array('title'=>'Registration Complete'));
+	site_header(array('title'=>'Registration Complete'));
 	
 	?>
 
@@ -115,11 +115,11 @@ if ($show_confirm) {
 	<P>
 
 	<?php
-	$HTML->footer(array());
+	site_footer(array());
 
 } else if ($i_disagree && $group_id && $rand_hash) {
 
-	$HTML->header(array('title'=>'Registration Deleted'));
+	site_header(array('title'=>'Registration Deleted'));
 	$result=db_query("DELETE FROM groups ".
 		"WHERE group_id='$group_id' AND rand_hash='__$rand_hash'");
 
@@ -127,7 +127,7 @@ if ($show_confirm) {
 		<H2>Project Deleted</H2>
 		<P>
 		<B>Please try again in the future.</B>';
-	$HTML->footer(array());
+	site_footer(array());
 
 } else {
 	exit_error('Error','This is an invalid state. Some form variables were missing.

@@ -4,32 +4,34 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.71 2000/08/31 06:07:52 gherteg Exp $
+// $Id: index.php,v 1.66 2000/07/03 15:31:21 tperdue Exp $
 
-require ('pre.php');    
-
+require "pre.php";    
 session_require(array('isloggedin'=>'1'));
-
-$HTML->header(array('title'=>"Account Maintenance"));
+site_header(array('title'=>"Account Maintenance"));
 
 // get global user vars
 $res_user = db_query("SELECT * FROM user WHERE user_id=" . user_getid());
 $row_user = db_fetch_array($res_user);
 
-$HTML->box1_top("Account Maintenance: " . user_getname()); ?>
+html_box1_top("Account Maintenance: " . user_getname()); ?>
 
 <p>Welcome, <b><?php print user_getname(); ?></b>. 
 <p>You can view/change all of your account features from here. You may also wish
 to view your developer/consultant profiles and ratings.
 
 <UL>
-<LI><A href="/users/<?php print $row_user['user_name']; ?>/"><B>View My Developer Profile</B></A>
+<LI><A href="/developer/?form_dev=<?php print user_getid(); ?>"><B>View My Developer Profile</B></A>
 <LI><A HREF="/people/editprofile.php"><B>Edit My Skills Profile</B></A>
 </UL>
-<?php $HTML->box1_bottom(); ?>
+<?php html_box1_bottom(); ?>
 
+<TABLE width=100% cellpadding=0 cellspacing=0 border=0><TR valign=top>
+<TD width=50%>
+
+<?php html_box1_top("Personal Information"); ?>
 &nbsp;<BR>
-<TABLE width=100% border=0>
+<TABLE width=100% cellpadding=0 cellspacing=0 border=0>
 
 <TR valign=top>
 <TD>Member Since: </TD>
@@ -71,11 +73,43 @@ to view your developer/consultant profiles and ratings.
 <TD><A href="/people/editprofile.php">[Edit Skills Profile]</A></TD>
 </TR>
 
-<TR>
-<TD COLSPAN=2>
+</TABLE>
+<?php html_box1_bottom(); ?>
+
+<?php html_box1_top("Group Info"); 
+// now get listing of groups for that user
+$res_cat = db_query("SELECT groups.group_name AS group_name, "
+	. "groups.group_id AS group_id, "
+	. "user_group.admin_flags AS admin_flags, "
+	. "user_group.bug_flags AS bug_flags FROM "
+	. "groups,user_group WHERE user_group.user_id=" . user_getid() . " AND "
+	. "groups.group_id=user_group.group_id");
+
+// see if there were any groups
+if (db_numrows($res_cat) < 1) {
+?>
+<p>You are not currently a member of any project or consultant groups. If you
+wish to participate in a project, please go to the individual project page for
+information on how to help.
+<?php
+} else { // endif no groups
+	print "<p>You are a member of the following groups:<BR>&nbsp;";
+	while ($row_cat = db_fetch_array($res_cat)) {
+		print ("<BR>" . "<A href=\"/project/?group_id=$row_cat[group_id]\">"
+			. group_getname($row_cat['group_id']) . "</A>\n");
+		print ("<I>(Developer");
+		if (user_ismember($row_cat['group_id'],'A')) { print ", Admin"; }
+		print (")</I>");
+	}
+	print "</ul>";
+} // end if groups
+html_box1_bottom(); ?>
+</TD>
+<TD>&nbsp;</TD>
+<TD width=50%>
 <?php 
 // ############################# Preferences
-$HTML->box1_top("Preferences"); ?>
+html_box1_top("Preferences"); ?>
 <FORM action="updateprefs.php" method="post">
 
 <INPUT type="checkbox" name="form_mail_site" value="1"<?php 
@@ -88,14 +122,14 @@ $HTML->box1_top("Preferences"); ?>
 
 <P align=center><CENTER><INPUT type="submit" name="Update" value="Update"></CENTER>
 </FORM>
-<?php $HTML->box1_bottom(); 
+<?php html_box1_bottom(); 
 
 // ############################### Shell Account
 
-if ($row_user['unix_status'] == 'A') {
-	$HTML->box1_top("Shell Account Information"); 
+if ($row_user[unix_status] == 'A') {
+	html_box1_top("Shell Account Information"); 
 	print '&nbsp;
-<BR>Shell box: <b>'.$row_user['unix_box'].'</b>
+<BR>Shell box: <b>'.$row_user[unix_box].'</b>
 <BR>CVS/SSH Shared Keys: <B>';
 	// get shared key count from db
 	$expl_keys = explode("###",$row_user['authorized_keys']);
@@ -105,15 +139,13 @@ if ($row_user['unix_status'] == 'A') {
 		print '0';
 	}
 	print '</B> <A href="editsshkeys.php">[Edit Keys]</A>';
-	$HTML->box1_bottom(); 
+	html_box1_bottom(); 
 } 
 ?>
 
 </TD>
-</TR>
-
-</TABLE>
+</TR></TABLE>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 ?>

@@ -4,12 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: groupedit-add.php,v 1.20 2000/08/10 22:13:31 tperdue Exp $
+// $Id: groupedit-add.php,v 1.19 2000/07/12 21:01:40 tperdue Exp $
 
 require "pre.php";
 require "account.php";
-require($DOCUMENT_ROOT.'/admin/admin_utils.php');
-
 session_require(array('group'=>'1','admin_flags'=>'A'));
 
 // ########################################################
@@ -28,7 +26,7 @@ if ($Submit) {
 	session_redirect("/admin/groupedit.php?group_id=$newid");
 } 
 
-site_admin_header(array('title'=>"Welcome to Project Alexandria"));
+site_header(array('title'=>"Welcome to Project Alexandria"));
 ?>
 
 <form action="groupedit-add.php" method="post">
@@ -52,6 +50,6 @@ site_admin_header(array('title'=>"Welcome to Project Alexandria"));
 </form>
 
 <?php
-site_admin_footer(array());
+site_footer(array());
 
 ?>

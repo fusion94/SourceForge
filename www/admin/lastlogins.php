@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: lastlogins.php,v 1.9 2000/08/31 06:07:52 gherteg Exp $
+// $Id: lastlogins.php,v 1.8 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
 session_require(array('group'=>'1','admin_flags'=>'A'));
@@ -17,7 +17,7 @@ $res_logins = db_query("SELECT session.user_id AS user_id,"
 	. "session.user_id>0 AND session.time>0 ORDER BY session.time DESC LIMIT 50");
 if (db_numrows($res_logins) < 1) exit_error("No records found","There must be an error somewhere.");
 
-$HTML->header(array('title'=>"Last Logins"));
+site_header(array('title'=>"Last Logins"));
 
 print '<P><B>Most Recent Sessions with Logins</B>';
 print "\n<P>";
@@ -33,6 +33,6 @@ while ($row_logins = db_fetch_array($res_logins)) {
 
 print '</TABLE>';
 
-$HTML->footer(array());
+site_footer(array());
 
 ?>

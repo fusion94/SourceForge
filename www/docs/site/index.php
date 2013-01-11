@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.32 2000/08/31 06:07:53 gherteg Exp $
+// $Id: index.php,v 1.28 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"Welcome to Project Alexandria"));
+site_header(array(title=>"Welcome to Project Alexandria"));
 ?>
 
 <p><B>SourceForge Site Documentation</B>
@@ -15,7 +15,7 @@ $HTML->header(array(title=>"Welcome to Project Alexandria"));
 <UL>
 <LI><A href="faq.php">Frequently Asked Questions (FAQ)</A>
 <LI><A href="services.php">SourceForge Services</A> aka. What do I get?
-<LI><A href="/tos/tos.php">Terms of Service Agreement</A> aka. The legal stuff.
+<LI><A href="tos.php">Terms of Service Agreement</A> aka. The legal stuff.
 <LI><A href="hardware.php">The Hardware Behind SourceForge</A>
 <LI><A href="delay.php">The 6 hour cron delay</A> (Important)
 </UL>
@@ -43,6 +43,6 @@ one of the project administrators.
 </UL>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

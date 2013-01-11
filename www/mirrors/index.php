@@ -4,13 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.25 2000/08/31 06:11:35 gherteg Exp $
+// $Id: index.php,v 1.23 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"Mirrors of Other Sites"));
+site_header(array(title=>"Mirrors of Other Sites"));
 ?>
-<FONT face="arial, helvetica" size="5"><B>Site Mirrors</B></FONT>
-<HR NoShade>
 
 <P>SourceForge provides high-bandwidth mirrors for several other
 projects. Our mirror server is a Quad XEON 400Mhz, with 2 GB RAM
@@ -120,6 +118,6 @@ on the planet.
 <I>(We are in the ftp.yellowdoglinux.com DNS rotation.)</i>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

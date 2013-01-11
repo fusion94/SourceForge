@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: trove_cat_list.php,v 1.13 2000/08/31 06:07:52 gherteg Exp $
+// $Id: trove_cat_list.php,v 1.12 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";
 require "trove.php";
@@ -32,10 +32,10 @@ function printnode ($nodeid,$text) {
 
 // ########################################################
 
-$HTML->header(array(title=>"Trove - Category List"));
+site_header(array(title=>"Trove - Category List"));
 
 printnode(0,"root");
 
-$HTML->footer(array());
+site_footer(array());
 
 ?>

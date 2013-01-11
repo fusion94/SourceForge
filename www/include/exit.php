@@ -4,13 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: exit.php,v 1.17 2000/08/31 06:11:35 gherteg Exp $
+// $Id: exit.php,v 1.16 2000/07/06 17:35:10 tperdue Exp $
 
 function exit_error($title,$text) {
-	GLOBAL $HTML;
-	$HTML->header(array('title'=>'Exiting with Error'));
+	site_header(array('title'=>'Exiting with Error'));
 	print '<H2><font color="#FF3333">'.$title.'</font></H2><P>'.$text;
-	$HTML->footer(array());
+	site_footer(array());
 	exit;
 }
 

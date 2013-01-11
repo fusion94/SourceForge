@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.9 2000/08/31 06:07:53 gherteg Exp $
+// $Id: index.php,v 1.8 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"CVS Documentation"));
+site_header(array(title=>"CVS Documentation"));
 ?>
 
 <B>SourceForge CVS Documentation</B>
@@ -66,6 +66,6 @@ cvs commands without the -d tag. For example:
 </UL>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

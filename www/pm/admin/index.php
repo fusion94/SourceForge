@@ -4,10 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.23 2000/08/13 15:43:44 tperdue Exp $
+// $Id: index.php,v 1.16 2000/06/14 00:03:18 tperdue Exp $
 
 require('pre.php');
 require('../pm_utils.php');
+$is_admin_page='y';
 
 /*
 
@@ -27,12 +28,10 @@ if ($group_id && user_ismember($group_id,'P2')) {
 			/*
 				Insert a new project
 			*/
-			$sql="INSERT INTO project_group_list (group_id,project_name,is_public,description) ".
-				"VALUES ('$group_id','". htmlspecialchars($project_name) ."','$is_public','". htmlspecialchars($description) ."')";
+			$sql="INSERT INTO project_group_list (group_id,project_name,is_public) VALUES ('$group_id','$project_name','$is_public')";
 			$result=db_query($sql);
 			if (!$result) {
 				$feedback .= " Error inserting value ";
-				echo db_error();
 			}
 
 			$feedback .= " Subproject Inserted ";
@@ -41,17 +40,29 @@ if ($group_id && user_ismember($group_id,'P2')) {
 			/*
 				Change a project to public/private
 			*/
-		       $sql="UPDATE project_group_list SET is_public='$is_public',project_name='". htmlspecialchars($project_name) ."', ".
-				"description='". htmlspecialchars($description) ."' ".
-				"WHERE group_id='$group_id' AND group_project_id='$group_project_id'";
+			$sql="UPDATE project_group_list SET is_public='$is_public' ".
+				"WHERE group_project_id='$group_project_id' AND group_id='$group_id'";
 			$result=db_query($sql);
 			if (!$result || db_affected_rows($result) < 1) {
 				$feedback .= " Error Updating Status ";
-				echo db_error();
 			} else {
 				$feedback .= " Status Updated Successfully ";
 			}
+		} else if ($project_cat_mod) {
+			/*
+				Update a project name
+			*/
+			$sql="UPDATE project_group_list SET project_name='$project_name' WHERE group_project_id='$project_cat_id' AND group_id='$group_id'";
+			$result=db_query($sql);
+			if (!$result || db_affected_rows($result) < 1) {
+				$feedback .= ' Error modifying subproject name ';
+				echo db_error();
+			} else {
+				$feedback .= ' Subproject Name Modified ';
+			}
+
 		}
+
 	} 
 	/*
 		Show UI forms
@@ -73,7 +84,7 @@ if ($group_id && user_ismember($group_id,'P2')) {
 		$result=db_query($sql);
 		echo "<P>";
 		if ($result && db_numrows($result) > 0) {
-			ShowResultSet($result,"Existing Subprojects");
+			ShowResultSet($result,"Existing Subprojects","pm_project");
 		} else {
 			echo "\n<H1>No Subprojects in this group</H1>";
 		}
@@ -93,11 +104,7 @@ if ($group_id && user_ismember($group_id,'P2')) {
 		<P>
 		<H3>New Project Name:</H3>
 		<P>
-		<INPUT TYPE="TEXT" NAME="project_name" VALUE="" SIZE="15" MAXLENGTH="30">
-		<P>
-		<B>Description:</B><BR>
-		<INPUT TYPE="TEXT" NAME="description" VALUE="" SIZE="40" MAXLENGTH="80">
-		<P>
+		<INPUT TYPE="TEXT" NAME="project_name" VALUE="" SIZE="15" MAXLENGTH="30"><BR>
 		<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="SUBMIT">
 		</FORM>
 		<?php
@@ -109,7 +116,7 @@ if ($group_id && user_ismember($group_id,'P2')) {
 		*/
 		pm_header(array('title'=>'Change Project/Task Manager Status'));
 
-		$sql="SELECT project_name,group_project_id,is_public,description ".
+		$sql="SELECT project_name,group_project_id,is_public ".
 			"FROM project_group_list ".
 			"WHERE group_id='$group_id'";
 		$result=db_query($sql);
@@ -123,46 +130,79 @@ if ($group_id && user_ismember($group_id,'P2')) {
 			echo db_error();
 		} else {
 			echo '
-			<H2>Update Project/Task Manager</H2>
-			<P>
-			You can make subprojects in the Project/Task Manager private from here. Please note that private subprojects
-			can still be viewed by members of your project, but not the general public.<P>';
+				<H2>Update Project/Task Manager Status</H2>
+				<P>
+				You can make subprojects in the Project/Task Manager private from here. Please note that private subprojects
+				can still be viewed by members of your project, but not the general public.<P>';
 
-			$title_arr=array();
-			$title_arr[]='Status';
-			$title_arr[]='Name';
-			$title_arr[]='Update';
-
-			echo html_build_list_table_top ($title_arr);
+			echo '<TABLE BORDER="0">
+				<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+				<TD><FONT COLOR="#FFFFFF"><B>Project</TD>
+				<TD><FONT COLOR="#FFFFFF"><B>Status</TD>
+				<TD><FONT COLOR="#FFFFFF"><B>Update</TD></TR>';
 
 			for ($i=0; $i<$rows; $i++) {
+				echo '
+					<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.db_result($result,$i,'project_name').'</TD>';
 				echo '
 					<FORM ACTION="'.$PHP_SELF.'" METHOD="POST">
 					<INPUT TYPE="HIDDEN" NAME="post_changes" VALUE="y">
 					<INPUT TYPE="HIDDEN" NAME="change_status" VALUE="y">
 					<INPUT TYPE="HIDDEN" NAME="group_project_id" VALUE="'.db_result($result,$i,'group_project_id').'">
-					<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">';
-				echo '
-					<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>
+					<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
+					<TD>
 						<FONT SIZE="-1">
 						<B>Is Public?</B><BR>
 						<INPUT TYPE="RADIO" NAME="is_public" VALUE="1"'.((db_result($result,$i,'is_public')=='1')?' CHECKED':'').'> Yes<BR>
 						<INPUT TYPE="RADIO" NAME="is_public" VALUE="0"'.((db_result($result,$i,'is_public')=='0')?' CHECKED':'').'> No<BR>
 						<INPUT TYPE="RADIO" NAME="is_public" VALUE="9"'.((db_result($result,$i,'is_public')=='9')?' CHECKED':'').'> Deleted<BR>
 					</TD><TD>
-						<INPUT TYPE="TEXT" NAME="project_name" VALUE="'. db_result($result, $i, 'project_name') .'">
-					</TD><TD>
 						<FONT SIZE="-1">
-						<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Update">
-					</TD></TR>
-					<TR BGCOLOR="'.util_get_alt_row_color($i) .'"><TD COLSPAN="3">
-						<B>Description:</B><BR>
-						<INPUT TYPE="TEXT" NAME="description" VALUE="'.
-						db_result($result,$i,'description') .'" SIZE="40" MAXLENGTH="80"><BR>
-					</TD></TR>
-					</FORM>';
+						<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Update Status">
+					</TD></TR></FORM>';
 			}
 			echo '</TABLE>';
+		}
+
+		pm_footer(array());
+
+	} else if ($project_cat_mod) {
+
+		/*
+			Form for modifying a project name
+		*/
+		pm_header(array('title'=>'Modify a Subproject Name'));
+
+		echo '
+			<H1>Modify a Subproject Name</H3>';
+
+		$sql="SELECT group_project_id,project_name FROM project_group_list WHERE group_project_id='$project_cat_id' AND group_id='$group_id'";
+		$result=db_query($sql);
+		$rows=db_numrows($result);
+
+		if ($result && $rows > 0) {
+			?>
+			<P>
+			<FORM ACTION="<?php echo $PHP_SELF ?>" METHOD="POST">
+			<INPUT TYPE="HIDDEN" NAME="post_changes" VALUE="y">
+			<INPUT TYPE="HIDDEN" NAME="project_cat_mod" VALUE="y">
+			<INPUT TYPE="HIDDEN" NAME="project_cat_id" VALUE="<?php echo $project_cat_id; ?>">
+			<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="<?php echo $group_id; ?>">
+			<H3>Old Project Name: <?php echo db_result($result, 0, 'project_name'); ?></H3>
+			<P>
+			<H3>New Project Name:</H3>
+			<P>
+			<INPUT TYPE="TEXT" NAME="project_name" VALUE="<?php 
+				echo db_result($result, 0, 'project_name'); ?>">
+			<P>
+			<B><FONT COLOR="RED">It is not recommended that you change the project name because other things are dependent upon it.</FONT></B>
+			<P>
+			<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="SUBMIT">
+			</FORM>
+			<?php
+		} else {
+			echo '
+			<H1>The Subproject that you requested a change on was not found.</H1>';
 		}
 
 		pm_footer(array());
@@ -180,8 +220,8 @@ if ($group_id && user_ismember($group_id,'P2')) {
 			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&projects=1">Add A Subproject</A><BR>
 			Add a project, which can contain a set of tasks. This is different than creating a new task.
 			<BR>
-			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&change_status=1">Update Information</A><BR>
-			Determine whether non-project-members can view Subprojects in the Project/Task Manager, update name and description';
+			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&change_status=1">Set Public/Private</A><BR>
+			Determine whether non-project-members can view Subprojects in the Project/Task Manager';
 
 		pm_footer(array());
 	}

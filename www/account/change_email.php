@@ -4,11 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: change_email.php,v 1.5 2000/08/31 06:07:52 gherteg Exp $
+// $Id: change_email.php,v 1.4 2000/05/17 21:51:43 tperdue Exp $
 
 require "pre.php";    
 session_require(array(isloggedin=>1));
-$HTML->header(array(title=>"Change Email Address"));
+site_header(array(title=>"Change Email Address"));
 ?>
 
 <P><B>Change Email Address</B>
@@ -35,6 +35,6 @@ New Email Address:
 <P><A href="/">[Return to SourceForge]</A>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

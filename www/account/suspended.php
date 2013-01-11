@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: suspended.php,v 1.6 2000/08/31 06:07:52 gherteg Exp $
+// $Id: suspended.php,v 1.5 2000/07/12 21:01:40 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"Suspended Account"));
+site_header(array(title=>"Suspended Account"));
 ?>
 
 <P><B>Suspended Account</B>
@@ -17,6 +17,6 @@ please email <A href="mailto:staff@<?php echo $GLOBALS['sys_default_domain']; ?>
 Inquiries through other channels will be directed to this address.
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

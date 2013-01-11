@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: vote_function.php,v 1.47 2000/09/05 17:33:04 tperdue Exp $
+// $Id: vote_function.php,v 1.43 2000/01/13 18:36:35 precision Exp $
 
 function vote_number_to_stars($raw) {
 	$raw=intval($raw*2);
@@ -32,7 +32,6 @@ function vote_show_thumbs ($id,$flag) {
 		project - 1
 		release - 2
 		forum_message - 3
-		user - 4
 	*/
 	$rating=vote_get_rating ($id,$flag);
 	if ($rating==0) {
@@ -43,13 +42,13 @@ function vote_show_thumbs ($id,$flag) {
 }
 
 function vote_get_rating ($id,$flag) {
-	$sql="SELECT response FROM survey_rating_aggregate WHERE type='$flag' AND id='$id'";
-	$result=db_query($sql);
-	if (!$result || (db_numrows($result) < 1) || (db_result($result,0,0)==0)) {
-		return '0';
-	} else {
-		return db_result($result,0,0);
-	}
+        $sql="SELECT response FROM survey_rating_aggregate WHERE type='$flag' AND id='$id'";
+        $result=db_query($sql);
+        if (!$result || (db_numrows($result) < 1) || (db_result($result,0,0)==0)) {
+                return '0';
+        } else {
+                return db_result($result,0,0);
+        }
 }
 
 function vote_show_release_radios ($vote_on_id,$flag) {
@@ -58,7 +57,6 @@ function vote_show_release_radios ($vote_on_id,$flag) {
 		project - 1
 		release - 2
 		forum_message - 3
-		user - 4
 	*/
 
 //html_blankimage($height,$width)
@@ -87,19 +85,13 @@ function vote_show_release_radios ($vote_on_id,$flag) {
 	<INPUT TYPE="RADIO" NAME="response" VALUE=4>
 	<INPUT TYPE="RADIO" NAME="response" VALUE=5>
 	<BR>
-	<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Rate">
+	<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Rate It">
 	</CENTER>
 	</FORM>
 	</FONT>
 	<?php
 
 }
-
-/*
-
-	Select and show a specific survey from the database
-
-*/
 
 function show_survey ($group_id,$survey_id) {
 
@@ -249,65 +241,6 @@ if (db_numrows($result) > 0) {
 	echo "<H3>Survey Not Found</H3>";
 }
 
-}
-
-function vote_show_a_question ($question,$element_name) {
-	/*
-		Show a single question for the new user rating
-		system
-	*/
-
-	echo '
-	<TR><TD><B>-3</B></TD><TD ALIGN="RIGHT"><B>+3</B></TD></TR>
-
-	<TR><TD COLSPAN="2">
-	<INPUT TYPE="RADIO" NAME="Q_'. $element_name .'" VALUE="-3">
-	<INPUT TYPE="RADIO" NAME="Q_'. $element_name .'" VALUE="-2">
-	<INPUT TYPE="RADIO" NAME="Q_'. $element_name .'" VALUE="-1">
-	<INPUT TYPE="RADIO" NAME="Q_'. $element_name .'" VALUE="0.1">
-	<INPUT TYPE="RADIO" NAME="Q_'. $element_name .'" VALUE="1">
-	<INPUT TYPE="RADIO" NAME="Q_'. $element_name .'" VALUE="2">
-	<INPUT TYPE="RADIO" NAME="Q_'. $element_name .'" VALUE="3">
-	</TD></TR>
-
-	<TR><TD>'.$question.'</TD></TR>';
-
-}
-
-/*
-
-	The ratings system is actually flexible enough
-	to let you do N number of questions, but we are just going with 5
-	that apply to everyone
-
-*/
-
-$USER_RATING_QUESTIONS=array();
-//sorry - array starts at 1 so we can test for the questions on the receiving page
-$USER_RATING_QUESTIONS[1]='Planning/Managing/Organizing';
-$USER_RATING_QUESTIONS[2]='Coding';
-$USER_RATING_QUESTIONS[3]='Teamwork';
-$USER_RATING_QUESTIONS[4]='Breadth of Skills';
-$USER_RATING_QUESTIONS[5]='Efficiency';
-
-function vote_show_user_rate_box ($user_id) {
-	global $USER_RATING_QUESTIONS;
-	echo '
-
-	<!-- User ratings form  -->
-
-	<TABLE BORDER=0>
-		<FORM ACTION="/developer/rate.php" METHOD="POST">
-		<INPUT TYPE="HIDDEN" NAME="rated_user" VALUE="'.$user_id.'">';
-
-	for ($i=1; $i<=count($USER_RATING_QUESTIONS); $i++) {
-		echo vote_show_a_question ($USER_RATING_QUESTIONS[$i],$i);
-	}
-
-	echo '
-		<TR><TD COLSPAN="2"><INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Rate This User"></TD></TR>
-		</TABLE>
-	</FORM>';
 }
 
 ?>

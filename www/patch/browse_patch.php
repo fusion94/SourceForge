@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: browse_patch.php,v 1.26 2000/08/31 06:25:37 gherteg Exp $
+// $Id: browse_patch.php,v 1.19 2000/06/12 15:12:02 tperdue Exp $
 
 if (!$offset || $offset < 0) {
 	$offset=0;
@@ -45,14 +45,11 @@ if (!$set) {
 			$pref_arr=explode('|',$custom_pref);
 			$_assigned_to=$pref_arr[0];
 			$_status=$pref_arr[1];
-			$_category=$pref_arr[2];
 			$set='custom';
 		} else {
 			$set='open';
-			$_assigned_to=0;
 		}
 	} else {
-		$_assigned_to=0;
 		$set='open';
 	}
 }
@@ -68,7 +65,7 @@ if ($set=='my') {
 	/*
 		if this custom set is different than the stored one, reset preference
 	*/
-	$pref_=$_assigned_to.'|'.$_status.'|'.$_category;
+	$pref_=$_assigned_to.'|'.$_status;
 	if ($pref_ != user_get_preference('patch_browcust'.$group_id)) {
 		//echo 'setting pref';
 		user_set_preference('patch_browcust'.$group_id,$pref_);
@@ -78,20 +75,20 @@ if ($set=='my') {
 		postponed patches
 	*/
 
-	$_assigned_to=0;
+	unset($_assigned_to);
 	$_status='4';
 
 } else if ($set=='closed') {
 	/*
 		Closed patches - backwards compat can be removed 9/10
 	*/
-	$_assigned_to=0;
+	unset($_assigned_to);
 	$_status='2';
 } else {
 	/*
 		Open patches - backwards compat can be removed 9/10
 	*/
-	$_assigned_to=0;
+	unset($_assigned_to);
 	$_status='1';
 }
 
@@ -108,18 +105,9 @@ if ($_status && ($_status != 100)) {
 	$status_str='';
 }
 
-//if status selected, and more to where clause
-if ($_category && ($_category != 100)) {
-	//for open tasks, add status=100 to make sure we show all
-	$category_str="AND patch.patch_category_id ='$_category'";
-} else {
-	//no status was chosen, so don't add it to where clause
-	$category_str='';
-}
-
 //if assigned to selected, and more to where clause
-if ($_assigned_to) {
-	$assigned_str="AND patch.assigned_to='$_assigned_to'";
+if ($_assigned_to && ($_assigned_to != 100)) {
+	$assigned_str="AND (patch.assigned_to='$_assigned_to' OR patch.submitted_by='$_assigned_to')";
 } else {
 	//no assigned to was chosen, so don't add it to where clause
 	$assigned_str='';
@@ -129,7 +117,7 @@ if ($_assigned_to) {
 //if a user was selected, add the user_name to the title
 //same for status
 patch_header(array('title'=>'Browse Patches'.
-	(($_assigned_to)?' For: '.user_getname($_assigned_to):'').
+	(($_assigned_to && ($_assigned_to != 100))?' For: '.user_getname($_assigned_to):'').
 	(($_status && ($_status != 100))?' By Status: '. get_patch_status_name($_status):'')));
 
 
@@ -137,7 +125,6 @@ $sql="SELECT patch.group_id,patch.patch_id,patch.summary,".
 	"patch.open_date AS date,user.user_name AS submitted_by,user2.user_name AS assigned_to_user ".
 	"FROM patch,user,user user2 ".
 	"WHERE user.user_id=patch.submitted_by ".
-	" $category_str ".
 	" $status_str ".
 	"AND user2.user_id=patch.assigned_to ".
 	" $assigned_str ".
@@ -149,32 +136,16 @@ $sql="SELECT patch.group_id,patch.patch_id,patch.summary,".
 
 $result=db_query($sql);
 
-
-/*
-	creating a custom technician box which includes "any" and "unassigned"
-*/
-
-$res_tech=patch_data_get_technicians ($group_id);
-
-$tech_id_arr=util_result_column_to_array($res_tech,0);
-$tech_id_arr[]='0';  //this will be the 'any' row
-
-$tech_name_arr=util_result_column_to_array($res_tech,1);
-$tech_name_arr[]='Any';
-
-$tech_box=html_build_select_box_from_arrays ($tech_id_arr,$tech_name_arr,'_assigned_to',$_assigned_to,true,'Unassigned');
-
-
-
 /*
 	Show the new pop-up boxes to select assigned to and/or status
 */
 echo '<TABLE WIDTH="10%" BORDER="0"><FORM ACTION="'. $PHP_SELF .'" METHOD="GET">
 	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
 	<INPUT TYPE="HIDDEN" NAME="set" VALUE="custom">
-	<TR><TD COLSPAN="3" nowrap><b>Browse Patches by User and/or Status/Category:</b></TD></TR>
-	<TR><TD><FONT SIZE="-1">'. $tech_box .'</TD><TD><FONT SIZE="-1">'. patch_status_box('_status',$_status,'Any') .'</TD>'.
-	'<TD><FONT SIZE="-1">'. patch_category_box($group_id,'_category',$_category,'Any') .'</TD>'.
+	<TR><TD COLSPAN="3" nowrap><b>Browse Patches by User and/or Status:</b></TD></TR>
+	<TR><TD><FONT SIZE="-1">';
+echo patch_technician_box($group_id,'_assigned_to',$_assigned_to);
+echo '</TD><TD><FONT SIZE="-1">'. patch_status_box('_status',$_status) .'</TD>'.
 '<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Browse"></TD></TR></FORM></TABLE>';
 
 

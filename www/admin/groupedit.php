@@ -4,53 +4,24 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: groupedit.php,v 1.68 2000/09/01 23:39:50 tperdue Exp $
+// $Id: groupedit.php,v 1.61 2000/06/17 08:24:35 tperdue Exp $
 
 require "pre.php";    
 require "vars.php";
-require($DOCUMENT_ROOT.'/admin/admin_utils.php');
-require($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
 session_require(array('group'=>'1','admin_flags'=>'A'));
 
+// group remove
+if ($group_idrm) {
+	db_query("DELETE FROM group_category WHERE group_id='$group_idrm' "
+		. "AND category_id='$form_catrm'");
+}
+
 // group public choice
 if ($Update) {
-	$res_grp = db_query("SELECT * FROM groups WHERE group_id=$group_id");
-
-	//audit trail
-	if (db_result($res_grp,0,'status') != $form_status)
-		{ group_add_history ('status',db_result($res_grp,0,'status'),$group_id);  }
-	if (db_result($res_grp,0,'is_public') != $form_public)
-		{ group_add_history ('is_public',db_result($res_grp,0,'is_public'),$group_id);  }
-	if (db_result($res_grp,0,'type') != $group_type)
-		{ group_add_history ('type',db_result($res_grp,0,'type'),$group_id);  }
-	if (db_result($res_grp,0,'http_domain') != $form_domain)
-		{ group_add_history ('http_domain',db_result($res_grp,0,'http_domain'),$group_id);  }
-	if (db_result($res_grp,0,'unix_box') != $form_box)
-		{ group_add_history ('unix_box',db_result($res_grp,0,'unix_box'),$group_id);  }
-
-
-	db_query("UPDATE groups SET is_public=$form_public,status='$form_status',"
-		. "license='$form_license',type='$group_type',"
-		. "unix_box='$form_box',http_domain='$form_domain' WHERE group_id=$group_id");
-
-	$feedback .= ' Updating Project Info ';
-
-	/*
-		If this is a foundry, see if they have a preferences row, if not, create one
-	*/
-	if ($group_type=='2') {
-		$res=db_query("SELECT * FROM foundry_data WHERE foundry_id='$group_id'");
-		if (db_numrows($res) < 1) {
-			group_add_history ('added foundry_data row','',$group_id);
-
-			$feedback .= ' CREATING NEW FOUNDRY_DATA ROW ';
-			$r=db_query("INSERT INTO foundry_data (foundry_id) VALUES ('$group_id')");
-			if (!$r || db_affected_rows($r) < 1) {
-				echo 'COULD NOT INSERT NEW FOUNDRY_DATA ROW: '.db_error();
-			}
-		}
-	}
+   db_query("UPDATE groups SET is_public=$form_public,status='$form_status',"
+	. "license='$form_license',"
+	. "unix_box='$form_box',http_domain='$form_domain' WHERE group_id=$group_id");
 }
 
 // get current information
@@ -62,7 +33,7 @@ if (db_numrows($res_grp) < 1) {
 
 $row_grp = db_fetch_array($res_grp);
 
-site_admin_header(array('title'=>"Editing Group"));
+site_header(array('title'=>"Editing Group"));
 
 echo '<H2>'.$row_grp['group_name'].'</H2>' ;?>
 
@@ -74,12 +45,6 @@ echo '<H2>'.$row_grp['group_name'].'</H2>' ;?>
 
 <p>
 <FORM action="<?php echo $PHP_SELF; ?>" method="POST">
-<B>Group Type:</B><BR>
-<?php
-
-echo show_group_type_box('group_type',$row_grp['type']);
-
-?>
 
 <B>Status</B>
 <SELECT name="form_status">
@@ -117,7 +82,20 @@ echo show_group_type_box('group_type',$row_grp['type']);
 
 <P><A href="newprojectmail.php?group_id=<?php print $group_id; ?>">Send New Project Instruction Email</A>
 
+<HR>
+<p><b>Categories</b>
+<a href="groupedit-newcat.php?group_id=<?php print $group_id; ?>">[New Category Association]</a>
+<br>&nbsp;
 <?php
+$res_cat = db_query("SELECT category.category_id AS category_id,"
+	. "category.category_name AS category_name FROM category,group_category "
+	. "WHERE category.category_id=group_category.category_id AND "
+	. "group_category.group_id=$group_id");
+while ($row_cat = db_fetch_array($res_cat)) {
+	print "<br>$row_cat[category_name] "
+         . "<A href=\"groupedit.php?group_id=$group_id&group_idrm=$group_id&form_catrm=$row_cat[category_id]\">"
+         . "[Remove from Category]</A>";
+}
 
 // ########################## OTHER INFO
 
@@ -128,9 +106,6 @@ print "<P>Submitted Description:<P> $row_grp[register_purpose]";
 
 print "<P>License Other: <P> $row_grp[license_other]";
 
-echo '
-<P>'.show_grouphistory ($group_id);
-
-site_admin_footer(array());
+site_footer(array());
 
 ?>

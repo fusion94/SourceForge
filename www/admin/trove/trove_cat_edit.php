@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: trove_cat_edit.php,v 1.13 2000/08/31 06:07:52 gherteg Exp $
+// $Id: trove_cat_edit.php,v 1.12 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";
 require "trove.php";
@@ -36,7 +36,7 @@ if (db_numrows($res_cat)<1)
 	{ exit_error("No Suck Category","That trove cat does not exist"); }
 $row_cat = db_fetch_array($res_cat);
 
-$HTML->header(array(title=>"Trove - Edit Category"));
+site_header(array(title=>"Trove - Edit Category"));
 ?>
 
 <form action="trove_cat_edit.php" method="post">
@@ -64,6 +64,6 @@ while ($row_parent = db_fetch_array($res_parent)) {
 </form>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

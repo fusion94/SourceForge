@@ -8,12 +8,6 @@ function pm_data_get_tasks ($group_project_id) {
 	return db_query($sql);
 }
 
-function pm_data_get_subprojects ($group_id) {
-	$sql="SELECT group_project_id,project_name ".
-		"FROM project_group_list WHERE group_id='$group_id'";
-	return db_query($sql);
-}
-
 function pm_data_get_other_tasks ($group_project_id,$project_task_id) {
 	$sql="SELECT project_task_id,summary ".
 		"FROM project_task ".
@@ -25,11 +19,8 @@ function pm_data_get_other_tasks ($group_project_id,$project_task_id) {
 
 function pm_data_get_technicians ($group_id) {
 	$sql="SELECT user.user_id,user.user_name ".
-		"FROM user,user_group ".
-		"WHERE user.user_id=user_group.user_id ".
-		"AND user_group.group_id='$group_id' ".
-		"AND user_group.project_flags IN (1,2) ".
-		"ORDER BY user.user_name";
+		"FROM user,user_group WHERE user.user_id=user_group.user_id ".
+		"AND user_group.group_id='$group_id' AND user_group.project_flags IN (1,2)";
 	return db_query($sql);
 }
 
@@ -165,9 +156,7 @@ function pm_data_update_dependent_tasks($array,$project_task_id) {
 	pm_data_insert_dependent_tasks($array,$project_task_id);
 }
 
-function pm_data_create_task ($group_project_id,$start_month,$start_day,$start_year,$end_month,$end_day,
-		$end_year,$summary,$details,$percent_complete,$priority,$hours,$assigned_to,$dependent_on) {
-
+function pm_data_create_task ($group_project_id,$start_month,$start_day,$start_year,$end_month,$end_day,$end_year,$summary,$details,$percent_complete,$priority,$hours,$assigned_to,$dependent_on) {
 	global $feedback;
 	if (!$group_project_id || !$start_month || !$start_day || !$start_year || !$end_month || !$end_day || 
 		!$end_year || !$summary || !$details || !$priority) {
@@ -197,12 +186,9 @@ function pm_data_create_task ($group_project_id,$start_month,$start_day,$start_y
 	}
 }
 
-function pm_data_update_task ($group_project_id,$project_task_id,$start_month,$start_day,$start_year,
-		$end_month,$end_day,$end_year,$summary,$details,$percent_complete,$priority,$hours,
-		$status_id,$assigned_to,$dependent_on,$new_group_project_id,$group_id) {
-
+function pm_data_update_task ($group_project_id,$project_task_id,$start_month,$start_day,$start_year,$end_month,$end_day,$end_year,$summary,$details,$percent_complete,$priority,$hours,$status_id,$assigned_to,$dependent_on) {
 	if (!$group_project_id || !$project_task_id || !$status_id || !$start_month || !$start_day || !$start_year || 
-		!$end_month || !$end_day || !$end_year || !$summary || !$priority || !$new_group_project_id || !$group_id) {
+		!$end_month || !$end_day || !$end_year || !$summary || !$priority) {
 		exit_missing_param();
 	}
 	$sql="SELECT * FROM project_task WHERE project_task_id='$project_task_id' AND group_project_id='$group_project_id'";
@@ -213,27 +199,9 @@ function pm_data_update_task ($group_project_id,$project_task_id,$start_month,$s
 		exit_permission_denied();
 	}
 
-	/*
-		Enforce start date > end date
-	*/
 	if (mktime(0,0,0,$start_month,$start_day,$start_year) > mktime(0,0,0,$end_month,$end_day,$end_year)) {
 		exit_error('Error','End Date Must Be Greater Than Begin Date');
 	}
-
-	/*
-		If changing subproject, verify the new subproject belongs to this project
-	*/
-	if ($group_project_id != $new_group_project_id) {
-		$sql = "SELECT group_id FROM project_group_list WHERE group_project_id='$new_group_project_id'";
-		
-		if (db_result(db_query($sql),0,'group_id') != $group_id) {
-			echo db_error();
-			exit_error('Error','You can not put this task into the subproject of another group.');
-		} else {
-			pm_data_create_history ('subproject_id',$group_project_id,$project_task_id);
-		}
-	}
-
 	/*
 		See which fields changed during the modification
 	*/
@@ -274,8 +242,7 @@ function pm_data_update_task ($group_project_id,$project_task_id,$start_month,$s
 		"summary='".htmlspecialchars($summary)."',start_date='".
 		mktime(0,0,0,$start_month,$start_day,$start_year)."',end_date='".
 		mktime(0,0,0,$end_month,$end_day,$end_year)."',hours='$hours',".
-		"percent_complete='$percent_complete', ".
-		"group_project_id='$new_group_project_id' ".
+		"percent_complete='$percent_complete' ".
 		"WHERE project_task_id='$project_task_id' AND group_project_id='$group_project_id'";
 
 	$result=db_query($sql);

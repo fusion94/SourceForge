@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: change_email-confirm.php,v 1.7 2000/08/31 06:07:52 gherteg Exp $
+// $Id: change_email-confirm.php,v 1.6 2000/06/12 06:37:07 tperdue Exp $
 
 require "pre.php";    
 
@@ -24,7 +24,7 @@ $message = "You have requested a change of email address on SourceForge.\n"
 
 mail ($form_newemail,"SourceForge Verification",$message,"From: noreply@$GLOBALS[HTTP_HOST]");
 
-$HTML->header(array('title'=>"Email Change Confirmation"));
+site_header(array('title'=>"Email Change Confirmation"));
 ?>
 
 <P><B>Confirmation mailed</B>
@@ -35,6 +35,6 @@ the instructions in the email to complete the email change.
 <P><A href="/">[ Home ]</A>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

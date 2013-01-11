@@ -89,7 +89,7 @@ function main_page($group_id) {
 				        <td>';
 
 		$res_states=db_query("select * from doc_states;");
-		echo html_build_select_box ($res_states, 'stateid', $row['stateid']);
+		echo util_build_select_box ($res_states, 'stateid', $row['stateid']);
 
 		echo '
        				</td>

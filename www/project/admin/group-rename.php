@@ -4,13 +4,15 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: group-rename.php,v 1.11 2000/09/01 23:51:33 tperdue Exp $
+// $Id: group-rename.php,v 1.10 2000/01/26 10:44:32 tperdue Exp $
 
 require "pre.php";    
 require "account.php";
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
 session_require(array('group'=>$group_id,'admin_flags'=>'A'));
+// ###### function register_valid()
+// ###### checks for valid register from form post
 
 function register_valid()	{
 
@@ -18,15 +20,13 @@ function register_valid()	{
 		return 0;
 	}
 	
-	if (!$GLOBALS['form_name']) {
-		$GLOBALS['register_error'] = "You must supply a new name.";
+	if (!$GLOBALS[form_name]) {
+		$GLOBALS[register_error] = "You must supply a new name.";
 		return 0;
 	}
-
-	group_add_history ('Changed Project Name','',$group_id);
 	
 	// if we got this far, it must be good
-	db_query("UPDATE groups SET group_name='$GLOBALS[form_name]' WHERE group_id=" . $GLOBALS['group_id']); 
+	db_query("UPDATE groups SET group_name='$GLOBALS[form_name]' WHERE group_id=" . $GLOBALS[group_id]); 
 	return 1;
 }
 

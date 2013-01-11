@@ -4,11 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: basicinfo.php,v 1.16 2000/08/31 06:11:35 gherteg Exp $
+// $Id: basicinfo.php,v 1.15 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 session_require(array('isloggedin'=>'1'));
-$HTML->header(array('title'=>'Basic Project Information'));
+site_header(array('title'=>'Basic Project Information'));
 ?>
 
 <H2>Step 3: SourceForge Project Registration</H2>
@@ -38,6 +38,6 @@ staff member and we will assist you in getting a new statement approved.
 </FONT>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

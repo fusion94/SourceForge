@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: register.php,v 1.57 2000/08/31 06:07:52 gherteg Exp $
+// $Id: register.php,v 1.55 2000/07/12 21:14:46 tperdue Exp $
 
 require "pre.php";    
 require "account.php";
@@ -63,7 +63,7 @@ function register_valid()	{
 		// send mail
 		$message = "Thank you for registering on the SourceForge web site. In order\n"
 			. "to complete your registration, visit the following url: \n\n"
-			. "<https://". $GLOBALS['HTTP_HOST'] ."/account/verify.php?confirm_hash=$confirm_hash>\n\n"
+			. "https://". $GLOBALS['HTTP_HOST'] ."/account/verify.php?confirm_hash=$confirm_hash\n\n"
 			. "Enjoy the site.\n\n"
 			. " -- the SourceForge staff\n";
 
@@ -77,7 +77,7 @@ function register_valid()	{
 
 if ($Register && register_valid()) {
 
-	$HTML->header(array('title'=>'Register Confirmation'));
+	site_header(array('title'=>'Register Confirmation'));
 	?>
 	<p><b>SourceForge: New Account Registration Confirmation</b>
 	<p>Congratulations. You have registered on SourceForge.
@@ -91,7 +91,7 @@ if ($Register && register_valid()) {
 
 } else { // not valid registration, or first time to page
 
-	$HTML->header(array('title'=>'SourceForge: Register'));
+	site_header(array('title'=>'SourceForge: Register'));
 
 	if (browser_is_windows() && browser_is_ie() && browser_get_version() < '5.1') {
 		echo '<H2><FONT COLOR="RED">Internet Explorer users need to 
@@ -136,5 +136,5 @@ if ($Register && register_valid()) {
 	<?php
 }
 
-$HTML->footer(array());
+site_footer(array());
 ?>

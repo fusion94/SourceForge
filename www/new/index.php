@@ -4,69 +4,64 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.113 2000/08/31 06:11:35 gherteg Exp $
+// $Id: index.php,v 1.82 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
 require "vote_function.php";
-$HTML->header(array("title"=>"New File Releases"));
+site_header(array("title"=>"New File Releases"));
 
-if ( !$offset || $offset < 0 ) {
-	$offset = 0;
+if (!$offset || $offset < 0) {
+	$offset=0;
 }
 
-// For expediancy, list only the filereleases in the past three days.
-$start_time = time() - (7 * 86400);
-
-$query	= "SELECT groups.group_name AS group_name,"
-	. "groups.group_id AS group_id,"
-	. "groups.unix_group_name AS unix_group_name,"
-	. "groups.short_description AS short_description,"
-	. "groups.license AS license,"
-	. "user.user_name AS user_name,"
-	. "user.user_id AS user_id,"
-	. "frs_release.release_id AS release_id,"
-	. "frs_release.name AS release_version,"
-	. "frs_release.release_date AS release_date,"
-	. "frs_release.released_by AS released_by,"
-	. "frs_package.name AS module_name, "
-	. "frs_dlstats_grouptotal_agg.downloads AS downloads "
-	. "FROM groups,user,frs_package,frs_release,frs_dlstats_grouptotal_agg "
-	. "WHERE ( frs_release.release_date > $start_time "
-	. "AND frs_release.package_id = frs_package.package_id "
-	. "AND frs_package.group_id = groups.group_id "
-	. "AND frs_release.released_by = user.user_id "
-	. "AND frs_package.group_id = frs_dlstats_grouptotal_agg.group_id "
-	. "AND frs_release.status_id=1 ) "
-	. "GROUP BY frs_release.release_id "
-	. "ORDER BY frs_release.release_date DESC LIMIT $offset,21";
-$res_new = db_query( $query );
+$res_new = db_query("SELECT groups.group_name AS group_name,"
+		. "groups.group_id AS group_id,"
+		. "groups.unix_group_name AS unix_group_name,"
+		. "groups.short_description AS short_description,"
+		. "groups.license AS license,"
+		. "user.user_name AS user_name,"
+		. "user.user_id AS user_id,"
+		. "filemodule.filemodule_id AS filemodule_id,"
+		. "filemodule.module_name AS module_name,"
+		. "filerelease.release_time AS release_time,"
+		. "filerelease.filename AS filename,"
+		. "filerelease.release_version AS release_version,"
+		. "filerelease.filerelease_id AS filerelease_id,"
+		. "frs_dlstats_grouptotal_agg.downloads AS downloads "
+		. "FROM user,filerelease,filemodule,groups "
+		. "LEFT JOIN frs_dlstats_grouptotal_agg USING (group_id) WHERE "
+		. "filerelease.user_id=user.user_id AND "
+		. "filerelease.group_id=groups.group_id AND "
+		. "filerelease.filemodule_id=filemodule.filemodule_id " 
+		. "ORDER BY filerelease.release_time DESC LIMIT $offset,21");
 
 if (!$res_new || db_numrows($res_new) < 1) {
-	echo $query . "<BR><BR>";
-	echo db_error();
-	echo "<H1>No new releases found. </H1>";
+	echo "<H1>Unexpected Error</H1>";
 } else {
 
-	if ( db_numrows($res_new) > 20 ) {
-		$rows = 20;
+	if (db_numrows($res_new) > 20) {
+		$rows=20;
 	} else {
-		$rows = db_numrows($res_new);
+		$rows=db_numrows($res_new);
 	}
 
-	print "\t<TABLE width=100% cellpadding=0 cellspacing=0 border=0>";
+	?>
+
+	<TABLE width=100% cellpadding=0 cellspacing=0 border=0>
+	<?php
 	for ($i=0; $i<$rows; $i++) {
 		$row_new = db_fetch_array($res_new);
 		// avoid dupulicates of different file types
 		if (!($G_RELEASE["$row_new[group_id]"])) {
 			print "<TR valign=top>";
 			print "<TD colspan=2>";
-			print "<A href=\"/projects/$row_new[unix_group_name]/\"><B>$row_new[group_name]</B></A>"
-				. "\n</TD><TD nowrap><I>Released by: <A href=\"/users/$row_new[user_name]/\">"
+			print "<A href=\"/project/?group_id=$row_new[group_id]\"><B>$row_new[group_name]</B></A>"
+				. "\n</TD><TD nowrap><I>Released by: <A href=\"/developer/?form_dev=$row_new[user_id]\">"
 				. "$row_new[user_name]</A></I></TD></TR>\n";	
 
 			print "<TR><TD>Module: $row_new[module_name]</TD>\n";
 			print "<TD>Version: $row_new[release_version]</TD>\n";
-			print "<TD>" . date("M d, h:iA",$row_new[release_date]) . "</TD>\n";
+			print "<TD>" . date("M d, h:iA",$row_new[release_time]) . "</TD>\n";
 			print "</TR>";
 
 			print "<TR valign=top>";
@@ -87,12 +82,15 @@ if (!$res_new || db_numrows($res_new) < 1) {
 
 			print '<TR><TD colspan=3>';
 			// link to whole file list for downloads
-			print "&nbsp;<BR><A href=\"/project/showfiles.php?group_id=$row_new[group_id]&release_id=$row_new[release_id]\">";
+			print "&nbsp;<BR><A href=\"/project/filelist.php?group_id=$row_new[group_id]\">";
 			print "Download</A> ";
 			print '(Project Total: '.$row_new[downloads].') | ';
 			// notes for this release
-			print "<A href=\"/project/shownotes.php?release_id=".$row_new[release_id]."\">";
-			print "Notes & Changes</A>";
+			print "<A href=\"/project/filenotes.php?"
+				. "group_id=$row_new[group_id]&"
+				. "form_filemodule_id=$row_new[filemodule_id]&"
+				. "form_release_version=" . urlencode($row_new[release_version]) . "\">";
+			print "Notes&Changes</A>";
 			print '<HR></TD></TR>';
 
 			$G_RELEASE["$row_new[group_id]"] = 1;
@@ -118,6 +116,6 @@ if (!$res_new || db_numrows($res_new) < 1) {
 
 }
 
-$HTML->footer(array());
+site_footer(array());
 
 ?>

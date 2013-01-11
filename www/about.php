@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: about.php,v 1.29 2000/09/01 19:16:45 q Exp $
+// $Id: about.php,v 1.27 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"About SourceForge"));
+site_header(array(title=>"About SorceForge"));
 ?>
 
 <P>
@@ -39,6 +39,6 @@ or <A href="/docs/site/faq.php">frequently asked questions</A>. You might also l
 in the News</A></B>.
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

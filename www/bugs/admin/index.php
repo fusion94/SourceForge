@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.42 2000/08/13 15:43:44 tperdue Exp $
+// $Id: index.php,v 1.41 2000/05/31 09:20:39 tperdue Exp $
 
 require('pre.php');
 require('../bug_utils.php');
@@ -294,13 +294,12 @@ if ($group_id && (user_ismember($group_id,'B2') || user_ismember($group_id,'A'))
 			*/
 			echo '
 			<H2>Existing Responses:</H2>
-			<P>';
-
-			$title_arr=array();
-			$title_arr[]='ID';
-			$title_arr[]='Title';
-		
-			echo html_build_list_table_top ($title_arr);
+			<P>
+			<TABLE BORDER="0" CELLSPACING="1" CELLPADDING="2">
+				<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+				<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>ID</B></TD>
+				<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Title</B></TD>
+				</TR>';
 
 			for ($i=0; $i < $rows; $i++) {
 				echo '<TR BGCOLOR="'. util_get_alt_row_color($i) .'">'.

@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: first.php,v 1.5 2000/08/31 06:07:52 gherteg Exp $
+// $Id: first.php,v 1.4 2000/05/17 21:51:43 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"Welcome to SourceForge"));
+site_header(array(title=>"Welcome to SourceForge"));
 ?>
 
 <P><B>Welcome to SourceForge!</B>
@@ -31,6 +31,6 @@ that we can improve SourceForge.
 <P>--the SourceForge staff
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

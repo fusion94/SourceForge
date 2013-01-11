@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.5 2000/08/31 06:07:52 gherteg Exp $
+// $Id: index.php,v 1.4 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"Success Story Contest"));
+site_header(array(title=>"Success Story Contest"));
 ?>
 
 <H2>SourceForge Success Story Contest</H2>
@@ -78,6 +78,6 @@ Watch the news section and this space for contest winners.
 href="rules.php">SourceForge Success Story Contest Rules</a>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

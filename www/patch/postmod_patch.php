@@ -4,20 +4,18 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: postmod_patch.php,v 1.16 2000/08/30 03:36:06 tperdue Exp $
+// $Id: postmod_patch.php,v 1.12 2000/04/20 14:33:33 tperdue Exp $
 
 $sql="SELECT * FROM patch WHERE patch_id='$patch_id'";
 
 $result=db_query($sql);
 
-$group_id=db_result($result,0,'group_id');
-
-if ((db_numrows($result) > 0) && (user_ismember($group_id,'C2'))) {
+if ((db_numrows($result) > 0) && (user_ismember(db_result($result,0,'group_id'),'C2'))) {
 
 	//user is uploading a new version of the patch
 
 	if ($upload_new) {
-		$code = addslashes(fread( fopen($uploaded_data, 'r'), filesize($uploaded_data)));
+        	$code = addslashes(fread( fopen($uploaded_data, 'r'), filesize($uploaded_data)));
 		if ((strlen($code) > 20) && (strlen($code) < 512000)) {
 			$codesql=", code='".htmlspecialchars($code)."' ";
 			 patch_history_create('Patch Code','Modified - New Version',$patch_id);
@@ -34,12 +32,7 @@ if ((db_numrows($result) > 0) && (user_ismember($group_id,'C2'))) {
 	*/
 	if (db_result($result,0,'patch_status_id') != $patch_status_id) { patch_history_create('patch_status_id',db_result($result,0,'patch_status_id'),$patch_id);  }
 	if (db_result($result,0,'patch_category_id') != $patch_category_id) { patch_history_create('patch_category_id',db_result($result,0,'patch_category_id'),$patch_id);  }
-	if (db_result($result,0,'assigned_to') != $assigned_to) { 
-		patch_history_create('assigned_to',db_result($result,0,'assigned_to'),$patch_id);  
-
-//////////////add notification of former assignee
-
-	}
+	if (db_result($result,0,'assigned_to') != $assigned_to) { patch_history_create('assigned_to',db_result($result,0,'assigned_to'),$patch_id);  }
 	if (db_result($result,0,'summary') != stripslashes(htmlspecialchars($summary))) 
 		{ patch_history_create('summary',htmlspecialchars(addslashes(db_result($result,0,'summary'))),$patch_id);  }
 
@@ -80,19 +73,9 @@ if ((db_numrows($result) > 0) && (user_ismember($group_id,'C2'))) {
 		$feedback .= " Successfully Modified Patch ";
 	}
 
-	/*
-		see if we're supposed to send all modifications to an address
-	*/
-	$project=project_get_object($group_id);
-	if ($project->sendAllPatchUpdates()) {
-		$address=$project->getNewPatchAddress();
-	}       
-
-	/*
-		now send the email
-		it's no longer optional due to the group-level notification address
-	*/
-	mail_followup($patch_id,$address);
+	if ($mail_followup) {
+		mail_followup($patch_id);
+	}
 
 } else {
 

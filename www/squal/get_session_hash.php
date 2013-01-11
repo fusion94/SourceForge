@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: get_session_hash.php,v 1.3 2000/08/29 03:21:35 tperdue Exp $
+// $Id: get_session_hash.php,v 1.2 2000/04/14 11:47:10 tperdue Exp $
 
 require ('squal_pre.php');
 
@@ -24,12 +24,10 @@ if (!session_issecure()) {
 	exit;
 }
 
-$success=session_login_valid($user,$pass);
-
-if ($success) {
+if (session_login_valid($user,$pass)) {
 	echo $session_hash;
 } else {
-	echo 'ERROR - '.$feedback;
+	echo 'ERROR - '.error_get_string();
 }
 
 ?>

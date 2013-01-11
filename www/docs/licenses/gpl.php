@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: gpl.php,v 1.13 2000/08/31 06:07:53 gherteg Exp $
+// $Id: gpl.php,v 1.12 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
-$HTML->header(array(title=>"GPL"));
+site_header(array(title=>"GPL"));
 ?>
 
 <p> 
@@ -361,7 +361,7 @@ END OF TERMS AND CONDITIONS
 </p>
           
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>
 

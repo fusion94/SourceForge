@@ -4,29 +4,18 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: mail_utils.php,v 1.10 2000/08/30 23:00:05 tperdue Exp $
+// $Id: mail_utils.php,v 1.5 2000/01/13 18:36:35 precision Exp $
 
 function mail_header($params) {
-	global $group_id;
-
-	//required for site_project_header
+	global $group_id,$is_admin_page,$DOCUMENT_ROOT;
 	$params['group']=$group_id;
-	$params['toptab']='mail';
-
-	$project=project_get_object($group_id);
-
-	if (!$project->usesMail()) {
-		exit_error('Error','This Project Has Turned Off Mailing Lists');
-	}
-
-
-	site_project_header($params);
-	echo '
-		<P><B><A HREF="/mail/admin/?group_id='.$group_id.'">Admin</A></B><P>';
+	site_header($params);
 }
 
 function mail_footer($params) {
-	site_project_footer($params);
+	global $feedback;
+	html_feedback_bottom($feedback);
+	site_footer($params);
 }
 
 ?>

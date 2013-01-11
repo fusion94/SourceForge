@@ -1,9 +1,6 @@
 <Files projects>
-ForceType application/x-httpd-php
+ForceType application/x-httpd-php 
 </Files>
-<Files users>
-ForceType application/x-httpd-php
-</Files>
-<Files foundry>
+<Files portals>
 ForceType application/x-httpd-php
 </Files>

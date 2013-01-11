@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: filechecks.php,v 1.43 2000/08/14 14:53:35 tperdue Exp $
+// $Id: filechecks.php,v 1.42 2000/07/12 22:39:56 tperdue Exp $
 
 function filechecks_islegalname($filename) {
 	if (strstr($filename,' ') || strstr($filename,'\\')
@@ -14,8 +14,7 @@ function filechecks_islegalname($filename) {
 		|| strstr($filename,',') || strstr($filename,':')
 		|| strstr($filename,'@') || strstr($filename,'*')
 		|| strstr($filename,'%') || strstr($filename,'^')
-		|| strstr($filename,'&') || strstr($filename,'(') 
-		|| strstr($filename,')') || 
+		|| strstr($filename,'&') 
 		|| strstr($filename,'>') || strstr($filename,'<')) {
 		return 0;
 	}

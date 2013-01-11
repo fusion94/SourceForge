@@ -4,14 +4,14 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.77 2000/08/31 06:11:35 gherteg Exp $
+// $Id: index.php,v 1.64 2000/06/11 03:23:03 tperdue Exp $
 
 require ('pre.php');
 require ('vote_function.php');
 
 if (user_isloggedin()) {
 
-	$HTML->header(array('title'=>'My Personal Page'));
+	site_header(array('title'=>'My Personal Page'));
 	?>
 
 	<H3>Personal Page for: <?php print user_getname(); ?></H3>
@@ -27,7 +27,7 @@ if (user_isloggedin()) {
 		Bugs assigned to or submitted by this person
 	*/
 	$last_group=0;
-	echo $HTML->box1_top('My Bugs');
+	echo html_box1_top('My Bugs');
 
 	$sql="SELECT group_id,bug_id,priority,summary ".
 		"FROM bug ".
@@ -56,14 +56,14 @@ if (user_isloggedin()) {
 
 			$last_group=db_result($result,$i,'group_id');
 		}
-		echo '<TR><TD COLSPAN="2" BGCOLOR="'.$HTML->COLOR_CONTENT_BACK.'">&nbsp;</TD></TR>';
+		echo '<TR><TD COLSPAN="2">&nbsp;</TD></TR>';
 	}
 
 	/*
 		Forums that are actively monitored
 	*/
 	$last_group=0;
-	echo $HTML->box1_middle('Monitored Forums');
+	echo html_box1_middle('Monitored Forums');
 	$sql="SELECT groups.group_name,groups.group_id,forum_group_list.group_forum_id,forum_group_list.forum_name ".
 		"FROM groups,forum_group_list,forum_monitored_forums ".
 		"WHERE groups.group_id=forum_group_list.group_id ".
@@ -83,11 +83,10 @@ if (user_isloggedin()) {
 			<BR>&nbsp;';
 		echo db_error();
 	} else {
-		echo '&nbsp;</TD></TR>';
 		for ($i=0; $i<$rows; $i++) {
 			if (db_result($result,$i,'group_id') != $last_group) {
 				echo '
-				<TR bgcolor="'. util_get_alt_row_color($i) .'"><TD COLSPAN="2"><B><A HREF="/forum/?group_id='.
+				<TR><TD COLSPAN="2"><B><A HREF="/forum/?group_id='.
 					db_result($result,$i,'group_id').'">'.
 					db_result($result,$i,'group_name').'</A></TD></TR>';
 			}
@@ -101,18 +100,18 @@ if (user_isloggedin()) {
 
 			$last_group=db_result($result,$i,'group_id');
 		}
-		echo '<TR bgcolor="'.$HTML->COLOR_CONTENT_BACK.'"><TD COLSPAN="2">&nbsp;</TD></TR>';
+		echo '<TR><TD COLSPAN="2">&nbsp;</TD></TR>';
 	}
 
 	/*
 		Filemodules that are actively monitored
 	*/
 	$last_group=0;
-	echo $HTML->box1_middle('Monitored FileModules');
-	$sql="SELECT groups.group_name,groups.group_id,frs_package.name,filemodule_monitor.filemodule_id ".
-		"FROM groups,filemodule_monitor,frs_package ".
-		"WHERE groups.group_id=frs_package.group_id ".
-		"AND frs_package.package_id=filemodule_monitor.filemodule_id ".
+	echo html_box1_middle('Monitored FileModules');
+	$sql="SELECT groups.group_name,groups.group_id,filemodule.module_name,filemodule_monitor.filemodule_id ".
+		"FROM groups,filemodule_monitor,filemodule ".
+		"WHERE groups.group_id=filemodule.group_id ".
+		"AND filemodule.filemodule_id=filemodule_monitor.filemodule_id ".
 		"AND filemodule_monitor.user_id='".user_getid()."' ORDER BY group_name DESC";
 	$result=db_query($sql);
 	$rows=db_numrows($result);
@@ -128,12 +127,10 @@ if (user_isloggedin()) {
 			<BR>&nbsp;';
 		echo db_error();
 	} else {
-		echo '&nbsp;</TD></TR>
-';
 		for ($i=0; $i<$rows; $i++) {
 			if (db_result($result,$i,'group_id') != $last_group) {
 				echo '
-				<TR bgcolor="'. util_get_alt_row_color($i) .'"><TD COLSPAN="2"><B><A HREF="/project/?group_id='.
+				<TR><TD COLSPAN="2"><B><A HREF="/project/?group_id='.
 					db_result($result,$i,'group_id').'">'.
 					db_result($result,$i,'group_name').'</A></TD></TR>';
 			}
@@ -143,13 +140,14 @@ if (user_isloggedin()) {
 				'"><IMG SRC="/images/ic/trash.png" HEIGHT="16" WIDTH="16" '.
 				'BORDER=0"></A></TD><TD WIDTH="99%"><A HREF="/project/filelist.php?group_id='.
 				db_result($result,$i,'group_id').'">'.
-				db_result($result,$i,'name').'</A></TD></TR>';
+				stripslashes(db_result($result,$i,'module_name')).'</A></TD></TR>';
 
 			$last_group=db_result($result,$i,'group_id');
 		}
+		echo '<TR><TD COLSPAN="2">&nbsp;</TD></TR>';
 	}
 
-	echo $HTML->box1_bottom();
+	echo html_box1_bottom();
 
 	?>
 	</TD><TD VALIGN="TOP" WIDTH="50%">
@@ -158,7 +156,7 @@ if (user_isloggedin()) {
 		Tasks assigned to me
 	*/
 	$last_group=0;
-	echo $HTML->box1_top('My Tasks');
+	echo html_box1_top('My Tasks');
 
 	$sql="SELECT groups.group_name,project_group_list.project_name,project_group_list.group_id, ".
 		"project_task.group_project_id,project_task.priority,project_task.project_task_id,project_task.summary ".
@@ -172,8 +170,6 @@ if (user_isloggedin()) {
 	$rows=db_numrows($result);
 
 	if ($rows > 0) {
-		echo'&nbsp;</TD></TR>
-';
 		for ($i=0; $i < $rows; $i++) {
 			if (db_result($result,$i,'group_project_id') != $last_group) {
 				echo '
@@ -193,8 +189,7 @@ if (user_isloggedin()) {
 				<TD>'.stripslashes(db_result($result, $i, 'summary')).'</TD></TR>';
 			$last_group = db_result($result,$i,'group_project_id');
 		}
-		echo '<TR align=left bgcolor="'.$HTML->COLOR_CONTENT_BACK.'"><TD COLSPAN="2">&nbsp;</TD></TR>
-';
+		echo '<TR><TD COLSPAN="2">&nbsp;</TD></TR>';
 	} else {
 		echo '
 			You have no open tasks assigned to you';
@@ -212,19 +207,19 @@ if (user_isloggedin()) {
 
 	$result=db_query($sql);
 
-	echo $HTML->box1_middle('Quick Survey');
+	echo html_box1_middle('Quick Survey');
 
 	if (db_numrows($result) < 1) {
 		show_survey(1,1);
+		echo '<TR><TD COLSPAN="2">&nbsp;</TD></TR>';
 	} else {
 		echo 'You have taken your developer survey';
 	}
-	echo '<TR align=left bgcolor="'.$HTML->COLOR_CONTENT_BACK.'"><TD COLSPAN="2">&nbsp;</TD></TR>
-';
+
 	/*
 	       Personal bookmarks
 	*/
-	echo $HTML->box1_middle('My Bookmarks');
+	echo html_box1_middle('My Bookmarks');
 
 	$result = db_query("SELECT bookmark_url, bookmark_title, bookmark_id from user_bookmarks where ".
 		"user_id='". user_getid() ."' ORDER BY bookmark_title");
@@ -234,8 +229,6 @@ if (user_isloggedin()) {
 			<H3>You currently do not have any bookmarks saved</H3>';
 		echo db_error();
 	} else {
-		echo'&nbsp;</TD></TR>
-';
 		for ($i=0; $i<$rows; $i++) {
 			echo '
 				<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD ALIGN="MIDDLE">
@@ -246,30 +239,25 @@ if (user_isloggedin()) {
 				<SMALL><A HREF="/my/bookmark_edit.php?bookmark_id='. db_result($result,$i,'bookmark_id') .'">[Edit]</A></SMALL></TD</TR>';
 		}
 	}
-	echo '<TR align=left bgcolor="'.$HTML->COLOR_CONTENT_BACK.'"><TD COLSPAN="2">&nbsp;</TD></TR>
-';
+
 
 	/*
 		PROJECT LIST
 	*/
 
-	echo $HTML->box1_middle('My Projects');
+	echo html_box1_middle('My Projects');
 	$result = db_query("SELECT groups.group_name,"
 		. "groups.group_id,"
 		. "groups.unix_group_name,"
 		. "groups.status,"
 		. "user_group.admin_flags "
-		. "FROM groups,user_group "
-		. "WHERE groups.group_id=user_group.group_id "
-		. "AND user_group.user_id='". user_getid() ."' "
-		. "AND groups.type='1' AND groups.status='A' AND groups.is_public=1");
+		. "FROM groups,user_group WHERE "
+		. "groups.group_id=user_group.group_id AND "
+		. "user_group.user_id=" . user_getid());
 	$rows=db_numrows($result);
 	if (!$result || $rows < 1) {
-		echo "You're not a member of any public projects";
-		echo db_error();
+		echo "You're not a member of any projects";
 	} else {
-		echo '&nbsp;</TD></TR>
-';
 		for ($i=0; $i<$rows; $i++) {
 			echo '
 				<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD ALIGN="MIDDLE">
@@ -277,17 +265,17 @@ if (user_isloggedin()) {
 				<TD><A href="/projects/'. db_result($result,$i,'unix_group_name') .'/">'. db_result($result,$i,'group_name') .'</A></TD></TR>';
 		}
 	}
-	echo $HTML->box1_bottom();
+	echo html_box1_bottom();
 
 	echo '</TD></TR><TR><TD COLSPAN=2>';
 
 	echo show_priority_colors_key();
 
 	?>
-	</TD></TR>
+	</TD>
 	</TABLE>
 	<?php
-	$HTML->footer(array());
+	site_footer(array());
 
 } else {
 

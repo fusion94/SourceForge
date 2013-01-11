@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: trove_cat_add.php,v 1.16 2000/08/31 06:07:52 gherteg Exp $
+// $Id: trove_cat_add.php,v 1.15 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";
 require "trove.php";
@@ -32,7 +32,7 @@ if ($GLOBALS["Submit"]) {
 	session_redirect("/admin/trove/trove_cat_list.php");
 } 
 
-$HTML->header(array(title=>"Trove - Add Node"));
+site_header(array(title=>"Trove - Add Node"));
 ?>
 
 <form action="trove_cat_add.php" method="post">
@@ -56,6 +56,6 @@ while ($row_cat = db_fetch_array($res_cat)) {
 </form>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

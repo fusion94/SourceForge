@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: verify.php,v 1.26 2000/08/31 06:07:52 gherteg Exp $
+// $Id: verify.php,v 1.24 2000/05/17 21:51:43 tperdue Exp $
 
 require "pre.php";    
 
@@ -21,13 +21,13 @@ function verify_login_valid()	{
 		.'user_name=\''.$GLOBALS['form_loginname'].'\'');
 
 	if (db_numrows($res) < 1) {
-		$GLOBALS['error_msg'] = 'Invalid username.';
+		$GLOBALS[error_msg] = 'Invalid username.';
 		return 0;
 	}
 	$usr = db_fetch_array($res);
 
-	if (strcmp($GLOBALS['confirm_hash'],$usr['confirm_hash'])) {
-		$GLOBALS['error_msg'] = 'Invalid confirmation hash.';
+	if (strcmp($GLOBALS[confirm_hash],$usr[confirm_hash])) {
+		$GLOBALS[error_msg] = 'Invalid confirmation hash.';
 		return 0;
 	}
 
@@ -37,26 +37,24 @@ function verify_login_valid()	{
 
 // ###### first check for valid login, if so, redirect
 
-if ($Login){
-	$success=verify_login_valid();
-	if ($success) {
-		$res = db_query("UPDATE user SET status='A' WHERE user_name='$GLOBALS[form_loginname]'");
-		session_redirect("/account/first.php");
-	}
+if (verify_login_valid()) {
+	$res = db_query('UPDATE user SET status=\'A\' WHERE user_name=\''
+		.$GLOBALS['form_loginname'].'\'');
+	session_redirect("/account/first.php");
 }
 
-$HTML->header(array('title'=>'Login'));
+site_header(array('title'=>'Login'));
 
 ?>
 <p><b>SourceForge Account Verification</b>
 <P>In order to complete your registration, login now. Your account will
 then be activated for normal logins.
 <?php 
-if ($GLOBALS['error_msg']) {
-	print '<P><FONT color="#FF0000">'.$GLOBALS['error_msg'].'</FONT>';
+if ($GLOBALS[error_msg]) {
+	print '<P><FONT color="#FF0000">'.$GLOBALS[error_msg].'</FONT>';
 }
-if ($Login && !$success) {
-	echo '<h2><FONT COLOR="RED">'. $feedback .'</FONT></H2>';
+if (error_is_error()) {
+	echo '<h2><FONT COLOR="RED">'. error_get_string() .'</FONT></H2>';
 }
 ?>
 <form action="verify.php" method="post">
@@ -69,6 +67,7 @@ if ($Login && !$success) {
 </form>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
+
 
 ?>

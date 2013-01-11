@@ -4,25 +4,19 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.30 2000/08/31 21:13:13 gherteg Exp $
+// $Id: index.php,v 1.26 2000/06/20 23:57:54 tperdue Exp $
 
-require ('pre.php');    
-
-//only projects can use the bug tracker, and only if they have it turned on
-$project=project_get_object($group_id);
-
-if (!$project->isProject()) {
-	exit_error('Error','Only Projects Can Use CVS');
-}
-if (!$project->usesCVS()) {
-	exit_error('Error','This Project Has Turned Off CVS');
-}
-
-
-site_project_header(array('title'=>'CVS Repository','group'=>$group_id,'toptab'=>'cvs'));
+require "pre.php";    
+site_header(array(title=>"CVS Repository"));
+html_tabs('cvs',$group_id);
 
 $res_grp = db_query("SELECT * FROM groups WHERE group_id=$group_id");
-
+if (db_numrows($res_grp) < 1) {
+	print "<P><B>Invalid Group Number</B>";
+	site_footer(array());
+	
+	exit;
+}
 $row_grp = db_fetch_array($res_grp);
 
 // ######################## table for summary info
@@ -60,7 +54,7 @@ prompted.
 // ################## summary info
 
 print '</TD><TD width="35%">';
-print $HTML->box1_top("Repository History");
+print html_box1_top("Repository History");
 
 // ################ is there commit info?
 
@@ -74,7 +68,7 @@ print '<P><B>Developer (30 day/Commits) (30 day/Adds)</B><BR>&nbsp;';
 while ($row_cvshist = db_fetch_array($res_cvshist)) {
 	print '<BR>'.$row_cvshist['user_name'].' ('.$row_cvshist['cvs_commits_wk'].'/'
 		.$row_cvshist['cvs_commits'].') ('.$row_cvshist['cvs_adds_wk'].'/'
-		.$row_cvshist['cvs_adds'].')';
+		.$row_cvshist['cvs_adds_wk'].')';
 }
 
 } // ### else no cvs history
@@ -91,10 +85,10 @@ file in the repository.
 .$row_grp['unix_group_name'].'"><B>Browse CVS Repository</B>';
 }
 
-print $HTML->box1_bottom();
+print html_box1_bottom();
 
 print '</TD></TR></TABLE>';
 
-site_project_footer(array());
+site_footer(array());
 
 ?>

@@ -8,7 +8,7 @@
 require ('pre.php');
 require ('bookmarks.php');
 
-$HTML->header(array("title"=>"Add New Bookmark"));
+site_header(array("title"=>"Add New Bookmark"));
 
 print "<H3>Add New Bookmarks</H3>";
 
@@ -32,6 +32,6 @@ if ($bookmark_url) {
 	<?php
 }
 
-$HTML->footer(array());
+site_footer(array());
 
 ?>

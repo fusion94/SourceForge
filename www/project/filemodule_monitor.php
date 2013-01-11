@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: filemodule_monitor.php,v 1.3 2000/08/31 06:11:35 gherteg Exp $
+// $Id: filemodule_monitor.php,v 1.1 2000/01/29 15:53:34 tperdue Exp $
 
 require('pre.php');
 
@@ -14,7 +14,7 @@ if (user_isloggedin()) {
 		a file module
 	*/
 
-	$HTML->header(array('title'=>'Monitor A Package'));
+	site_header(array('title'=>'Monitor A Filemodule'));
 
 	if ($filemodule_id) {
 		/*
@@ -24,7 +24,7 @@ if (user_isloggedin()) {
 		*/
 
 		echo '
-			<H2>Monitor a Package</H2>';
+			<H2>Monitor a FileModule</H2>';
 
 		$sql="SELECT * FROM filemodule_monitor WHERE user_id='".user_getid()."' AND filemodule_id='$filemodule_id';";
 
@@ -44,11 +44,11 @@ if (user_isloggedin()) {
 					<FONT COLOR="RED">Error inserting into filemodule_monitor</FONT>';
 			} else {
 				echo '
-					<FONT COLOR="RED"><H3>Package is now being monitored</H3></FONT>
+					<FONT COLOR="RED"><H3>Filemodule is now being monitored</H3></FONT>
 					<P>
 					You will now be emailed when new files are released.
 					<P>
-					To turn off monitoring, simply click the <B>Monitor Package</B> link again.';
+					To turn off monitoring, simply click the <B>Monitor FileModule</B> link again.';
 			}
 
 		} else {
@@ -58,16 +58,16 @@ if (user_isloggedin()) {
 			echo '
 				<FONT COLOR="RED"><H3>Monitoring has been turned off</H3></FONT>
 				<P>
-				You will not receive any more emails from this package.';
+				You will not receive any more emails from this filemodule.';
 
 		}
 
 	} else {
 		echo '
-			<H1>Error - Choose a package First</H1>';
+			<H1>Error - Choose a filemodule First</H1>';
 	} 
 
-	$HTML->footer(array());
+	site_footer(array());
 
 } else {
 	exit_not_logged_in();

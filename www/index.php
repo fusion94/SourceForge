@@ -4,27 +4,28 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.208 2000/08/31 06:07:52 gherteg Exp $
+// $Id: index.php,v 1.188 2000/07/13 17:20:50 tperdue Exp $
 
 require ('pre.php');    // Initial db and session library, opens session
 require ('cache.php');
 require($DOCUMENT_ROOT.'/forum/forum_utils.php');
 
-$HTML->header(array('title'=>'Welcome'));
+site_header(array('title'=>'Welcome'));
 
 ?>
+&nbsp;
+<BR>
+
 <!-- whole page table -->
-<TABLE width=100% cellpadding=5 cellspacing=0 border=0>
+<TABLE width=100% cellpadding=0 cellspacing=0 border=0>
 <TR><TD width="65%" VALIGN="TOP">
 
-	<hr width="100%" size="1" noshade>
-	<span class="slogan">
-	<div align="center">
-        <font face="arial, helvetica" size="5">"Breaking Down The Barriers to Open Source Development."</font><br>
-	</div>
-	</span>
-        <hr width="100%" size="1" noshade>
-	&nbsp;<br>
+<H3>News</H3>
+<P>
+<?php
+echo news_show_latest(714,5,true); ?>
+<P>
+<HR>
 <P>
 SourceForge is a <B>free service to
 <A href="http://www.opensource.org">Open Source</A> developers</B> offering
@@ -52,14 +53,9 @@ then <A HREF="/account/login.php">Login</A> and finally,
 <A HREF="/register/">Register Your Project.</A>
 <P>
 Thanks... and enjoy the site.
-<P>
-<?php
-$HTML->box1_top('Latest News');
-echo news_show_latest(714,5,true);
-$HTML->box1_bottom();
-?>
 
 </TD>
+<TD>&nbsp;</TD>
 
 <?php
 
@@ -69,10 +65,10 @@ echo cache_display('show_features_boxes','0',1800);
 
 ?>
 
-</TD></TR></TABLE>
+</TR></TABLE>
 
 <?php
 
-$HTML->footer(array());
+site_footer(array());
 
 ?>

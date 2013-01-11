@@ -7,7 +7,7 @@
 
 require ('pre.php');
 
-$HTML->header(array('title'=>'Compile Farm'));
+site_header(array('title'=>'Compile Farm'));
 
 ?>
 
@@ -95,6 +95,6 @@ submission.
 
 <?php
 
-$HTML->footer(array());
+site_footer(array());
 
 ?>

@@ -1,15 +1,18 @@
 <?php
+//
+// SourceForge: Breaking Down the Barriers to Open Source Development
+// Copyright 1999-2000 (c) The SourceForge Crew
+// http://sourceforge.net
+//
+// $Id: dbimage.php,v 1.11 2000/01/20 10:29:11 dtype Exp $
 
-require('squal_pre.php');
+require 'database.php';
+db_connect();
 
-$res=db_query("SELECT * FROM db_images WHERE id='$id'");
+$res_img = db_query("SELECT image_data,image_type FROM image WHERE image_id=$image_id");
+$row_img = db_fetch_array($res_img);
 
-$filename=db_result($res,0,'filename');
-$type=db_result($res,0,'filetype');
-$data=db_result($res,0,'bin_data');
-
-Header ( "Content-disposition: filename=".$filename);
-Header ( "Content-type: $type");
-echo $data;
-
+// output image
+header("Content-Type: $row_img[image_type]");
+echo ($row_img[image_data]);
 ?>

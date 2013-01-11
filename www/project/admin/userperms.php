@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: userperms.php,v 1.57 2000/09/01 23:51:33 tperdue Exp $
+// $Id: userperms.php,v 1.56 2000/06/21 06:01:36 tperdue Exp $
 
 require "pre.php";    
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
@@ -21,8 +21,6 @@ $row_grp = db_fetch_array($res_grp);
 
 // ########################### form submission, make updates
 if ($submit) {
-	group_add_history ('Changed Permissions','',$group_id);
-
 	$res_dev = db_query("SELECT user_id FROM user_group WHERE group_id=$group_id");
 	while ($row_dev = db_fetch_array($res_dev)) {
 		//

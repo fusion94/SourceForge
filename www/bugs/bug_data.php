@@ -29,8 +29,7 @@ function bug_data_get_technicians ($group_id=false) {
 		"FROM user,user_group ".
 		"WHERE user.user_id=user_group.user_id ".
 		"AND user_group.bug_flags IN (1,2) ".
-		"AND user_group.group_id='$group_id' ".
-		"ORDER BY user.user_name";
+		"AND user_group.group_id='$group_id'";
 	return db_query($sql);
 }
 
@@ -298,24 +297,15 @@ function bug_data_update_dependent_tasks($array,$bug_id) {
 	bug_data_insert_dependent_tasks($array,$bug_id);
 }
 
-function bug_data_create_bug($group_id,$summary,$details,$category_id,$bug_group_id,$priority,$assigned_to) {
-	global $feedback;
-
+function bug_data_create_bug($group_id,$summary,$details,$category_id,$bug_group_id) {
 	if (!$category_id) {
 		//default category
 		$category_id=100;
 	}
+
 	if (!$bug_group_id) {
 		//default group
 		$bug_group_id=100;
-	}
-	if (!$assigned_to) {
-		//default assignment
-		$assigned_to=100;
-	}
-	if (!$priority) {
-		//default priority
-		$priority=5;
 	}
 
 	//we don't force them to be logged in to submit a bug
@@ -329,16 +319,9 @@ function bug_data_create_bug($group_id,$summary,$details,$category_id,$bug_group
 		exit_missing_param();
 	}
 
-	//first check to make sure this wasn't double-submitted
-	$res=db_query("SELECT * FROM bug WHERE submitted_by='$user' AND summary='$summary'");
-	if ($res && db_numrows($res) > 0) {
-		$feedback = ' ERROR - DOUBLE SUBMISSION. You are trying to double-submit this bug. Please don\'t do that ';
-		return 0;		
-	}
-
 	$sql="INSERT INTO bug (close_date,group_id,status_id,priority,category_id,".
 		"submitted_by,assigned_to,date,summary,details,bug_group_id,resolution_id) ".
-		"VALUES ('0','$group_id','1','$priority','$category_id','$user','$assigned_to','".time()."','".
+		"VALUES ('0','$group_id','1','5','$category_id','$user','100','".time()."','".
 		htmlspecialchars($summary)."','".htmlspecialchars($details)."','$bug_group_id','100')";
 	$result=db_query($sql);
 	$bug_id=db_insertid($result);

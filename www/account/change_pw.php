@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: change_pw.php,v 1.17 2000/08/31 06:07:52 gherteg Exp $
+// $Id: change_pw.php,v 1.16 2000/05/17 21:51:43 tperdue Exp $
 
 require "pre.php";    
 require "account.php";
@@ -53,7 +53,7 @@ function register_valid()	{
 // ###### first check for valid login, if so, congratulate
 
 if (register_valid()) {
-	$HTML->header(array(title=>"Successfully Changed Password"));
+	site_header(array(title=>"Change Password"));
 ?>
 <p><b>SourceForge Change Confirmation</b>
 <p>Congratulations. You have changed your password.
@@ -63,7 +63,7 @@ which will happen within the next 6 hours.
 <p>You should now <a href="/account/">Return to UserPrefs</a>.
 <?php
 } else { // not valid registration, or first time to page
-	$HTML->header(array(title=>"Change Password"));
+	site_header(array(title=>"Change Password"));
 
 ?>
 <p><b>SourceForge Password Change</b>
@@ -80,6 +80,6 @@ which will happen within the next 6 hours.
 
 <?php
 }
-$HTML->footer(array());
+site_footer(array());
 
 ?>

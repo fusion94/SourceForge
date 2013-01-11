@@ -4,9 +4,9 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: sflogo.php,v 1.12 2000/08/24 22:04:10 tperdue Exp $
+// $Id: sflogo.php,v 1.10 2000/06/12 03:05:52 tperdue Exp $
 
-require ('squal_pre.php');
+require ('pre.php');
 
 /*
 	Determine group
@@ -30,11 +30,6 @@ if (!$res_logger) {
 header("Content-Type: image/png");
 header("Cache-Control: no-cache, must-revalidate");
 header("Pragma: no-cache");
-
-if (!$group_id) {
-	echo 'xxxxx NO GROUP ID xxxxxxx';
-	exit;
-}
 
 if ($type == 1) {
 	echo readfile ($sys_urlroot.'images/sflogo-88-1.png');

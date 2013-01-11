@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: browse_bug.php,v 1.67 2000/08/30 01:47:53 msnelham Exp $
+// $Id: browse_bug.php,v 1.56 2000/06/29 14:11:15 tperdue Exp $
 
 if (!$offset || $offset < 0) {
 	$offset=0;
@@ -51,11 +51,9 @@ if (!$set) {
 			$set='custom';
 		} else {
 			$set='open';
-			$_assigned_to=0;
 		}
 	} else {
 		$set='open';
-		$_assigned_to=0;
 	}
 }
 
@@ -79,13 +77,13 @@ if ($set=='my') {
 	/*
 		Closed bugs - backwards compat can be removed 9/10
 	*/
-	$_assigned_to=0;
+	unset($_assigned_to);
 	$_status='3';
 } else {
 	/*
 		Open bugs - backwards compat can be removed 9/10
 	*/
-	$_assigned_to=0;
+	unset($_assigned_to);
 	$_status='1';
 }
 
@@ -103,8 +101,8 @@ if ($_status && ($_status != 100)) {
 }
 
 //if assigned to selected, add to where clause
-if ($_assigned_to) {
-	$assigned_str="AND bug.assigned_to='$_assigned_to'";
+if ($_assigned_to && ($_assigned_to != 100)) {
+	$assigned_str="AND (bug.assigned_to='$_assigned_to' OR bug.submitted_by='$_assigned_to')";
 } else {
 	//no assigned to was chosen, so don't add it to where clause
 	$assigned_str='';
@@ -130,38 +128,23 @@ if ($_bug_group && ($_bug_group != 100)) {
 //build page title to make bookmarking easier
 //if a user was selected, add the user_name to the title
 //same for status
-bug_header(array('title'=>'Browse Bugs'.
-	(($_assigned_to)?' For: '.user_getname($_assigned_to):'').
+bug_header(array('title'=>'Browse Support Requests'.
+	(($_assigned_to && ($_assigned_to != 100))?' For: '.user_getname($_assigned_to):'').
 	(($_status && ($_status != 100))?' By Status: '. bug_data_get_status_name($_status):'')));
-
-/*
-	creating a custom technician box which includes "any" and "unassigned"
-*/
-
-$res_tech=bug_data_get_technicians ($group_id);
-
-$tech_id_arr=util_result_column_to_array($res_tech,0);
-$tech_id_arr[]='0';  //this will be the 'any' row
-
-$tech_name_arr=util_result_column_to_array($res_tech,1);
-$tech_name_arr[]='Any';
-
-$tech_box=html_build_select_box_from_arrays ($tech_id_arr,$tech_name_arr,'_assigned_to',$_assigned_to,true,'Unassigned');
-
 
 /*
 	Show the new pop-up boxes to select assigned to and/or status
 */
-echo '<FORM ACTION="'. $PHP_SELF .'" METHOD="GET">
+echo '<TABLE WIDTH="10%" BORDER="0"><FORM ACTION="'. $PHP_SELF .'" METHOD="GET">
 	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
 	<INPUT TYPE="HIDDEN" NAME="set" VALUE="custom">
-	<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
-	<TR><TD COLSPAN="5" nowrap><b>Browse Requests by User and/or Status/Group/Category:</b><br><br></TD></TR>
-	<TR><TD><FONT SIZE="-1">'. $tech_box . '</TD>'.
-	'<TD><FONT SIZE="-1">'. bug_status_box('_status',$_status,'Any') .'</TD>'.
-	'<TD><FONT SIZE="-1">'. bug_category_box ('_category',$group_id,$_category,'Any') .'</TD>'.
-	'<TD><FONT SIZE="-1">'. bug_group_box ('_bug_group',$group_id,$_bug_group,'Any') .'</TD>'.
-	'<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Browse"></TD></TR></TABLE></FORM>';
+	<TR><TD COLSPAN="3" nowrap><b>Browse Requests by User and/or Status/Group/Category:</b></TD></TR>
+	<TR><TD><FONT SIZE="-1">';
+echo bug_technician_box ('_assigned_to',$group_id,$_assigned_to);
+echo '</TD><TD><FONT SIZE="-1">'. bug_status_box('_status',$_status) .'</TD>'.
+'<TD><FONT SIZE="-1">'. bug_category_box ('_category',$group_id,$_category) .'</TD>'.
+'<TD><FONT SIZE="-1">'.  bug_group_box ('_bug_group',$group_id,$_bug_group) .'</TD>'.
+'<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Browse"></TD></TR></FORM></TABLE>';
 
 
 if ($set=='open') {
@@ -199,6 +182,7 @@ if ($set=='open') {
 			$order_by .
 			" LIMIT $offset,50";
 
+		$statement="Viewing Open Bugs";
 	}
 
 } else {
@@ -213,16 +197,15 @@ if ($set=='open') {
 		"AND user2.user_id=bug.assigned_to ".
 		"AND group_id='$group_id'".
 		$order_by .
-		" LIMIT $offset,51";
+		" LIMIT $offset,50";
 
+	$statement="Viewing Open Bugs";
 }
 
 $result=db_query($sql);
 
 if ($result && db_numrows($result) > 0) {
 
-	echo '<hr size="1" noshade>
-';
 	echo "<h3>$statement</H3>";
 
 	//create a new $set string to be used for next/prev button
@@ -239,8 +222,6 @@ if ($result && db_numrows($result) > 0) {
 
 } else {
 
-	echo '<hr width="300" size="1" noshade>
-';
 	echo "<H3>$statement</H3>
 
 		<H2>No Matching Bugs Found for ".group_getname($group_id)." or filters too restrictive</H2>";

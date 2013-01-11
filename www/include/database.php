@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: database.php,v 1.35 2000/08/30 05:33:29 tperdue Exp $
+// $Id: database.php,v 1.32 2000/06/01 09:04:56 tperdue Exp $
 //
 // /etc/local.inc includes the machine specific database connect info
 
@@ -31,10 +31,6 @@ function db_numrows($qhandle) {
 	} else {
 		return 0;
 	}
-}
-
-function db_free_result($qhandle) {
-	return @mysql_free_result($qhandle);
 }
 
 function db_result($qhandle,$row,$field) {
@@ -66,7 +62,7 @@ function db_fetch_array($qhandle = 0) {
 }
 	
 function db_insertid($qhandle) {
-	return @mysql_insert_id();
+	return @mysql_insert_id($qhandle);
 }
 
 function db_error() {

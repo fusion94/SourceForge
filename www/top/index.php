@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.9 2000/08/31 06:11:36 gherteg Exp $
+// $Id: index.php,v 1.8 2000/05/04 00:39:47 tperdue Exp $
 
 require ('pre.php');
-$HTML->header(array('title'=>'Top Project Listings'));
+site_header(array('title'=>'Top Project Listings'));
 ?>
 
 <P><B>Top SourceForge Projects</B></P>
@@ -29,5 +29,5 @@ Measured by impressions of the SourceForge 'button' logo
 </UL>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 ?>

@@ -4,11 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: userlist.php,v 1.27 2000/08/31 06:07:52 gherteg Exp $
+// $Id: userlist.php,v 1.26 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
 session_require(array('group'=>'1','admin_flags'=>'A'));
-$HTML->header(array('title'=>'Alexandria: User List'));
+site_header(array('title'=>'Alexandria: User List'));
 
 function show_users_list ($result) {
 	echo '<P>Key:
@@ -120,6 +120,6 @@ if (!$group_id) {
 	<?php	
 }
 
-$HTML->footer(array());
+site_footer(array());
 
 ?>

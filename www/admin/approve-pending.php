@@ -4,14 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: approve-pending.php,v 1.15 2000/09/01 23:39:50 tperdue Exp $
+// $Id: approve-pending.php,v 1.10 2000/03/10 10:58:16 tperdue Exp $
 
 require ('pre.php');    
 require ('vars.php');
 require ('account.php');
 require ('proj_email.php');
-require($DOCUMENT_ROOT.'/admin/admin_utils.php');
-require($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
 session_require(array('group'=>'1','admin_flags'=>'A'));
 
@@ -56,13 +54,12 @@ if ($action=='activate') {
 	$groups=explode(',',$list_of_groups);
 	$count=count($groups);
 	for ($i=0; $i<$count; $i++) {
-		group_add_history ('approved','x',$groups[$i]);
 		send_new_project_email($groups[$i]);
 		usleep(250000);
 	}
 
 } else if ($action=='delete') {
-	group_add_history ('deleted','x',$group_id);
+
 	db_query("UPDATE groups SET status='D'"
 		. " WHERE group_id='$group_id'");
 }
@@ -75,7 +72,7 @@ if (db_numrows($res_grp) < 1) {
 	exit_error("None Found","No Pending Projects to Approve");
 }
 
-site_admin_header(array('title'=>'Approving Pending Projects'));
+site_header(array('title'=>'Approving Pending Projects'));
 
 while ($row_grp = db_fetch_array($res_grp)) {
 
@@ -104,6 +101,8 @@ while ($row_grp = db_fetch_array($res_grp)) {
 	<BR><B>Home Box: <?php print $row_grp['unix_box']; ?></B>
 	<BR><B>HTTP Domain: <?php print $row_grp['http_domain']; ?></B>
 
+	<p><b>Categories:</b><BR>
+	<a href="groupedit-newcat.php?group_id=<?php print $row_grp['group_id']; ?>">[New Category Association]</a>
 	<br>
 	&nbsp;
 	<?php
@@ -143,6 +142,5 @@ echo '
 	</FORM>
 	';
 	
-site_admin_footer(array());
-
+site_footer(array());
 ?>

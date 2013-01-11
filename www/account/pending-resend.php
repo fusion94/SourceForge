@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: pending-resend.php,v 1.8 2000/08/31 06:07:52 gherteg Exp $
+// $Id: pending-resend.php,v 1.7 2000/07/12 21:01:40 tperdue Exp $
 
 require "pre.php";    
 
@@ -22,7 +22,7 @@ $message = "Thank you for registering on the SourceForge web site. In order\n"
 // only mail if pending
 if ($row_user[status] == 'P') {
 	mail($row_user[email],"SourceForge Account Registration",$message,"From: admin@$GLOBALS[sys_default_domain]");
-	$HTML->header(array(title=>"Account Pending Verification"));
+	site_header(array(title=>"Account Pending Verification"));
 ?>
 
 <P><B>Pending Account</B>
@@ -37,6 +37,6 @@ in this email to complete the registration process.
 	exit_error("Error","This account is not pending verification.");
 }
 
-$HTML->footer(array());
+site_footer(array());
 
 ?>

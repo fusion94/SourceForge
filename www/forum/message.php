@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: message.php,v 1.40 2000/08/13 15:43:44 tperdue Exp $
+// $Id: message.php,v 1.39 2000/07/01 19:02:25 tperdue Exp $
 
 require('pre.php');
 require('vote_function.php');
@@ -39,11 +39,8 @@ if ($msg_id) {
 		return 'message not found.\n';
 	}
 
-	$title_arr=array();
-	$title_arr[]='Message: '.$msg_id;
-
-	echo html_build_list_table_top ($title_arr);
-
+	echo "<TABLE WIDTH=\"100%\" CELLPADDING=2 CELLSPACING=0 BGCOLOR=#FFFFFF>\n";
+	echo "<TR BGCOLOR=\"$GLOBALS[COLOR_MENUBARBACK]\"><TD><FONT COLOR=#FFFFFF>Message: ".$msg_id."</TD></TR>\n";
 	echo "<TR><TD BGCOLOR=\"E3E3E3\">\n";
 	echo "BY: ".db_result($result,0, "user_name")."<BR>";
 	echo "DATE: ".date($sys_datefmt,db_result($result,0, "date"))."<BR>";

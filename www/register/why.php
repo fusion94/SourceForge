@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: why.php,v 1.6 2000/08/31 06:11:36 gherteg Exp $
+// $Id: why.php,v 1.4 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    // Initial db and session library, opens session
-$HTML->header(array(title=>"Why Register?"));
+site_header(array(title=>"Why Register?"));
 ?>
 
 <p>
@@ -56,11 +56,11 @@ interest from the community, we will obtain more computers for the project.
 </p>
 
 <p>
-<a href="/register/">Register New Project</a>
+<a href="tos.php">Register New Project</a>
 </p>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>
 

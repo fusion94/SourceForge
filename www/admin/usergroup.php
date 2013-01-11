@@ -4,13 +4,13 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: usergroup.php,v 1.51 2000/08/31 06:07:52 gherteg Exp $
+// $Id: usergroup.php,v 1.50 2000/05/17 21:51:55 tperdue Exp $
 
 require "pre.php";    
 require "account.php";
 session_require(array('group'=>'1','admin_flags'=>'A'));
 
-$HTML->header(array('title'=>'Alexandria: Admin: User Info'));
+site_header(array('title'=>'Alexandria: Admin: User Info'));
 
 // user remove from group
 if ($action=='remove_user_from_group') {
@@ -179,6 +179,6 @@ Add User to Group (group_id):
 
 <?php
 html_feedback_bottom($feedback);
-$HTML->footer(array());
+site_footer(array());
 
 ?>

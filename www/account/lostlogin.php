@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: lostlogin.php,v 1.13 2000/08/31 06:07:52 gherteg Exp $
+// $Id: lostlogin.php,v 1.12 2000/05/17 21:51:43 tperdue Exp $
 
 require "pre.php";    
 require "account.php";
@@ -30,7 +30,7 @@ if ($Update && $form_pw && !strcmp($form_pw,$form_pw2)) {
 	session_redirect("/");
 }
 
-$HTML->header(array('title'=>"Lost Password Login"));
+site_header(array('title'=>"Lost Password Login"));
 ?>
 <p><b>Lost Password Login</b>
 <P>Welcome, <?php print $row_lostuser['user_name']; ?>. You may now
@@ -46,6 +46,6 @@ change your password.
 </form>
 
 <?php
-$HTML->footer(array());
+site_footer(array());
 
 ?>

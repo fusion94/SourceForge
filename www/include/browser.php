@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: browser.php,v 1.6 2000/08/12 20:25:23 tperdue Exp $
+// $Id: browser.php,v 1.5 2000/06/12 08:16:16 tperdue Exp $
 
 
 unset ($BROWSER_AGENT);
@@ -49,15 +49,6 @@ function browser_is_ie() {
 		return false;
 	}
 }
-
-function browser_is_netscape() {
-	if (browser_get_agent()=='MOZILLA') {
-		return true;
-	} else {
-		return false;
-	}
-}
-
 
 /*
 	Determine browser and version

@@ -4,24 +4,19 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: forum_utils.php,v 1.176 2000/08/31 21:13:13 gherteg Exp $
+// $Id: forum_utils.php,v 1.167 2000/07/12 21:01:40 tperdue Exp $
 
 /*
-
 	Message Forums
 	By Tim Perdue, Sourceforge, 11/99
-
-	Massive rewrite by Tim Perdue 7/2000 (nested/views/save)
-
 */
 
 require($DOCUMENT_ROOT.'/news/news_utils.php');
 
 function forum_header($params) {
-	global $DOCUMENT_ROOT,$HTML,$group_id,$forum_name,$thread_id,$msg_id,$forum_id,$REQUEST_URI,$sys_datefmt,$et,$et_cookie;
-
+	global $DOCUMENT_ROOT,$group_id,$forum_name,$thread_id,$msg_id,$forum_id,$REQUEST_URI,$sys_datefmt,$et,$et_cookie;
 	$params['group']=$group_id;
-	$params['toptab']='forums';
+	site_header($params);
 
 	/*
 
@@ -31,7 +26,6 @@ function forum_header($params) {
 
 	*/
 	if ($group_id == 714) {
-		//this is a news item, not a regular forum
 		if ($forum_id) {
 			/*
 				Show this news item at the top of the page
@@ -39,19 +33,12 @@ function forum_header($params) {
 			$sql="SELECT * FROM news_bytes WHERE forum_id='$forum_id'";
 			$result=db_query($sql);
 
-
-			//backwards shim for all "generic news" that used to be submitted
-			//as of may, "generic news" is not permitted - only project-specific news
 	       		if (db_result($result,0,'group_id') != 714) {
-				$params['group']=db_result($result,0,'group_id');
-        			$params['toptab']='news';
-				site_project_header($params);
+				html_tabs('news',db_result($result,0,'group_id'));
 			} else {
-				$HTML->header($params);
 				echo '
 					<H2>SourceForge <A HREF="/news/">News</A></H2><P>';
 			}
-
 
 			echo '<TABLE><TR><TD VALIGN="TOP">';
 			if (!$result || db_numrows($result) < 1) {
@@ -68,14 +55,13 @@ function forum_header($params) {
 				echo '<P>';
 			}
 			echo '</TD><TD VALIGN="TOP" WIDTH="35%">';
-			echo $HTML->box1_top('Latest News',0,$GLOBALS['COLOR_LTBACK2']);
+			echo html_box1_top('Latest News',0,$GLOBALS['COLOR_LTBACK2']);
 			echo news_show_latest(714,5,false);
-			echo $HTML->box1_bottom();
+			echo html_box1_bottom();
 			echo '</TD></TR></TABLE>';
 		}
 	} else {
-		//this is just a regular forum, not a news item
-		site_project_header($params);
+		html_tabs('forums',$group_id);
 	}
 
 	/*
@@ -98,19 +84,9 @@ function forum_header($params) {
 }
 
 function forum_footer($params) {
-	global $group_id,$HTML;
-	/*
-		if general news, show general site footer
-
-		Otherwise, show project footer
-	*/
-
-	//backwards compatibility for "general news" which is no longer permitted to be submitted
-	if ($group_id == 714) {
-		$HTML->footer($params);
-	} else {
-		site_project_footer($params);
-	}
+	global $feedback;
+	html_feedback_bottom($feedback);
+	site_footer($params);
 }
 
 function forum_create_forum($group_id,$forum_name,$is_public=1,$create_default_message=1,$description='') {
@@ -168,7 +144,7 @@ function show_thread($thread_id,$et=0) {
 
 	$sql="SELECT user.user_name,forum.has_followups,forum.msg_id,forum.subject,forum.thread_id,forum.body,forum.date,forum.is_followup_to ".
 		"FROM forum,user WHERE forum.thread_id='$thread_id' AND user.user_id=forum.posted_by AND forum.is_followup_to='0' ".
-		"ORDER BY forum.msg_id DESC;";
+		"ORDER BY forum.date DESC, forum.subject ASC, forum.is_followup_to ASC;";
 
 	$result=db_query($sql);
 
@@ -177,14 +153,11 @@ function show_thread($thread_id,$et=0) {
 	if (!$result || db_numrows($result) < 1) {
 		return 'Broken Thread';
 	} else {
-
-		$title_arr=array();
-		$title_arr[]='Thread';
-		$title_arr[]='Author';
-		$title_arr[]='Date';
-
-		$ret_val .= html_build_list_table_top ($title_arr);
-
+		$ret_val .= '
+			<TABLE WIDTH="100%" CELLPADDING="2" CELLSPACING="0" BGCOLOR="#FFFFFF" BORDER="0">
+			<TR BGCOLOR="'. $GLOBALS['COLOR_MENUBARBACK'] .'"><TD WIDTH="25%"><FONT COLOR="#FFFFFF"><B>Thread/Subject</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Author</TD>
+			<TD><FONT COLOR="#FFFFFF"><B>Date/Time</TD></TR>';
 		$rows=db_numrows($result);
 		$is_followup_to=db_result($result, ($rows-1), 'msg_id');
 		$subject=db_result($result, ($rows-1), 'subject');
@@ -237,7 +210,7 @@ function show_submessages($thread_id, $msg_id, $level,$et=0) {
 
 	$sql="SELECT user.user_name,forum.has_followups,forum.msg_id,forum.subject,forum.thread_id,forum.body,forum.date,forum.is_followup_to ".
 		"FROM forum,user WHERE forum.thread_id='$thread_id' AND user.user_id=forum.posted_by AND forum.is_followup_to='$msg_id' ".
-		"ORDER BY forum.msg_id ASC;";
+		"ORDER BY forum.date ASC, forum.subject ASC, forum.is_followup_to ASC;";
 
 	$result=db_query($sql);
 	$rows=db_numrows($result);
@@ -343,7 +316,7 @@ function post_message($thread_id, $is_followup_to, $subject, $body, $group_forum
 	//see if that message has been posted already for all the idiots that double-post
 		$res3=db_query("SELECT * FROM forum ".
 			"WHERE is_followup_to='$is_followup_to' ".
-			"AND subject='".  htmlspecialchars($subject) ."' ".
+			"AND subject='". stripslashes( htmlspecialchars($subject) ) ."' ".
 			"AND group_forum_id='$group_forum_id' ".
 			"AND posted_by='". user_getid() ."'");
 

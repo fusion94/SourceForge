@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editsshkeys.php,v 1.13 2000/08/31 06:07:52 gherteg Exp $
+// $Id: editsshkeys.php,v 1.12 2000/05/17 21:51:43 tperdue Exp $
 
 require "pre.php";    
 require "account.php";
@@ -32,7 +32,7 @@ function register_valid()	{
 if (register_valid()) {
 	session_redirect("/account/");
 } else { // not valid registration, or first time to page
-	$HTML->header(array(title=>"Change Authorized Keys"));
+	site_header(array(title=>"Change Authorized Keys"));
 
 ?>
 <p><b>CVS/SSH Shared Keys</b>
@@ -61,6 +61,6 @@ After submitting, verify that the number of keys in your file is what you expect
 
 <?php
 }
-$HTML->footer(array());
+site_footer(array());
 
 ?>

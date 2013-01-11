@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: 404.php,v 1.12 2000/08/31 06:07:52 gherteg Exp $
+// $Id: 404.php,v 1.11 2000/07/12 21:01:40 tperdue Exp $
 
 require "pre.php";    // Initial db and session library, opens session
-$HTML->header(array(title=>"Requested Page not Found (Error 404)"));
+site_header(array(title=>"Requested Page not Found (Error 404)"));
 
 if (session_issecure()) {
 	echo "<a href=\"https://$GLOBALS[sys_default_domain]\">";
@@ -19,12 +19,12 @@ echo "<CENTER><H1>PAGE NOT FOUND</H1></CENTER>";
 
 echo "<P>";
 
-$HTML->box1_top('Search');
+html_box1_top('Search');
 menu_show_search_box();
-$HTML->box1_bottom();
+html_box1_bottom();
 
 echo "<P>";
 
-$HTML->footer(array());
+site_footer(array());
 
 ?>

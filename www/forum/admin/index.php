@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.40 2000/08/14 21:09:09 tperdue Exp $
+// $Id: index.php,v 1.37 2000/06/04 11:55:10 tperdue Exp $
 
 require('pre.php');
 require('../forum_utils.php');
@@ -131,17 +131,15 @@ if ($group_id && (user_ismember($group_id, 'F2'))) {
 				None found for this project';
 		} else {
 			echo '
-			<H2>Update Forum Status</H2>
-			<P>
-			You can make forums private from here. Please note that private forums 
-			can still be viewed by members of your project, not the general public.<P>';
-
-			$title_arr=array();
-			$title_arr[]='Forum';
-			$title_arr[]='Status';
-			$title_arr[]='Update';
-		
-			echo html_build_list_table_top ($title_arr);
+				<H2>Update Forum Status</H2>
+				<P>
+				You can make forums private from here. Please note that private forums 
+				can still be viewed by members of your project, not the general public.<P>';
+			echo '<TABLE BORDER="0">
+				<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+				<TD><FONT COLOR="#FFFFFF"><B>Forum</TD>
+				<TD><FONT COLOR="#FFFFFF"><B>Status</TD>
+				<TD><FONT COLOR="#FFFFFF"><B>Update</TD></TR>';
 
 			for ($i=0; $i<$rows; $i++) {
 				echo '
@@ -162,7 +160,7 @@ if ($group_id && (user_ismember($group_id, 'F2'))) {
 						<FONT SIZE="-1">
 						<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Update Status">
 					</TD></TR>
-					<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD COLSPAN="3">
+					<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD COLSPAN="2">
 						<B>Forum Name:</B><BR>
 						<INPUT TYPE="TEXT" NAME="forum_name" VALUE="'. db_result($result,$i,'forum_name').'" SIZE="20" MAXLENGTH="30"><BR>
 						<B>Description:</B><BR>

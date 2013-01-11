@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: postadd_comment.php,v 1.9 2000/08/30 03:41:45 tperdue Exp $
+// $Id: postadd_comment.php,v 1.8 2000/07/12 21:01:41 tperdue Exp $
 
 if (!user_isloggedin()) {
 	if (!$user_email) {
@@ -23,6 +23,7 @@ if ($details != '') {
 		$feedback .= ' Comment Failed ';
 	} else {
 		$feedback .= ' Comment added to support request ';
+		mail_followup($support_id);
 	}
 }
 
