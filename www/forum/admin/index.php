@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.33 2000/01/14 19:44:14 tperdue Exp $
+// $Id: index.php,v 1.32 2000/01/13 18:36:35 precision Exp $
 
 require('pre.php');
 require('../forum_utils.php');
@@ -159,8 +159,7 @@ if ($group_id && (user_ismember($group_id, 'F2'))) {
 						<FONT SIZE="-1">
 						<B>Is Public?</B><BR>
 						<INPUT TYPE="RADIO" NAME="is_public" VALUE="1"'.((db_result($result,$i,'is_public')=='1')?' CHECKED':'').'> Yes<BR>
-						<INPUT TYPE="RADIO" NAME="is_public" VALUE="0"'.((db_result($result,$i,'is_public')=='0')?' CHECKED':'').'> No<BR>
-						<INPUT TYPE="RADIO" NAME="is_public" VALUE="9"'.((db_result($result,$i,'is_public')=='9')?' CHECKED':'').'> Deleted<BR>
+						<INPUT TYPE="RADIO" NAME="is_public" VALUE="0"'.((db_result($result,$i,'is_public')=='0')?' CHECKED':'').'> No
 					</TD><TD>
 						<FONT SIZE="-1">
 						<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Update Status">
@@ -178,12 +177,11 @@ if ($group_id && (user_ismember($group_id, 'F2'))) {
 		*/
 		forum_header(array('title'=>'Forum Administration'));
 
-		echo '
-			<H2>Forum Administration</H2>
-			<P>
-			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&add_forum=1">Add Forum</A><BR>
-			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&delete=1">Delete Message</A><BR>
-			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&change_status=1">Set Public/Private</A>';
+		echo "\n<H2>Forum Administration</H2>";
+		echo "\n<P>";
+		echo "\n<A HREF=\"$PHP_SELF?group_id=$group_id&add_forum=1\">Add Forum</A><BR>";
+		echo "\n<A HREF=\"$PHP_SELF?group_id=$group_id&delete=1\">Delete Message</A><BR>";
+		echo "\n<A HREF=\"$PHP_SELF?group_id=$group_id&change_status=1\">Set Public/Private</A>";
 
 		forum_footer(array());
 	}

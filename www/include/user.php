@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: user.php,v 1.61 2000/01/21 15:14:40 tperdue Exp $
+// $Id: user.php,v 1.57 2000/01/13 18:36:35 precision Exp $
 
 // ############ User functions
 
@@ -25,7 +25,7 @@ function user_ismember($group_id,$type=0) {
 	/*
 		list of SF admins always return true
 	*/
-	if ($user_id==2 || $user_id==3 ||  $user_id==858 || $user_id==5 || $user_id==171) {
+	if ($user_id==2 || $user_id==3 ||  $user_id==858 || $user_id==5) {
 		return true;
 	}
 
@@ -37,68 +37,58 @@ function user_ismember($group_id,$type=0) {
 
 	$type=strtoupper($type);
 
-	switch ($type) {
+        switch ($type) {
 		/*
 			list the supported permission types
 		*/
-		case 'B1' : {
+                case 'B1' : {
 			//bug tech
 			$query .= ' AND bug_flags IN (1,2)';
 			break;
-		}
-		case 'B2' : {
+                }
+                case 'B2' : {
 			//bug admin
-			$query .= ' AND bug_flags IN (2,3)';
+                        $query .= ' AND bug_flags IN (2,3)';
 			break;
-		}
-		case 'P1' : {
+                }
+                case 'P1' : {
 			//pm tech
-			$query .= ' AND project_flags IN (1,2)';
+                        $query .= ' AND project_flags IN (1,2)';
 			break;
-		}
-		case 'P2' : {
+                }
+                case 'P2' : {
 			//pm admin
-			$query .= ' AND project_flags IN (2,3)';
+                        $query .= ' AND project_flags IN (2,3)';
 			break;
-		}
-		case 'C1' : {
-			//patch tech
-			$query .= ' AND patch_flags IN (1,2)';
-			break;
-		}
-		case 'C2' : {
-			//patch admin
-			$query .= ' AND patch_flags IN (2,3)';
-			break;
-		}
-		case 'F2' : {
+                }
+                case 'F2' : {
 			//forum admin
-			$query .= ' AND forum_flags IN (2)';
+                        $query .= ' AND forum_flags IN (2)';
 			break;
-		}
-		case '0' : {
+                }
+                case '0' : {
 			//just in this group
 			break;
-		}
-		case 'A' : {
+                }
+                case 'A' : {
 			//admin for this group
-			$query .= " AND admin_flags = 'A'";
-			break;
-		}
+                        $query .= " AND admin_flags = 'A'";
+                        break;
+                }
 		default : {
 			//fubar request
 			return false;
 		}
 	}
 
-	$res = db_query($query);
-	if (!$res || db_numrows($res) < 1) {
+        $res = db_query($query);
+        if (!$res || db_numrows($res) < 1) {
 		//matching row wasn't found
-		return false;
-	} else {
+	        return false;
+        } else {
 		//matching row was found
-		return true;
-	}
+                return true;
+        }
 }
 
 // ############################## function user_getid()
@@ -111,28 +101,18 @@ function user_getid() {
 // ############################# function user_getname()
 
 function user_getname($user_id = 0) {
-	global $G_USER,$USER_NAMES;
+	global $G_USER;
 	// use current user if one is not passed in
 	if (!$user_id) {
 		return ($G_USER?$G_USER[user_name]:"NA");
 	}
 	// else must lookup name
 	else {
-		if ($USER_NAMES["user_$user_id"]) {
-			//user name was fetched previously
-			return $USER_NAMES["user_$user_id"];
+		$result = db_query("SELECT user_id,user_name FROM user WHERE user_id='$user_id'");
+		if ($result && db_numrows($result) > 0) {
+			return (db_result($result,0,"user_name"));
 		} else {
-			//fetch the user name and store it for future reference
-			$result = db_query("SELECT user_id,user_name FROM user WHERE user_id='$user_id'");
-			if ($result && db_numrows($result) > 0) {
-				//valid user - store and return
-				$USER_NAMES["user_$user_id"]=db_result($result,0,"user_name");
-				return $USER_NAMES["user_$user_id"];
-			} else {
-				//invalid user - store and return
-				$USER_NAMES["user_$user_id"]="<B>Invalid User ID</B>";
-				return $USER_NAMES["user_$user_id"];
-			}
+			return "<B>Invalid User ID</B>";
 		}
 	}
 }

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: utils.php,v 1.86 2000/01/28 16:46:59 tperdue Exp $
+// $Id: utils.php,v 1.75 2000/01/13 18:36:35 precision Exp $
 
 
 function util_unconvert_htmlspecialchars($string) {
@@ -138,7 +138,7 @@ function build_multiple_select_box ($result,$name,$checked_array,$size='8') {
 					echo ' SELECTED';
 				}
 			}
-			echo '>'.$val.'-'. substr(db_result($result,$i,1),0,35). '</OPTION>';
+			echo '>'.$val.'-'.db_result($result,$i,1).'</OPTION>';
 		}
 	}
 	echo '
@@ -163,7 +163,7 @@ function util_make_links ($data='') {
 	$lines = split("\n",$data);
 	while ( list ($key,$line) = each ($lines)) {
 		$line = eregi_replace("([ \t]|^)www\."," http://www.",$line);
-		$text = eregi_replace("([a-zA-Z]+://[^ )\r\n]+)","<A href=\"\\1\" target=\"_NEW\">\\1</A>",$line);
+		$text = eregi_replace("(http://[^ )\r\n]+)","<A href=\"\\1\" target=\"_NEW\">\\1</A>",$line);
 		$text = eregi_replace("([-a-z0-9_]+(\.[_a-z0-9-]+)*@([a-z0-9-]+(\.[a-z0-9-]+)+))","<A HREF=\"mailto:\\1\">\\1</A>",$text);
 		$newText .= $text;
 	}
@@ -243,13 +243,17 @@ function build_priority_select_box ($name='priority', $checked_val='5') {
 // ################# mostly for group languages and environments
 
 function utils_buildcheckboxarray($options,$name,$checked_array) {
-	$option_count=count($options);
-	$checked_count=count($checked_array);
-
-	for ($i=1; $i<=$option_count; $i++) {
+/*	if ($table) {
+		$res_checked = db_query("SELECT $field FROM $table WHERE group_id=$GLOBALS[group_id]");
+		for ($j=0;$j<db_numrows($res_checked);$j++) {
+			eval("\$checked[".db_result($res_checked,$j,0)."]=1;");
+		}
+	}
+*/
+	for ($i=1;$i<=sizeof($options);$i++) {
 		echo '
 			<BR><INPUT type="checkbox" name="'.$name.'" value="'.$i.'"';
-		for ($j=0; $j<$checked_count; $j++) {
+		for ($j=0; $j<count($checked_array); $j++) {
 			if ($i == $checked_array[$j]) {
 				echo ' CHECKED';
 			}
@@ -280,8 +284,8 @@ Function GraphResult($result,$title) {
 	if ((!$result) || ($rows < 1)) {
 		echo 'None Found.';
 	} else {
-		$names=array();
-		$values=array();
+		$names[];
+		$values[];
 
 		for ($j=0; $j<db_numrows($result); $j++) {
 			if (db_result($result, $j, 0) != '' && db_result($result, $j, 1) != '' ) {
@@ -307,8 +311,6 @@ Function GraphIt($name_string,$value_string,$title) {
 	/*
 		Can choose any color you wish
 	*/
-	$bars=array();
-
 	for ($i = 0; $i < $counter; $i++) {
 		$bars[$i]=$GLOBALS[COLOR_LTBACK1];
 	}

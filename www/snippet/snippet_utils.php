@@ -4,12 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: snippet_utils.php,v 1.17 2000/01/14 19:58:01 tperdue Exp $
-
-/*
-	Code Snippet System
-	By Tim Perdue, Sourceforge, Jan 2000
-*/
+// $Id: snippet_utils.php,v 1.15 2000/01/13 18:36:36 precision Exp $
 
 $SCRIPT_CATEGORY=array();
 $SCRIPT_CATEGORY[0]='Choose One';
@@ -76,7 +71,8 @@ function snippet_header($params) {
 	echo '<P><B>';
 	echo '<A HREF="/snippet/">Browse</A>
 		 | <A HREF="/snippet/submit.php">Submit A New Snippet</A>
-		 | <A HREF="/snippet/package.php">Create A Package</A></B>';
+		 | <A HREF="/snippet/package.php">Create A Package</A>
+		 | <A HREF="/snippet/admin/">Admin</A></B>';
 	echo '<P>';
 }
 
@@ -97,23 +93,24 @@ function snippet_show_package_snippets($version) {
 
 	$result=db_query($sql);
 	$rows=db_numrows($result);
-	echo '
-		<P>
-		<H3>Snippets In This Package:</H3>
-		<P>
-		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
-		<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
-		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Snippet ID</TD>
-		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Download Version</TD>
-		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Title</TD>
-		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Author</TD>
-		</TR>';
 
 	if (!$result || $rows < 1) {
 		echo db_error();
 		echo '
-			<TR><TD COLSPAN="4"><H3>No Snippets Are In This Package Yet</H3></TD></TR>';
+			<P>
+			</H3>No Snippets Are In This Package Yet</H3>';
 	} else {
+		echo '
+			<P>
+			<H3>Snippets In This Package:</H3>
+			<P>
+			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+			<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Snippet ID</TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Download Version</TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Title</TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Author</TD>
+			</TR>';
 
 		//get the newest version, so we can display it's code
 		$newest_version=db_result($result,0,'snippet_version_id');

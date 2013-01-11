@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: menu.php,v 1.102 2000/01/27 08:45:31 tperdue Exp $
+// $Id: menu.php,v 1.100 2000/01/13 18:36:35 precision Exp $
 
 
 function menu_show_search_box() {
@@ -26,15 +26,10 @@ function menu_show_search_box() {
 	<OPTION value="soft">Software/Group</OPTION>
 	<OPTION value="people">People</OPTION>
 	</SELECT>
-	<BR>
-	<INPUT TYPE="CHECKBOX" NAME="exact" VALUE="1" CHECKED> Require All Words
-	<BR>
 	<INPUT TYPE="HIDDEN" VALUE="<?php echo $forum_id; ?>" NAME="forum_id">
-	<INPUT TYPE="HIDDEN" VALUE="<?php echo $is_bug_page; ?>" NAME="is_bug_page">
 	<INPUT TYPE="HIDDEN" VALUE="<?php echo $group_id; ?>" NAME="group_id">
-	<INPUT TYPE="text" SIZE="15" NAME="words" VALUE="<?php echo $words; ?>">
-	<BR>
-	<INPUT TYPE="submit" NAME="Search" VALUE="Search">
+	<BR><INPUT TYPE="text" SIZE="15" NAME="words" VALUE="<?php echo $words; ?>">
+	<BR><INPUT TYPE="submit" NAME="Search" VALUE="Search">
 	</FORM>
 	<?php
 }

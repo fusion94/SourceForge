@@ -4,15 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: pm_utils.php,v 1.43 2000/01/26 16:30:43 tperdue Exp $
-
-/*
-        Project/Task Manager
-        By Tim Perdue, Sourceforge, 11/99
-*/
+// $Id: pm_utils.php,v 1.39 2000/01/13 18:36:36 precision Exp $
 
 function pm_header($params) {
-	global $group_id,$is_pm_page,$words,$group_project_id,$DOCUMENT_ROOT,$order;
+	global $group_id,$is_pm_page,$words,$group_project_id,$DOCUMENT_ROOT;
 	$params['group']=$group_id;
 	site_header($params);
 	include ($DOCUMENT_ROOT.'/pm/pm_nav.php');
@@ -118,15 +113,13 @@ function show_tasklist ($result,$offset,$set='open') {
 	$rows=db_numrows($result);
 	echo '
 		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">';
-
-	$url = "/pm/task.php?group_id=$group_id&group_project_id=$group_project_id&func=browse&set=$set&order=";
 	echo '
 		<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
-		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'project_task_id"><FONT COLOR="#FFFFFF"><B>Task ID</a></TD>
-		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'summary"><FONT COLOR="#FFFFFF"><B>Summary</a></TD>
-		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'start_date"><FONT COLOR="#FFFFFF"><B>Start Date</a></TD>
-		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'end_date"><FONT COLOR="#FFFFFF"><B>End Date</a></TD>
-		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'percent_complete"><FONT COLOR="#FFFFFF"><B>Percent Complete</a></TD></TR>';
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Task ID</TD>
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Summary</TD>
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Start Date</TD>
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>End Date</TD>
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Percent Complete</TD></TR>';
 
 	for ($i=0; $i < $rows; $i++) {
 

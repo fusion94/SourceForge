@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: mod_task.php,v 1.23 2000/01/18 05:27:53 tperdue Exp $
+// $Id: mod_task.php,v 1.22 2000/01/13 18:36:36 precision Exp $
 
 pm_header(array('title'=>'Modify A Task'));
 
@@ -111,10 +111,8 @@ $result=db_query($sql);
 		*/
 
 		$sql="SELECT project_task_id,summary ".
-			"FROM project_task ".
-			"WHERE group_project_id='$group_project_id' ".
-			"AND status_id <> '3' ".
-			"AND project_task_id <> '$project_task_id' ORDER BY project_task_id DESC LIMIT 100";
+			"FROM project_task WHERE group_project_id='$group_project_id' ".
+			"AND status_id <> '3' AND project_task_id <> '$project_task_id' ORDER BY project_task_id DESC LIMIT 200";
 		$result3=db_query($sql);
 
 		/*

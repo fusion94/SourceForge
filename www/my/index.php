@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.56 2000/01/29 17:58:01 tperdue Exp $
+// $Id: index.php,v 1.42 2000/01/13 18:36:35 precision Exp $
 
 require ('pre.php');
 require ('vote_function.php');
@@ -27,8 +27,7 @@ if (user_isloggedin()) {
 		Bugs assigned to or submitted by this person
 	*/
 	$last_group=0;
-	echo html_box1_top('My Bugs');
-
+	html_box1_top('My Bugs');
 	$sql="SELECT group_id,bug_id,priority,summary ".
 		"FROM bug ".
 		"WHERE status_id <> '3' ".
@@ -44,9 +43,7 @@ if (user_isloggedin()) {
 		for ($i=0; $i<$rows; $i++) {
 			if (db_result($result,$i,'group_id') != $last_group) {
 				echo '
-				<TR><TD COLSPAN="2"><B><A HREF="/bugs/?group_id='.
-					db_result($result,$i,'group_id').'">'.
-					group_getname(db_result($result,$i,'group_id')).'</A></TD></TR>';
+				<TR><TD COLSPAN="2"><B>'.group_getname(db_result($result,$i,'group_id')).'</TD></TR>';
 			}
 			echo '
 			<TR BGCOLOR="'.get_priority_color(db_result($result,$i,'priority')).'"><TD><A HREF="/bugs/?func=detailbug&group_id='.
@@ -56,39 +53,29 @@ if (user_isloggedin()) {
 
 			$last_group=db_result($result,$i,'group_id');
 		}
-		echo '<TR><TD COLSPAN="2">&nbsp;</TD></TR>';
 	}
+	html_box1_bottom();
 
 	/*
 		Forums that are actively monitored
 	*/
 	$last_group=0;
-	echo html_box1_middle('Monitored Forums');
+	html_box1_top('Monitored Forums');
 	$sql="SELECT groups.group_name,groups.group_id,forum_group_list.group_forum_id,forum_group_list.forum_name ".
 		"FROM groups,forum_group_list,forum_monitored_forums ".
 		"WHERE groups.group_id=forum_group_list.group_id ".
 		"AND forum_group_list.group_forum_id=forum_monitored_forums.forum_id ".
-		"AND forum_monitored_forums.user_id='".user_getid()."' ORDER BY group_name DESC";
+		"AND forum_monitored_forums.user_id='".user_getid()."'";
 	$result=db_query($sql);
 	$rows=db_numrows($result);
 	if (!$result || $rows < 1) {
-		echo '
-			<H3>You are not monitoring any forums</H3>
-			<P>
-			If you monitor forums, you will be sent new posts in 
-			the form of an email, with a link to the new message.
-			<P>
-			You can monitor forums by clicking &quot;Monitor Forum&quot; in 
-			any given discussion forum.
-			<BR>&nbsp;';
+		echo 'You are not monitoring any forums';
 		echo db_error();
 	} else {
 		for ($i=0; $i<$rows; $i++) {
 			if (db_result($result,$i,'group_id') != $last_group) {
 				echo '
-				<TR><TD COLSPAN="2"><B><A HREF="/forum/?group_id='.
-					db_result($result,$i,'group_id').'">'.
-					db_result($result,$i,'group_name').'</A></TD></TR>';
+				<TR><TD COLSPAN="2"><B>'.db_result($result,$i,'group_name').'</TD></TR>';
 			}
 			if ($i % 2 == 0) {
 				$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
@@ -98,66 +85,14 @@ if (user_isloggedin()) {
 			echo '
 			<TR'.$row_color.'><TD ALIGN="MIDDLE"><A HREF="/forum/monitor.php?forum_id='.
 				db_result($result,$i,'group_forum_id').
-				'"><IMG SRC="/images/ic/trash.png" HEIGHT="16" WIDTH="16" '.
-				'BORDER=0"></A></TD><TD WIDTH="99%"><A HREF="/forum/forum.php?forum_id='.
+				'"><IMG SRC="/images/ic/trash.png HEIGHT="16" WIDTH="16" BORDER=0"></A></TD><TD WIDTH="99%"><A HREF="/forum/forum.php?forum_id='.
 				db_result($result,$i,'group_forum_id').'">'.
-				stripslashes(db_result($result,$i,'forum_name')).'</A></TD></TR>';
+				stripslashes(db_result($result,$i,'forum_name')).'</TD></TR>';
 
 			$last_group=db_result($result,$i,'group_id');
 		}
-		echo '<TR><TD COLSPAN="2">&nbsp;</TD></TR>';
 	}
-
-	/*
-		Filemodules that are actively monitored
-	*/
-	$last_group=0;
-	echo html_box1_middle('Monitored FileModules');
-	$sql="SELECT groups.group_name,groups.group_id,filemodule.module_name,filemodule_monitor.filemodule_id ".
-		"FROM groups,filemodule_monitor,filemodule ".
-		"WHERE groups.group_id=filemodule.group_id ".
-		"AND filemodule.filemodule_id=filemodule_monitor.filemodule_id ".
-		"AND filemodule_monitor.user_id='".user_getid()."' ORDER BY group_name DESC";
-	$result=db_query($sql);
-	$rows=db_numrows($result);
-	if (!$result || $rows < 1) {
-		echo '
-			<H3>You are not monitoring any files</H3>
-			<P>
-			If you monitor files, you will be sent new release notices via
-			email, with a link to the new file on our download server.
-			<P>
-			You can monitor files by visiting a project\'s &quot;Summary Page&quot; 
-			and clicking on the check box in the files section.
-			<BR>&nbsp;';
-		echo db_error();
-	} else {
-		for ($i=0; $i<$rows; $i++) {
-			if (db_result($result,$i,'group_id') != $last_group) {
-				echo '
-				<TR><TD COLSPAN="2"><B><A HREF="/project/?group_id='.
-					db_result($result,$i,'group_id').'">'.
-					db_result($result,$i,'group_name').'</A></TD></TR>';
-			}
-			if ($i % 2 == 0) {
-				$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
-			} else {
-				$row_color=' BGCOLOR="#FFFFFF"';
-			}
-			echo '
-			<TR'.$row_color.'><TD ALIGN="MIDDLE"><A HREF="/project/filemodule_monitor.php?filemodule_id='.
-				db_result($result,$i,'filemodule_id').
-				'"><IMG SRC="/images/ic/trash.png" HEIGHT="16" WIDTH="16" '.
-				'BORDER=0"></A></TD><TD WIDTH="99%"><A HREF="/project/filelist.php?group_id='.
-				db_result($result,$i,'group_id').'">'.
-				stripslashes(db_result($result,$i,'module_name')).'</A></TD></TR>';
-
-			$last_group=db_result($result,$i,'group_id');
-		}
-		echo '<TR><TD COLSPAN="2">&nbsp;</TD></TR>';
-	}
-
-	echo html_box1_bottom();
+	html_box1_bottom();
 
 	?>
 	</TD><TD VALIGN="TOP" WIDTH="50%">
@@ -166,7 +101,7 @@ if (user_isloggedin()) {
 		Tasks assigned to me
 	*/
 	$last_group=0;
-	echo html_box1_top('My Tasks');
+	html_box1_top('My Tasks');
 
 	$sql="SELECT groups.group_name,project_group_list.project_name,project_group_list.group_id, ".
 		"project_task.group_project_id,project_task.priority,project_task.project_task_id,project_task.summary ".
@@ -183,11 +118,7 @@ if (user_isloggedin()) {
 		for ($i=0; $i < $rows; $i++) {
 			if (db_result($result,$i,'group_project_id') != $last_group) {
 				echo '
-				<TR><TD COLSPAN="2"><B><A HREF="/pm/task.php?group_id='.
-					db_result($result,$i,'group_id').'&group_project_id='.
-					db_result($result,$i,'group_project_id').'">'.
-					db_result($result,$i,'group_name').' - '.
-					db_result($result,$i,'project_name').'</A></TD></TR>';
+				<TR><TD COLSPAN="2"><B>'.db_result($result,$i,'group_name').' - '.db_result($result,$i,'project_name').'</TD></TR>';
 			}
 			echo '
 			<TR BGCOLOR="'.get_priority_color(db_result($result,$i,'priority')).'">
@@ -199,12 +130,14 @@ if (user_isloggedin()) {
 				<TD>'.stripslashes(db_result($result, $i, 'summary')).'</TD></TR>';
 			$last_group = db_result($result,$i,'group_project_id');
 		}
-		echo '<TR><TD COLSPAN="2">&nbsp;</TD></TR>';
 	} else {
 		echo '
 			You have no open tasks assigned to you';
 		echo db_error();
 	}
+
+	html_box1_bottom();
+
 
 	/*
 		DEVELOPER SURVEYS
@@ -217,20 +150,18 @@ if (user_isloggedin()) {
 
 	$result=db_query($sql);
 
-	echo html_box1_middle('Quick Survey');
-
 	if (db_numrows($result) < 1) {
+		html_box1_top('Quick Survey');
 		show_survey(1,1);
-		echo '<TR><TD COLSPAN="2">&nbsp;</TD></TR>';
-	} else {
-		echo 'You have taken your developer survey';
+		html_box1_bottom();
 	}
+
 
 	/*
 		PROJECT LIST
 	*/
 
-	echo html_box1_middle('My Projects');
+	html_box1_top('My Projects');
 	$result = db_query("SELECT groups.group_name AS group_name,"
 		. "groups.group_id AS group_id,"
 		. "groups.status AS status,"
@@ -240,17 +171,17 @@ if (user_isloggedin()) {
 		. "user_group.user_id=" . user_getid());
 
 	if (!$result || db_numrows($result) < 1) {
-		echo "You're not a member of any projects";
+		echo "You're not in any projects";
 	} else {
 		while ($row_proj = db_fetch_array($result)) {
 			print "<A href=\"/project/?group_id=$row_proj[group_id]\">$row_proj[group_name]</A><BR>";
 		}
 	}
-	echo html_box1_bottom();
+	html_box1_bottom();
 
 	echo '</TD></TR><TR><TD COLSPAN=2>';
 
-	echo show_priority_colors_key();
+	show_priority_colors_key();
 
 	?>
 	</TD>

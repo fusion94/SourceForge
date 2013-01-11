@@ -4,12 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: forum_utils.php,v 1.134 2000/01/29 18:11:47 tperdue Exp $
-
-/*
-	Message Forums
-	By Tim Perdue, Sourceforge, 11/99
-*/
+// $Id: forum_utils.php,v 1.119 2000/01/13 18:36:35 precision Exp $
 
 require($DOCUMENT_ROOT.'/news/news_utils.php');
 
@@ -50,7 +45,7 @@ function forum_header($params) {
 
 				echo '<P>';
 			}
-			echo '</TD><TD VALIGN="TOP" WIDTH="35%">';
+			echo '</TD><TD VALIGN="TOP">';
 			echo news_show_latest();
 			echo '</TD></TR></TABLE>';
 		}
@@ -75,8 +70,7 @@ function forum_header($params) {
 	}
 
 	if ($forum_id) {
-		echo ' | <A HREF="/forum/monitor.php?forum_id='.$forum_id.'">';
-		echo html_image("ic/check.png",array()).' Monitor Forum</A>
+		echo ' | <A HREF="/forum/monitor.php?forum_id='.$forum_id.'">Monitor Forum</A>
 			 | <A HREF="/forum/save.php?forum_id='.$forum_id.'">Save Place</A>';
 	}
 
@@ -108,9 +102,7 @@ function forum_create_forum($group_id,$forum_name,$is_public=1,$create_default_m
 		$feedback .= " Forum Added ";
 	}
 	$forum_id=db_insertid($result);
-
 	if ($create_default_message) {
-		//set up a cheap default message
 		$result2=db_query("INSERT INTO forum ".
 			"(group_forum_id,posted_by,subject,body,date,is_followup_to,thread_id) ".
 			"VALUES ('$forum_id','100','Welcome to $forum_name',".
@@ -120,7 +112,6 @@ function forum_create_forum($group_id,$forum_name,$is_public=1,$create_default_m
 }
 
 function make_links ($data="") {
-	//moved make links to /include/utils.php
 	util_make_links($data);
 }
 
@@ -141,8 +132,6 @@ function get_forum_name($id) {
 function show_thread($thread_id,$et=0) {
 	/*
 		Takes a thread_id and fetches it, then invokes show_submessages to nest the threads
-
-		$et is whether or not the forum is "expanded" or in flat mode
 	*/
 	global $total_rows,$sys_datefmt,$is_followup_to,$subject,$forum_id;
 
@@ -279,7 +268,7 @@ function get_next_thread_id() {
 	$result=db_query("INSERT INTO forum_thread_id VALUES ('')");
 
 	if (!$result) {
-		echo '<H1>Error!</H1>';
+		echo '<H1>Error!</H2>';
 		echo db_error();
 		exit;
 	} else {
@@ -298,22 +287,31 @@ function get_forum_saved_date($forum_id) {
 	} else {
 		$sql="SELECT save_date FROM forum_saved_place WHERE user_id='".user_getid()."' AND forum_id='$forum_id';";
 		$result = db_query($sql);
+		echo '
+
+			<!-- checking save_date -->
+
+
+			';
 		if ($result && db_numrows($result) > 0) {
 			$forum_saved_date=db_result($result,0,'save_date');
 			return $forum_saved_date;
 		} else {
-			//highlight new messages from the past week only
-			$forum_saved_date=(time()-604800);
+			$forum_saved_date=time();
 			return $forum_saved_date;
 		}
 	}
 }
 
 function post_message($thread_id, $is_followup_to, $subject, $body, $group_forum_id) {
-	global $feedback;
+
 	if (user_isloggedin()) {
+
 		if ($thread_id == 0) {
 			$thread_id=get_next_thread_id();
+//			$do_monitoring=0;
+//		} else {
+//			$do_monitoring=1;
 		}
 
 		$sql="INSERT INTO forum (group_forum_id,posted_by,subject,body,date,is_followup_to,thread_id) ".
@@ -324,18 +322,19 @@ function post_message($thread_id, $is_followup_to, $subject, $body, $group_forum
 		if (!$result) {
 			echo "INSERT FAILED";
 			echo db_error();
-			$feedback .= ' Posting Failed ';
+			$feedback .= " Posting Failed ";
 		} else {
-			$feedback .= ' Message Posted ';
+			$feedback .= " Message Posted ";
 		}
 
-		$msg_id=db_insertid($result);
-		handle_monitoring($group_forum_id,$msg_id);
+//		if ($do_monitoring==1) {
+//			$msg_id=db_insertid($result);
+//			handle_monitoring($thread_id,$msg_id);
+//		}
 
 	} else {
 
-		echo '
-			<H3>You could post if you were logged in</H3>';
+		echo "\n\n<H3>You could post if you were logged in</H3>";
 
 	}
 
@@ -381,53 +380,39 @@ function show_post_form($forum_id, $thread_id=0, $is_followup_to=0, $subject="")
 
 }
 
-function handle_monitoring($forum_id,$msg_id) {
-	global $feedback;
+function handle_monitoring($thread_id,$msg_id) {
 	/*
 		Checks to see if anyone is monitoring this thread
 		If someone is, it sends them the message in email format
 	*/
+	global $sys_datefmt;
 
-	$sql="SELECT user.email from forum_monitored_forums,user ".
-		"WHERE forum_monitored_forums.user_id=user.user_id AND forum_monitored_forums.forum_id='$forum_id'";
+	$sql="SELECT user.email from forum_monitored_threads,user ".
+		"WHERE forum_monitored_threads.user_id=user.user_id AND forum_monitored_threads.thread_id='$thread_id'";
 
 	$result=db_query($sql);
 	$rows=db_numrows($result);
-
 	if ($result && $rows > 0) {
-		$tolist=implode(result_column_to_array($result),', ');
-
+		for ($i=0; $i<$rows; $i++) {
+			$emails .= db_result($result,$i,'email').", ";
+		}
 		$sql="SELECT user.user_name,forum.group_forum_id,forum.thread_id,forum.subject,forum.date,forum.body ".
-			"FROM forum,user ".
-			"WHERE user.user_id=forum.posted_by ".
-			"AND forum.msg_id='$msg_id'";
+		"FROM forum,user WHERE user.user_id=forum.posted_by AND forum.msg_id='$msg_id';";
 
 		$result = db_query ($sql);
 
-		if ($result && db_numrows($result) > 0) {
-			$body = "To: noreply@sourceforge.net".
-				"\nBCC: $tolist".
-				"\nSubject: [SourceForge Forums] " . db_result($result,0,'subject').
-				"\n\nRead and respond to this message at: ".
-				"\nhttp://sourceforge.net/forum/message.php?msg_id=".$msg_id.
-				"\n\n" . util_unconvert_htmlspecialchars(db_result($result,0, 'body')).
-				"\n\n______________________________________________________________________".
-				"\nYou are receiving this email because you elected to monitor this forum.".
-				"\nTo stop monitoring this forum, login to SourceForge and visit: ".
-				"\nhttp://sourceforge.net/forum/monitor.php?forum_id=$forum_id";
+		$subject=db_result($result,0, "subject");
 
-			$body=ereg_replace("\"","\\\"",$body);
-			//echo $body;
-			exec ("/bin/echo \"$body\" | /usr/sbin/sendmail -fnoreply@sourceforge.net -t");
+		$body = "You are receiving this email because you elected to monitor this thread.".
+			"\n\nBY: ".db_result($result,0, "user_name").
+			"\nDATE: ".date($sys_datefmt,db_result($result,0, "date")).
+			"\nSUBJECT: ".db_result($result,0, "subject").
+			"\n\n".db_result($result,0, "body").
+			"\n\n______________________________________________________________________".
+			"\nTo Stop Monitoring This Thread, Login to SourceForge and Visit: ".
+			"\nhttp://www.sourceforge.net/forum/monitor.php?thread_id=$thread_id";
 
-			$feedback .= ' email sent - people monitoring ';
-		} else {
-			$feedback .= ' email not sent - people monitoring ';
-			echo db_error();
-		}
-	} else {
-		$feedback .= ' email not sent - no one monitoring ';
-		echo db_error();
+		mail ($emails,$subject,$body,"From: noreply@sourceforge.net");
 	}
 }
 

@@ -4,86 +4,9 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: mod_filters.php,v 1.12 2000/01/27 14:05:38 tperdue Exp $
+// $Id: mod_filters.php,v 1.11 2000/01/13 18:36:34 precision Exp $
 
-function show_filters ($group_id) {
-	/*
-		The goal here is to show any existing bug filters for this user/group combo.
-		In addition, we are going to show an empty row where a new filter can be created
-	*/
-	$sql="SELECT * FROM bug_filter WHERE user_id='".user_getid()."' AND group_id='$group_id'";
-	$result=db_query($sql);
-
-	echo '<TABLE BORDER="0" CELLSPACING="1" CELLPADDING="2">';
-
-	if ($result && db_numrows($result) > 0) {
-		for ($i=0; $i<db_numrows($result); $i++) {
-			if ($i % 2 == 0) {
-				$row_color=' BGCOLOR="#FFFFFF"';
-			} else {
-				$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
-			}
-			/*
-				iterate and show the existing filters
-			*/
-			?>
-			<FORM ACTION="<?php echo $PHP_SELF; ?>" METHOD="POST">
-			<INPUT TYPE="HIDDEN" NAME="func" VALUE="postmodfilters">
-			<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="<?php echo $group_id; ?>">
-			<INPUT TYPE="HIDDEN" NAME="subfunc" VALUE="mod">
-			<INPUT TYPE="HIDDEN" NAME="filter_id" VALUE="<?php
-				echo db_result($result,$i,"filter_id");
-			?>">
-			<TR<?php echo $row_color; ?>>
-				<TD>
-					<FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="delete_filter" VALUE="Delete"><BR>
-					<INPUT TYPE="SUBMIT" NAME="submit" VALUE="Modify/Activate">
-				</TD>
-				<TD NOWRAP><FONT SIZE="-1">SELECT * FROM bug WHERE<BR>bug.group_id='<?php echo $group_id; ?>' AND (</TD>
-				<TD NOWRAP><FONT SIZE="-1"><INPUT TYPE="TEXT" SIZE="60" MAXLENGTH="250" NAME="sql_clause" VALUE="<?php
-						echo stripslashes(db_result($result,$i,"sql_clause"));
-					?>"></TD>
-				<TD NOWRAP><FONT SIZE="-1">) LIMIT 0,50</TD>
-			</TR></FORM>
-			<?php
-
-		}
-	}
-
-	/*
-		empty form for new filter
-	*/
-	if ($i % 2 == 0) {
-	       $row_color=' BGCOLOR="#FFFFFF"';
-	} else {
-	       $row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
-	}
-
-	?>
-	<FORM ACTION="<?php echo $PHP_SELF; ?>" METHOD="POST">
-	<INPUT TYPE="HIDDEN" NAME="func" VALUE="postmodfilters">
-	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="<?php echo $group_id; ?>">
-	<INPUT TYPE="HIDDEN" NAME="subfunc" VALUE="add">
-	<TR<?php echo $row_color; ?>>
-		<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Add"></TD>
-		<TD NOWRAP><FONT SIZE="-1">SELECT * FROM bug WHERE<BR>bug.group_id='<?php echo $group_id; ?>' AND (</TD>
-		<TD NOWRAP><FONT SIZE="-1"><INPUT TYPE="TEXT" SIZE="60" MAXLENGTH="250" NAME="sql_clause" VALUE="bug.status_id IN (1,2,3) OR bug.priority > 0 OR bug.bug_group_id IN (1,2,3,4) OR bug.resolution_id IN (1,2,3) OR bug.assigned_to IN (1,2,3,4,5,6) OR bug.category_id IN (1,2,3)"></TD>
-		<TD NOWRAP><FONT SIZE="-1">) LIMIT 0,50</TD>
-	</TR></FORM>
-	</TABLE>
-	<P>
-	<FORM ACTION="<?php echo $PHP_SELF; ?>" METHOD="POST">
-	<INPUT TYPE="HIDDEN" NAME="func" VALUE="postmodfilters">
-	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="<?php echo $group_id; ?>">
-	<INPUT TYPE="HIDDEN" NAME="subfunc" VALUE="turn_off">
-	<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Deactivate Filters">
-	</FORM>
-<?php
-
-}
-
-
-bug_header(array ('title'=>'Create a Personal Filter'));
+bug_header(array ("title"=>"Create a Personal Filter"));
 
 if (user_isloggedin()) {
 
@@ -130,8 +53,7 @@ if (user_isloggedin()) {
 
 } else {
 
-	echo '
-		<H1>You must be logged in before you can create personal filters for any given group</H2>';
+	echo "<H1>You must be logged in before you can create personal filters for any given group</H2>";
 
 }
 

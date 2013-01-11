@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: requirements.php,v 1.14 2000/01/19 10:15:08 dtype Exp $
+// $Id: requirements.php,v 1.13 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 session_require(array(isloggedin=>1));
@@ -47,7 +47,7 @@ a site hosted at SourceForge.
 you must place one of our approved graphic images on your site
 with a link back to SourceForge. The graphic may either link
 to the main SourceForge site or to your project page on 
-SourceForge. We will leave placement up to you, and will not alter
+SourceForge. We will placement up to you, and will not alter
 your site in any way.
 
 <P>There are many small and non-intrusive image choices.

@@ -4,25 +4,16 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: group.php,v 1.41 2000/01/21 15:14:40 tperdue Exp $
+// $Id: group.php,v 1.40 2000/01/13 18:36:35 precision Exp $
 
 // ############################# function group_getname()
 
 function group_getname($group_id = 0) {
-	global $GROUP_NAMES;
-	if ($GROUP_NAMES["group_$group_id"]) {
-		//name was fetched already and stored in array
-		return $GROUP_NAMES["group_$group_id"];
+	$result = db_query("SELECT group_name FROM groups WHERE group_id='$group_id'");
+	if ($result && db_numrows($result) > 0) {
+		return (db_result($result,0,"group_name"));
 	} else {
-		//name wasn't fetched - get it from db and store it
-		$result = db_query("SELECT group_name FROM groups WHERE group_id='$group_id'");
-		if ($result && db_numrows($result) > 0) {
-			$GROUP_NAMES["group_$group_id"]=db_result($result,0,"group_name");
-			return $GROUP_NAMES["group_$group_id"];
-		} else {
-			$GROUP_NAMES["group_$group_id"]="Invalid Group Id";
-			return $GROUP_NAMES["group_$group_id"];
-		}
+		return "Invalid Group ID";
 	}
 }
 

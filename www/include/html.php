@@ -4,11 +4,18 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: html.php,v 1.267 2000/01/26 14:53:00 tperdue Exp $
+// $Id: html.php,v 1.243 2000/01/13 18:36:35 precision Exp $
 
-$COLOR_LTBACK1  = '#EEEEF8';
-$COLOR_LTBACK2  = '#F6F6F6';
 
+// ********************* backgrounds
+
+/*
+$COLOR_LTBACK1  = '#eeebee';
+$COLOR_MENUBACK = '#eeebee';
+$COLOR_MENUBARBACK = '#7a6672';
+*/
+
+$COLOR_LTBACK1  = '#eeeef8';
 $COLOR_MENUBACK = $COLOR_LTBACK1;
 $COLOR_MENUBARBACK = '737b9c';
 
@@ -39,16 +46,14 @@ function html_feedback_bottom($feedback) {
 
 // ******************************* those cool purple headers
 
-function html_box1_top($title,$echoout=1,$bgcolor='#FFFFFF') {
-	$return = '
-		<TABLE cellspacing="0" cellpadding="1" width="100%" border="0" bgcolor="'
+function html_box1_top($title,$echoout=1) {
+	$return = '<TABLE cellspacing="0" cellpadding="1" width="100%" border="0" bgcolor="'
 		.$GLOBALS[COLOR_MENUBARBACK].'"><TR><TD>';
 
-	$return .= '<TABLE cellspacing="1" cellpadding="2" width="100%" border="0" bgcolor="'.$bgcolor.'">'.
-			'<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'" align="center">'.
-			'<TD colspan=2><SPAN class=titlebar>'.$title.'</SPAN></TD></TR>'.
-			'<TR align=left>
-				<TD colspan=2>';
+	$return .= '<TABLE cellspacing="1" cellpadding="2" width="100%" border="0" bgcolor="#FFFFFF">'
+		.'<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'" align="center">'
+		.'<TD colspan=2><SPAN class=titlebar>'.$title.'</SPAN></TD></TR>'
+		.'<TR align=left><TD colspan=2>';
 	if ($echoout) {
 		print $return;
 	} else {
@@ -56,24 +61,9 @@ function html_box1_top($title,$echoout=1,$bgcolor='#FFFFFF') {
 	}
 }
 
-function html_box1_middle($title,$bgcolor='#FFFFFF') {
-	return '
-				</TD>
-			</TR>
-			<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'" align="center">
-				<TD colspan=2><SPAN class=titlebar>'.$title.'</SPAN></TD>
-			</TR>
-			<TR align=left bgcolor="'.$bgcolor.'">
-				<TD colspan=2>';
-}
-
 function html_box1_bottom($echoout=1) {
 	$return = '
-				</TD>
-			</TR>
-		</TABLE>
-		<P>';
-	$return .= '
+		</TD></TR></TABLE>
 		</TD></TR></TABLE><P>';
 	if ($echoout) {
 		print $return;
@@ -131,7 +121,7 @@ function html_a_category($cat) {
 // *************************** just need this one
 
 function html_blankimage($height,$width) {
-	return html_image('blank.gif',array('height'=>$height,'width'=>$width));
+	html_image('blank.gif',array('height'=>$height,'width'=>$width));
 }
 
 // ************************* for alternating colored rows
@@ -191,7 +181,8 @@ function image_pngit($src) {
 // ################################# function html_image
 // ## for images
 
-function html_image($src,$args,$display=1) {
+function html_image($src,$args,$display=1)
+{
 	$return = '';
 
 	// cant use image server for secure
@@ -204,7 +195,7 @@ function html_image($src,$args,$display=1) {
 	while(list($k,$v) = each($args)) {
 		$return .= ' '.$k.'="'.$v.'"';
 	}
-
+	
 	// ## insert a border tag if there isn't one
 	if (!$args[border]) $return .= (" border=0");
 	
@@ -213,7 +204,7 @@ function html_image($src,$args,$display=1) {
 		$size = getimagesize($GLOBALS[sys_urlroot].'images/'.$src);
 		$return .= ' ' . $size[3];
 	}
-
+	
 	$return .= ('>');
 	if ($display) {
 		print $return;
@@ -222,18 +213,11 @@ function html_image($src,$args,$display=1) {
 	}
 }
 
-// ## html_imagevar($image_id)
-
-function html_imagevar($image_id) {
-	$return = "<IMG src=\"/dbimage.php?image_id=$image_id\">";
-	return $return;
-}
-
 // ################################### HTML tabs
 
 function html_tabs($toptab,$group) {
 	// get group info
-	$res_grp = db_query('SELECT * FROM groups WHERE group_id='.$group);
+	$res_grp = db_query('SELECT group_name,status,homepage,option_bugs FROM groups WHERE group_id='.$group);
 
 	if (db_numrows($res_grp) < 1) {
 		return;
@@ -261,7 +245,6 @@ function html_tabs($toptab,$group) {
 		case 'cvs': print 'CVS'; break;
 		case 'downloads': print 'Downloads'; break;
 		case 'news': print 'News'; break;
-		case 'patch': print 'Patch Manager'; break;
 		default: print 'Summary'; break;
 	}
 	print '</B></FONT></TD><TD align="right">';
@@ -272,110 +255,123 @@ function html_tabs($toptab,$group) {
 	if ($toptab == 'home') 
 		print 'class=tabs ';
 	print 'href="/project/?group_id='.$group.'">';
-	html_image('ic/anvil24.png',array('alt'=>'Summary','border'=>(($toptab=='home')?'1':'0')));
+	html_image('ic/anvil24.png',array(alt=>'Summary',border=>(($toptab=='home')?'1':'0')));
+	//print "<B>Summary</B>";
 	print '</A>';
 
+	//print " | ";
+	// Homepage	
 	print ' 
 		<A ';
 	print 'href="http://'.$row_grp[homepage].'">';
-	html_image('ic/home.png',array('alt'=>'Homepage','border'=>'0'));
+	html_image('ic/home.png',array(alt=>'Homepage',border=>0));
+	//print "<B>Forums</B>";
 	print '</A>';
 
-	// Forums
-	if (($row_grp['status'] == 'A') && ($row_grp['use_forum'])) {
-		print ' 
-			<A ';
-		if ($toptab == 'forums') 
-			print 'class=tabs ';
-		print 'href="/forum/?group_id='.$group.'">';
-		html_image('ic/notes.png',array('alt'=>'Message Forums','border'=>(($toptab=='forums')?'1':'0')));
-		print '</A>';
-	}
+
+	// Forums	
+	print ' 
+		<A ';
+	if ($toptab == 'forums') 
+		print 'class=tabs ';
+	print 'href="/forum/?group_id='.$group.'">';
+	html_image('ic/notes.png',array(alt=>'Message Forums',border=>(($toptab=='forums')?'1':'0')));
+	//print "<B>Forums</B>";
+	print '</A>';
+
+	//print " | ";
 
 	// Bug Tracking
-	if (($row_grp['status'] == 'A') && ($row_grp['use_bugs'])) {
+	if (($row_grp[status] == 'A') && ($row_grp[option_bugs])) {
 		print ' 
 			<A ';	
 		if ($toptab == 'bugs') 
 			print 'class=tabs ';
 		print 'href="/bugs/?group_id='.$group.'">';
-		html_image('ic/bug.png',array('alt'=>'Bug Tracking','border'=>(($toptab=='bugs')?'1':'0')));
+		html_image('ic/bug.png',array(alt=>'Bug Tracking','border'=>(($toptab=='bugs')?'1':'0')));
+		//print "<B>Bug Tracking</B>";
 		print '</A>';
-	}
 
-	// Patch Manager
-	if (($row_grp['status'] == 'A') && ($row_grp['use_patch'])) {
-		print '
-			<A ';
-		if ($toptab == 'patch')
-			print 'class=tabs ';
-		print 'href="/patch/?group_id='.$group.'">';
-		html_image('ic/patch.png',array('alt'=>'Patch Manager','border'=>(($toptab=='patch')?'1':'0')));
-		print '</A>';
+		//print " | ";
 	}
 
 	// Mailing Lists
-	if (($row_grp['status'] == 'A') && ($row_grp['use_mail'])) {
+	if ($row_grp[status] == 'A') {
 		print ' 
 			<A ';	
 		if ($toptab == 'mail') print 'class=tabs ';
 		print 'href="/mail/?group_id='.$group.'">';
-		html_image('ic/mail.png',array('alt'=>'Mailing Lists','border'=>(($toptab=='mail')?'1':'0')));
+		html_image('ic/mail.png',array(alt=>'Mailing Lists','border'=>(($toptab=='mail')?'1':'0')));
+		//print "<B>Mail Lists</B>";
 		print '</A>';
+
+		//print " | ";
 	}
 
 	// Project Manager
-	if (($row_grp['status'] == 'A') && ($row_grp['use_pm'])) {
+	if ($row_grp[status] == 'A') {
 		print ' 
 			<A ';	
 		if ($toptab == 'pm') 
 			print 'class=tabs ';
 		print 'href="/pm/?group_id='.$group.'">';
-		html_image('ic/index.png',array('alt'=>'Task Manager','border'=>(($toptab=='pm')?'1':'0')));
+		html_image('ic/index.png',array(alt=>'Task Manager','border'=>(($toptab=='pm')?'1':'0')));
+		//print "<B>Task Manager</B>";
 		print "</A>";
+
+		//print " | ";
 	}
 
 	// Surveys
-	if (($row_grp['status'] == 'A') && ($row_grp['use_survey'])) {
+	if ($row_grp[status] == 'A') {
 		print ' 
 			<A ';
 		if ($toptab == 'surveys') 
 			print 'class=tabs ';
 		print 'href="/survey/?group_id='.$group.'">';
-		html_image('ic/survey.png',array('alt'=>'Surveys','border'=>(($toptab=='surveys')?'1':'0')));
+		html_image('ic/survey.png',array(alt=>'Surveys','border'=>(($toptab=='surveys')?'1':'0')));
+		//print "<B>Surveys</B>";
 		print '</A>';
+
+		//print " | ";
 	}
 
 	//newsbytes
-	if (($row_grp['status'] == 'A') && ($row_grp['use_news'])) {
+	if ($row_grp[status] == 'A') {
 		print '
 			<A ';
 		if ($toptab == 'news')
 			print 'class=tabs ';
 		print 'href="/news/?group_id='.$group.'">';
-		html_image('ic/news.png',array('alt'=>'News','border'=>(($toptab=='news')?'1':'0')));
+		html_image('ic/news.png',array(alt=>'News','border'=>(($toptab=='news')?'1':'0')));
+		//print "<B>Surveys</B>";
 		print '</A>';
+
+		//print " | ";
 	}
 
 	// CVS
-	if (($row_grp['status'] == 'A') && ($row_grp['use_cvs'])) {
+	if ($row_grp[status] == 'A') {
 		print ' 
 			<A ';
 		if ($toptab == 'cvs') 
 			print 'class=tabs ';
 		print 'href="/cvs/?group_id='.$group.'">';
-		html_image('ic/convert.png',array('alt'=>'CVS Code Repository','border'=>(($toptab=='cvs')?'1':'0')));
+		html_image('ic/convert.png',array(alt=>'CVS Code Repository','border'=>(($toptab=='cvs')?'1':'0')));
+		//print "<B>Surveys</B>";
 		print '</A>';
+
+		//print " | ";
 	}
 
 	// Downloads
 	print ' 
 		<A ';
-	if ($toptab == 'downloads') {
+	if ($toptab == 'downloads') 
 		print 'class=tabs ';
-	}
 	print 'href="/project/filelist.php?group_id='.$group.'">';
-	html_image('ic/save.png',array('alt'=>'Downloads','border'=>(($toptab=='downloads')?'1':'0')));
+	html_image('ic/save.png',array(alt=>'Downloads','border'=>(($toptab=='downloads')?'1':'0')));
+	//print "<B>Downloads</B>";
 	print '</A>';
 
 	// common table code

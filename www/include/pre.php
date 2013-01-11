@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: pre.php,v 1.335 2000/01/29 17:28:30 tperdue Exp $
+// $Id: pre.php,v 1.317 2000/01/13 18:36:35 precision Exp $
 
 /*
 	redirect to proper hostname to get around certificate problem on IE 5
@@ -71,31 +71,30 @@ function generic_header($params) {
 	if (user_isloggedin()) { 
 
 		?>
-<!--		</TD><TD align=right><SPAN class=maintitlebar>
-		Logged In: <B><?php print user_getname(); ?></B></SPAN> -->
+		</TD><TD align=right><SPAN class=maintitlebar>
+		Logged In: <B><?php print user_getname(); ?></B></SPAN>
 		<?php 
 	} 
 	?>
 	</TD>
-	<td align="right"><A class=maintitlebar href="http://linux.com"><B>linux.com partner</B></a>&nbsp;</td>
 	</TR>
 	</TABLE>
 	<!-- end top strip -->
 	<!-- top title table -->
 	<TABLE width="100%" border=0 cellspacing=0 cellpadding=0 bgcolor="<?php echo $GLOBALS[COLOR_BARBACK]; ?>" valign="center">
 	<TR valign="top" bgcolor="<?php echo $GLOBALS[COLOR_LTBACK1]; ?>"><TD>
-	<A href="/"><?php 
+        <A href="/"><?php 
 
 	//html_image('sflogo2-105b.png',array(vspace=>0)); 
 	html_image('sflogo2-steel.png',array('vspace'=>'0'));
 	?></A>
-	</TD>
-	<TD width="99%"><!-- right of logo -->
+        </TD>
+        <TD width="99%"><!-- right of logo -->
 	<a href="http://www.valinux.com"><?php html_image("va-btn-small-light.png",array('align'=>'right','alt'=>'VA Linux Systems','hspace'=>'5','vspace'=>'7')); ?></A>
 
 	&nbsp;<BR><FONT size="+1"><B>SourceForge</B></FONT>
-	<BR>Site Application Version: 1.0.4
-	<BR>
+	<BR>Site Application Version: 1.0.3
+	<P>
 	<?php 
 	if (!user_isloggedin()) {
  		print '<B>Status: Not Logged In</B>
@@ -174,10 +173,10 @@ function site_footer($params) {
 	<!-- end content -->
 	<p>&nbsp;</p>
 	</td>
-	<td width="9" bgcolor="#FFFFFF">
-		<?php html_blankimage(1,10); ?>
-	</td>
 
+	<td width="5" bgcolor="#ffffff">
+	<?php html_blankimage(1,5); ?>
+	</td>
 	</tr>
 	</table>
 	<?php
@@ -200,42 +199,27 @@ function site_header($params) {
 	<TD bgcolor=<?php print $GLOBALS[COLOR_MENUBACK]; ?>>
 	<!-- menus -->
 	<?php
-
-	//sf global choices
 	menu_main();
 
-	//login / logged in menu
-	if (user_isloggedin()) {
-		menu_loggedin(); 
-	} else {
-		echo menu_notloggedin();
-	}
-
-	//project admin
-	if ($params[group] && (user_ismember($params[group],'A'))) {
-		menu_projectadmin($params[group]);
-	}
-
-	//search menu
+	if (user_isloggedin()) menu_loggedin(); 
+	if (!user_isloggedin()) menu_notloggedin(); 
+	// no longer printing proj menus
+	// if ($params[group]) menu_project($params[group]);
+	// if ($params[group] && (user_ismember($params[group]))) menu_projectdevel($params[group]);
+	if ($params[group] && (user_ismember($params[group],'A'))) menu_projectadmin($params[group]);
 	menu_search();
-
-	//site admin menu
-	if (user_ismember(1)) {
-		menu_admin();
-	}
-
+	if (user_ismember(1)) menu_admin(); 
 	?>
+
 	</TD>
 
-	<td width="9" bgcolor="#FFFFFF">
-		<?php html_blankimage(1,9); ?>
+	<td width="10" bgcolor="#ffffff">
+	<?php html_blankimage(1,10); ?>
 	</td>
 	<!-- content -->
 
-	<td width="99%">
-	&nbsp;<BR>
+	<td width="99%"><BR>
 	<?php
-
 }
 
 

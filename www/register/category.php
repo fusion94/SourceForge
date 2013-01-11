@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: category.php,v 1.14 2000/01/24 11:11:13 tperdue Exp $
+// $Id: category.php,v 1.13 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 require "vars.php";
@@ -15,6 +15,7 @@ if ($group_id && $insert_license && $rand_hash && $form_license) {
 	/*
 		Hash prevents them from updating a live, existing group account
 	*/
+	//$form_license_other
 	$sql="UPDATE groups SET license='$form_license', license_other='$form_license_other' ".
 		"WHERE group_id='$group_id' AND rand_hash='__$rand_hash'";
 	$result=db_query($sql);
@@ -49,7 +50,7 @@ as your project category.
 
 <FONT size=-1>
 <FORM action="confirmation.php" method="post">
-<INPUT TYPE="HIDDEN" NAME="show_confirm" VALUE="y">
+<INPUT TYPE="HIDDEN" NAME="insert_category" VALUE="y">
 <INPUT TYPE="HIDDEN" NAME="group_id" VALUE="<?php echo $group_id; ?>">
 <INPUT TYPE="HIDDEN" NAME="rand_hash" VALUE="<?php echo $rand_hash; ?>">
 Category:

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: survey_nav.php,v 1.9 2000/01/30 09:54:28 precision Exp $ 
+// $Id:$
 
 html_tabs('surveys',$group_id);
 

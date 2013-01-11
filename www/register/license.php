@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: license.php,v 1.24 2000/01/24 16:40:53 tperdue Exp $
+// $Id: license.php,v 1.16 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 require "vars.php";
@@ -31,9 +31,12 @@ if ($insert_group_name && $group_id && $rand_hash && $form_full_name && $form_un
 		"http_domain='$form_unix_name.sourceforge.net', homepage='$form_unix_name.sourceforge.net' ".
 		"WHERE group_id='$group_id' AND rand_hash='__$rand_hash'";
 	$result=db_query($sql);
+	if (db_affected_rows($result) < 1) {
+		exit_error('Error','This is an invalid state. Update query failed. <B>PLEASE</B> report to admin@sourceforge.net');
+	}
 
 } else {
-	exit_error('Error','Missing Info Or Invalid State. Some form variables were missing. 
+	exit_error('Error','This is an invalid state. Some form variables were missing. 
 		If you are certain you entered everything, <B>PLEASE</B> report to admin@sourceforge.net and
 		include info on your browser and platform configuration');
 }
@@ -71,18 +74,18 @@ your license.
 <P><B>Licenses</B>
 
 <UL>
-<LI><A href="http://www.opensource.org/licenses/gpl-license.html" target="_blank">GNU General Public License</A>
-<LI><A href="http://www.opensource.org/licenses/lgpl-license.html" target="_blank">GNU Library or 'Lesser' Public License</A>
-<LI><A href="http://www.opensource.org/licenses/bsd-license.html" target="_blank">BSD License</A>
-<LI><A href="http://www.opensource.org/licenses/mit-license.html" target="_blank">MIT License</A>
-<LI><A href="http://www.opensource.org/licenses/artistic-license.html" target="_blank">Artistic License</A>
-<LI><A href="http://www.mozilla.org/MPL/MPL-1.0.html" target="_blank">Mozilla Public License 1.0</A>
-<LI><A href="http://www.troll.no/qpl" target="_blank">Q Public License</A>
-<LI><A href="http://www.research.ibm.com/jikes/license/license3.htm" target="_blank">IBM Public License 1.0</A>
-<LI><A href="http://cvw.mitre.org/cvw/licenses/source/license.html" target="_blank">Collaborative Virtual Workspace License</A>
-<LI><A href="http://www.risource.org/RPL/RPL-1.0A.shtml" target="_blank">Ricoh Source Code Public License 1.0</A>
-<LI><A href="http://www.python.org/doc/Copyright.html" target="_blank">Python License</A>
-<LI><A href="http://www.oensource.org/licenses/zlib-license.html" target="_blank">zlib/libpng License</A>
+<LI><A href="http://www.opensource.org/licenses/gpl-license.html">GNU General Public License</A>
+<LI><A href="http://www.opensource.org/licenses/lgpl-license.html">GNU Library or 'Lesser' Public License</A>
+<LI><A href="http://www.opensource.org/licenses/bsd-license.html">BSD License</A>
+<LI><A href="http://www.opensource.org/licenses/mit-license.html">MIT License</A>
+<LI><A href="http://www.opensource.org/licenses/artistic-license.html">Artistic License</A>
+<LI><A href="http://www.mozilla.org/MPL/MPL-1.0.html">Mozilla Public License 1.0</A>
+<LI><A href="http://www.troll.no/qpl">Q Public License</A>
+<LI><A href="http://www.research.ibm.com/jikes/license/license3.htm">IBM Public License 1.0</A>
+<LI><A href="http://cvw.mitre.org/cvw/licenses/source/license.html">Collaborative Virtual Workspace License</A>
+<LI><A href="http://www.risource.org/RPL/RPL-1.0A.shtml">Ricoh Source Code Public License 1.0</A>
+<LI><A href="http://www.python.org/doc/Copyright.html">Python License</A>
+<LI><A href="http://www.oensource.org/licenses/zlib-license.html">zlib/libpng License</A>
 </UL>
 
 <P><B>License for This Project</B>
@@ -92,18 +95,16 @@ your license.
 <INPUT TYPE="HIDDEN" NAME="insert_license" VALUE="y">
 <INPUT TYPE="HIDDEN" NAME="group_id" VALUE="<?php echo $group_id; ?>">
 <INPUT TYPE="HIDDEN" NAME="rand_hash" VALUE="<?php echo $rand_hash; ?>">
-<B>Your License:</B><BR>
+Your License:
+<BR><SELECT name="form_license">
 <?php
-	echo '<SELECT NAME="form_license">';
 	while (list($k,$v) = each($LICENSE)) {
 		print "<OPTION value=\"$k\"";
 		print ">$v\n";
 	}
-	echo '</SELECT>';
-
 ?>
-<P>
-If you selected "other", please provide an explanation along
+</SELECT>
+<P>If you selected "other", please provide an explanation along
 with a description of your license. Realize that other licenses may
 not be approved. 
 <BR><TEXTAREA name="form_license_other" wrap=virtual cols=60 rows=10></TEXTAREA>

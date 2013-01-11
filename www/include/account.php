@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: account.php,v 1.22 2000/01/29 09:11:03 dtype Exp $
+// $Id: account.php,v 1.20 2000/01/13 18:36:35 precision Exp $
 //
 // adduser.php - All the forms and functions to manage unix users
 //
@@ -58,7 +58,7 @@ function account_namevalid($name) {
 	// illegal names
 	if (eregi("^((root)|(bin)|(daemon)|(adm)|(lp)|(sync)|(shutdown)|(halt)|(mail)|(news)"
 		. "|(uucp)|(operator)|(games)|(mysql)|(httpd)|(nobody)|(dummy)"
-		. "|(www)|(cvs)|(shell)|(ftp)|(irc)|(debian)|(ns)|(download))$",$name)) {
+		. "|(www)|(cvs)|(shell)|(ftp)|(irc)|(ns)|(download))$",$name)) {
 		$GLOBALS[register_error] = "Name is reserved.";
 		return 0;
 	}
@@ -75,7 +75,7 @@ function account_groupnamevalid($name) {
 	
 	// illegal names
 	if (eregi("^((www[0-9]?)|(cvs[0-9]?)|(shell[0-9]?)|(ftp[0-9]?)|(irc[0-9]?)|(news[0-9]?)"
-		. "|(mail[0-9]?)|(ns[0-9]?)|(download[0-9]?)|(pub)|(users)|(mirrors?))$",$name)) {
+		. "|(mail[0-9]?)|(ns[0-9]?)|(download[0-9]?)|(users)|(mirrors?))$",$name)) {
 		$GLOBALS[register_error] = "Name is reserved for DNS purposes.";
 		return 0;
 	}

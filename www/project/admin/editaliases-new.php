@@ -4,12 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editaliases-new.php,v 1.9 2000/01/26 10:44:32 tperdue Exp $
+// $Id: editaliases-new.php,v 1.8 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    
 require "account.php";
-require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
+//FIXED
 session_require(array('group'=>$group_id,'admin_flags'=>'A'));
 
 if ($GLOBALS[Submit]) {
@@ -28,7 +28,7 @@ admin@sourceforge.net with details of the problem.');
 	}
 }
 
-project_admin_header(array('title'=>'Add Mail Alias','group'=>$group_id));
+site_header(array(title=>"Add Mail Alias"));
 ?>
 <P>Add email alias/forward for project: <B><?php html_a_group($group_id); ?></B>
 
@@ -42,5 +42,6 @@ New username:
 </FORM>
 
 <?php
-project_admin_footer(array());
+site_footer(array());
+site_cleanup(array());
 ?>

@@ -4,11 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: group-rmmember.php,v 1.14 2000/01/26 10:44:32 tperdue Exp $
+// $Id: group-rmmember.php,v 1.12 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    
-require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
+//FIXED
 session_require(array('group'=>$group_id,'admin_flags'=>'A'));
 
 // make sure that user is not an admin
@@ -17,7 +17,7 @@ $row_flags = db_fetch_array();
 
 if (ereg("A",$row_flags[admin_flags],$ereg_match)) {
 	exit_error("Error Removing Group Member","You cannot remove a group administrator. "
-	. "Email <A href=\"mailto:admin@sourceforge.org\">admin@sourceforge.org</A> "
+	. "Email <A href=\"mailto:project_admin@sourceforge.org\">project_admin@sourceforge.org</A> "
 	. "to request a change in project administration.");
 } 
 	

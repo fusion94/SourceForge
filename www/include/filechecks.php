@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: filechecks.php,v 1.34 2000/01/28 11:06:02 dtype Exp $
+// $Id: filechecks.php,v 1.30 2000/01/13 18:36:35 precision Exp $
 
 function filechecks_targz($filename) {
 	exec("tar -ztvf $GLOBALS[FTPINCOMING_DIR]/" . EscapeShellCmd($filename),$output,$ret);
@@ -36,12 +36,6 @@ function filechecks_getfiletype($filename) {
 	elseif (ereg(".diff.gz$",$filename)) {
 		$filetype = "diff/gz";
 		filechecks_gz($filename);
-	}
-	elseif (ereg(".asc$",$filename)) {
-		$filetype = "asc";
-	}
-	elseif (ereg(".bin$",$filename)) {
-		$filetype = "bin";
 	}
 	elseif (ereg(".exe$",$filename)) {
 		$filetype = "exe";
@@ -104,12 +98,7 @@ function filechecks_getfiletype($filename) {
 	}
 	elseif (ereg(".deb$",$filename)) {
 		$filetype = "deb";
-	}
-	elseif (ereg("\.([a-zA-Z]+)$",$filename,$regs)) {
-		$filetype = $regs[1];		
-	} 
-
-	if (!$filetype) {
+	} else {
 		exit_error ("Unknown file type","This file does not have a system-recognized filename type.");
 	}
 

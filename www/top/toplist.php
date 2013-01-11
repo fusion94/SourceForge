@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: toplist.php,v 1.25 2000/01/30 09:55:56 precision Exp $
+// $Id:$
 
 require "pre.php";    
 

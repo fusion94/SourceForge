@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.35 2000/01/26 13:49:54 tperdue Exp $
+// $Id: index.php,v 1.34 2000/01/13 18:36:34 precision Exp $
 
 require('pre.php');
 require('../bug_utils.php');
@@ -221,10 +221,24 @@ if ($group_id && (user_ismember($group_id,'B2') || user_ismember($group_id,'A'))
 			Show main page
 		*/
 
+		// get group info
+		$res_grp = db_query("SELECT option_bugs FROM groups WHERE group_id=$group_id");
+		if (db_numrows($res_grp) < 1) exit_error("Invalid Group","That group does not exist.");
+		$row_grp = db_fetch_array($res_grp);
+
 		bug_header(array ('title'=>'Bug Administration'));
 
 		echo '
 			<H1>Bug Administration</H1>';
+
+		echo '
+			<P>
+			<FORM action="bugoptionupdate.php" method="post">
+			<INPUT type="hidden" name="group_id" value="'.$group_id.'">
+			<INPUT type="checkbox" name="option_bugs" value="1"'.($row_grp[option_bugs]?" checked":"").'>
+			 Enable Web-based Bug Tracking <I>(Disabling will only remove public links)</I>
+			<BR><INPUT type="submit" name="Update" value="Update">
+			</FORM>';
 
 		echo '<P>
 			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&bug_cat=1">Add Bug Categories</A><BR>';

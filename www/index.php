@@ -4,32 +4,29 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.174 2000/01/29 18:14:18 tperdue Exp $
+// $Id: index.php,v 1.164 2000/01/13 18:36:34 precision Exp $
 
 require ('pre.php');    // Initial db and session library, opens session
 require ('cache.php');
 require($DOCUMENT_ROOT.'/forum/forum_utils.php');
 
-//generic_header(array('title'=>'Welcome'));
 site_header(array('title'=>'Welcome'));
+
 ?>
-&nbsp;
-<BR>
 
 <!-- whole page table -->
 <TABLE width=100% cellpadding=0 cellspacing=0 border=0>
-<TR><TD width="65%" VALIGN="TOP">
+<TR valign=top><TD width="65%">
 
-<?php
-echo news_show_latest(); ?>
+<P>
+<?php echo news_show_latest(); ?>
 
 <B>Help and discussion</B>
 <UL>
 <LI><A href="/forum/forum.php?forum_id=3"><B>SourceForge Help Forum</B></A>
 <LI><A href="/forum/forum.php?forum_id=2"><B>SourceForge Open Discussion Forum</B></A>
 <LI><A href="/forum/forum.php?forum_id=4"><B>SourceForge Feature Request Forum</B></A>
-<LI><A href="/bugs/?group_id=1"><B>SourceForge Bug Tracker</B></A> Submit a bug report.
-<LI><A href="/patch/?group_id=1"><B>SourceForge Patch Manager</B></A> Submit code contributions through the web.
+<LI><A href="/bugs/?group_id=1"><B>SourceForge Bug Tracker</B></A>
 <LI>Join us on IRC at <B>#sourceforge</B> on <B>irc.linux.com</B> (or the OpenProjects network)
 </UL>
 <P>
@@ -76,21 +73,15 @@ Thanks... and enjoy the site.
 
 </TD>
 <TD>&nbsp;</TD>
+<TD width="35%">
 
 <?php
-
-echo '<TD width="35%" VALIGN="TOP">';
-
 echo cache_display("show_features_boxes","show_features_boxes()",1800);
-
-
 ?>
 
 </TR></TABLE>
 
 <?php
-
 site_footer(array());
-
 site_cleanup(array());
 ?>

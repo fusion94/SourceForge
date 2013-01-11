@@ -4,20 +4,18 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: addfile.php,v 1.22 2000/01/26 10:44:32 tperdue Exp $
+// $Id: addfile.php,v 1.21 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    
 require "paths.php";
-require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
-session_require(array('group'=>$group_id,'admin_flags'=>'A'));
+session_require(array(group=>$group_id,admin_flags=>'A'));
 $menuarray = array();
 
-project_admin_header(array('title'=>'Release New File Version','group'=>$group_id));
+site_header(array(title=>"Release New File Version",group=>$group_id));
 
 html_box1_top("Releasing a New File Version: " . group_getname($group_id) ); ?>
-&nbsp;<BR>
-Before using this form, you must first send us the file to be released.
+&nbsp;<BR>Before using this form, you must first send us the file to be released.
 Send the file via anonymous ftp to <B>download.sourceforge.net</B>. Upload the file
 to the <B>/incoming</B> directory. There are NO downloads from this ftp server.
 
@@ -49,5 +47,6 @@ if (!$atleastone) {
 </FORM>
 
 <?php
-project_admin_footer(array());
+site_footer(array());
+site_cleanup(array());
 ?>

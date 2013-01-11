@@ -4,8 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: show_results_csv.php,v 1.5 2000/01/30 09:54:28 precision Exp $
-
+// $Id:$
 
 require('pre.php');
 require('HTML_Graphs.php');

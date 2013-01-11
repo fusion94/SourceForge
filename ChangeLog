@@ -1,23 +1,4 @@
-------------------------------------------------------------------------------
-Sun Jan 30 09:22:39 PST 2000
-
-1.0.4 - Added docs/ Directory containing both and Installation Guide and a
-        Administration guide provided by the SF Docs Projects. Thanks to
-	the sfdocs people for contributing this. http://sfdocs.sourceforge.net
-
-      - Added etc/local.inc as a example for /etc/local.inc which contains
-        the database information need to run this application.
-
-      - Patch Manager
-
-      - Email notification of files and forums that are being monitored. 
-
-      - Sorting of columns via link through the bugtracker, patch managers,
-        and task manager.  - (loic@users.sourceforge.net) - Thanks!
-
-      - All file extensions allowed on file uploads.
-
-------------------------------------------------------------------------------
+----------------------------------------------------------------------------
 
 Thu Jan 14 09:10:37 PST 2000
 
@@ -27,4 +8,4 @@ Thu Jan 14 09:10:37 PST 2000
 	Project News, Site News, Snippet Library, Registration System, and
 	Individual Account Maitenance.
 
-------------------------------------------------------------------------------
+----------------------------------------------------------------------------

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: dbimage.php,v 1.11 2000/01/20 10:29:11 dtype Exp $
+// $Id: dbimage.php,v 1.8 2000/01/13 18:36:34 precision Exp $
 
 require 'database.php';
 db_connect();
@@ -14,5 +14,5 @@ $row_img = db_fetch_array($res_img);
 
 // output image
 header("Content-Type: $row_img[image_type]");
-echo ($row_img[image_data]);
+echo stripslashes($row_img[image_data]);
 ?>

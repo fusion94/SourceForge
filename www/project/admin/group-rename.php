@@ -4,11 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: group-rename.php,v 1.10 2000/01/26 10:44:32 tperdue Exp $
+// $Id: group-rename.php,v 1.9 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    
 require "account.php";
-require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
 session_require(array('group'=>$group_id,'admin_flags'=>'A'));
 // ###### function register_valid()
@@ -35,24 +34,20 @@ function register_valid()	{
 if (register_valid()) {
 	session_redirect("/project/admin/?group_id=$group_id");
 } else { // not valid registration, or first time to page
-	project_admin_header(array('title'=>'Change Group Name','group'=>$group_id));
+	site_header(array(title=>"Change Group Name",group=>$group_id));
 
-	?>
-	<p><b>Group Name Change</b>
-	<?php 
+?>
+<p><b>Group Name Change</b>
+<?php if ($register_error) print "<p>$register_error"; ?>
+<form action="group-rename.php" method="post">
+<p>New Group (Descriptive) Name:
+<br><input type="text" name="form_name">
+<INPUT type="hidden" name="group_id" value="<?php print $group_id; ?>">
+<p><input type="submit" name="Update" value="Update">
+</form>
 
-	if ($register_error) 
-		print "<p>$register_error"; 
-
-	?>
-	<form action="group-rename.php" method="post">
-	<p>New Group (Descriptive) Name:
-	<br><input type="text" name="form_name">
-	<INPUT type="hidden" name="group_id" value="<?php print $group_id; ?>">
-	<p><input type="submit" name="Update" value="Update">
-	</form>
-
-	<?php
+<?php
 }
-project_admin_footer(array());
+site_footer(array());
+site_cleanup(array());
 ?>

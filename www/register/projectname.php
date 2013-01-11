@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: projectname.php,v 1.27 2000/01/25 09:27:18 tperdue Exp $
+// $Id: projectname.php,v 1.25 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 session_require(array('isloggedin'=>'1'));
@@ -39,8 +39,28 @@ if ($insert_purpose && $form_purpose) {
 	}
 
 } else {
-	exit_error('Error','Missing Information. <B>PLEASE</B> fill in all required information.');
+	exit_error('Error','This is an invalid state. 
+		<B>PLEASE</B> report to admin@sourceforge.net and 
+		include info on your browser and platform configuration');
 }
+
+/*
+if ($form_unix_name) {
+	 // check for valid group name
+	if (!account_groupnamevalid($form_unix_name)) {
+		exit_error("Invalid Group Name",$GLOBALS[register_error]);
+	}
+
+	if (db_numrows(db_query("SELECT group_id FROM groups WHERE "
+		. "unix_group_name LIKE '$form_unix_name'")) > 0) {
+		exit_error("Invalid Group Name","That group name already exists.");
+	}
+
+	session_puttextvar("register_unix_name",strtolower($form_unix_name));
+	session_puttextvar("register_full_name",$form_full_name);
+	session_redirect("/register/license.php");
+}
+*/
 
 site_header(array('title'=>'Project Name'));
 

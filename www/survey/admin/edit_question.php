@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: edit_question.php,v 1.9 2000/01/30 09:54:28 precision Exp $
+// $Id:$
 
 require('pre.php');
 require($DOCUMENT_ROOT.'/survey/survey_utils.php');

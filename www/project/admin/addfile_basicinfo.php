@@ -4,14 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: addfile_basicinfo.php,v 1.33 2000/01/26 10:44:32 tperdue Exp $
+// $Id: addfile_basicinfo.php,v 1.32 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    
 require "paths.php";
 require "filechecks.php";
-require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
-
-session_require(array('group'=>$group_id,'admin_flags'=>'A'));
+session_require(array(group=>$group_id,admin_flags=>'A'));
 
 // determine file type and test
 $form_filetype = filechecks_getfiletype($form_filename);
@@ -25,7 +23,7 @@ if (db_numrows($res_samename) > 0) {
 	exit_error("Duplicate Filename",'A file with that name already exists for this group.');
 }
 
-project_admin_header(array('title'=>"File Release - Basic Information",'group'=>$group_id));
+site_header(array(title=>"File Release - Basic Information",group=>$group_id));
 ?>
 
 <?php html_box1_top("New File Release for " . group_getname($group_id) . ": " . $form_filename); ?>
@@ -90,13 +88,13 @@ to define a module.</I>
 <INPUT type=hidden name="group_id" value="<?php print $group_id; ?>">
 <INPUT type=hidden name="form_filetype" value="<?php print $form_filetype; ?>">
 <INPUT type=hidden name="form_filesize" value="<?php 
-	print filesize($FTPINCOMING_DIR . "/" . $form_filename); ?>">
-<INPUT type=hidden name="form_filename" value="<?php 
-	print $form_filename; ?>">
+print filesize($FTPINCOMING_DIR . "/" . $form_filename); ?>">
+<INPUT type=hidden name="form_filename" value="<?php print $form_filename; ?>">
 <P><INPUT type=submit name="Submit" value="Submit">
 
 </FORM>
 
 <?php
-project_admin_footer(array());
+site_footer(array());
+site_cleanup(array());
 ?>

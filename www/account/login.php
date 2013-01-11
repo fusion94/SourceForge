@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: login.php,v 1.28 2000/01/27 14:27:27 fusion94 Exp $
+// $Id: login.php,v 1.25 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
 
@@ -53,11 +53,10 @@ if ($form_loginname && $form_pw && login_valid()) {
 	}
 
 	?>
-        
+
 	<p>
 	<b>SourceForge Site Login</b>
-	<p><font color="red">Cookies must be enabled past this point.</font>
-        <form action="login.php" method="post">
+	<form action="login.php" method="post">
 	<p>Login Name:
 	<br><input type="text" name="form_loginname" VALUE="<?php echo $form_loginname; ?>">
 	<p>Password:

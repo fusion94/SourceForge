@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: filelist.php,v 1.46 2000/01/20 19:43:21 dtype Exp $
+// $Id: filelist.php,v 1.45 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    
 if ((!$group_id) && $form_grp) $group_id=$form_grp;
@@ -43,7 +43,7 @@ while ($row_module = db_fetch_array($res_module)) {
 	print '<TR><TD colspan=7>&nbsp;<BR>File Module: <B>'.$row_module[module_name].'</B></TD></TR>';
 	while ($row_file = db_fetch_array($res_file)) {
 		html_colored_tr();
-		print "<TD><A href=\"http://download.sourceforge.net/$row_grp[unix_group_name]/$row_file[filename]\">";
+		print "<TD><A href=\"/download.php/$row_grp[unix_group_name]/$row_file[filename]\">";
 		print "$row_file[filename]</A></TD>";
 		print "<TD align=right>$row_file[file_size]&nbsp;&nbsp;</TD>";
 		print "<TD align=right>$row_file[downloads]&nbsp;&nbsp;</TD>";

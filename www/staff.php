@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: staff.php,v 1.24 2000/01/20 11:45:46 dtype Exp $
+// $Id: staff.php,v 1.23 2000/01/13 18:36:34 precision Exp $
 
 require ('pre.php');    
 site_header(array('title'=>'SorceForge Staff'));
@@ -46,13 +46,6 @@ Tim founded <A HREF="http://www.phpbuilder.com/">PHPBuilder.com</A> and <A HREF=
 <td>(Precision)</td>
 <td>Uriah is a system adminsitrator/developer from the frosty regions of Minnesota.  When he's not shoveling his driveway or
 defrosting his car you'll find him locked away in a dark room somewhere in front of a computer.</td>
-</tr>
-
-<tr valign=top>
-<td><a href="/sendmessage.php?toaddress=aphzen_maillink_users.sourceforge.net">Quentin Cregan</a></td>
-<td>(aphzen)</td>
-<td>Quentin is also an admin at Linux.com. Trae thinks he still has some sort of control of q,
-but doesn't realize he's been sucked into the time vortex that is SourceForge.</td>
 </tr>
 
 </table>

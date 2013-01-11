@@ -4,13 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: filerelease-edit.php,v 1.27 2000/01/26 10:44:32 tperdue Exp $
+// $Id: filerelease-edit.php,v 1.26 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    
 require "paths.php";
-require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
-session_require(array('group'=>$group_id,'adminflags'=>'A'));
+session_require(array(group=>$group_id,adminflags=>"A"));
 
 $res_file = db_query("SELECT * FROM filerelease WHERE filerelease_id=$form_filerelease_id");
 if (db_numrows($res_file) < 1) {
@@ -73,7 +72,7 @@ if ($GLOBALS[Submit]) {
 	session_redirect("/project/admin/filerelease-list.php?group_id=$group_id");
 }
 
-project_admin_header(array('title'=>'File Release - Edit Information','group'=>$group_id));
+site_header(array(title=>"File Release - Edit Information",group=>$group_id));
 ?>
 
 <FORM action="filerelease-edit.php" method=post>
@@ -144,5 +143,6 @@ Display notes and changelog as text (PRE) instead of HTML.
 </FORM>
 
 <?php
-project_admin_footer(array());
+site_footer(array());
+site_cleanup(array());
 ?>

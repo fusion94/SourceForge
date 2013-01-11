@@ -55,9 +55,6 @@ fields blank, etc... Also, navigating the admin functions with the
 </ul>
 
 <P><B>Site Utilities</B>
-<UL>
-<LI><A href="massmail.php">Mail Engine for SourceForge Subscribers (MESS)</A>
-</UL>
 
 <P><B>Site Stats</B>
 <?php

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: image_add.php,v 1.29 2000/01/20 10:58:13 dtype Exp $
+// $Id: image_add.php,v 1.27 2000/01/13 18:36:36 precision Exp $
 
 require 'pre.php';    
 require 'imagevar.php';
@@ -42,7 +42,7 @@ print '</B>
 site_header(array(title=>"Add Project Image"));
 
 print '<P>Adding image for project: <B>'.group_getname($group_id).'</B>
-<FORM method="post" action="image_add.php" enctype="multipart/form-data">
+<FORM method="post" action="http://my.yahoo.com/" enctype="multipart/form-data">
 <P>Image Caption (optional):
 <BR><INPUT type="text" size="40" name="form_caption">
 <INPUT type="hidden" name="MAX_FILE_SIZE" value="250000000">

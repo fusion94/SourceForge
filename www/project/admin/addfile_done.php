@@ -4,12 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: addfile_done.php,v 1.58 2000/01/29 16:15:10 tperdue Exp $
+// $Id: addfile_done.php,v 1.51 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    
-require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
-
-session_require(array('group'=>$group_id,'admin_flags'=>'A'));
+session_require(array(group=>$group_id,admin_flags=>"A"));
 // error checking
 
 if (!$form_release_version) exit_error("Submit Error","You must enter a release version number.");
@@ -31,8 +29,6 @@ if ($unix_release_time > time()) {
 	$unix_release_time = time();
 }
 
-$result=db_query("SELECT * FROM filerelease WHERE filemodule_id='$form_filemodule' AND post_time > '$then'");
-
 // add to filerelease
 
 db_query("INSERT INTO filerelease (group_id,user_id,unix_box,unix_partition,text_notes,text_changes,"
@@ -46,53 +42,7 @@ db_query("INSERT INTO filerelease (group_id,user_id,unix_box,unix_partition,text
 db_query("UPDATE filemodule SET recent_filerelease='$form_release_version' WHERE "
 	. "filemodule_id=$form_filemodule");
 
-// check and see if any releases have been made in 
-// this filemodule in the last 6 hours. If not, send an email
-// to everyone monitoring the file.
-
-$then=(time()-21600);
-
-if ($result && db_numrows($result) < 1) {
-	//get the emails of those who are monitoring this filemodule
-	$sql="SELECT user.email,filemodule.module_name,groups.unix_group_name ".
-		"FROM user,filemodule_monitor,filemodule,groups ".
-		"WHERE user.user_id=filemodule_monitor.user_id ".
-		"AND groups.group_id=filemodule.group_id ".
-		"AND filemodule_monitor.filemodule_id=filemodule.filemodule_id ".
-		"AND filemodule_monitor.filemodule_id='$form_filemodule'";
-
-	$result=db_query($sql);
-	if ($result && db_numrows($result) > 0) {
-		//send the email
-		$array_emails=result_column_to_array($result);
-		$list=implode($array_emails,', ');
-
-// http://download.sourceforge.net/unix_group_name/filename
-
-		$subject='SourceForge File Release Notice';
-
-		$body = "To: noreply@sourceforge.net".
-			"\nBCC: $list".
-			"\nSubject: $subject".
-			"\n\nA new version of ". db_result($result,0,'module_name')." has been released. ".
-			"\nYou can download it from SourceForge by following this link: ".
-			"\n\nhttp://download.sourceforge.net/".db_result($result,0,'unix_group_name')."/$form_filename ".
-			"\n\nYou requested to be notified when new versions of this file ".
-			"\nwere released. If you don't wish to be notified in the ".
-			"\nfuture, please login to SourceForge and click this link: ".
-			"\nhttp://sourceforge.net/project/filemodule_monitor.php?filemodule_id=$form_filemodule ";
-
-		exec ("/bin/echo \"$body\" | /usr/sbin/sendmail -fnoreply@sourceforge.net -t");
-		$feedback .= ' email sent - users tracking ';
-	} else {
-		echo db_error();
-		$feedback .= ' email not sent - no users tracking ';
-	}
-} else {
-	$feedback .= ' email not sent - '.db_numrows($result).' release(s) in last 6 hours ';
-}
-
-project_admin_header(array('title'=>'File Release Confirmation','group'=>$group_id));
+site_header(array(title=>"File Release Confirmation",group=>$group_id));
 ?>
 
 <P><B>Success!</B>
@@ -104,5 +54,6 @@ for download within 120 seconds.
 <BR><A href="/project/admin/?group_id=<?php print $group_id; ?>">[Return to Project Administration]</A>
 
 <?php
-project_admin_footer(array());
+site_footer(array());
+site_cleanup(array());
 ?>

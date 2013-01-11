@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: submit.php,v 1.15 2000/01/26 09:39:35 tperdue Exp $
+// $Id: submit.php,v 1.13 2000/01/13 18:36:35 precision Exp $
 
 require('pre.php');
 require('../forum/forum_utils.php');
@@ -52,23 +52,20 @@ if (user_isloggedin()) {
 	echo '</H3>
 		<P>
 		You can post news about your project if you are an admin on your project. 
-		You may also post "help wanted" notes if your project needs help.
-		<P>
-		All posts <B>for your project</B> will appear instantly on your project 
-		summary page. Posts that are of special interest to the community will 
-		have to be approved by a member of the news team before they will appear 
-		on the SourceForge home page.
-		<P>
-		<FONT COLOR="RED"><B>If you want your news to appear on your project summary page, 
-		make sure you submit it FROM YOUR PROJECT - check the FOR PROJECT name below.</B></FONT>
+		You may also post "help wanted" notes if your project needs help. News 
+		about Open Source software projects is always welcome. All posts 
+		will have to be approved by a member of the news team before it will appear 
+		on the main web site.
 		<P>
 		You may include URLs, but not HTML in your submissions.
 		<P>
-		URLs that start with http:// are made clickable.
-		<P>
 		<FORM ACTION="'.$PHP_SELF.'" METHOD="POST">
-		<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
-		<B>For Project: '.( ($group_id == 714) ? '<B>No Project/General OSS News</B>' : group_getname($group_id) ).'</B>
+		<B>For Project: </B>
+		<SELECT NAME="group_id">
+			<OPTION VALUE="'.$group_id.'">'.group_getname($group_id).'
+			<OPTION VALUE="714">General News</A>
+		</SELECT>';
+	echo '
 		<INPUT TYPE="HIDDEN" NAME="post_changes" VALUE="y">
 		<P>
 		<B>Subject:</B><BR>

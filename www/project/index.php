@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.208 2000/01/29 17:27:20 tperdue Exp $
+// $Id: index.php,v 1.194 2000/01/13 18:36:36 precision Exp $
 
 require ('pre.php');    
 require ('vote_function.php');
@@ -43,7 +43,7 @@ if (!(($row_grp[status] == 'A') || ($row_grp[status] == 'H'))) {
 	session_require(array('group'=>1));
 }
 
-site_header(array('title'=>'Project Info','group'=>$group_id));
+site_header(array(title=>"Project Info",group=>$group_id));
 
 // ######################### TABS
 html_tabs("home",$group_id);
@@ -101,25 +101,23 @@ which may or may not be hosted at SourceForge.</I>';
 
 // ################## forums
 
-if (($row_grp['status'] == 'A') && ($row_grp['use_forum'])) {
-	print '<HR><A href="/forum/?group_id='.$group_id.'">';
-	html_image("ic/notes.png",array()); 
-	print '&nbsp;Public Forums</A>';
-	$res_count = db_query("SELECT count(forum.msg_id) AS count FROM forum,forum_group_list WHERE "
-		. "forum_group_list.group_id=$group_id AND forum.group_forum_id=forum_group_list.group_forum_id "
-		. "AND forum_group_list.is_public=1");
-	$row_count = db_fetch_array($res_count);
-	print "<BR><I>There are now <B>$row_count[count]</B> messages in ";
+print '<HR><A href="/forum/?group_id='.$group_id.'">';
+html_image("ic/notes.png",array()); 
+print '&nbsp;Public Forums</A>';
+$res_count = db_query("SELECT count(forum.msg_id) AS count FROM forum,forum_group_list WHERE "
+	. "forum_group_list.group_id=$group_id AND forum.group_forum_id=forum_group_list.group_forum_id "
+	. "AND forum_group_list.is_public=1");
+$row_count = db_fetch_array($res_count);
+print "<BR><I>There are now <B>$row_count[count]</B> messages in ";
 
-	$res_count = db_query("SELECT count(*) AS count FROM forum_group_list WHERE group_id=$group_id "
-		. "AND is_public=1");
-	$row_count = db_fetch_array($res_count);
-	print "<B>$row_count[count]</B> forums</I>\n";
-}
+$res_count = db_query("SELECT count(*) AS count FROM forum_group_list WHERE group_id=$group_id "
+	. "AND is_public=1");
+$row_count = db_fetch_array($res_count);
+print "<B>$row_count[count]</B> forums</I>\n";
 
 // ##################### Bug tracking (only for Active)
 
-if (($row_grp['status'] == 'A') && ($row_grp['use_bugs'])) {
+if (($row_grp[status] == 'A') && ($row_grp[option_bugs])) {
 	print '<HR><A href="/bugs/?group_id='.$group_id.'">';
 	html_image("ic/bug.png",array()); 
 	print '&nbsp;Bug Tracking</A>';
@@ -131,23 +129,9 @@ if (($row_grp['status'] == 'A') && ($row_grp['use_bugs'])) {
 	print " open bugs, <B>$row_count[count]</B> total.";
 }
 
-// ##################### Patch Manager (only for Active)
-
-if (($row_grp['status'] == 'A') && ($row_grp['use_patch'])) {
-        print '
-		<HR>
-		<A href="/patch/?group_id='.$group_id.'">';
-        html_image("ic/patch.png",array());
-        print '&nbsp;Patch Manager</A>';
-        $res_count = db_query("SELECT count(*) AS count FROM patch WHERE group_id=$group_id");
-        $row_count = db_fetch_array($res_count);
-        print "<BR><I>There are <B>$row_count[count]</B>";
-        print " Patches.";
-}
-
 // ##################### Mailing lists (only for Active)
 
-if (($row_grp['status'] == 'A') && ($row_grp['use_mail'])) {
+if ($row_grp[status] == 'A') {
 	print '<HR><A href="/mail/?group_id='.$group_id.'">';
 	html_image("ic/mail.png",array()); 
 	print '&nbsp;Mailing Lists</A>';
@@ -158,7 +142,7 @@ if (($row_grp['status'] == 'A') && ($row_grp['use_mail'])) {
 
 // ######################### Surveys (only for Active)
 
-if (($row_grp['status'] == 'A') && ($row_grp['use_survey'])) {
+if ($row_grp[status] == 'A') {
 	print "<HR><A href=\"/survey/?group_id=$group_id\">";
 	html_image("ic/survey.png",array());
 	print " Public Surveys</A>";
@@ -168,7 +152,7 @@ if (($row_grp['status'] == 'A') && ($row_grp['use_survey'])) {
 
 // ######################### CVS (only for Active)
 
-if (($row_grp['status'] == 'A') && ($row_grp['use_cvs'])) {
+if ($row_grp[status] == 'A') {
 	print "<HR><A href=\"/cvs/?group_id=$group_id\">";
 	html_image("ic/convert.png",array());
 	print " CVS Repository</A>";
@@ -204,7 +188,7 @@ html_box1_bottom();
 
 // ########################### Developers on this project
 
-echo html_box1_top("Developer Info",0,$GLOBALS[COLOR_LTBACK2]);
+html_box1_top("Developer Info");
 
 echo '&nbsp;<BR></TD></TR>';
 
@@ -237,9 +221,11 @@ print db_numrows($res_count);
 <A HREF="memberlist.php?group_id=<?php print $group_id; ?>">[View Members]</A>
 <?php 
 
+html_box1_bottom();
+
 // ############################# File Releases
 
-echo html_box1_middle('File Releases',$GLOBALS[COLOR_LTBACK2]); 
+html_box1_top("File Releases"); 
 	print "&nbsp;<BR>";
 	$res_modules = db_query("SELECT filemodule_id,module_name,recent_filerelease "
 		. "FROM filemodule WHERE group_id=$group_id");
@@ -266,28 +252,23 @@ echo html_box1_middle('File Releases',$GLOBALS[COLOR_LTBACK2]);
 				print "<BR>Download: ";
 				// print all file types
 				while ($row_files = db_fetch_array($res_files)) {
-					print "<A href=\"http://download.sourceforge.net/$unix_group_name/$row_files[filename]\">"
+					print "<A href=\"/download.php?fileid=$row_files[filerelease_id]\">"
 						. "[$row_files[file_type]]</A>";
 				}
 			}
-			echo '<P>
-				<A HREF="/project/filemodule_monitor.php?filemodule_id='.
-				$row_modules['filemodule_id'].'">'; 
-			echo html_image("ic/check.png",array()).' Monitor This Module</A>'.
-				' Receive an email update when a new file is released in this module.';
-			print '<P>
-';
+			print "<P>";
 		}
 ?><P align=center><A href="filelist.php?group_id=<?php print $group_id; ?>">[View ALL Project Files]</A><?php
 	} // else modules exist
 
+html_box1_bottom(); 
+
+echo '<P>';
 
 //latest news items for this project
-if (($row_grp['status'] == 'A') && ($row_grp['use_news'])) {
-	echo html_box1_middle('Latest News',$GLOBALS[COLOR_LTBACK2]);
 
-	echo news_show_latest($group_id);
-}
+echo news_show_latest($group_id);
+
 /*
 	Show a Survey
 	This needs to be updated manually to display any given survey
@@ -302,8 +283,6 @@ if (db_numrows($result) < 1) {
 	html_box1_bottom();
 }
 */
-
-echo html_box1_bottom();
 
 ?>
 </TD>

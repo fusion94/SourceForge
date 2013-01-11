@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: tos.php,v 1.29 2000/01/19 15:08:56 dtype Exp $
+// $Id: tos.php,v 1.27 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 session_require(array(isloggedin=>1));
@@ -175,7 +175,15 @@ agree to comply with all applicable laws regarding the transmission of technical
 the Service would include public SourceForge BugTraq and SourceForge Message Forums, but would not include private SourceForge BugTraq or private SourceForge 
 communication services such as SourceForge Mail or Forums.
 
+<li>With respect to Content you elect to post for inclusion in publicly accessible areas of SourceForge Projects or that consists of photos or other graphics you 
+elect to post to any other publicly accessible area of the Service, you grant SourceForge the world-wide, royalty free and non-exclusive license to reproduce, modify, 
+adapt and publish such Content on the Service solely for the purpose of displaying, distributing and promoting the specific SourceForge Project to which such Content 
+was submitted, or, in the case of photos or graphics, solely for the purpose for which such photo or graphic was submitted to the Service. This license exists only for 
+as long as you elect to continue to include such Content on the Service and shall be terminated at the time you delete such Content from the Service.
 
+<li>With respect to all other Content you elect to post to other publicly accessible areas of the Service, you grant SourceForge the royalty-free, perpetual, 
+irrevocable, non-exclusive and fully sublicensable right and license to use, reproduce, modify, adapt, publish, translate, create derivative works from, distribute, 
+perform and display such Content (in whole or part) worldwide and/or to incorporate it in other works in any form, media, or technology now known or later developed. 
 </ol>
 </p>
 

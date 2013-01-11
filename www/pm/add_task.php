@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: add_task.php,v 1.59 2000/01/18 05:27:53 tperdue Exp $
+// $Id: add_task.php,v 1.58 2000/01/13 18:36:35 precision Exp $
 
 pm_header(array('title'=>'Add a New Task'));
 
@@ -81,9 +81,7 @@ pm_header(array('title'=>'Add a New Task'));
 		<BR>
 		<?php
 		$sql="SELECT project_task_id,summary ".
-			"FROM project_task ".
-			"WHERE group_project_id='$group_project_id' ".
-			"AND status_id <> '3' ORDER BY project_task_id DESC LIMIT 100";
+			"FROM project_task WHERE group_project_id='$group_project_id' AND status_id <> '3' ORDER BY project_task_id DESC LIMIT 200";
 		$result=db_query($sql);
 		build_multiple_select_box($result,'dependent_on[]',array());
 		?>

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.11 2000/01/14 19:44:14 tperdue Exp $
+// $Id: index.php,v 1.10 2000/01/13 18:36:36 precision Exp $
 
 require('pre.php');
 require('../pm_utils.php');
@@ -147,8 +147,7 @@ if ($group_id && user_ismember($group_id,'P2')) {
 						<FONT SIZE="-1">
 						<B>Is Public?</B><BR>
 						<INPUT TYPE="RADIO" NAME="is_public" VALUE="1"'.((db_result($result,$i,'is_public')=='1')?' CHECKED':'').'> Yes<BR>
-						<INPUT TYPE="RADIO" NAME="is_public" VALUE="0"'.((db_result($result,$i,'is_public')=='0')?' CHECKED':'').'> No<BR>
-						<INPUT TYPE="RADIO" NAME="is_public" VALUE="9"'.((db_result($result,$i,'is_public')=='9')?' CHECKED':'').'> Deleted<BR>
+						<INPUT TYPE="RADIO" NAME="is_public" VALUE="0"'.((db_result($result,$i,'is_public')=='0')?' CHECKED':'').'> No
 					</TD><TD>
 						<FONT SIZE="-1">
 						<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Update Status">
@@ -165,15 +164,13 @@ if ($group_id && user_ismember($group_id,'P2')) {
 		*/
 		pm_header(array('title'=>'Project/Task Manager Administration'));
 
-		echo '
-			<H2>Project/Task Manager Administration</H2>
-			<P>
-			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&projects=1">Add A Project</A><BR>
-			Add a project, which can contain a set of tasks. This is different than creating a new task.
-			<BR>
-			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&change_status=1">Set Public/Private</A><BR>
-			Determine whether non-project-members can view Projects in the Project/Task Manager';
-
+		echo "\n<H1>Project/Task Manager Administration</H1>";
+		echo "\n<P>";
+		echo "\n<A HREF=\"$PHP_SELF?group_id=$group_id&projects=1\">Add A Project</A><BR>";
+		echo "\nAdd a project, which can contain a set of tasks. This is different than creating a new task.";
+		echo "\n<BR>";
+		echo "\n<A HREF=\"$PHP_SELF?group_id=$group_id&change_status=1\">Set Public/Private</A><BR>";
+		echo "\nDetermine whether non-project-members can view Projects in the Project/Task Manager";
 		pm_footer(array());
 	}
 

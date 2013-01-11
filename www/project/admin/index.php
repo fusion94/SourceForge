@@ -4,10 +4,9 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.70 2000/01/26 10:44:32 tperdue Exp $
+// $Id: index.php,v 1.69 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    
-require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
 session_require(array('group'=>$group_id,'admin_flags'=>'A'));
 
@@ -24,7 +23,7 @@ if (db_numrows($res_grp) < 1) exit_error("Invalid Group","That group could not b
 $row_grp = db_fetch_array($res_grp);
 if (!(($row_grp[status] == 'A') || ($row_grp[status] == 'H'))) session_require (array(group=>1));
 
-project_admin_header(array(title=>"Editing Project",group=>$group_id));
+site_header(array(title=>"Editing Project",group=>$group_id));
 ?>                     
 
 <?php html_box1_top("Group Edit: " . group_getname($group_id)); 
@@ -89,5 +88,6 @@ while ($row_memb=db_fetch_array($res_memb)) {
 </TABLE>
 
 <?php
-project_admin_footer(array());
+site_footer($menuarray);
+site_cleanup(array());
 ?>

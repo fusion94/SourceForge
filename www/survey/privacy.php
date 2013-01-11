@@ -4,7 +4,8 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: privacy.php,v 1.3 2000/01/30 09:54:28 precision Exp $
+// $Id:$
+
 
 require('pre.php');
 require('vote_function.php');

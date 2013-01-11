@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: mod_bug.php,v 1.43 2000/01/18 05:27:53 tperdue Exp $
+// $Id: mod_bug.php,v 1.42 2000/01/13 18:36:34 precision Exp $
 
 bug_header(array ('title'=>'Modify a Bug'));
 
@@ -118,10 +118,8 @@ if (db_numrows($result) > 0) {
 		Dependent on Task........
 	*/
 	$sql="SELECT project_task.project_task_id,project_task.summary ".
-		"FROM project_task,project_group_list ".
-		"WHERE project_task.group_project_id=project_group_list.group_project_id ".
-		"AND project_task.status_id <> '3' ".
-		"AND project_group_list.group_id='$group_id' ORDER BY project_task_id DESC LIMIT 100";
+		"FROM project_task,project_group_list WHERE project_task.group_project_id=project_group_list.group_project_id ".
+		"AND project_task.status_id <> '3' AND project_group_list.group_id='$group_id' ORDER BY project_task_id DESC LIMIT 150";
 	$result3=db_query($sql);
 
 	/*
@@ -140,9 +138,7 @@ if (db_numrows($result) > 0) {
 		Dependent on Bug........
 	*/
 	$sql="SELECT bug_id,summary ".
-		"FROM bug ".
-		"WHERE group_id='$group_id' ".
-		"AND bug_id <> '$bug_id' ORDER BY bug_id DESC LIMIT 100";
+		"FROM bug WHERE group_id='$group_id' AND bug_id <> '$bug_id' ORDER BY bug_id DESC LIMIT 150";
 	$result3=db_query($sql);
 
 	/*

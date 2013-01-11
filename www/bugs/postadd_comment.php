@@ -4,14 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: postadd_comment.php,v 1.3 2000/01/26 15:35:22 tperdue Exp $
+// $Id: postadd_comment.php,v 1.2 2000/01/13 18:36:34 precision Exp $
 
 if ($details != '') { 
 	bug_history_create('details',addslashes(htmlspecialchars($details)),$bug_id);  
-	mail_followup($bug_id);
-	$feedback .= ' Comment added to bug ';
 }
 
-$feedback .= ' Nothing Done ';
+$feedback .= ' Comment added to bug ';
 
 ?>

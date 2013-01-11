@@ -4,14 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: filerelease-list.php,v 1.11 2000/01/26 10:44:32 tperdue Exp $
+// $Id: filerelease-list.php,v 1.10 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    
-require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
-
-session_require(array('group'=>$group_id,'admin_flags'=>'A'));
-
-project_admin_header(array('title'=>'Admin Project Filelist','group'=>$group_id));
+session_require(array(group=>$group_id,admin_flags=>"A"));
+site_header(array(title=>"Admin Project Filelist",group=>$group_id));
 
 $res_module = db_query("SELECT * FROM filemodule WHERE group_id=$group_id");
 
@@ -86,5 +83,6 @@ while ($row_module = db_fetch_array($res_module)) {
 	html_box1_bottom();
 }
 
-project_admin_footer(array());
+site_footer(array());
+site_cleanup(array());
 ?>

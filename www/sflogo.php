@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: sflogo.php,v 1.6 2000/01/28 10:29:00 dtype Exp $
+// $Id: sflogo.php,v 1.5 2000/01/13 18:36:34 precision Exp $
 
 require 'database.php';
 db_connect();
@@ -63,8 +63,6 @@ if (!$res_logger) {
 
 // output image
 header("Content-Type: image/png");
-header("Cache-Control: no-cache, must-revalidate");
-header("Pragma: no-cache");
 
 if ($type == 1) {
 	readfile ($sys_urlroot.'images/sflogo-88-1.png');

@@ -4,17 +4,15 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: bug_utils.php,v 1.129 2000/01/29 17:29:25 tperdue Exp $
+// $Id: bug_utils.php,v 1.123 2000/01/13 18:36:34 precision Exp $
 
-/*
-	Bug Tracker
-	By Tim Perdue, Sourceforge, 11/99
-*/
 function bug_header($params) {
 	global $group_id,$is_bug_page,$DOCUMENT_ROOT;
 	$is_bug_page=1;
 	$params['group']=$group_id;
 	site_header($params);
+
+	echo "&nbsp;<BR>";
 
 	html_tabs('bugs',$group_id);
 
@@ -40,6 +38,79 @@ function bug_footer($params) {
 	site_footer($params);
 }
 
+function show_filters ($group_id) {
+	/*
+		The goal here is to show any existing bug filters for this user/group combo.
+		In addition, we are going to show an empty row where a new filter can be created
+	*/
+	$sql="SELECT * FROM bug_filter WHERE user_id='".user_getid()."' AND group_id='$group_id'";
+	$result=db_query($sql);
+
+	echo '<TABLE BORDER="0" CELLSPACING="1" CELLPADDING="2">';
+
+	if ($result && db_numrows($result) > 0) {
+		for ($i=0; $i<db_numrows($result); $i++) {
+			if ($i % 2 == 0) {
+				$row_color=' BGCOLOR="#FFFFFF"';
+			} else {
+				$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+			}
+			/*
+				iterate and show the existing filters
+			*/
+			?>
+			<FORM ACTION="<?php echo $PHP_SELF; ?>" METHOD="POST">
+			<INPUT TYPE="HIDDEN" NAME="func" VALUE="postmodfilters">
+			<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="<?php echo $group_id; ?>">
+			<INPUT TYPE="HIDDEN" NAME="subfunc" VALUE="mod">
+			<INPUT TYPE="HIDDEN" NAME="filter_id" VALUE="<?php 
+				echo db_result($result,$i,"filter_id"); 
+			?>">
+			<TR<?php echo $row_color; ?>>
+				<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="delete_filter" VALUE="Delete"><BR><INPUT TYPE="SUBMIT" NAME="submit" VALUE="Modify/Activate"></TD>
+				<TD NOWRAP><FONT SIZE="-1">SELECT * FROM bug WHERE<BR>bug.group_id='<?php echo $group_id; ?>' AND (</TD>
+				<TD NOWRAP><FONT SIZE="-1"><INPUT TYPE="TEXT" SIZE="60" MAXLENGTH="250" NAME="sql_clause" VALUE="<?php 
+						echo stripslashes(db_result($result,$i,"sql_clause")); 
+					?>"></TD>
+				<TD NOWRAP><FONT SIZE="-1">) LIMIT 0,50</TD>
+			</TR></FORM>
+			<?php
+
+		}
+	}
+
+	/*
+		empty form for new filter
+	*/
+	if ($i % 2 == 0) {
+	       $row_color=' BGCOLOR="#FFFFFF"';
+	} else {
+	       $row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+	}
+
+	?>
+	<FORM ACTION="<?php echo $PHP_SELF; ?>" METHOD="POST">
+	<INPUT TYPE="HIDDEN" NAME="func" VALUE="postmodfilters">
+	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="<?php echo $group_id; ?>">
+	<INPUT TYPE="HIDDEN" NAME="subfunc" VALUE="add">
+	<TR<?php echo $row_color; ?>>
+		<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Add"></TD>
+		<TD NOWRAP><FONT SIZE="-1">SELECT * FROM bug WHERE<BR>bug.group_id='<?php echo $group_id; ?>' AND (</TD>
+		<TD NOWRAP><FONT SIZE="-1"><INPUT TYPE="TEXT" SIZE="60" MAXLENGTH="250" NAME="sql_clause" VALUE="bug.status_id IN (1,2,3) OR bug.priority > 0 OR bug.bug_group_id IN (1,2,3,4) OR bug.resolution_id IN (1,2,3) OR bug.assigned_to IN (1,2,3,4,5,6) OR bug.category_id IN (1,2,3)"></TD>
+		<TD NOWRAP><FONT SIZE="-1">) LIMIT 0,50</TD>
+	</TR></FORM>
+	</TABLE>
+	<P>
+	<FORM ACTION="<?php echo $PHP_SELF; ?>" METHOD="POST">
+	<INPUT TYPE="HIDDEN" NAME="func" VALUE="postmodfilters">
+	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="<?php echo $group_id; ?>">
+	<INPUT TYPE="HIDDEN" NAME="subfunc" VALUE="turn_off">
+	<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Deactivate Filters">
+	</FORM>
+<?php
+
+}
+
 function show_buglist ($result,$offset,$set='open') {
 	global $sys_datefmt,$group_id;
 	/*
@@ -48,22 +119,19 @@ function show_buglist ($result,$offset,$set='open') {
 	*/
 
 	$rows=db_numrows($result);
-	$url = "/bugs/?group_id=$group_id&set=$set&order=";
 	echo '
 		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
-		<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
-		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'bug_id"><FONT COLOR="#FFFFFF"><B>Bug ID</A></TD>
-		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'summary"><FONT COLOR="#FFFFFF"><B>Summary</A></TD>
-		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'date"><FONT COLOR="#FFFFFF"><B>Date</A></TD>
-		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'assigned_to_user"><FONT COLOR="#FFFFFF"><B>Assigned To</A></TD>
-		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'submitted_by"><FONT COLOR="#FFFFFF"><B>Submitted By</A></TD>
-		</TR>';
+		<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'"><TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Bug ID</TD>
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Summary</TD>
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Date</TD>
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Assigned To</TD>
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Submitted By</TD></TR>';
 
 	for ($i=0; $i < $rows; $i++) {
 
 		echo '
 			<TR BGCOLOR="'.get_priority_color(db_result($result, $i, 'priority')).'">'.
-			'<TD><A HREF="/bugs/?func=detailbug&bug_id='.db_result($result, $i, 'bug_id').
+			'<TD><A HREF="'.$PHP_SELF.'?func=detailbug&bug_id='.db_result($result, $i, 'bug_id').
 			'&group_id='.db_result($result, $i, 'group_id').'">'.db_result($result, $i, 'bug_id').'</A></TD>'.
 			'<TD>'.stripslashes(db_result($result, $i, 'summary')).'</TD>'.
 			'<TD>'.date($sys_datefmt,db_result($result, $i, 'date')).'</TD>'.
@@ -122,15 +190,14 @@ function mail_followup($bug_id) {
 
 	if ($result && db_numrows($result) > 0) {
 
-		$body = 'Bug #'.db_result($result,0,'bug_id').', which you submitted on '.date($sys_datefmt,db_result($result,0,'date')).' has '.
+		$body = "Bug #".db_result($result,0,"bug_id").", which you submitted on ".date($sys_datefmt,db_result($result,0,"date"))." has ".
 			"\nbeen updated. Here is a current snapshot of the bug.".
-			"\n\nCategory: ".db_result($result,0,'category_name').
-			"\nStatus: ".db_result($result,0,'status_name').
-			"\nResolution: ".db_result($result,0,'resolution_name').
-			"\nBug Group: ".db_result($result,0,'group_name').
-			"\nPriority: ".db_result($result,0,'priority').
-			"\nSummary: ".util_unconvert_htmlspecialchars(stripslashes(stripslashes(db_result($result,0,'summary')))).
-			"\n\nDetails: ".util_unconvert_htmlspecialchars(stripslashes(stripslashes(db_result($result,0,'details'))));
+			"\n\nCategory: ".db_result($result,0,"category_name").
+			"\nStatus: ".db_result($result,0,"status_name").
+			"\nResolution: ".db_result($result,0,"resolution_name").
+			"\nBug Group: ".db_result($result,0,"group_name").
+			"\nSummary: ".util_unconvert_htmlspecialchars(stripslashes(stripslashes(db_result($result,0,"summary")))).
+			"\n\nDetails: ".util_unconvert_htmlspecialchars(stripslashes(stripslashes(db_result($result,0,"details"))));
 
 		$sql="SELECT user.email,user.user_name,bug_history.date,bug_history.old_value FROM bug_history,user WHERE user.user_id=bug_history.mod_by AND bug_history.field_name='details' AND bug_history.bug_id='$bug_id'";
 		$result2=db_query($sql);
@@ -138,28 +205,27 @@ function mail_followup($bug_id) {
 		if ($result2 && $rows > 0) {
 			$body .= "\n\nFollow-Ups:";
 			for ($i=0; $i<$rows;$i++) {
-				$body .= "\n\nDate: ".date($sys_datefmt,db_result($result2,$i,'date'));
-				$body .= "\nBy: ".db_result($result2,$i,'user_name');
-				$body .= "\n\nComment:\n".util_unconvert_htmlspecialchars(stripslashes(stripslashes(db_result($result2,$i,'old_value'))));
+				$body .= "\n\nDate: ".date($sys_datefmt,db_result($result2,$i,"date"));
+				$body .= "\nBy: ".db_result($result2,$i,"user_name");
+				$body .= "\n\nComment:\n".util_unconvert_htmlspecialchars(stripslashes(stripslashes(db_result($result2,$i,"old_value"))));
 				$body .= "\n-------------------------------------------------------";
 			}
 		}
-		$body .= "\n\nFor detailed info, follow this link:";
-		$body .= "\nhttp://sourceforge.net/bugs/?func=detailbug&bug_id=$bug_id&group_id=".db_result($result,0,'group_id');
+		$body .= "\n\nIf you have questions, please visit SourceForge.";
 
-		$subject='[Bug #'.db_result($result,0,'bug_id').'] '.util_unconvert_htmlspecialchars(stripslashes(stripslashes(db_result($result,0,'summary'))));
+		$subject="[Bug #".db_result($result,0,"bug_id")."] ".util_unconvert_htmlspecialchars(stripslashes(stripslashes(db_result($result,0,"summary"))));
 
-		$to=db_result($result,0,'email').', '.db_result($result,0,'assigned_to_email');
+		$to=db_result($result,0,"email").", ".db_result($result,0,"assigned_to_email");
 
-		$more='From: noreply@sourceforge.net';
+		$more="From: noreply@sourceforge.net";
 
 		mail($to,$subject,$body,$more);
 
-		$feedback .= ' Bug Update Sent to '.$to;
+		$feedback .= " Bug Update Sent to $to ";
 
 	} else {
 
-		$feedback .= ' Could Not Send Bug Update ';
+		$feedback .= " Could Not Send Bug Update ";
 
 	}
 }
@@ -358,9 +424,9 @@ function bug_history_create($field_name,$old_value,$bug_id) {
 		handle the insertion of history for these parameters
 	*/
 	if (!user_isloggedin()) {
-		$user=100;
+        	$user=100;
 	} else {
-		$user=user_getid();
+        	$user=user_getid();
 	}
 
 	$sql="insert into bug_history(bug_id,field_name,old_value,mod_by,date) VALUES ('$bug_id','$field_name','$old_value','$user','".time()."')";

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: monitor.php,v 1.13 2000/01/29 17:27:20 tperdue Exp $
+// $Id: monitor.php,v 1.12 2000/01/13 18:36:35 precision Exp $
 
 require('pre.php');
 require('../forum/forum_utils.php');
@@ -52,7 +52,7 @@ if (user_isloggedin()) {
 				echo "<FONT COLOR=\"RED\">Error inserting into forum_monitoring</FONT>";
 			} else {
 				echo "<FONT COLOR=\"RED\"><H3>Forum is now being monitored</H3></FONT>";
-				echo "<P>You will now be emailed followups to this entire forum.";
+//				echo "You will now be emailed followups to this entire forum.";
 				echo "<P>To turn off monitoring, simply click the <B>Monitor Forum</B> link again.";
 			}
 
@@ -61,7 +61,7 @@ if (user_isloggedin()) {
 			$sql="DELETE FROM forum_monitored_forums WHERE user_id='".user_getid()."' AND forum_id='$forum_id';";
 			$result = db_query($sql);
 			echo "<FONT COLOR=\"RED\"><H3>Monitoring has been turned off</H3></FONT>";
-			echo "<P>You will not receive any more emails from this forum.";
+//			echo "You will not receive any more emails from this forum.";
 		}
 		forum_footer(array());
 	} else {

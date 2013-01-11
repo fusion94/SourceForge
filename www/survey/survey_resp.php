@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: survey_resp.php,v 1.7 2000/01/30 09:54:28 precision Exp $
+// $Id:$
 
 require('pre.php');
 require('../survey/survey_utils.php');
@@ -17,7 +17,6 @@ if (!$survey_id || !$group_id) {
 	*/
 	echo "<H1>Error - For some reason group_id and/or survey_id did not make it here</H1>";
 	survey_footer(array());
-	exit;
 }
 
 if (!user_isloggedin()) {
@@ -27,7 +26,6 @@ if (!user_isloggedin()) {
 	echo "<H1>You need to be logged in</H1>";
 	echo "Unfortunately, you have to be logged in to participate in surveys.";
 	survey_footer(array());
-	exit;
 }
 
 ?>

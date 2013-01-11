@@ -4,12 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: news_utils.php,v 1.29 2000/01/26 17:50:15 tperdue Exp $
-
-/*
-	News System
-	By Tim Perdue, Sourceforge, 12/99
-*/
+// $Id: news_utils.php,v 1.23 2000/01/13 18:36:35 precision Exp $
 
 function news_header($params) {
 	global $DOCUMENT_ROOT,$group_id,$news_name,$news_id;
@@ -43,7 +38,7 @@ function news_show_latest($group_id=714) {
 	*/
 
 	if ($group_id != 714) {
-		$wclause="news_bytes.group_id='$group_id' AND news_bytes.is_approved <> '4'";
+		$wclause="news_bytes.group_id='$group_id'";
 	} else {
 		$wclause='news_bytes.is_approved=1';
 	}
@@ -56,10 +51,7 @@ function news_show_latest($group_id=714) {
 	$result=db_query($sql);
 	$rows=db_numrows($result);
 
-	if ($group_id == 714) {
-		//show the box if not specific project news
-		$return .= html_box1_top('Latest News',0,$GLOBALS[COLOR_LTBACK2]);
-	}
+	$return .= html_box1_top('Latest News',0);
 
 	if (!$result || $rows < 1) {
 		$return .= '<H3>No News Items Found</H3>';
@@ -77,11 +69,7 @@ function news_show_latest($group_id=714) {
 			</UL>';
 	}
 	$return .= '<P><A HREF="/news/submit.php?group_id='.$group_id.'"><B>Submit News</B></A><BR>&nbsp;';
-
-	if ($group_id == 714) {
-		$return .= html_box1_bottom(0);
-	}
-
+	$return .= html_box1_bottom(0);
 	return $return;
 }
 

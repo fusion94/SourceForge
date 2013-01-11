@@ -4,91 +4,21 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: confirmation.php,v 1.49 2000/01/24 14:51:34 tperdue Exp $
+// $Id: confirmation.php,v 1.42 2000/01/13 18:36:36 precision Exp $
 
-require 'pre.php';    // Initial db and session library, opens session
-session_require(array('isloggedin'=>'1'));
-require 'vars.php';
+require "pre.php";    // Initial db and session library, opens session
+session_require(array(isloggedin=>1));
+require "vars.php";
 require('../forum/forum_utils.php');
 
-if ($show_confirm) {
-
-	site_header(array('title'=>'Registration Complete'));
-
-	$sql="SELECT * FROM groups WHERE group_id='$group_id' AND rand_hash='__$rand_hash'";
-	$result=db_query($sql);
-
-	echo '
-	<H2>Final Confirmation</H2>
-	<P>
-	<B><FONT COLOR="RED">Do NOT backarrow!</FONT></B>
-	<P>
-	<FORM action="'.$PHP_SELF.'" method="post">
-	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
-	<INPUT TYPE="HIDDEN" NAME="rand_hash" VALUE="'.$rand_hash.'">
-	<B>Description:</B><BR>
-	<TEXTAREA name="form_purpose" wrap="virtual" cols="70" rows="15">'.db_result($result,0,'register_purpose').'</TEXTAREA>
-	<P>
-	<B>Full Name:</B><BR>
-	<INPUT size="40" maxlength="40" type="text" name="form_full_name" VALUE="'.db_result($result,0,'group_name').'">
-	<P>
-	<B>Unix Name:</B><BR>
-	'.db_result($result,0,'unix_group_name').'
-	<P>
-	<B>License:</B><BR>
-	<SELECT NAME="form_license">
-	';
-
-	while (list($k,$v) = each($LICENSE)) {
-		print "<OPTION value=\"$k\"";
-		if ($k==db_result($result,0,'license')) {
-			echo ' SELECTED';
-		}
-		print ">$v\n";
-	}
-	echo '</SELECT>';
-	echo '
-	<P>
-	<B>If Other License:</B><BR>
-	<TEXTAREA name="form_license_other" wrap=virtual cols=60 rows=10>'.db_result($result,0,'license_other').'</TEXTAREA>
-	<P>
-	<B>Software Environment:</B><BR>
-	<I>Select all that apply.</I><BR>
-	';
-	echo utils_buildcheckboxarray($SOFTENV,'form_env[]',$form_env);
-	echo '
-	<P>
-	<B>Languages Used:</B><BR>
-	<BR><I>Select all that apply.</I><BR>
-	';
-	echo utils_buildcheckboxarray($SOFTLANG,'form_lang[]',$form_lang);
-	echo '
-	<P>
-	<B>Category:</B><BR>
-	';
-	echo category_popup('form_category',$form_category); 
-	echo '
-	<P>
-	If you agree, your project will be created. If you disagree, it will be deleted from the system.
-	<P>
-	<INPUT type=submit name="i_agree" value="I AGREE"> <INPUT type=submit name="i_disagree" value="I DISAGREE">
-	</FORM>';
-
-	site_footer(array());
-
-} else if ($i_agree && $group_id && $form_category && $rand_hash) {
+if ($group_id && $form_category && $rand_hash) {
 	/*
 
 		Finalize the db entries
 
 	*/
 
-	$result=db_query("UPDATE groups SET status='P', ".
-		"register_purpose='".htmlspecialchars($form_purpose)."', ".
-		"group_name='$form_full_name', license='$form_license', ".
-		"license_other='".htmlspecialchars($form_license_other)."' ".
-		"WHERE group_id='$group_id' AND rand_hash='__$rand_hash'");
-
+	$result=db_query("UPDATE groups SET status='P' WHERE group_id='$group_id' AND rand_hash='__$rand_hash'");
 	if (db_affected_rows($result) < 1) {
 		exit_error('Error','UDPATING TO ACTIVE FAILED. <B>PLEASE</B> report to admin@sourceforge.net'.db_error());
 	}
@@ -158,18 +88,7 @@ if ($show_confirm) {
 
 	<?php
 	site_footer(array());
-
-} else if ($i_disagree && $group_id && $rand_hash) {
-
-	site_header(array('title'=>'Registration Deleted'));
-	$result=db_query("DELETE FROM groups ".
-		"WHERE group_id='$group_id' AND rand_hash='__$rand_hash'");
-
-	echo '
-		<H2>Project Deleted</H2>
-		<P>
-		<B>Please try again in the future.</B>';
-	site_footer(array());
+	site_cleanup(array());
 
 } else {
 	exit_error('Error','This is an invalid state. Some form variables were missing.

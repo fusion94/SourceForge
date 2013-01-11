@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: bugoptionupdate.php,v 1.1 2000/01/18 03:06:47 tperdue Exp $
+// $Id: bugoptionupdate.php,v 1.3 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
 session_require(array(group=>$group_id,admin_flags=>'A'));

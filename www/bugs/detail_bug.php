@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: detail_bug.php,v 1.33 2000/01/18 02:24:44 tperdue Exp $
+// $Id: detail_bug.php,v 1.32 2000/01/13 18:36:34 precision Exp $
 
 bug_header(array ('title'=>'Bug Detail: '.$bug_id));
 
@@ -23,25 +23,16 @@ if (db_numrows($result) > 0) {
 
 	<TABLE CELLPADDING="0" WIDTH="100%">
 		<TR><TD COLSPAN="2"><B>Date:</B><BR>'.date($sys_datefmt,db_result($result,0,'date')).'</TD></TR>
-
-		<TR>
-			<TD><B>Submitted By:</B><BR>'.db_result($result,0,'submitted_by').'</TD>
-			<TD><B>Assigned To:</B><BR>'.db_result($result,0,'assigned_to').'</TD>
-		</TR>
-
-		<TR>
-			<TD><B>Category:</B><BR>'.db_result($result,0,'category_name').'</TD>
-			<TD><B>Priority:</B><BR>'.db_result($result,0,'priority').'</TD>
-		</TR>
-
-		<TR>
-			<TD><B>Bug Group:</B><BR>'.db_result($result,0,'group_name').'</TD>
-			<TD><B>Resolution:</B><BR>'.db_result($result,0,'resolution_name').'</TD>
-		</TR>
-
+		<TR><TD><B>Submitted By:</B><BR>'.db_result($result,0,'submitted_by').'</TD>
+			<TD><B>Assigned To:</B><BR>'.db_result($result,0,'assigned_to').'</TD></TR>
+		<TR><TD><B>Category:</B><BR>'.db_result($result,0,'category_name').'</TD>
+			<TD><B>Priority:</B><BR>'.db_result($result,0,'priority').'</TD></TR>
+		<TR><TD><B>Bug Group:</B><BR>'.db_result($result,0,'group_name').'</TD>
+			<TD><B>Resolution:</B><BR>'.db_result($result,0,'resolution_name').'</TD></TR>
 		<TR><TD COLSPAN="2"><B>Summary:</B><BR>'.stripslashes(db_result($result,0,'summary')).'</TD></TR>
-
-		<TR><TD COLSPAN="2"><P><B>Original Submission:</B><BR>'. nl2br(stripslashes(db_result($result,0,'details'))).'</TD></TR>';
+		<TR><TD COLSPAN="2">
+		<P><B>Original Submission:</B><BR>'. nl2br(stripslashes(db_result($result,0,'details'))).'
+		</TD></TR>';
 
 	echo '
 		<FORM ACTION="'.$PHP_SELF.'" METHOD="POST">

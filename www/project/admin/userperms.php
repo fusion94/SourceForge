@@ -4,10 +4,9 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: userperms.php,v 1.39 2000/01/26 10:50:44 tperdue Exp $
+// $Id: userperms.php,v 1.29 2000/01/13 18:36:36 precision Exp $
 
 require "pre.php";    
-require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
 session_require(array('group'=>$group_id,'admin_flags'=>'A'));
 
@@ -19,80 +18,59 @@ $row_grp = db_fetch_array($res_grp);
 if ($GLOBALS[submit]) {
 	$res_dev = db_query("SELECT user_id FROM user_group WHERE group_id=$group_id");
 	while ($row_dev = db_fetch_array($res_dev)) {
-		//cannot turn off their own admin flag
-		if (user_getid() == $row_dev[user_id]) {
-			$admin_flags='A';
-		} else {
-			eval("\$admin_flags=\"\$admin_user_$row_dev[user_id]\";");
-		}
 		eval("\$bug_flags=\"\$bugs_user_$row_dev[user_id]\";");
 		eval("\$forum_flags=\"\$forums_user_$row_dev[user_id]\";");
 		eval("\$project_flags=\"\$projects_user_$row_dev[user_id]\";");
-		eval("\$patch_flags=\"\$patch_user_$row_dev[user_id]\";");
 		$res = db_query('UPDATE user_group SET ' 
-			."admin_flags='$admin_flags',"
-			."bug_flags='$bug_flags',"
-			."forum_flags='$forum_flags',"
-			."project_flags='$project_flags', "
-			."patch_flags='$patch_flags' "
-			."WHERE user_id='$row_dev[user_id]' AND group_id='$group_id'");
-		if (!$res) {
-			echo db_error();
-		}
+			."bug_flags=$bug_flags,"
+			."forum_flags=$forum_flags,"
+			."project_flags=$project_flags "
+			."WHERE user_id=$row_dev[user_id] AND group_id=$group_id");
+		if (!$res) $query_error = 1;
 	}
 }
 
+if ($query_error) {
+	exit_error('Query Error','There was an unknown query error. Please email
+admin@sourceforge.net with details of this problem.');
+}
 
 $res_dev = db_query("SELECT user.user_name AS user_name,"
-	. "user.user_id AS user_id, "
-	. "user_group.admin_flags, "
-	. "user_group.bug_flags, "
-	. "user_group.forum_flags, "
-	. "user_group.project_flags, "
-	. "user_group.patch_flags "
+	. "user.user_id AS user_id,"
+	. "user_group.admin_flags AS admin_flags,"
+	. "user_group.bug_flags AS bug_flags,"
+	. "user_group.forum_flags AS forum_flags,"
+	. "user_group.project_flags AS project_flags "
 	. "FROM user,user_group WHERE "
 	. "user.user_id=user_group.user_id AND user_group.group_id=$group_id "
 	. "ORDER BY user.user_name");
 
-project_admin_header(array('title'=>'Project Developer Permissions','group'=>$group_id));
+site_header(array(title=>'Project Developer Permissions',group=>$group_id));
 ?>
 
 <P><B>Developer Permissions for Project: <?php html_a_group($group_id); ?></B>
 <?php
 	if ($GLOBALS[submit]) {
-		print '<P><B><FONT color="#FF0000">Update successful.</FONT></B>';
+		print '<P><FONT color="#FF0000">Update successful.</FONT>';
 	}
 ?>
-<P>
-<B>NOTE:</B>
-<BR>
-<B>Technicians</B> can be assigned Bugs/Tasks/Patches
-<BR>
-<B>Project Admins</B> can access this page and other project administration pages
-<BR>
-<B>Tool Admins</B> can make changes to Bugs/Tasks/Patches as well as use the /toolname/admin/ pages
 <P>
 <FORM action="userperms.php" method="post">
 <INPUT type="hidden" name="group_id" value="<?php print $group_id; ?>">
 <TABLE width="100%" cellspacing=0 cellpadding=0 border=0>
 <TR><TD><B>Developer Name</B></TD>
-<TD><B>Project<BR>Admin</B></TD>
+<TD><B>Admin?</B></TD>
 <TD><B>CVS Write</B></TD>
 <TD><B>Bug Tracking</B></TD>
 <TD><B>Forums</B></TD>
 <TD><B>Task Manager</B></TD>
-<TD><B>Patch Manager</B></TD>
 </TR>
 
 <?php
 while ($row_dev = db_fetch_array($res_dev)) {
 	html_colored_tr(" valign=middle");
 	print '<TD>'.$row_dev[user_name].'</TD>';
-	print '
-		<TD>
-		<INPUT TYPE="RADIO" NAME="admin_user_'.$row_dev[user_id].'" VALUE="A" '.(($row_dev[admin_flags]=='A')?'CHECKED':'').'> Yes<BR>
-		<INPUT TYPE="RADIO" NAME="admin_user_'.$row_dev[user_id].'" VALUE="" '.(($row_dev[admin_flags]=='')?'CHECKED':'').'> No
-		</TD>';
+	print '<TD>'.(($row_dev[admin_flags]=='A')?"Yes":"No").'</TD>';
 	print '<TD>Yes</TD>';
 	// bug selects
 	print '<TD><FONT size="-1"><SELECT name="bugs_user_'.$row_dev[user_id].'">';
@@ -117,15 +95,6 @@ while ($row_dev = db_fetch_array($res_dev)) {
 	print '</SELECT></FONT></TD>
 ';
 
-	// patch selects
-	print '<TD><FONT size="-1"><SELECT name="patch_user_'.$row_dev[user_id].'">';
-	print '<OPTION value="0"'.(($row_dev[patch_flags]==0)?" selected":"").'>None';
-	print '<OPTION value="1"'.(($row_dev[patch_flags]==1)?" selected":"").'>Tech Only';
-	print '<OPTION value="2"'.(($row_dev[patch_flags]==2)?" selected":"").'>Tech & Admin';
-	print '<OPTION value="3"'.(($row_dev[patch_flags]==3)?" selected":"").'>Admin Only';
-	print '</SELECT></FONT></TD>
-';
-
 	print '</TR>
 ';
 }
@@ -138,5 +107,6 @@ while ($row_dev = db_fetch_array($res_dev)) {
 <P><A href="/project/admin/?group_id=<?php print $group_id; ?>">[Return to Project Admin]</A>
 
 <?php
-project_admin_footer(array());
+site_footer(array());
+site_cleanup(array());
 ?>
