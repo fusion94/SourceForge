@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id:$
+// $Id: survey_resp.php,v 1.8 2000/03/31 13:16:16 tperdue Exp $
 
 require('pre.php');
 require('../survey/survey_utils.php');
@@ -17,6 +17,7 @@ if (!$survey_id || !$group_id) {
 	*/
 	echo "<H1>Error - For some reason group_id and/or survey_id did not make it here</H1>";
 	survey_footer(array());
+	exit;
 }
 
 if (!user_isloggedin()) {
@@ -26,6 +27,7 @@ if (!user_isloggedin()) {
 	echo "<H1>You need to be logged in</H1>";
 	echo "Unfortunately, you have to be logged in to participate in surveys.";
 	survey_footer(array());
+	exit;
 }
 
 ?>
@@ -68,9 +70,10 @@ for ($i=0; $i<$count; $i++) {
 		Insert each form value into the responses table
 	*/
 
-	eval("\$val=\"\$_$quest_array[$i]\";");
+	$val="_$quest_array[$i]";
+
 	$sql="INSERT INTO survey_responses (user_id,group_id,survey_id,question_id,response,date) ".
-		"VALUES ('".user_getid()."','$group_id','$survey_id','$quest_array[$i]','$val','$now')";
+		"VALUES ('".user_getid()."','$group_id','$survey_id','$quest_array[$i]','". $$val . "','$now')";
 	$result=db_query($sql);
 	if (!$result) {
 		echo "<h1>Error</h1>";

@@ -4,19 +4,8 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editmembers.php,v 1.6 2000/01/13 18:36:36 precision Exp $
+// $Id: editmembers.php,v 1.9 2000/09/01 23:51:32 tperdue Exp $
 
-require "pre.php";    
+header ("Location: /project/admin/?group_id=$group_id");
 
-//FIXED
-session_require(array('group'=>$group_id,'admin_flags'=>'A'));
-
-site_header(array(title=>"Edit Group Membership"));
-?>
-
-
-
-<?php
-site_footer(array());
-site_cleanup(array());
 ?>

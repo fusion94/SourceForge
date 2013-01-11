@@ -4,11 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: calendar.php,v 1.2 2000/01/13 18:36:36 precision Exp $
+// $Id: calendar.php,v 1.4 2000/08/31 06:11:35 gherteg Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 
-site_header(array(title=>"Project Management: Add Task"));
+$HTML->header(array(title=>"Project Management: Add Task"));
 
 $timedate = time();
 
@@ -31,6 +31,6 @@ $timedate = time();
 </table>
 
 <?php
-site_footer(array());
-site_cleanup(array());
+$HTML->footer(array());
+
 ?>

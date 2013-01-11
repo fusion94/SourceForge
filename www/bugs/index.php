@@ -4,12 +4,15 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.24 2000/01/13 18:36:34 precision Exp $
+// $Id: index.php,v 1.44 2000/12/06 19:07:35 pfalcon Exp $
 
 require('pre.php');
 require('../bugs/bug_utils.php');
+require('../bugs/bug_data.php');
 
 if ($group_id) {
+
+	$project=&project_get_object($group_id);
 
 	switch ($func) {
 
@@ -19,20 +22,58 @@ if ($group_id) {
 		}
 
 		case 'postaddbug' : {
-			include '../bugs/postadd_bug.php';
-			include '../bugs/browse_bug.php';
+			//data control layer
+			$bug_id=bug_data_create_bug($project,$summary,$details,$category_id,$bug_group_id,$priority,$assigned_to);
+			if ($bug_id) {
+				$feedback='Bug Submitted Successfully';
+				include '../bugs/browse_bug.php';
+			} else {
+				//some error occurred
+				exit_error('ERROR',$feedback);
+			}
 			break;
 		}
 
 		case 'postmodbug' : {
-			include '../bugs/postmod_bug.php';
-			include '../bugs/browse_bug.php';
+			//data control layer
+			if (bug_data_handle_update ($project,$bug_id,$status_id,$priority,$category_id,
+				$assigned_to,$summary,$bug_group_id,$resolution_id,$details,
+				$dependent_on_task,$dependent_on_bug,$canned_response,$project_id)) {
+				$feedback ='Bug Updated Successfully';
+				include '../bugs/browse_bug.php';
+			} else {
+				//some error occurred
+				exit_error('ERROR',$feedback);
+			}
 			break;
 		}
-
+		case 'massupdate' : {
+			//data control layer
+			if (bug_data_mass_update ($project,$bug_id,$status_id,$priority,$bug_category_id,
+				$assigned_to,$bug_group_id,$resolution_id)) {
+				$feedback='Bugs Updated Successfully';
+				include '../bugs/browse_bug.php';
+			} else {
+				//some error occurred
+				exit_error('ERROR',$feedback);
+			}
+			break;
+		}
 		case 'postaddcomment' : {
-			include '../bugs/postadd_comment.php';
-			include '../bugs/browse_bug.php';
+			/*
+				Attach a comment to the bug report
+			*/
+			if (bug_data_add_followup($project,$bug_id,$details)) {
+				$feedback='Comment Added To Bug<br>';
+				if ($project->sendAllBugUpdates()) {
+					$address=$project->getNewBugAddress();
+				}
+				mail_followup($bug_id,$address);
+				include '../bugs/browse_bug.php';
+			} else {
+				//some error occurred
+                                exit_error('ERROR',$feedback);
+			}
 			break;
 		}
 
@@ -42,7 +83,7 @@ if ($group_id) {
 		}
 
 		case 'detailbug' : {
-			if (user_ismember($group_id,'B2')) {
+			if ($project->userIsBugAdmin()) {
 				include '../bugs/mod_bug.php';
 			} else {
 				include '../bugs/detail_bug.php';
@@ -81,4 +122,5 @@ if ($group_id) {
 	exit_no_group();
 
 }
+
 ?>

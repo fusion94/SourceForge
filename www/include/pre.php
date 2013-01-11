@@ -4,240 +4,176 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: pre.php,v 1.317 2000/01/13 18:36:35 precision Exp $
+// $Id: pre.php,v 1.434 2000/12/08 02:19:04 tperdue Exp $
 
 /*
 	redirect to proper hostname to get around certificate problem on IE 5
 */
-if (($HTTP_HOST != 'sourceforge.net') && ($HTTP_HOST != 'webdev.sourceforge.net') && ($HTTP_HOST != 'prodigy') && ($HTTP_HOST != 'localhost')) {
+
+// Defines all of the Source Forge hosts, databases, etc.
+// This needs to be loaded first becuase the lines below depend upon it.
+require ('/etc/local.inc');
+
+/*
+
+	Override vars are useful during development cycle
+
+	Each developer can set up a file that overrides
+	vars in /etc/local.inc, if needed.
+
+	Each developer has a different hostname, so $sys_default_domain
+	at a minimum must be overridden.
+
+*/
+
+if ($OVERRIDES_PATH) {
+	require ($OVERRIDES_PATH."overrides.inc");
+}
+
+if (($HTTP_HOST != $GLOBALS['sys_default_domain']) && ($HTTP_HOST != $GLOBALS['sys_fallback_domain']) && ($HTTP_HOST != 'localhost') && ($HTTP_HOST != $GLOBALS['sys_default_domain'].':80')) {
 	if ($SERVER_PORT == '443') {
-		header ("Location: https://sourceforge.net$REQUEST_URI");
+		header ("Location: https://".$GLOBALS['sys_default_domain']."$REQUEST_URI");
 	} else {
-		header ("Location: http://sourceforge.net$REQUEST_URI");
+		header ("Location: http://".$GLOBALS['sys_default_domain']."$REQUEST_URI");
 	}
 	exit;
 }
 
+//library to determine browser settings
+require('browser.php');
+
+//base error library for new objects
+require('Error.class');
+
+// HTML layout class, may be overriden by the Theme class
+require('Layout.class');
+
+$HTML = new Layout();
+
+//various html utilities
 require('utils.php');
+
+//database abstraction
 require('database.php');
-require('html.php');
+
+//security library
 require('session.php');
-require('user.php');
-require('group.php');
+
+// LDAP library
+require('ldap.php');
+
+//user functions like get_name, logged_in, etc
+require('User.class');
+
+//group functions like get_name, etc
+require('Group.class');
+
+//Project extends Group and includes preference accessors
+require('Project.class');
+
+//Foundry extends Group and includes preference/data accessors
+require ('Foundry.class');
+
+//library to set up context help
+require('help.php');
+
+//exit_error library
 require('exit.php');
+
+//various html libs like button bar, themable
+require('html.php');
+
+//left-hand nav library, themable
 require('menu.php');
 
-$sys_datefmt = "m/d/y H:i";
+//theme functions like get_themename, etc
+require('theme.php');
 
-
-// ###################################### header
-// ###################################### functions
-
-function generic_header($params) {
-
-	// printable option
-	if ($GLOBALS[printable]) {
-		return;
-	}
-	
-	global $G_USER, $G_SESSION;
-	
-	if (!$params[title]) { 
-		$params[title] = "SourceForge";
-	} else {
-		$params[title] = "SourceForge: " . $params[title];
-	}
-	?>
-	<HTML>
-	<HEAD>
-	<TITLE><?php print $params[title]; ?></TITLE>
-	<LINK rel="stylesheet" href="/sourceforge.css" type="text/css">
-	</HEAD>
-	<BODY bgcolor=#FFFFFF topmargin="0" bottommargin="0" leftmargin="0" rightmargin="0" marginheight="0" marginwidth="0">
-	<!-- top strip -->
-	<TABLE width="100%" border=0 cellspacing=0 cellpadding=2 bgcolor="<?php print $GLOBALS[COLOR_MENUBARBACK]; ?>">
-	<TR>
-	<TD><SPAN class=maintitlebar>&nbsp;&nbsp;
-	<A class=maintitlebar href="/"><B>Home</B></A> | 
-	<A class=maintitlebar href="/about.php"><B>About</B></A> | 
-	<A class=maintitlebar href="/partners.php"><B>Partners</B></a> |
-	<A class=maintitlebar href="/contact.php"><B>Contact Us</B></A> |
-	<?php
-		if (user_isloggedin()) {
-			print '<A class=maintitlebar href="/account/logout.php"><B>Logout</B></A></SPAN>';
-		} else {
-			print '<A class=maintitlebar href="/account/login.php"><B>Login</B></A></SPAN>';
-		}
-	if (user_isloggedin()) { 
-
-		?>
-		</TD><TD align=right><SPAN class=maintitlebar>
-		Logged In: <B><?php print user_getname(); ?></B></SPAN>
-		<?php 
-	} 
-	?>
-	</TD>
-	</TR>
-	</TABLE>
-	<!-- end top strip -->
-	<!-- top title table -->
-	<TABLE width="100%" border=0 cellspacing=0 cellpadding=0 bgcolor="<?php echo $GLOBALS[COLOR_BARBACK]; ?>" valign="center">
-	<TR valign="top" bgcolor="<?php echo $GLOBALS[COLOR_LTBACK1]; ?>"><TD>
-        <A href="/"><?php 
-
-	//html_image('sflogo2-105b.png',array(vspace=>0)); 
-	html_image('sflogo2-steel.png',array('vspace'=>'0'));
-	?></A>
-        </TD>
-        <TD width="99%"><!-- right of logo -->
-	<a href="http://www.valinux.com"><?php html_image("va-btn-small-light.png",array('align'=>'right','alt'=>'VA Linux Systems','hspace'=>'5','vspace'=>'7')); ?></A>
-
-	&nbsp;<BR><FONT size="+1"><B>SourceForge</B></FONT>
-	<BR>Site Application Version: 1.0.3
-	<P>
-	<?php 
-	if (!user_isloggedin()) {
- 		print '<B>Status: Not Logged In</B>
-			<A href="https://'.getenv('HTTP_HOST').'/account/login.php">[Login]</A> |
-			<A href="https://'.getenv('HTTP_HOST').'/account/register.php">[New User]</A><BR>';
-	}
-	?>
-
-	<A href="/softwaremap/">[Software Map]</A>
-	<A href="/new/">[New Releases]</A>
-	<A href="/docs/site/">[Site Docs]</A>
-	<A href="/top/">[Top Projects]</A>
-
-	<!-- VA Linux Stets Counter -->
- 	<?php if (!session_issecure()) {
- 	print '<IMG src="http://www2.valinux.com/clear.gif?id=105" width=1 height=1 alt="Counter">';
- 	}
- 	?>
-
-
-	</TD><!-- right of logo -->
-	</TR>
-
-	<TR><TD bgcolor="#543a48" colspan=2><IMG src="/images/blank.gif" height=2 vspace=0></TD></TR>
-
-	</TABLE>
-	<!-- end top title table -->
-	<?php
-}
-
-// ############################
-
-function generic_footer($params) {
-
-	// printable option
-	if ($GLOBALS[printable]) {
-		return;
-	}
-
-	global $IS_DEBUG,$QUERY_COUNT;
-	if ($IS_DEBUG) {
-		echo "<CENTER><B><FONT COLOR=RED>Query Count: $QUERY_COUNT</FONT></B></CENTER>";
-		echo "<P>$GLOBALS[G_DEBUGQUERY]";
-	}
-	?>
-	<!-- footer table -->
-	<table width="100%" border="0" cellspacing="0" cellpadding="2" bgcolor="<?php print $GLOBALS[COLOR_MENUBARBACK]; ?>">
-	      <tr>
-		<td align="center"><font color="#ffffff"><span class="titlebar">
-		All trademarks and copyrights on this page are properties of their respective owners. Forum comments are owned by the poster. The rest is copyright ©1999-2000 VA Linux Systems, Inc.
-		</span></font></td>
-      		</tr>
-    	</table>
-	<!-- end footer table -->
-  	</body>
-	</html>
-	<?php
-}
-
-// ############################
-
-function site_cleanup($params) {
-	// function for any page cleanup later, no HTML
-	@mysql_close($GLOBALS[conn]);
-}
-
-// ############################
-
-function site_footer($params) {
-	// printable option
-	if ($GLOBALS[printable]) {
-		return;
-	}
-	
-	?>
-	<!-- end content -->
-	<p>&nbsp;</p>
-	</td>
-
-	<td width="5" bgcolor="#ffffff">
-	<?php html_blankimage(1,5); ?>
-	</td>
-	</tr>
-	</table>
-	<?php
-	generic_footer($params);
-}
-
-// ############################
-
-function site_header($params) {
-	generic_header($params); 
-	// printable option
-	if ($GLOBALS[printable]) {
-		return;
-	}
-	
-	?>
-	<!-- content table -->
-	<TABLE width="100%" cellspacing=0 cellpadding=0 border=0>
-	<TR valign="top">
-	<TD bgcolor=<?php print $GLOBALS[COLOR_MENUBACK]; ?>>
-	<!-- menus -->
-	<?php
-	menu_main();
-
-	if (user_isloggedin()) menu_loggedin(); 
-	if (!user_isloggedin()) menu_notloggedin(); 
-	// no longer printing proj menus
-	// if ($params[group]) menu_project($params[group]);
-	// if ($params[group] && (user_ismember($params[group]))) menu_projectdevel($params[group]);
-	if ($params[group] && (user_ismember($params[group],'A'))) menu_projectadmin($params[group]);
-	menu_search();
-	if (user_ismember(1)) menu_admin(); 
-	?>
-
-	</TD>
-
-	<td width="10" bgcolor="#ffffff">
-	<?php html_blankimage(1,10); ?>
-	</td>
-	<!-- content -->
-
-	<td width="99%"><BR>
-	<?php
-}
-
-
-// #######################################################
-// ######################## Sitewide initialization
+$sys_datefmt = "Y-M-d H:i";
 
 // #### Connect to db
 
 db_connect();
 
 if (!$conn) {
-	exit_error("Could Not Connect to Database",db_error());
+	print "$sys_name Could Not Connect to Database: ".db_error();
+	exit;
 }
 
+//determine if they're logged in
+session_set();
+
+//set up the themes vars
+theme_sysinit($sys_themeid);
+
+// OSDN functions and defs
+require('osdn.php');
+
+//insert this page view into the database
 require('logger.php');
 
-// #### set session
+/*
 
-session_set();
+	Timezone must come after logger to prevent messups
+
+
+*/
+
+if (user_isloggedin()) {
+	//set up the user's timezone if they are logged in
+	putenv('TZ='.user_get_timezone());
+} else {
+	//just user pacific time as always
+}
+
+/*
+
+	Now figure out what language file to instantiate
+
+*/
+
+require ('BaseLanguage.class');
+
+if (user_isloggedin()) {
+	$user=&user_get_object(user_getid());
+	$res=$user->getData();
+	$classfile=db_result($res,0,'filename');
+	if ($classfile) {
+		include ("languages/$classfile");
+		$classname=db_result($res,0,'classname');
+		$Language=new $classname();
+	} else {
+		include ('languages/English.class');
+	        $Language=new English();
+	}
+} else {
+	//if you aren't logged in, check your browser settings 
+	//and see if we support that language
+	//if we don't support it, just use English as default
+	$res = language_code_to_result ($HTTP_ACCEPT_LANGUAGE);
+	$classfile=db_result($res,0,'filename');
+	if (!$classfile) $classfile="English.class";
+	include ("languages/$classfile");
+	$classname=db_result($res,0,'classname');
+	if (!$classname) $classname="English";
+	$Language=new $classname();
+}
+
+
+/*
+
+
+RESERVED VARIABLES
+
+$conn
+$session_hash
+$Language
+$User
+$HTML
+$foundry
+$project
+$Group
+
+*/
 
 ?>

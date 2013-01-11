@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: save.php,v 1.5 2000/01/13 18:36:35 precision Exp $
+// $Id: save.php,v 1.6 2000/11/16 02:58:57 tperdue Exp $
 
 require('pre.php');
 require('../forum/forum_utils.php');
@@ -22,19 +22,6 @@ if (user_isloggedin()) {
 			ELSE update the time()
 		*/
 
-		/*
-			Set up navigation vars
-		*/
-		$result=db_query("SELECT group_id,forum_name,is_public FROM forum_group_list WHERE group_forum_id='$forum_id'");
-
-		$group_id=db_result($result,0,'group_id');
-		$forum_name=db_result($result,0,'forum_name');
-
-		forum_header(array('title'=>'Save your place'));
-
-		echo '
-			<H2>Save Your Place</H2>';
-
 		$sql="SELECT * FROM forum_saved_place WHERE user_id='".user_getid()."' AND forum_id='$forum_id'";
 
 		$result = db_query($sql);
@@ -49,11 +36,9 @@ if (user_isloggedin()) {
 			$result = db_query($sql);
 
 			if (!$result) {
-				echo "<FONT COLOR=\"RED\">Error inserting into forum_saved_place</FONT>";
-				echo db_error();
+				exit_error("ERROR","ERROR INSERTING PLACE");
 			} else {
-				echo "<FONT COLOR=\"RED\"><H3>Your place was saved</H3></FONT>";
-				echo "<P>New messages will be highlighted when you return.";
+				header ("Location: /forum/forum.php?forum_id=$forum_id&feedback=".urlencode("Forum Position Saved. New messages will be highlighted when you return"));
 			}
 
 		} else {
@@ -61,14 +46,11 @@ if (user_isloggedin()) {
 			$result = db_query($sql);
 
 			if (!$result) {
-				echo "<FONT COLOR=\"RED\">Error updating time in forum_saved_place</FONT>";
-				echo db_error();
+				exit_error("ERROR","ERROR UPDATING PLACE");
 			} else {
-				echo "<FONT COLOR=\"RED\"><H3>Your place was saved</H3></FONT>";
-				echo "<P>New messages will be highlighted when you return.";
+				header ("Location: /forum/forum.php?forum_id=$forum_id&feedback=".urlencode("Forum Position Saved. New messages will be highlighted when you return"));
 			}
 		} 
-		forum_footer(array());
 	} else {
 		forum_header(array('title'=>'Choose a forum First'));
 		echo '

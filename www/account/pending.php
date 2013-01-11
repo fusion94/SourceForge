@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: pending.php,v 1.3 2000/01/13 18:36:34 precision Exp $
+// $Id: pending.php,v 1.5 2000/08/31 06:07:52 gherteg Exp $
 
 require "pre.php";    
-site_header(array(title=>"Suspended Account"));
+$HTML->header(array(title=>"Suspended Account"));
 ?>
 
 <P><B>Pending Account</B>
@@ -22,6 +22,6 @@ email will be sent to the email address you provided in registration.
 <BR><A href="/">[Return to SourceForge]</A>
  
 <?php
-site_footer(array());
-site_cleanup(array());
+$HTML->footer(array());
+
 ?>

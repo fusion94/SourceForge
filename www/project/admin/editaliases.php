@@ -4,14 +4,14 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editaliases.php,v 1.11 2000/01/13 18:36:36 precision Exp $
+// $Id: editaliases.php,v 1.12 2000/01/26 10:44:32 tperdue Exp $
 
 require "pre.php";    
+require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
-//FIXED
 session_require(array('group'=>$group_id,'admin_flags'=>'A'));
 
-site_header(array(title=>"Edit Aliases",group=>$group_id));
+project_admin_header(array(title=>"Edit Aliases",group=>$group_id));
 ?>
 
 <P><B>Alias List</B>
@@ -42,6 +42,5 @@ site_header(array(title=>"Edit Aliases",group=>$group_id));
 ?>
 </TABLE>
 <?php
-site_footer(array());
-site_cleanup(array());
+project_admin_footer(array());
 ?>

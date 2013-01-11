@@ -4,390 +4,445 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: html.php,v 1.243 2000/01/13 18:36:35 precision Exp $
+// $Id: html.php,v 1.374 2000/12/14 22:04:22 tperdue Exp $
 
-
-// ********************* backgrounds
-
-/*
-$COLOR_LTBACK1  = '#eeebee';
-$COLOR_MENUBACK = '#eeebee';
-$COLOR_MENUBARBACK = '#7a6672';
-*/
-
-$COLOR_LTBACK1  = '#eeeef8';
-$COLOR_MENUBACK = $COLOR_LTBACK1;
-$COLOR_MENUBARBACK = '737b9c';
-
-$BARBACK = ' bgcolor="'.$COLOR_BARBACK.'" ';
-
+// require("exit.php");
 
 function html_feedback_top($feedback) {
-	if (!$feedback) return 0;
-
+	if (!$feedback) 
+		return '';
 	print '
-		<TABLE width="100%" cellspacing=0 cellpadding=1 border=0 bgcolor="#FFFFFF">
-		<TR><TD align=center><FONT color="#FF0000"><H3>'.$feedback.'</H3></FONT></TD></TR>
-		<TR><TD bgcolor="#000000">';
-	html_blankimage(2,1);
-	print '</TD></TR></TABLE>';
+		<H3><FONT COLOR="RED">'.$feedback.'</FONT></H3>';
 }
 
 function html_feedback_bottom($feedback) {
-	if (!$feedback) return 0;
-
+	if (!$feedback) 
+		return '';
 	print '
-		<TABLE width="100%" cellspacing=0 cellpadding=1 border=0 bgcolor="#FFFFFF">
-		<TR><TD bgcolor="#000000">';
-	html_blankimage(2,1);
-	print '</TD></TR><TR><TD align=center><FONT color="#FF0000"><H3>'.$feedback.'</H3></FONT></TD></TR>
-		</TABLE>';
+		<H3><FONT COLOR="RED">'.$feedback.'</FONT></H3>';
 }
-
-// ******************************* those cool purple headers
-
-function html_box1_top($title,$echoout=1) {
-	$return = '<TABLE cellspacing="0" cellpadding="1" width="100%" border="0" bgcolor="'
-		.$GLOBALS[COLOR_MENUBARBACK].'"><TR><TD>';
-
-	$return .= '<TABLE cellspacing="1" cellpadding="2" width="100%" border="0" bgcolor="#FFFFFF">'
-		.'<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'" align="center">'
-		.'<TD colspan=2><SPAN class=titlebar>'.$title.'</SPAN></TD></TR>'
-		.'<TR align=left><TD colspan=2>';
-	if ($echoout) {
-		print $return;
-	} else {
-		return $return;
-	}
-}
-
-function html_box1_bottom($echoout=1) {
-	$return = '
-		</TD></TR></TABLE>
-		</TD></TR></TABLE><P>';
-	if ($echoout) {
-		print $return;
-	} else {
-		return $return;
-	}
-}
-
-// ########################## for environment boxes
-
-function html_displayenvironments($group_id) {
-	global $ENVFILE,$SOFTENV;
-	$return = '';
-	$res_grp = db_query('SELECT * FROM group_env WHERE group_id='.$group_id.' ORDER BY env_id');
-	if (db_numrows($res_grp) < 1) return html_image('ic/env-oth.png',array(),0);
-
-	while ($row_grp = db_fetch_array($res_grp)) {
-		$return .= html_image('ic/'.$ENVFILE["$row_grp[env_id]"],array(alt=>$SOFTENV["$row_grp[env_id]"]),0);
-	}
-
-	return $return;
-}
-
-// ########################## for languages 
-
-function html_displaylanguages($group_id) {
-	global $SOFTLANG;
-	$return = '';
-	$res_grp = db_query('SELECT * FROM group_language WHERE group_id='.$group_id.' ORDER BY language_id');
-	if (db_numrows($res_grp) < 1) return '';
-
-	while ($row_grp = db_fetch_array($res_grp)) {
-		if ($return) $return .= ', ';
-		$return .= $SOFTLANG["$row_grp[language_id]"];
-	}
-
-	return "($return)";
-}
-
-// **************************** functions for users/groups/cats
-
-function html_a_developer($user) {
-	print '<A href="/developer/?form_dev='.$user.'">'.user_getname($user).'</A>';
-}
-
 
 function html_a_group($grp) {
-	print '<A href="/project/?group_id='.$grp.'">' . group_getname($grp) . '</A>';
+	print '<A /project/?group_id='.$grp.'>' . group_getname($grp) . '</A>';
 }
-
-function html_a_category($cat) {
-	print '<A href="/softwaremap/?form_cat='.$cat.'">' . category_getname($cat) . '</A>';
-}
-
-// *************************** just need this one
 
 function html_blankimage($height,$width) {
-	html_image('blank.gif',array('height'=>$height,'width'=>$width));
+	return '<img src="/images/blank.gif" width="' . $width . '" height="' . $height . '" alt="">';
 }
 
-// ************************* for alternating colored rows
-
-function html_colored_tr($args = '') {
-	if ($GLOBALS[html_colored_tr] == 0) {
-		print '<TR bgcolor="'.$GLOBALS[COLOR_LTBACK1].'" '.$args.'>';
-		$GLOBALS[html_colored_tr] = 1;
+function html_dbimage($id) {
+	if (!$id) {
+		return '';
+	}
+	$sql="SELECT width,height ".
+		"FROM db_images WHERE id='$id'";
+	$result=db_query($sql);
+	$rows=db_numrows($result);
+	
+	if (!$result || $rows < 1) {
+		return db_error();
 	} else {
-		print '<TR bgcolor="#FFFFFF" '.$args.'>';	
-		$GLOBALS[html_colored_tr] = 0;
+		return html_image('/dbimage.php?id='.$id,db_result($result,0,'width'),db_result($result,0,'height'),array());
 	}
 }
 
-function html_colored_tr_toggle() {
-	if ($GLOBALS[html_colored_tr] == 0) {
-		$GLOBALS[html_colored_tr] = 1;
-	} else {
-		$GLOBALS[html_colored_tr] = 0;
-	}
-}
-
-// ################################ font stuff
-
-function html_font($type = 'body') {
-	switch ($type) {
-		case 'body': print '<font color="#333333" face="arial,helvetica,sanserif">';
-			break;
-		default: print '<font color="#333333" face="arial,helvetica,sanserif">';
-	}
-}
-
-// ################################## function browser_png()
-// ## returns true if browser is png capable
-
-function browser_png() {
-	$accept = getenv('HTTP_ACCEPT');
-	if (ereg('image/png',$accept,$ereg_match)) {
-		return 1;
-	} else {
-		return 0;
-	}
-}
-
-// ################################## function image_pngit
-// ## returns either the gif or png, depending on browser
-
-function image_pngit($src) {
-	if (browser_png()) {
-		$image = explode('.',$src);
-		return ($image[0] . '.png');
-	} else {
-		return ($src);
-	}
-}
-
-// ################################# function html_image
-// ## for images
-
-function html_image($src,$args,$display=1)
-{
-	$return = '';
-
-	// cant use image server for secure
-	if (session_issecure()) {
-		$return .= ('<IMG src="/images/'.$src.'"');
-	} else {
-		$return .= ('<IMG src="http://images.sourceforge.net/'.$src.'"');
-	}
+function html_image($src,$width,$height,$args,$display=1) {
+	global $sys_images_url;
+	$return = ('<IMG src="' . $sys_images_url . $src .'"');
 	reset($args);
 	while(list($k,$v) = each($args)) {
 		$return .= ' '.$k.'="'.$v.'"';
 	}
-	
+
 	// ## insert a border tag if there isn't one
-	if (!$args[border]) $return .= (" border=0");
-	
-	// ## if no height AND no width tag, insert em both
-	if (!$args[height] && !$args[width]) {
-		$size = getimagesize($GLOBALS[sys_urlroot].'images/'.$src);
-		$return .= ' ' . $size[3];
-	}
-	
+	if (!$args['border']) $return .= (" border=0");
+
+	// ## add image dimensions
+	$return .= " width=" . $width;
+	$return .= " height=" . $height;
+
 	$return .= ('>');
-	if ($display) {
-		print $return;
+	return $return;
+}
+
+
+
+/*
+
+	Pop up box of supported languages
+
+	requires
+	BaseLanguage object
+	Title
+	Selected
+*/
+
+function html_get_language_popup ($Language,$title='language_id',$selected='xzxzxz') {
+	$res=$Language->getLanguages();
+	return html_build_select_box ($res,$title,$selected,false);
+}
+
+
+
+/*
+
+	Pop up box of supported Timezones
+
+	Assumes you have included Timezones array file
+
+	requires
+
+	title,
+	selected
+
+*/
+
+function html_get_timezone_popup ($title='timezone',$selected='xzxzxzx') {
+	global $TZs;
+	return html_build_select_box_from_arrays ($TZs,$TZs,$title,$selected,false);
+}
+
+function html_build_list_table_top ($title_arr,$links_arr=false) {
+	/*
+		Takes an array of titles and builds
+		The first row of a new table
+
+		Optionally takes a second array of links for the titles
+	*/
+	GLOBAL $HTML;
+
+	$return = '
+	<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
+		<TR BGCOLOR="'. $HTML->COLOR_HTMLBOX_TITLE .'">';
+
+	$count=count($title_arr);
+	if ($links_arr) {
+		for ($i=0; $i<$count; $i++) {
+			$return .= '
+			<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$links_arr[$i].'"><FONT COLOR="'.
+			$HTML->FONTCOLOR_HTMLBOX_TITLE.'"><B>'.$title_arr[$i].'</B></FONT></A></TD>';
+		}
 	} else {
-		return $return;
+		for ($i=0; $i<$count; $i++) {
+			$return .= '
+			<TD ALIGN="MIDDLE"><FONT COLOR="'.
+			$HTML->FONTCOLOR_HTMLBOX_TITLE.'"><B>'.$title_arr[$i].'</B></FONT></TD>';
+		}
+	}
+	return $return.'</TR>';
+}
+
+function html_get_alt_row_color ($i) {
+	GLOBAL $HTML;
+	if ($i % 2 == 0) {
+		return '#FFFFFF';
+	} else {
+		return $HTML->COLOR_LTBACK1;
 	}
 }
 
-// ################################### HTML tabs
+function html_build_select_box_from_array ($vals,$select_name,$checked_val='xzxz',$samevals = 0) {
+	/*
+		Takes one array, with the first array being the "id" or value
+		and the array being the text you want displayed
 
-function html_tabs($toptab,$group) {
-	// get group info
-	$res_grp = db_query('SELECT group_name,status,homepage,option_bugs FROM groups WHERE group_id='.$group);
+		The second parameter is the name you want assigned to this form element
 
-	if (db_numrows($res_grp) < 1) {
-		return;
+		The third parameter is optional. Pass the value of the item that should be checked
+	*/
+
+	$return .= '
+		<SELECT NAME="'.$select_name.'">';
+
+	$rows=count($vals);
+
+	for ($i=0; $i<$rows; $i++) {
+		if ( $samevals ) {
+			$return .= "\n\t\t<OPTION VALUE=\"" . $vals[$i] . "\"";
+			if ($vals[$i] == $checked_val) {
+				$return .= ' SELECTED';
+			}
+		} else {
+			$return .= "\n\t\t<OPTION VALUE=\"" . $i .'"';
+			if ($i == $checked_val) {
+				$return .= ' SELECTED';
+			}
+		}
+		$return .= '>'.$vals[$i].'</OPTION>';
 	}
+	$return .= '
+		</SELECT>';
 
-	$row_grp = db_fetch_array($res_grp);
-
-	// software map trail
-	// print group_fullname($group)."\n<BR>";
-
-	// common html table code
-	print '
-		<TABLE width="100%" border="0" cellspacing="0" cellpadding="0"><TR>';
-
-	// header text
-	print '<TD align="left"><FONT size="+2"><B>'.$row_grp[group_name].' - ';
-	// specific to where we're at
-	switch ($toptab) {
-		case 'home': print 'Summary'; break;
-		case 'forums': print 'Message Forums'; break;
-		case 'bugs': print 'Bug Tracking'; break;
-		case 'mail': print 'Mailing Lists'; break;
-		case 'pm': print 'Task Manager'; break;
-		case 'surveys': print 'Surveys'; break;
-		case 'cvs': print 'CVS'; break;
-		case 'downloads': print 'Downloads'; break;
-		case 'news': print 'News'; break;
-		default: print 'Summary'; break;
-	}
-	print '</B></FONT></TD><TD align="right">';
-
-	// Summary
-	print ' 
-		<A ';
-	if ($toptab == 'home') 
-		print 'class=tabs ';
-	print 'href="/project/?group_id='.$group.'">';
-	html_image('ic/anvil24.png',array(alt=>'Summary',border=>(($toptab=='home')?'1':'0')));
-	//print "<B>Summary</B>";
-	print '</A>';
-
-	//print " | ";
-	// Homepage	
-	print ' 
-		<A ';
-	print 'href="http://'.$row_grp[homepage].'">';
-	html_image('ic/home.png',array(alt=>'Homepage',border=>0));
-	//print "<B>Forums</B>";
-	print '</A>';
-
-
-	// Forums	
-	print ' 
-		<A ';
-	if ($toptab == 'forums') 
-		print 'class=tabs ';
-	print 'href="/forum/?group_id='.$group.'">';
-	html_image('ic/notes.png',array(alt=>'Message Forums',border=>(($toptab=='forums')?'1':'0')));
-	//print "<B>Forums</B>";
-	print '</A>';
-
-	//print " | ";
-
-	// Bug Tracking
-	if (($row_grp[status] == 'A') && ($row_grp[option_bugs])) {
-		print ' 
-			<A ';	
-		if ($toptab == 'bugs') 
-			print 'class=tabs ';
-		print 'href="/bugs/?group_id='.$group.'">';
-		html_image('ic/bug.png',array(alt=>'Bug Tracking','border'=>(($toptab=='bugs')?'1':'0')));
-		//print "<B>Bug Tracking</B>";
-		print '</A>';
-
-		//print " | ";
-	}
-
-	// Mailing Lists
-	if ($row_grp[status] == 'A') {
-		print ' 
-			<A ';	
-		if ($toptab == 'mail') print 'class=tabs ';
-		print 'href="/mail/?group_id='.$group.'">';
-		html_image('ic/mail.png',array(alt=>'Mailing Lists','border'=>(($toptab=='mail')?'1':'0')));
-		//print "<B>Mail Lists</B>";
-		print '</A>';
-
-		//print " | ";
-	}
-
-	// Project Manager
-	if ($row_grp[status] == 'A') {
-		print ' 
-			<A ';	
-		if ($toptab == 'pm') 
-			print 'class=tabs ';
-		print 'href="/pm/?group_id='.$group.'">';
-		html_image('ic/index.png',array(alt=>'Task Manager','border'=>(($toptab=='pm')?'1':'0')));
-		//print "<B>Task Manager</B>";
-		print "</A>";
-
-		//print " | ";
-	}
-
-	// Surveys
-	if ($row_grp[status] == 'A') {
-		print ' 
-			<A ';
-		if ($toptab == 'surveys') 
-			print 'class=tabs ';
-		print 'href="/survey/?group_id='.$group.'">';
-		html_image('ic/survey.png',array(alt=>'Surveys','border'=>(($toptab=='surveys')?'1':'0')));
-		//print "<B>Surveys</B>";
-		print '</A>';
-
-		//print " | ";
-	}
-
-	//newsbytes
-	if ($row_grp[status] == 'A') {
-		print '
-			<A ';
-		if ($toptab == 'news')
-			print 'class=tabs ';
-		print 'href="/news/?group_id='.$group.'">';
-		html_image('ic/news.png',array(alt=>'News','border'=>(($toptab=='news')?'1':'0')));
-		//print "<B>Surveys</B>";
-		print '</A>';
-
-		//print " | ";
-	}
-
-	// CVS
-	if ($row_grp[status] == 'A') {
-		print ' 
-			<A ';
-		if ($toptab == 'cvs') 
-			print 'class=tabs ';
-		print 'href="/cvs/?group_id='.$group.'">';
-		html_image('ic/convert.png',array(alt=>'CVS Code Repository','border'=>(($toptab=='cvs')?'1':'0')));
-		//print "<B>Surveys</B>";
-		print '</A>';
-
-		//print " | ";
-	}
-
-	// Downloads
-	print ' 
-		<A ';
-	if ($toptab == 'downloads') 
-		print 'class=tabs ';
-	print 'href="/project/filelist.php?group_id='.$group.'">';
-	html_image('ic/save.png',array(alt=>'Downloads','border'=>(($toptab=='downloads')?'1':'0')));
-	//print "<B>Downloads</B>";
-	print '</A>';
-
-	// common table code
-	print '</TD></TR>';
-	// bottom rule
-	print '
-		<TR><TD colspan="2">';
-	html_blankimage(4,1);
-	print '</TD></TR>';
-	print '
-		<TR bgcolor="#000000"><TD colspan="2">';
-	html_blankimage(2,1);
-	print '</TD></TR>';
-	print '
-		</TABLE>
-		<BR>';
+	return $return;
 }
+
+function html_build_select_box_from_arrays ($vals,$texts,$select_name,$checked_val='xzxz',$show_100=true,$text_100='None') {
+	/*
+
+		The infamous '100 row' has to do with the
+			SQL Table joins done throughout all this code.
+		There must be a related row in users, categories, et	, and by default that
+			row is 100, so almost every pop-up box has 100 as the default
+		Most tables in the database should therefore have a row with an id of 100 in it
+			so that joins are successful
+
+		Params:
+
+		Takes two arrays, with the first array being the "id" or value
+		and the other array being the text you want displayed
+
+		The third parameter is the name you want assigned to this form element
+
+		The fourth parameter is optional. Pass the value of the item that should be checked
+
+		The fifth parameter is an optional boolean - whether or not to show the '100 row'
+
+		The sixth parameter is optional - what to call the '100 row' defaults to none
+	*/
+
+	$return .= '
+		<SELECT NAME="'.$select_name.'">';
+
+	//we don't always want the default 100 row shown
+	if ($show_100) {
+		$return .= '
+		<OPTION VALUE="100">'. $text_100 .'</OPTION>';
+	}
+
+	$rows=count($vals);
+	if (count($texts) != $rows) {
+		$return .= 'ERROR - uneven row counts';
+	}
+
+	for ($i=0; $i<$rows; $i++) {
+		//  uggh - sorry - don't show the 100 row
+		//  if it was shown above, otherwise do show it
+		if (($vals[$i] != '100') || ($vals[$i] == '100' && !$show_100)) {
+			$return .= '
+				<OPTION VALUE="'.$vals[$i].'"';
+			if ($vals[$i] == $checked_val) {
+				$return .= ' SELECTED';
+			}
+			$return .= '>'.$texts[$i].'</OPTION>';
+		}
+	}
+	$return .= '
+		</SELECT>';
+	return $return;
+}
+
+function html_build_select_box ($result, $name, $checked_val="xzxz",$show_100=true,$text_100='None') {
+	/*
+		Takes a result set, with the first column being the "id" or value
+		and the second column being the text you want displayed
+
+		The second parameter is the name you want assigned to this form element
+
+		The third parameter is optional. Pass the value of the item that should be checked
+
+		The fourth parameter is an optional boolean - whether or not to show the '100 row'
+
+		The fifth parameter is optional - what to call the '100 row' defaults to none
+	*/
+
+	return html_build_select_box_from_arrays (util_result_column_to_array($result,0),util_result_column_to_array($result,1),$name,$checked_val,$show_100,$text_100);
+}
+
+function html_build_multiple_select_box ($result,$name,$checked_array,$size='8') {
+	/*
+		Takes a result set, with the first column being the "id" or value
+		and the second column being the text you want displayed
+
+		The second parameter is the name you want assigned to this form element
+
+		The third parameter is an array of checked values;
+
+		The fourth parameter is optional. Pass the size of this box
+	*/
+
+	$checked_count=count($checked_array);
+//      echo '-- '.$checked_count.' --';
+	$return .= '
+		<SELECT NAME="'.$name.'" MULTIPLE SIZE="'.$size.'">';
+	/*
+		Put in the default NONE box
+	*/
+	$return .= '
+		<OPTION VALUE="100"';
+	for ($j=0; $j<$checked_count; $j++) {
+		if ($checked_array[$j] == '100') {
+			$return .= ' SELECTED';
+		}
+	}
+	$return .= '>None</OPTION>';
+
+	$rows=db_numrows($result);
+
+	for ($i=0; $i<$rows; $i++) {
+		if (db_result($result,$i,0) != '100') {
+			$return .= '
+				<OPTION VALUE="'.db_result($result,$i,0).'"';
+			/*
+				Determine if it's checked
+			*/
+			$val=db_result($result,$i,0);
+			for ($j=0; $j<$checked_count; $j++) {
+				if ($val == $checked_array[$j]) {
+					$return .= ' SELECTED';
+				}
+			}
+			$return .= '>'.$val.'-'. substr(db_result($result,$i,1),0,35). '</OPTION>';
+		}
+	}
+	$return .= '
+		</SELECT>';
+	return $return;
+}
+
+function html_buildpriority_select_box ($name='priority', $checked_val='5') {
+	/*
+		Return a select box of standard priorities.
+		The name of this select box is optional and so is the default checked value
+	*/
+	?>
+	<SELECT NAME="<?php echo $name; ?>">
+	<OPTION VALUE="1"<?php if ($checked_val=="1") {echo " SELECTED";} ?>>1 - Lowest</OPTION>
+	<OPTION VALUE="2"<?php if ($checked_val=="2") {echo " SELECTED";} ?>>2</OPTION>
+	<OPTION VALUE="3"<?php if ($checked_val=="3") {echo " SELECTED";} ?>>3</OPTION>
+	<OPTION VALUE="4"<?php if ($checked_val=="4") {echo " SELECTED";} ?>>4</OPTION>
+	<OPTION VALUE="5"<?php if ($checked_val=="5") {echo " SELECTED";} ?>>5 - Medium</OPTION>
+	<OPTION VALUE="6"<?php if ($checked_val=="6") {echo " SELECTED";} ?>>6</OPTION>
+	<OPTION VALUE="7"<?php if ($checked_val=="7") {echo " SELECTED";} ?>>7</OPTION>
+	<OPTION VALUE="8"<?php if ($checked_val=="8") {echo " SELECTED";} ?>>8</OPTION>
+	<OPTION VALUE="9"<?php if ($checked_val=="9") {echo " SELECTED";} ?>>9 - Highest</OPTION>
+	</SELECT>
+<?php
+
+}
+
+function html_buildcheckboxarray($options,$name,$checked_array) {
+	$option_count=count($options);
+	$checked_count=count($checked_array);
+
+	for ($i=1; $i<=$option_count; $i++) {
+		echo '
+			<BR><INPUT type="checkbox" name="'.$name.'" value="'.$i.'"';
+		for ($j=0; $j<$checked_count; $j++) {
+			if ($i == $checked_array[$j]) {
+				echo ' CHECKED';
+			}
+		}
+		echo '> '.$options[$i];
+	}
+}
+
+/*!     @function site_user_header
+	@abstract everything required to handle security and
+		add navigation for user pages like /my/ and /account/
+	@param params array() must contain $user_id
+	@result text - echos HTML to the screen directly
+*/
+function site_header($params) {							 GLOBAL $HTML;
+	GLOBAL $HTML;
+	/*
+		Check to see if active user
+		Check to see if logged in
+	*/
+	echo $HTML->header($params);
+	echo html_feedback_top($GLOBALS['feedback']);
+}
+
+function site_footer($params) {
+	GLOBAL $HTML;
+	$HTML->footer($params);
+}
+
+/*! 	@function site_project_header
+	@abstract everything required to handle security and state checks for a project web page
+	@param params array() must contain $toptab and $group
+	@result text - echos HTML to the screen directly
+*/
+function site_project_header($params) {
+	GLOBAL $HTML;
+
+	/*
+		Check to see if active
+		Check to see if project rather than foundry
+		Check to see if private (if private check if user_ismember)
+	*/
+
+	$group_id=$params['group'];
+
+	//get the project object 
+	$project=&project_get_object($group_id);
+
+	if (!$project || $project->isError()) {
+		exit_error("Group Problem",$project->getErrorMessage());
+	}
+
+	//group is private
+	if (!$project->isPublic()) {
+		//if it's a private group, you must be a member of that group
+		session_require(array('group'=>$group_id));
+	}
+
+	//for dead projects must be member of alexandria project
+	if (!$project->isActive()) {
+		//only SF group can view non-active, non-holding groups
+		session_require(array('group'=>'1'));
+	}
+
+	echo $HTML->header($params);
+	echo html_feedback_top($GLOBALS['feedback']);
+	echo $HTML->project_tabs($params['toptab'],$params['group']);
+}
+
+/*!     @function site_project_footer
+	@abstract currently a simple shim that should be on every project page, 
+		rather than a direct call to site_footer() or theme_footer()
+	@param params array() empty
+	@result text - echos HTML to the screen directly
+*/
+function site_project_footer($params) {
+	GLOBAL $HTML;
+
+	echo html_feedback_bottom($GLOBALS['feedback']);
+	echo $HTML->footer($params);
+}
+
+/*!     @function site_user_header
+	@abstract everything required to handle security and 
+		add navigation for user pages like /my/ and /account/
+	@param params array() must contain $user_id
+	@result text - echos HTML to the screen directly
+*/
+function site_user_header($params) {
+	GLOBAL $HTML;
+
+	/*
+		Check to see if active user
+		Check to see if logged in
+	*/
+	echo $HTML->header($params);
+	echo html_feedback_top($GLOBALS['feedback']);
+	echo '
+	<P>
+	<A HREF="/my/">My Personal Page</A> | <A HREF="/my/diary.php">Diary &amp; Notes</A> | <A HREF="/account/">Account Options</A>
+	<P>';
+
+}
+
+/*!     @function site_user_footer
+	@abstract currently a simple shim that should be on every user page, 
+		rather than a direct call to site_footer() or theme_footer()
+	@param params array() empty
+	@result text - echos HTML to the screen directly
+*/
+function site_user_footer($params) {
+	GLOBAL $HTML;
+
+	echo html_feedback_bottom($GLOBALS['feedback']);
+	echo $HTML->footer($params);
+}       
 
 ?>

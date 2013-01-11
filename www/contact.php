@@ -4,35 +4,26 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: contact.php,v 1.7 2000/01/13 18:36:34 precision Exp $
+// $Id: contact.php,v 1.14 2000/12/05 20:05:23 dbrogdon Exp $
 
 require "pre.php";    // Initial db and session library, opens session
-site_header(array('title'=>'Contact Us'));
+$HTML->header(array('title'=>'Contact SourceForge'));
 ?>
 
-<P>You may contact any of the <A href="staff.php">staff</A> directly
-via email, or the general bunch via <A href="/sendmessage.php?toaddress=admin_maillink_sourceforge.net">Contact Form</A>.
-<P>
-If you feel you are encountering a bug or unusual error of any kind, 
-please <A HREF="/bugs/?func=addbug&group_id=1"><B>submit a bug</B></A>.
-<P>
-If you need to contact us by phone, call VA Linux Systems
-at 888-LINUX-4U and tell them you wish to speak to someone on
-the SourceForge crew. When the operator acts confused, explain that
-this is the group that lives in the dark room with all the computers
-and a locked door.
+<p>This is the contact page for <b>SourceForge.net</b> -- if you are having a problem with a project
+hosted by us please send your questions/info to the support/bug manager for that project. You can
+access those features by visiting that project's development home page at: 
+sourceforge.net/projects/&lt;project name&gt; and clicking the approrpiate tool.</p>
 
-<P>All press inquiries should be directed to:
-<UL><LI><A href="/sendmessage.php?toaddress=eureka_maillink_valinux.com">Eureka Endo</A>
-<BR>Press Relations Manager, VA Linux Systems
-<BR>408.542.5754</UL>
+<p>If you have a support request, bug report or wish to communicate directly with the SourceForge 
+<A href="staff.php">staff</a>, please take care in using the appropriate means:</p>
 
-<P>All complaints/bugs should be directed to:
-<UL><LI><A href="/bugs/?group_id=1">Our Bug Tracking System</A></UL>
-<P>If you're especially bored, you can visit our bug tracking system
-to see what other people have submitted, too.
+<ul>
+	<li>To Request support for your project or account, visit the <a href="/support/?func=addsupport&group_id=1">SourceForge Support Manager</a></li>
+	<li>If you've found a bug in SourceForge, please use the <a href="/bugs/?func=addbug&group_id=1">SourceForge Bug Tracker</a></li>
+	<li>All press inquiries should be directed to <a href="mailto:eureka@valinux.com">Eureka Endo</a>, Press Relations Manager, VA Linux Systems.</li>
+</ul>
 
 <?php
-site_footer(array());
-site_cleanup(array());
+$HTML->footer(array());
 ?>

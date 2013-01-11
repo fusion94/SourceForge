@@ -1,0 +1,24 @@
+alter table user add column language int not null default 1;
+
+create table supported_languages (
+language_id int not null default 0 auto_increment primary key,
+name text,
+filename text,
+classname text
+);
+
+INSERT INTO supported_languages VALUES (1,'English','English.class','English');
+INSERT INTO supported_languages VALUES (2,'Japanese','Japanese.class','Japanese');
+INSERT INTO supported_languages VALUES (3,'Hebrew','Hebrew.class','Hebrew');
+INSERT INTO supported_languages VALUES (4,'Spanish','Spanish.class','Spanish');
+INSERT INTO supported_languages VALUES (5,'Thai','Thai.class','Thai');
+INSERT INTO supported_languages VALUES (6,'German','German.class','German');
+INSERT INTO supported_languages VALUES (7,'French','French.class','French');
+INSERT INTO supported_languages VALUES (8,'Italian','Italian.class','Italian');
+INSERT INTO supported_languages VALUES (9,'Norwegian','Norwegian.class','Norwegian');
+INSERT INTO supported_languages VALUES (10,'Swedish','Swedish.class','Swedish');
+//
+INSERT INTO supported_languages VALUES (11,'Chinese','Chinese.class','Chinese');
+INSERT INTO supported_languages VALUES (12,'Dutch','Dutch.class','Dutch');
+INSERT INTO supported_languages VALUES (13,'Esperanto','Esperanto.class','Esperanto');
+INSERT INTO supported_languages VALUES (14,'Catalan','Catalan.class','Catalan');

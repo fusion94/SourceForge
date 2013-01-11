@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id:$
+// $Id: rating_resp.php,v 1.14 2000/08/31 06:11:36 gherteg Exp $
 
 require('pre.php');
-site_header(array('title'=>'Voting'));
+$HTML->header(array('title'=>'Voting'));
 
 if (!user_isloggedin()) {
 	echo "<H2>You must be logged in to vote</H2>";
@@ -39,5 +39,5 @@ if (!user_isloggedin()) {
 		echo "<H1>ERROR!!! MISSING PARAMS</H1>";
 	}
 }
-site_footer(array());
+$HTML->footer(array());
 ?>

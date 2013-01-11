@@ -4,19 +4,19 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: suspended.php,v 1.2 2000/01/13 18:36:34 precision Exp $
+// $Id: suspended.php,v 1.6 2000/08/31 06:07:52 gherteg Exp $
 
 require "pre.php";    
-site_header(array(title=>"Suspended Account"));
+$HTML->header(array(title=>"Suspended Account"));
 ?>
 
 <P><B>Suspended Account</B>
 
 <P>Your account has been suspended. If you have questions regarding your suspension,
-please email <A HREF="suspended@sourceforge.org">suspended@sourceforge.org</A>.
+please email <A href="mailto:staff@<?php echo $GLOBALS['sys_default_domain']; ?>">staff@<?php echo $GLOBALS['sys_default_domain']; ?></A>.
 Inquiries through other channels will be directed to this address.
 
 <?php
-site_footer(array());
-site_cleanup(array());
+$HTML->footer(array());
+
 ?>

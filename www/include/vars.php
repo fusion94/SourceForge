@@ -4,24 +4,31 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: vars.php,v 1.12 2000/01/13 18:36:35 precision Exp $
+// $Id: vars.php,v 1.15 2000/06/03 08:14:22 tperdue Exp $
 
 
 $LICENSE = array();
-$LICENSE[gpl] = 'GNU General Public License';
-$LICENSE[lgpl] = 'GNU Library Public License';
-$LICENSE[bsd] = 'BSD License';
-$LICENSE[mit] = 'MIT/X Consortium License';
-$LICENSE[artistic] = 'Artistic License';
-$LICENSE[mpl] = 'Mozilla Public License';
-$LICENSE[qpl] = 'Qt Public License';
-$LICENSE[ibm] = 'IBM Public License';
-$LICENSE[cvw] = 'Collaborative Virtual Workspace License';
-$LICENSE[rscpl] = 'Ricoh Source Code Public License';
-$LICENSE[python] = 'Python License';
-$LICENSE[zlib] = 'zlib/libpng License';
-$LICENSE[website] = 'WebSite Only';
-$LICENSE[other] = 'Other';
+$LICENSE['gpl'] = 'GNU General Public License';
+$LICENSE['lgpl'] = 'GNU Library Public License';
+$LICENSE['bsd'] = 'BSD License';
+$LICENSE['mit'] = 'MIT/X Consortium License';
+$LICENSE['artistic'] = 'Artistic License';
+$LICENSE['mpl'] = 'Mozilla Public License';
+$LICENSE['qpl'] = 'Qt Public License';
+$LICENSE['ibm'] = 'IBM Public License';
+$LICENSE['cvw'] = 'Collaborative Virtual Workspace License';
+$LICENSE['rscpl'] = 'Ricoh Source Code Public License';
+$LICENSE['python'] = 'Python License';
+$LICENSE['zlib'] = 'zlib/libpng License';
+$LICENSE['website'] = 'WebSite Only';
+$LICENSE['other'] = 'Other';
+$LICENSE['public'] = 'Public Domain';
+
+/*
+
+//
+//   deprecated stuff from the old software map
+//
 
 $SOFTENV = array();
 $SOFTENV[1] = 'Other Environment';
@@ -64,6 +71,8 @@ $ENVLINK[4] = 'http://www.windows.com';
 $ENVLINK[6] = 'http://www.apple.com';
 $ENVLINK[7] = 'http://www.palm.com';
 $ENVLINK[8] = 'http://www.beos.com';
+
+*/
 
 $SHELLS = array();
 $SHELLS[1] = '/bin/bash';

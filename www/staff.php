@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: staff.php,v 1.23 2000/01/13 18:36:34 precision Exp $
+// $Id: staff.php,v 1.35 2000/11/27 19:56:34 kingdon Exp $
 
 require ('pre.php');    
-site_header(array('title'=>'SorceForge Staff'));
+$HTML->header(array('title'=>'SorceForge Staff'));
 
 ?>
 <P>
@@ -16,28 +16,49 @@ site_header(array('title'=>'SorceForge Staff'));
 <table border=0 cellspacing=2 cellpadding=2 bgcolor="">
 
 <tr valign=top>
-<td><a href="/sendmessage.php?toaddress=fusion94_maillink_users.sourceforge.net">Tony Guntharp</a></td>
-<td>(fusion94)</td>
-<td>Tony is the Project Manager for SourceForge and is originally from Texas. When he's not working you can usually find him enjoying a pint
-of Guinness somewhere in the Bay area.</a></td>
+<td><a href="/sendmessage.php?toaddress=pat_maillink_users.sourceforge.net">Patrick McGovern</a></td>
+<td>(pat)</td>
+<td>
+Patrick McGovern (pat) - Pat "Sounds Good" McGovern is the new Director of <A HREF="http://sourceforge.net/">SourceForge.net</A>.  We're glad to have Pat on board, as he used to run <A HREF="http://www.valinux.com/">valinux.com</A>, so he knows a thing or two about running important web sites.
+</td>
 </tr>
 
 <tr valign=top>
-<td><a href="/sendmessage.php?toaddress=dtype_maillink_users.sourceforge.net">Drew Streib</a></td>
-<td>(dtype)</td>
-<td>Drew is a software developer for SourceForge. He also sysadmins 
-the server for Linux International and was one of the original authors of the 
-VA Linux e-commerce system. He enjoys skydiving, jet piloting, and supermodel
-photography, but has never had a chance to do any of these things because
-he is always programming.</td>
+<td><a href="/sendmessage.php?toaddress=dlb_maillink_users.sourceforge.net">Dan Bressler</a></td>
+<td>(dlb)</td>
+<td>
+Dan is the "Product Manager" for SourceForge. We're not sure what that means, only that he likes timelines and handles business development issues.
+</td>
 </tr>
 
 <tr valign=top>
 <td><a href="/sendmessage.php?toaddress=bigdisk_maillink_users.sourceforge.net">Tim Perdue</a></td>
 <td>(bigdisk)</td>
-<td>Tim is from Iowa. Yes Iowa. Not Idaho and not Ohio. Iowa. When he's not working you can locate him fairly easy as he has the only BMW Z3 in Iowa.
+<td>Tim is the technical lead on SourceForge and is from Iowa. Yes Iowa. Not Idaho and not Ohio. 
+Iowa. When he's not working you can locate him fairly easy as he has the only BMW Z3 in Iowa.
 <P>
-Tim founded <A HREF="http://www.phpbuilder.com/">PHPBuilder.com</A> and <A HREF="http://www.geocrawler.com">Geocrawler.com</A>.
+Tim founded <A HREF="http://www.phpbuilder.com/">PHPBuilder.com</A> and <A HREF="http://www.geocrawler.com/">Geocrawler.com</A>.
+</td>
+</tr>
+
+<tr valign=top>
+<td><a href="/sendmessage.php?toaddress=pfalcon_maillink_users.sourceforge.net">Paul Sokolovsky</a></td>
+<td>(pfalcon)</td>
+<td>Paul is a developer, living in the Ukraine. Yep, it's where Chernobyl
+is located. He
+*claims* he had nothing to do with what happened.  He describes
+himself as a "confirmed geek/workaholic type".
+</td>
+</tr>
+
+<tr valign=top>
+<td><a
+href="/sendmessage.php?toaddress=zelphyr_maillink_users.sourceforge.net"
+>Darrell Brogdon</a></td>
+<td>(zelphyr)</td>
+<td>Darrell is also on the SourceForge development team. He worked for
+another company, but they wanted to ditch Open Source and move to ASP
+for their web applications... Now he works for us.
 </td>
 </tr>
 
@@ -48,9 +69,47 @@ Tim founded <A HREF="http://www.phpbuilder.com/">PHPBuilder.com</A> and <A HREF=
 defrosting his car you'll find him locked away in a dark room somewhere in front of a computer.</td>
 </tr>
 
+<tr valign=top>
+<td><a href="/sendmessage.php?toaddress=aphzen_maillink_users.sourceforge.net">Quentin Cregan</a></td>
+<td>(aphzen)</td>
+<td>Quentin handles most of the zillions of tech support inquiries that come into SourceForge, usually 
+with a smile on his face. He works from Australia.
+</td>
+</tr>
+
+<TR><TD COLSPAN="2"><B>Founders:</B></TD></TR>
+
+<tr valign=top>
+<td><a href="/sendmessage.php?toaddress=fusion94_maillink_users.sourceforge.net">Tony Guntharp</a></td>
+</tr>
+
+
+<tr valign=top>
+<td><a href="/sendmessage.php?toaddress=dtype_maillink_users.sourceforge.net">Drew Streib</a></td>
+</tr>
+
+
+<tr valign=top>
+<td><a href="/sendmessage.php?toaddress=bigdisk_maillink_users.sourceforge.net">Tim Perdue</a></td>
+</TR>
+
+
+<tr valign=top>
+<td><a href="/sendmessage.php?toaddress=precision_maillink_users.sourceforge.net">Uriah Welcome</a></td></TR>
+
+
+<TR><TD COLSPAN="2">&nbsp;<P><B>Signicant Outside Contributors:</B></TD></TR>
+
+<tr valign=top>
+<td><a href="/sendmessage.php?toaddress=wallace_maillink_users.sourceforge.net">Wallace Lee</a></td>
+<td>(wallace)</td>
+<td>Wallace has contributed significant tweaks and improvements to the SourceForge core code base. We appreciate 
+his efforts, as do the users who benefit from his contributions.
+</td>
+</tr>
+
 </table>
 
 <?php
-site_footer(array());
-site_cleanup(array());
+$HTML->footer(array());
 ?>

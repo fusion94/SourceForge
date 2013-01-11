@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id:$
+// $Id: add_question.php,v 1.11 2000/08/28 16:19:29 tperdue Exp $
 
 require('pre.php');
 require($DOCUMENT_ROOT.'/survey/survey_utils.php');
@@ -54,7 +54,7 @@ Question Type:<BR>
 
 $sql="SELECT * from survey_question_types";
 $result=db_query($sql);
-build_select_box($result,'question_type');
+echo html_build_select_box($result,'question_type','xzxz',false);
 
 ?>
 <P>

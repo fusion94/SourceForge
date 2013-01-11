@@ -4,40 +4,49 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: submit.php,v 1.13 2000/01/13 18:36:35 precision Exp $
+// $Id: submit.php,v 1.21 2000/11/17 14:55:54 pfalcon Exp $
 
 require('pre.php');
 require('../forum/forum_utils.php');
 
 if (user_isloggedin()) {
 
+	if (!user_ismember($group_id,'A')) {
+		exit_permission_denied('You cannot submit news '.
+                	'for a project unless you are an admin on that project');
+        }
+
 	if ($post_changes) {
-		/*
-			Insert the row into the db if it's a generic message
-			OR this person is an admin for the group involved
-		*/
-		if ($group_id==714 || user_ismember($group_id,'A')) {
+		//check to make sure both fields are there
+		if ($summary && $details) {
 			/*
-				create a new discussion forum without a default msg
-				if one isn't already there
+				Insert the row into the db if it's a generic message
+				OR this person is an admin for the group involved
 			*/
 
-			$new_id=forum_create_forum(714,$summary,1,0);
-			$sql="INSERT INTO news_bytes (group_id,submitted_by,is_approved,date,forum_id,summary,details) ".
-				" VALUES ('$group_id','".user_getid()."','0','".time()."','$new_id','".htmlspecialchars($summary)."','".htmlspecialchars($details)."')";
-			$result=db_query($sql);
-			if (!$result) {
-				$feedback .= ' ERROR doing insert ';
-			} else {
-				$feedback .= ' NewsByte Added. Someone will look it over soon. ';
-			}
+       			/*
+       				create a new discussion forum without a default msg
+       				if one isn't already there
+       			*/
+
+       			$new_id=forum_create_forum($sys_news_group,$summary,1,0);
+       			$sql="INSERT INTO news_bytes (group_id,submitted_by,is_approved,date,forum_id,summary,details) ".
+       				" VALUES ('$group_id','".user_getid()."','0','".time()."','$new_id','".htmlspecialchars($summary)."','".htmlspecialchars($details)."')";
+       			$result=db_query($sql);
+       			if (!$result) {
+       				$feedback .= ' ERROR doing insert ';
+       			} else {
+       				$feedback .= ' News Added. ';
+       			}
 		} else {
-			exit_error('Permission Denied.','Permission Denied. You cannot submit news for a project unless you are an admin on that project');
+			$feedback .= ' ERROR - both subject and body are required ';
 		}
 	}
 
+	//news must now be submitted from a project page - 
+
 	if (!$group_id) {
-		$group_id=714;
+		exit_no_group();
 	}
 	/*
 		Show the submit form
@@ -45,27 +54,23 @@ if (user_isloggedin()) {
 	news_header(array('title'=>'News'));
 
 	echo '
-		<H3>Submit News';
-	if ($group_id != 714) {
-		echo ' For '.group_getname($group_id);
-	}
-	echo '</H3>
+		<H3>Submit News For '.group_getname($group_id).'</H3>
 		<P>
 		You can post news about your project if you are an admin on your project. 
-		You may also post "help wanted" notes if your project needs help. News 
-		about Open Source software projects is always welcome. All posts 
-		will have to be approved by a member of the news team before it will appear 
-		on the main web site.
+		You may also post "help wanted" notes if your project needs help.
+		<P>
+		All posts <B>for your project</B> will appear instantly on your project 
+		summary page. Posts that are of special interest to the community will 
+		have to be approved by a member of the news team before they will appear 
+		on the SourceForge home page.
 		<P>
 		You may include URLs, but not HTML in your submissions.
 		<P>
+		URLs that start with http:// are made clickable.
+		<P>
 		<FORM ACTION="'.$PHP_SELF.'" METHOD="POST">
-		<B>For Project: </B>
-		<SELECT NAME="group_id">
-			<OPTION VALUE="'.$group_id.'">'.group_getname($group_id).'
-			<OPTION VALUE="714">General News</A>
-		</SELECT>';
-	echo '
+		<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
+		<B>For Project: '. group_getname($group_id) .'</B>
 		<INPUT TYPE="HIDDEN" NAME="post_changes" VALUE="y">
 		<P>
 		<B>Subject:</B><BR>

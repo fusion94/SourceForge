@@ -4,176 +4,406 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: forum.php,v 1.28 2000/01/13 18:36:35 precision Exp $
+// $Id: forum.php,v 1.73 2000/12/14 01:18:56 dbrogdon Exp $
+
+/*
+
+	Forum written 11/99 by Tim Perdue
+	Massive re-write 7/2000 by Tim Perdue (nesting/multiple views/etc)
+
+	Massive optimization 11/00 to eliminate recursive queries
+
+*/
 
 require('pre.php');
 require('../forum/forum_utils.php');
 
-function show_threads($forum_id,$offset,$et=0) {
+if ($forum_id) {
 	/*
-		Takes a forum_id and fetches the distinct threads in
-		that forum, then invokes show_submessages to nest the threads
+		Set up global vars that are expected by some forum functions
 	*/
-	global $total_rows, $sys_datefmt;
+	$result=db_query("SELECT group_id,forum_name,is_public,allow_anonymous,send_all_posts_to ".
+		"FROM forum_group_list ".
+		"WHERE group_forum_id='$forum_id'");
+	if (!$result || db_numrows($result) < 1) {
+		exit_error('ERROR','Forum not found '.db_error());
+	}
+	$group_id=db_result($result,0,'group_id');
+	$forum_name=db_result($result,0,'forum_name');
+	$allow_anonymous=db_result($result,0,'allow_anonymous');
+	$send_all_posts_to=db_result($result,0,'send_all_posts_to');
 
-	$max_rows=25;
+	//private forum check
+	if (!db_result($result,0,'is_public')) {
+		if (!user_isloggedin() || !user_ismember($group_id)) {
+			/*
+				If this is a private forum, kick 'em out
+			*/
+			exit_error('ERROR','Forum is restricted to members of this group');
+		}	 
+	}	 
 
-	$sql="SELECT user.user_name,forum.msg_id,forum.subject,forum.thread_id,forum.body,forum.date,forum.is_followup_to ".
-		"FROM forum,user WHERE forum.group_forum_id='$forum_id' AND user.user_id=forum.posted_by AND forum.is_followup_to='0' ".
-		"ORDER BY forum.date DESC, forum.subject ASC, forum.is_followup_to ASC LIMIT $offset,".($max_rows+1);
 
-	//echo $sql;
-
-	$result=db_query($sql);
-	$rows=db_numrows($result);
-
-	if ($rows > $max_rows) {
-		$rows=$max_rows;
+	/*
+		if necessary, insert a new message into the forum
+	*/
+	if ($post_message) {
+		if (!post_message($thread_id, $is_followup_to, $subject, $body, $forum_id)) {
+			exit_error('ERROR',$feedback);
+		} else {
+			$feedback='Message Posted Successfully';
+			$style='';
+			$thread_id='';
+		}
 	}
 
-	$total_rows=0;
+	/*
+		set up some defaults if they aren't provided
+	*/
+	if ((!$offset) || ($offset < 0)) {
+		$offset=0;
+	} 
+	if ($thread_id) {
+		$style='nested';
+	}
+	if (!$style || ($style != 'ultimate' && $style != 'flat' && $style != 'nested' && $style != 'threaded')) {
+		$style='nested';
+	}
 
-	if (!$result || $rows < 1) {
-		$ret_val .= 'No Messages in '.stripslashes(get_forum_name($forum_id));
-	} else {
-		//echo "\n<table cellspacing=\"0\" cellpadding=\"2\" width=\"100%\" BORDER=\"0\"><tr><td align=CENTER bgcolor=\"#666699\">".
-		$ret_val .= '<TABLE WIDTH="100%" CELLPADDING="2" CELLSPACING="0" BGCOLOR="#FFFFFF" BORDER="0">
-			<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
-			<TD WIDTH="25%"><FONT COLOR=#FFFFFF><B>Thread/Subject</TD>
-			<TD><FONT COLOR=#FFFFFF><B>Author</TD>
-			<TD><FONT COLOR="#FFFFFF"><B>Date/Time</TD></TR>';
-		$i=0;
-		while (($total_rows < $max_rows) && ($i < $rows)) {
-			/*
-				Colorization code
-			*/
-			$total_rows++;
-			if ($total_rows % 2 == 0) {
-				$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+	if (!$max_rows || $max_rows < 5) {
+		$max_rows=25;
+	}
+
+	/*
+		take care of setting up/saving prefs
+
+		If they're logged in and a "custom set" was NOT just POSTed,
+			see if they have a pref set
+				if so, use it
+			if it was a custom set just posted && logged in, set pref if it's changed
+	*/
+	if (!$thread_id && user_isloggedin()) {
+		$_pref=$style.'|'.$max_rows;
+		if ($set=='custom') {
+//echo "<P>checking pref";
+			if (user_get_preference('forum_style')) {
+//echo "<P>pref exists";
+				if ($_pref == user_get_preference('forum_style')) {
+//echo "<P>pref same: $_pref";
+					//do nothing - pref already stored
+				} else {
+//echo "<P>setting pref: $_pref";
+					//set the pref
+					user_set_preference ('forum_style',$_pref);
+				}
 			} else {
-				$row_color=' BGCOLOR="#FFFFFF"';
+//echo "<P>setting pref";
+					//set the pref
+					user_set_preference ('forum_style',$_pref);
 			}
-			if ($et) {
-				/*
-					Build row if threads are expanded
-				*/
-				$ret_val .= '
-					<TR'.$row_color.'><TD><A HREF="/forum/thread.php?thread_id='.
-					db_result($result, $i, 'thread_id').'">'.
-					'<IMG SRC="/images/ic/cfolder15.png" HEIGHT=13 WIDTH=15 BORDER=0>'.
-					'</A> &nbsp;<A HREF="/forum/message.php?msg_id='.
-					db_result($result, $i, 'msg_id').'">'.
-					'<IMG SRC="/images/msg.gif" BORDER=0 HEIGHT=12 WIDTH=10> ';
-				/*
-					See if this message is new or not
-				*/
-				if (get_forum_saved_date($forum_id) < db_result($result,$i,'date')) { $ret_val .= '<B>'; }
-
-				$ret_val .= stripslashes(db_result($result, $i, 'subject')).'</A></TD>'.
-					'<TD>'.db_result($result, $i, 'user_name').'</TD>'.
-					'<TD>'.date($sys_datefmt,db_result($result,$i,'date')).'</TD></TR>';
-
-				/*
-					Expand thread
-				*/
-				$ret_val .= show_submessages(db_result($result, $i, 'thread_id'),db_result($result, $i, 'msg_id'),1,0);
+		} else {
+			if (user_get_preference('forum_style')) {
+				$_pref_arr=explode ('|',user_get_preference('forum_style'));
+				$style=$_pref_arr[0];
+				$max_rows=$_pref_arr[1];
 			} else {
-				/*
-					Build row for collapsed threads
-				*/
-				$ret_val .= '
-					<TR'.$row_color.'><TD><A HREF="/forum/thread.php?thread_id='.
-					db_result($result, $i, 'thread_id').'">'.
-					'<IMG SRC="/images/ic/cfolder15.png" HEIGHT=13 WIDTH=15 BORDER=0> ';
-				/*
-					See if this message is new or not
-				*/
-				if (get_forum_saved_date($forum_id) < db_result($result,$i,'date')) { $ret_val .= '<B>'; }
+				//no saved pref and we're not setting 
+				//one because this is all default settings
+			}
+		}
+	}
+	if (!$style || ($style != 'ultimate' && $style != 'flat' && $style != 'nested' && $style != 'threaded')) {
+		$style='nested';
+	}
+
+
+//echo "<P>style: $style";
+	forum_header(array('title'=>$forum_name));
+
+/**
+ *
+ *	Forum styles include Nested, threaded, flat, ultimate
+ *
+ *	threaded indents and shows subjects/authors of all messages/followups
+ *	nested indents and shows the entirety of all messages/followups
+ *	flat shows entiretly of messages in date order descending
+ *	ultimate is based roughly on "Ultimate BB"
+ *
+ */
+
+	//
+	//	Don't show the forum view prefs in thread mode
+	//
+	if (!$thread_id) {
+		//create a pop-up select box listing the forums for this project
+		//determine if this person can see private forums or not
+		if (user_isloggedin() && user_ismember($group_id)) {
+			$public_flag='0,1';
+		} else {
+			$public_flag='1';
+		}
+		if ($group_id==714) {
+			echo '<INPUT TYPE="HIDDEN" NAME="forum_id" VALUE="'.$forum_id.'">';
+		} else {
+			$res=db_query("SELECT group_forum_id,forum_name ".
+				"FROM forum_group_list ".
+				"WHERE group_id='$group_id' AND is_public IN ($public_flag)");
+			$vals=util_result_column_to_array($res,0);
+			$texts=util_result_column_to_array($res,1);
+
+			$forum_popup = html_build_select_box_from_arrays ($vals,$texts,'forum_id',$forum_id,false);
+		}
+		//create a pop-up select box showing options for viewing threads
+
+		$vals=array('nested','flat','threaded','ultimate');
+		$texts=array('Nested','Flat','Threaded','Ultimate');
+
+		$options_popup=html_build_select_box_from_arrays ($vals,$texts,'style',$style,false);
+
+		//create a pop-up select box showing options for max_row count
+		$vals=array(25,50,75,100);
+		$texts=array('Show 25','Show 50','Show 75','Show 100');
+
+		$max_row_popup=html_build_select_box_from_arrays ($vals,$texts,'max_rows',$max_rows,false);
+
+		//now show the popup boxes in a form
+		$ret_val .= '
+		<TABLE BORDER="0" WIDTH="50%">
+			<FORM ACTION="'. $PHP_SELF .'" METHOD="POST">
+			<INPUT TYPE="HIDDEN" NAME="set" VALUE="custom">
+			<TR><TD><FONT SIZE="-1">'. $forum_popup .
+				'</TD><TD><FONT SIZE="-1">'. $options_popup .
+				'</TD><TD><FONT SIZE="-1">'. $max_row_popup .
+				'</TD><TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Change View">
+			</TD></TR>
+		</TABLE></FORM>';
+	}
+
+	if ($style=='nested') {
+		//
+		//	if viewing a particular thread, add some limiting SQL
+		//
+		if ($thread_id) {
+			$thread_sql=" AND forum.thread_id='$thread_id' ";
+		}
+
+		$sql="SELECT users.user_name,users.realname,forum.has_followups, ".
+		"users.user_id,forum.msg_id,forum.subject,forum.thread_id, ".
+		"forum.body,forum.date,forum.is_followup_to,forum.most_recent_date,forum.group_forum_id ".
+		"FROM forum,users ".
+		"WHERE forum.group_forum_id='$forum_id' ".
+		$thread_sql .
+		"AND users.user_id=forum.posted_by ".
+		"ORDER BY forum.most_recent_date DESC";
+
+		$result=db_query($sql,($max_rows+25),$offset);
+		while ($row=db_fetch_array($result)) {
+			$msg_arr["$row[is_followup_to]"][]=$row;
+		}
+
+		$rows=count($msg_arr[0]);
+		if ($rows > $max_rows) {
+			$rows=$max_rows;
+		}
+		$i=0;
+		while (($i < $rows) && ($total_rows < $max_rows)) {
+			$thread=$msg_arr["0"][$i];
+			
+			$total_rows++;
+			/* 
+				New slashdot-inspired nested threads,
+				showing all submessages and bodies
+			*/
+			$ret_val .= forum_show_a_nested_message ( $thread ).'<BR>';
 				
-				$ret_val .= db_result($result, $i, 'subject').'</A></TD>'.
-					'<TD>'.db_result($result, $i, 'user_name').'</TD>'.
-					'<TD>'.date($sys_datefmt,db_result($result,$i,'date')).'</TD></TR>';
+			if ($thread['has_followups'] > 0) {
+				//show submessages for this message
+				$ret_val .= forum_show_nested_messages ( $msg_arr, $thread['msg_id'] );
 			}
 			$i++;
 		}
 
+	} else if ($style=='threaded') {
+
+		$sql="SELECT users.user_name,users.realname,forum.has_followups, ".
+		"users.user_id,forum.msg_id,forum.subject,forum.thread_id, ".
+		"forum.body,forum.date,forum.is_followup_to,forum.most_recent_date,forum.group_forum_id ".
+		"FROM forum,users ".
+		"WHERE forum.group_forum_id='$forum_id' AND users.user_id=forum.posted_by ".
+		"ORDER BY forum.most_recent_date DESC";
+		
+		$result=db_query($sql,($max_rows+25),$offset);
+		while ($row=db_fetch_array($result)) {
+			$msg_arr["$row[is_followup_to]"][]=$row;
+		}
+
+		$title_arr=array();
+		$title_arr[]='Thread';
+		$title_arr[]='Author';
+		$title_arr[]='Date';
+
+		$ret_val .= html_build_list_table_top ($title_arr);
+
+		$rows=count($msg_arr[0]);
+			 
+		if ($rows > $max_rows) {
+			$rows=$max_rows;
+		}       
+		$i=0;	 
+		while (($i < $rows) && ($total_rows < $max_rows)) {
+			$thread=$msg_arr["0"][$i];
+			$total_rows++;
+
+			$ret_val .= '<TR BGCOLOR="'. html_get_alt_row_color($total_rows) .'"><TD><A HREF="/forum/message.php?msg_id='.
+				$thread['msg_id'].'">'.
+				html_image("images/msg.gif","12","10",array("BORDER"=>"0"));
+			/*      
+				See if this message is new or not
+				If so, highlite it in bold
+			*/
+			if (get_forum_saved_date($forum_id) < $thread['date']) {
+				$ret_val .= '<B>';
+			}
+			/*      
+				show the subject and poster
+			*/
+			$ret_val .= $thread['subject'] .'</A></TD>'.
+				'<TD>'. $thread['user_name'] .'</TD>'.
+				'<TD>'.date($sys_datefmt,$thread['date']).'</TD></TR>';
+				 
+			/*
+			 
+				Show subjects for submessages in this thread
+
+				show_submessages() is recursive
+
+			*/
+			if ($thread['has_followups'] > 0) {
+				$ret_val .= show_submessages($msg_arr,$thread['msg_id'],1);
+			}
+			$i++;
+		}
+
+		$ret_val .= '</TABLE>';
+
+	} else if ($style=='flat') {
+
+		$sql="SELECT users.user_name,users.realname,forum.has_followups, ".
+		"users.user_id,forum.msg_id,forum.subject,forum.thread_id, ".
+		"forum.body,forum.date,forum.is_followup_to,forum.group_forum_id ".
+		"FROM forum,users ".
+		"WHERE forum.group_forum_id='$forum_id' AND users.user_id=forum.posted_by ".
+		"ORDER BY forum.msg_id DESC";
+
+		$result=db_query($sql,($max_rows+1),$offset);
+		$i=0;	 
+		while (($row=db_fetch_array($result)) && ($i < $max_rows)) {
+			$ret_val .= forum_show_a_nested_message ( $row ).'<BR>';
+
+			$i++;
+		}
+
+	} else {
 		/*
-			This code puts the nice next/prev.
+			This is the view that is most similar to the "Ultimate BB view"
 		*/
-		$ret_val .= '
-				<TR BGCOLOR="#EEEEEE"><TD>';
-		if ($offset != 0) {
-			$ret_val .= '<FONT face="Arial, Helvetica" SIZE="3" STYLE="text-decoration: none"><B>
-				<A HREF="javascript:history.back()">
-				<B><IMG SRC="/images/t2.gif" HEIGHT=15 WIDTH=15 BORDER=0 ALIGN=MIDDLE> Previous Messages</A></B></FONT>';
-		} else {
-			$ret_val .= '&nbsp;';
+
+		$sql="SELECT f.most_recent_date,users.user_name,users.realname,users.user_id,f.msg_id,f.subject,f.thread_id,".
+			"(count(f2.thread_id)-1) AS followups,max(f2.date) AS recent ".
+			"FROM forum f, forum f2, users ".
+			"WHERE f.group_forum_id='$forum_id' ".
+			"AND f.is_followup_to=0 ".
+			"AND users.user_id=f.posted_by ".
+			"AND f.thread_id=f2.thread_id ".
+			"GROUP BY f.most_recent_date,users.user_name,users.realname,users.user_id,f.msg_id,f.subject,f.thread_id ".
+			"ORDER BY f.most_recent_date DESC";
+
+		$result=db_query($sql,($max_rows+1),$offset);
+//echo db_error();
+//echo "In Ultimate View";
+		$title_arr=array();
+		$title_arr[]='Topic';
+		$title_arr[]='Topic Starter';
+		$title_arr[]='Replies';
+		$title_arr[]='Last Post';
+	
+		$ret_val .= html_build_list_table_top ($title_arr);
+		$i=0;
+		while (($row=db_fetch_array($result)) && ($i < $max_rows)) {
+			$ret_val .= '
+			        <TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD><A HREF="/forum/forum.php?thread_id='.
+			        $row['thread_id'].'&forum_id='.$forum_id.'">'.
+			        html_image("images/ic/cfolder15.png","15","13",array("border"=>"0")) . '  &nbsp; ';
+			/*      
+			        See if this message is new or not
+			        If so, highlite it in bold
+			*/
+			if (get_forum_saved_date($forum_id) < $row['recent']) {
+			        $ret_val .= '<B>';
+			}
+			/* 
+			        show the subject and poster
+			*/
+			$ret_val .= $row['subject'] .'</A></TD>'.
+			        '<TD>'. $row['user_name'] .'</TD>'.
+				'<TD>'. $row['followups'] .'</TD>'.
+			        '<TD>'.date($sys_datefmt,$row['recent']).'</TD></TR>';
+			$i++;
 		}
 
-		$ret_val .= '</TD><TD>&nbsp;</TD><TD>';
-		if (db_numrows($result) > $i) {
-			$ret_val .= '<FONT face="Arial, Helvetica" SIZE=3 STYLE="text-decoration: none"><B>
-				<A HREF="/forum/forum.php?et='.$et.'&offset='.($offset+$i).'&forum_id='.$forum_id.'">
-				<B>Next Messages <IMG SRC="/images/t.gif" HEIGHT=15 WIDTH=15 BORDER=0 ALIGN=MIDDLE></A>';
-		} else {
-			$ret_val .= '&nbsp;';
-		}
+		$ret_val .= '</TABLE>';
 
-		$ret_val .= '</TABLE>';//</TD></TR></TABLE>";
 	}
 
-	return $ret_val;
-
-}
-
-
-if ($forum_id) {
 	/*
-		if necessary, insert the new message
+		This code puts the nice next/prev.
 	*/
-	if ($post_message == "y") {
-		post_message($thread_id, $is_followup_to, $subject, $body, $forum_id);
+	$ret_val .= '<TABLE WIDTH="100%" BORDER="0">
+		<TR BGCOLOR="#EEEEEE"><TD WIDTH="50%">';
+	if ($offset != 0) {
+		$ret_val .= '<FONT face="Arial, Helvetica" SIZE="3" STYLE="text-decoration: none"><B>
+			<A HREF="javascript:history.back()"><B>' .
+			html_image("images/t2.gif","15","15",array("BORDER"=>"0","ALIGN"=>"MIDDLE")) . ' Previous Messages</A></B></FONT>';
+	} else {
+		$ret_val .= '&nbsp;';
 	}
 
-	if ((!$offset) || ($offset < 0)) {
-		$offset=0;
-	} 
+	$ret_val .= '</TD><TD>&nbsp;</TD><TD ALIGN="RIGHT" WIDTH="50%">';
 
-	/*
-		Set up navigation vars
-	*/
-	$result=db_query("SELECT group_id,forum_name,is_public FROM forum_group_list WHERE group_forum_id='$forum_id'");
-
-	$group_id=db_result($result,0,'group_id');
-	$forum_name=db_result($result,0,'forum_name');
-
-	forum_header(array('title'=>$forum_name));
-
-	if (!user_isloggedin() || !user_ismember($group_id)) {
-		/*
-			If this is a private forum, kick 'em out
-		*/
-		if (db_result($result,0,'is_public') == '0') {
-			echo "<h1>Forum is restricted</H1>";
-			forum_footer(array());
-			exit;
-		}
+	if (db_numrows($result) > $max_rows) {
+		$ret_val .= '<FONT face="Arial, Helvetica" SIZE=3 STYLE="text-decoration: none"><B>
+			<A HREF="/forum/forum.php?max_rows='.$max_rows.'&style='.$style.'&offset='.($offset+$i).'&forum_id='.$forum_id.'">
+			<B>Next Messages ' .
+			html_image("images/t.gif","15","15",array("BORDER"=>"0","ALIGN"=>"MIDDLE")) . '</A>';
+	} else {
+		$ret_val .= '&nbsp;';
 	}
 
-	echo show_threads($forum_id, $offset, $et);
+	$ret_val .= '</TABLE>';
 
-	echo "<P>&nbsp;<P>";
+	echo $ret_val;
 
-	echo "<CENTER><h3>Start a New Thread:</H3></CENTER>";
-	show_post_form($forum_id);
+	echo '<P>&nbsp;<P>';
+
+	if ($thread_id) {
+		//
+		//	Viewing a particular thread in nested view
+		//
+		echo '<CENTER><h3>Post A Message To This Thread:</H3></CENTER>';
+                show_post_form($forum_id,$thread_id,$msg_arr["0"][0]['msg_id'],$msg_arr["0"][0]['subject']);
+	} else {
+		//
+		//	Viewing an entire message forum in a given format
+		//
+		echo '<CENTER><h3>Start a New Thread:</H3></CENTER>';
+		show_post_form($forum_id);
+	}
 
 	forum_footer(array());
 
 } else {
 
-	forum_header(array("title"=>"Error"));
-	echo "<H1>Error - choose a forum first</H1>";
-	forum_footer(array());
+	exit_error('ERROR','No Forum Chosen');
 
 }
 

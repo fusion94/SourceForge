@@ -4,20 +4,20 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: HTML_Graphs.php,v 1.13 2000/01/13 18:36:35 precision Exp $
+// $Id: HTML_Graphs.php,v 1.17 2000/12/14 17:56:51 tperdue Exp $
 
 /*
 #######################################################################
 #
-#       $Id: HTML_Graphs.php,v 1.13 2000/01/13 18:36:35 precision Exp $
+#       $Id: HTML_Graphs.php,v 1.17 2000/12/14 17:56:51 tperdue Exp $
 #
-#   $Author: precision $
+#   $Author: tperdue $
 #   $Locker:  $
 #
-#     $Date: 2000/01/13 18:36:35 $
+#     $Date: 2000/12/14 17:56:51 $
 #
 #   $Source: /home/cvsroot/alexandria/www/include/HTML_Graphs.php,v $
-# $Revision: 1.13 $
+# $Revision: 1.17 $
 #    $State: Exp $
 #
 #      Revision 1.5  1998/11/05 06:15:52  pdavis
@@ -747,4 +747,109 @@ function double_vertical_graph($names, $values, $bars, $vals, $dvalues, $dbars)
        } // endfor
 
    } // end double_vertical_graph
+
+
+
+/*
+#######################################################################
+#
+#  Function:  horizontal_absolute_multi_graph($names, $multi_rows,
+#                                             $colors, $vals,
+#                                             $additive)
+#	      $multi_rows - array of arrays of values (may be seen as
+#             array of columns - column for first color, for second, etc.)
+#             $colors - array of color names or codes
+#	      $additive - treat data as absolute values (will be
+#             differentiated for drawing, and hence should be non-decreasing
+#             sequence) or additive (just stick one on another).
+#
+#   Purpose:  Prints out the actual data for the horizontal chart of
+#             bars with multiple sections
+#
+#######################################################################
+*/
+function horizontal_multisection_graph($names, $multi_rows, $colors, $vals, $additive=false)
+   {
+    $subbars_num=SizeOf($multi_rows);
+    for( $i=0;$i<SizeOf($names);$i++ )
+       {
+?>
+
+	<TR>
+	<TD ALIGN="RIGHT" <?php
+        // If a background was choosen don't print cell BGCOLOR
+        if (! $vals["background"]) { print ' BGCOLOR="' . $vals["namebgcolor"] . '"'; }
+?>>
+		<FONT SIZE="-1" COLOR="<?php
+			echo $vals["namefcolor"];
+		?>" STYLE="<?php
+			echo $vals["namefstyle"];
+	echo "\">";
+        echo "\n".$names[$i]; ?>
+		</FONT>
+	</TD>
+
+	<TD  ALIGN="LEFT" <?php
+        // If a background was choosen don't print cell BGCOLOR
+        if (! $vals["background"]) { print ' BGCOLOR="' . $vals["valuebgcolor"] . '"'; }
+
+	echo ">";
+
+        echo '<TABLE ALIGN="LEFT" BORDER=0 CELLPADDING=0 CELLSPACING=0><TR>'."\n";
+        $prev_val=0;
+        $shown=0;
+	for( $j=0;$j<$subbars_num;$j++ ) {
+        	$width=$multi_rows[$j][$i];
+                if (!$additive) $width-=$prev_val;
+                if ($width<=0 && ($j!=$subbars_num-1 || shown)) continue;
+                // make sure that we show at least stump, but only one
+                $shown=1;
+                $prev_val=$multi_rows[$j][$i];
+                $pix_width=$width * $vals["scale"];
+                echo "<td bgcolor=\"".$colors[$j]."\" width=\"".$pix_width."\">&nbsp;</td>";
+        }
+        echo '</TR></TABLE>';
+
+        if (! $vals["noshowvals"])
+           {
+                print '		<I><FONT SIZE="-2" COLOR="' . $vals["valuefcolor"] . '" ';
+                print ' STYLE="' . $vals["valuefstyle"] . '">&nbsp;(';
+        	for( $j=0;$j<SizeOf($multi_rows);$j++ ) {
+                        if ($j) print "/";
+                        print $multi_rows[$j][$i];
+                }
+                print ")</FONT></I>";
+           }
+?>
+
+	</TD>
+	</TR>
+<?php
+       } // endfor
+
+   } // end horizontal_graph
+
+function graph_calculate_scale($multi_rows,$width) {
+	$max_value=0;
+        $rows_num=count($multi_rows);
+
+        for ($row_i = 0; $row_i < $rows_num; $row_i++) {
+                $row=$multi_rows[$row_i];
+               	$counter=count($row);
+
+		for ($i = 0; $i < $counter; $i++) {
+			if ($row[$i] > $max_value) {
+				$max_value=$row[$i];
+			}
+		}
+        }
+
+	if ($max_value < 1) {
+		$max_value=1;
+	}
+
+	$scale=($width/$max_value);
+        return $scale;
+}
+
 ?>

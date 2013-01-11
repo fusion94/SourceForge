@@ -4,11 +4,13 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: logout.php,v 1.5 2000/01/13 18:36:34 precision Exp $
+// $Id: logout.php,v 1.7 2000/07/20 23:34:59 tperdue Exp $
 
-require "pre.php";    
+require ('pre.php');    
 
-session_set_new();
-session_redirect("/index.php");
+db_query("DELETE FROM session WHERE session_hash='$session_hash'");
+
+session_cookie('session_hash','');
+session_redirect('/');
 
 ?>

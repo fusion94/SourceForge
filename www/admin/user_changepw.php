@@ -4,11 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: user_changepw.php,v 1.8 2000/01/13 18:36:34 precision Exp $
+// $Id: user_changepw.php,v 1.13 2000/11/06 21:14:18 pfalcon Exp $
 
 require "pre.php";    
 require "account.php";
-session_require(array('group'=>'1'));
+session_require(array('group'=>'1','admin_flags'=>'A'));
 
 // ###### function register_valid()
 // ###### checks for valid register from form post
@@ -21,38 +21,40 @@ function register_valid()	{
 	}
 	
 	// check against old pw
-	db_query("SELECT user_pw FROM user WHERE user_id=$form_user");
+	db_query("SELECT user_pw FROM users WHERE user_id=$form_user");
 
-	if (!$GLOBALS[form_pw]) {
-		$GLOBALS[register_error] = "You must supply a password.";
+	if (!$GLOBALS['form_pw']) {
+		$GLOBALS['register_error'] = "You must supply a password.";
 		return 0;
 	}
-	if ($GLOBALS[form_pw] != $GLOBALS[form_pw2]) {
-		$GLOBALS[register_error] = "Passwords do not match.";
+	if ($GLOBALS['form_pw'] != $GLOBALS['form_pw2']) {
+		$GLOBALS['register_error'] = "Passwords do not match.";
 		return 0;
 	}
-	if (!account_pwvalid($GLOBALS[form_pw])) {
+	if (!account_pwvalid($GLOBALS['form_pw'])) {
 		return 0;
 	}
 	
 	// if we got this far, it must be good
-	db_query("UPDATE user SET user_pw='" . md5($GLOBALS[form_pw]) . "',"
-		. "unix_pw='" . account_genunixpw($GLOBALS[form_pw]) . "' WHERE "
-		. "user_id=" . $form_user);
+        $user=user_get_object(user_getid());
+	if (!$user->setPasswd($GLOBALS[form_pw]) {
+		$GLOBALS['register_error'] = $user->getErrorMessage();
+		return 0;
+	}
 	return 1;
 }
 
 // ###### first check for valid login, if so, congratulate
 
 if (register_valid()) {
-	site_header(array(title=>"Alexandria: Change Password"));
+	$HTML->header(array(title=>"Alexandria: Change Password"));
 ?>
 <p><b>SourceForge Change Confirmation</b>
 <p>Congratulations, genius. You have managed to change this user's password.
 <p>You should now <a href="/admin/userlist.php">Return to UserList</a>.
 <?php
 } else { // not valid registration, or first time to page
-	site_header(array(title=>"Change Password"));
+	$HTML->header(array(title=>"Change Password"));
 
 ?>
 <p><b>SourceForge Password Change</b>
@@ -68,6 +70,6 @@ if (register_valid()) {
 
 <?php
 }
-site_footer(array());
-site_cleanup(array());
+$HTML->footer(array());
+
 ?>

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: add_snippet_to_package.php,v 1.12 2000/01/13 18:36:36 precision Exp $
+// $Id: add_snippet_to_package.php,v 1.19 2000/12/13 22:57:19 dbrogdon Exp $
 
 require ('pre.php');
 require ('../snippet/snippet_utils.php');
@@ -25,7 +25,6 @@ if (user_isloggedin()) {
 	if ($suppress_nav) {
 		echo '
 		<HTML>
-		<LINK rel="stylesheet" href="/sourceforge.css" type="text/css">
 		<BODY BGCOLOR="#FFFFFF">';
 	} else {
 		snippet_header(array('title'=>'Submit A New Snippet'));
@@ -146,24 +145,19 @@ if (user_isloggedin()) {
 		<P>
 		No Snippets Are In This Package Yet';
 	} else {
-		html_box1_top('Snippets In This Package');
+		$HTML->box1_top('Snippets In This Package');
 		for ($i=0; $i<$rows; $i++) {
-			if ($i % 2 == 0) {
-				$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
-			} else {
-				$row_color=' BGCOLOR="#FFFFFF"';
-			}
 			echo '
-			<TR'.$row_color.'><TD ALIGN="MIDDLE">
+			<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD ALIGN="MIDDLE">
 				<A HREF="/snippet/delete.php?type=frompackage&snippet_version_id='.
 				db_result($result,$i,'snippet_version_id').
 				'&snippet_package_version_id='.$snippet_package_version_id.
-				'"><IMG SRC="/images/ic/trash.png HEIGHT="16" WIDTH="16" BORDER=0"></A></TD><TD WIDTH="99%">'.
-				stripslashes(db_result($result,$i,'name')).' '.db_result($result,$i,'version')."</TD></TR>";
+				'">' . html_image("images/ic/trash.png","16","16",array("BORDER"=>"0")) . '</A></TD><TD WIDTH="99%">'.
+				db_result($result,$i,'name').' '.db_result($result,$i,'version')."</TD></TR>";
 
 			$last_group=db_result($result,$i,'group_id');
 		}
-		html_box1_bottom();
+		$HTML->box1_bottom();
 	}
 	echo '
 	<P>

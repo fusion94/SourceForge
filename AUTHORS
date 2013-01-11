@@ -1,12 +1,38 @@
 ----------------------------------------------------------------------------
 The SourceForge Crew
 ----------------------------------------------------------------------------
-Drew Strieb		<dtype@sourceforge.net>
-Tim Perdue		<bigdisk@sourceforge.net>
-Tony Guntharp		<fusion94@sourceforge.net>
-Uriah Welcome		<precision@sourceforge.net>
-Robert Liesenfeld 	<xunil@sourceforge.net>
+Dan Bressler		<db@valinux.com>
 Quentin Cregan		<q@sourceforge.net>
+Tim Perdue		<bigdisk@sourceforge.net>
+Uriah Welcome		<precision@sourceforge.net>
+
+Past Crew:
+Tony Guntharp		<fusion94@sourceforge.net>
+Drew Streib		<dtype@sourceforge.net>
+
+New Crew:
+Matthew Snelham		<matthew@valinux.com>
+Darrell Brogdon		<dbrogdon@valinux.com>
+Patrick McGovern	<pmcgovern@valinux.com>
+Geoffrey Herteg		<gherteg@valinux.com>
+
+----------------------------------------------------------------------------
+The Following are volunteers that have contributed documentation, misc patches,
+ideas, etc..
+----------------------------------------------------------------------------
+David HM Spector	<spector@zeitgeist.com>
+Loic Dachary		<loic@users.sourceforge.net>
+Wallace Lee		<wallace@users.sourceforge.net>
+William K. Hardeman	<wont-i@users.sourceforge.net>
+Michael Renzmann	<otaku@users.sourceforge.net>
+Sebastien Delaire	<pes@users.sourceforge.net>
+Bil Simser		<bsimser@users.sourceforge.net>
+Joe Utting		<prettypoly@users.sourceforge.net>
+Peter Schuller		<scode@users.sourceforge.net>
+Uwe Hermann		<uh1763@users.sourceforge.net>
+Eduardo Blanco		<ejbs@netlabs.com.uy>
+Rik Faith		<faith@precisioninsight.com>
+Lion Templin		<lion@leonine.com>
 
 
 ----------------------------------------------------------------------------
@@ -19,6 +45,7 @@ Brian Biles		<bbiles@valinux.com>
 John Hall		<johnhall@valinux.com>
 Steve Westmoreland	<swest@valinux.com>
 Chris DiBona		<chris@valinux.com>
+Dan Bressler		<dbressler@valinux.com>
 Joe Arruda		<z@valinux.com>
 Jeff Ritter		<jritter@valinux.com>
 Patrick Wong		<pwong@valinux.com>
@@ -35,24 +62,7 @@ Steve Schaefer		<steve@valinux.com>
 Greg Pryzby		<gpryzby@valinux.com>
 Adam Frey		<adam@valinux.com>
 James Byers		<jbyers@valinux.com>
-Lion Templin		<lion@leonine.com>
-
-
-----------------------------------------------------------------------------
-The Follow are volunteers that have contributed documentation, misc patches,
-ideas, etc..
-----------------------------------------------------------------------------
-Loic Dachary		<loic@users.sourceforge.net>
-Michael Renzmann	<otaku@users.sourceforge.net>
-Sebastien Delaire	<pes@users.sourceforge.net>
-Bil Simser		<bsimser@users.sourceforge.net>
-Joe Utting		<prettypoly@users.sourceforge.net>
-Peter Schuller		<scode@users.sourceforge.net>
-Uwe Hermann		<uh1763@users.sourceforge.net>
-Eduardo Blanco		<ejbs@netlabs.com.uy>
-Rik Faith		<faith@precisioninsight.com>
-
 
 ----------------------------------------------------------------------------
 Any others whose names we probably forgot to add (email us and we'll put you
-in here
+in here)

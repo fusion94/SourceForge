@@ -4,31 +4,30 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: lostpw-confirm.php,v 1.8 2000/01/13 18:36:34 precision Exp $
+// $Id: lostpw-confirm.php,v 1.14 2000/10/11 19:55:39 tperdue Exp $
 
-require "pre.php";    
+require ('pre.php');    
 
-$confirm_hash = md5($session_hash . time());
+$confirm_hash = md5($session_hash . strval(time()) . strval(rand()));
 
-$res_user = db_query("SELECT * FROM user WHERE user_name='$form_loginname'");
-if (db_numrows($res_user) < 1) exit_error("Invalid User","That user does not exist on SourceForge.");
+$res_user = db_query("SELECT * FROM users WHERE user_name='$form_loginname'");
+if (db_numrows($res_user) < 1) exit_error("Invalid user","That user does not exist.");
 $row_user = db_fetch_array($res_user);
 
-db_query("UPDATE user SET confirm_hash='$confirm_hash' WHERE user_id=$row_user[user_id]");
+db_query("UPDATE users SET confirm_hash='$confirm_hash' WHERE user_id=$row_user[user_id]");
 
 $message = "Someone (presumably you) on the SourceForge site requested a\n"
 	. "password change through email verification. If this was not you,\n"
 	. "ignore this message and nothing will happen.\n\n"
 	. "If you requested this verification, visit the following URL\n"
 	. "to change your password:\n\n"
-	. "https://sourceforge.net/account/lostlogin.php?confirm_hash=$confirm_hash\n\n"
+	. "<https://$GLOBALS[HTTP_HOST]/account/lostlogin.php?confirm_hash=$confirm_hash\n\n>"
 	. " -- the SourceForge staff\n";
 
-mail ($row_user[email],"SourceForge Verification",$message,"From: admin@sourceforge.net");
+mail ($row_user['email'],"SourceForge Verification",$message,"From: noreply@$GLOBALS[HTTP_HOST]");
 
-session_securitylog("lostpw","User #$row_user[user_id] requested lost pw confirm_hash");
+$HTML->header(array('title'=>"Lost Password Confirmation"));
 
-site_header(array(title=>"Lost Password Confirmation"));
 ?>
 
 <P><B>Confirmation mailed</B>
@@ -36,9 +35,9 @@ site_header(array(title=>"Lost Password Confirmation"));
 <P>An email has been sent to the address you have on file. Follow
 the instructions in the email to change your account password.
 
-<P><A href="/">[Return to SourceForge]</A>
+<P><A href="/">[ Home ]</A>
 
 <?php
-site_footer(array());
-site_cleanup(array());
+$HTML->footer(array());
+
 ?>

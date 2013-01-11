@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: form.php,v 1.10 2000/01/13 18:36:36 precision Exp $
+// $Id: form.php,v 1.13 2000/08/31 06:11:35 gherteg Exp $
 
 require "pre.php";    // Initial db and session library, opens session
-site_header(array(title=>"New Project Registration"));
+$HTML->header(array(title=>"New Project Registration"));
 ?>
 
 <p>
@@ -46,7 +46,7 @@ site_header(array(title=>"New Project Registration"));
                                 <td><textarea wrap="physical" name="project_description" cols=40 rows=4></textarea></td>
                         </tr>
                         <tr>
-                                <td align="right">* Desired Subdomain:<br>(e.g. <i>http://<font color="green">myproject</font>.sourceforge.org)</td>
+                                <td align="right">* Desired Subdomain:<br>(e.g. <i>http://<font color="green">myproject</font>.<?php echo $GLOBALS['sys_default_domain']; ?> )</td>
                                 <td><input size=35 type="text" name="subdomain"></td>
                         </tr>
                         <tr>
@@ -70,7 +70,7 @@ site_header(array(title=>"New Project Registration"));
 
 
 <?php
-site_footer(array());
-site_cleanup(array());
+$HTML->footer(array());
+
 ?>
 

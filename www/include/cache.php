@@ -4,60 +4,68 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: cache.php,v 1.31 2000/01/13 18:36:35 precision Exp $
+// $Id: cache.php,v 1.47 2000/12/14 17:56:51 tperdue Exp $
 
 
 // #################################### function cache_display
 
 function cache_display($name,$function,$time) {
-	$filename = "/sfcache/sfcache_$name.sf";
+	global $Language;
+	$filename = $GLOBALS['sf_cache_dir']."/sfcache_". $Language->getLanguageId() ."_". $GLOBALS['sys_theme'] ."_$name.sf";
 
-	if (!file_exists($filename) || ((time() - filectime($filename)) > $time)) {
-		// file is non-existant or expired, must redo
-		clearstatcache();
+	while ((filesize($filename)<=1) || ((time() - filectime($filename)) > $time)) {
+		// file is non-existant or expired, must redo, or wait for someone else to
+
 		if (!file_exists($filename)) {
 			@touch($filename);
 		}
 
-		if (!$rfh=@fopen($filename,"r"))  { // bad cache dir?
-			return cache_get_new_data($function);
+		// open file. If this does not work, wait one second and try cycle again
+		if ($rfh=@fopen($filename,'r')) {
+			// obtain a blocking write lock, else wait 1 second and try again
+			if(flock($rfh,2)) { 
+				// open file for writing. if this does not work, something is broken.
+				if (!$wfh = @fopen($filename,'w')) {
+					return "Unable to open cache file for writing after obtaining lock.";
+				}
+				// have successful locks and opens now
+				$return=cache_get_new_data($function);
+				fwrite($wfh,$return); //write the file
+				fclose($wfh); //close the file
+				flock($rfh,3); //release lock
+				fclose($rfh); //close the lock
+				return $return;
+			} else { // unable to obtain flock
+				sleep(1);
+				clearstatcache();
+			}
+		} else { // unable to open for reading
+			sleep(1);
+			clearstatcache();
 		}
-		if (!flock($rfh,1+4)) { // non-blocking read lock
-			return cache_get_new_data($function); // another writer has an exclusive lock already
-		}
-		if(!flock($rfh,2)) { // upgrade to exclusive lock and block for it
-			return cache_get_new_data($function);
-		}
-
-		// and write to file
-		if (!$fhandle = fopen($filename,'w')) {
-			flock($rfh,3); //release lock
-			fclose($rfh);
-			return cache_get_new_data($function);
-		}
-		$return=cache_get_new_data($function);
-		fwrite($fhandle,$return); //write the file
-		fclose($fhandle); //close the file
-		flock($rfh,3); //release lock
-		fclose($rfh); //close the lock
-		return $return;
-	} else {
-		// file is good, use it for return value
-		if (!$rfh = fopen($filename,'r')) { //bad filename
-			return cache_get_new_data($function);
-		}
-		while(!flock($rfh,1+4)) { // obtained non blocking shared lock 
-			usleep(250000); // wait 0.25 seconds for the lock to become available
-		}
-		$result=stripslashes(fread($rfh,200000));
-		flock($rfh,3); // cancel read lock
-		fclose($rfh);
-		return $result;
+	} 
+		
+	// file is now good, use it for return value
+	if (!$rfh = fopen($filename,'r')) { //bad filename
+		return cache_get_new_data($function);
 	}
+	while(!flock($rfh,1+4) && ($counter < 30)) { // obtained non blocking shared lock 
+		usleep(250000); // wait 0.25 seconds for the lock to become available
+		$counter++;
+	}
+	$result=stripslashes(fread($rfh,200000));
+	flock($rfh,3); // cancel read lock
+	fclose($rfh);
+	return $result;
 }
 
 function cache_get_new_data($function) {
-	$furl=fopen("http://localhost/write_cache.php?function=".urlencode($function),'r');
-	return stripslashes(fread($furl,200000));
+	global $Language;
+	// Here should be localhost! It is chacked in write_cache.php .
+	//$furl=fopen("http://localhost/write_cache.php?sys_themeid=".$GLOBALS['sys_themeid']."&lang=".$Language->getLanguageId()."&function=".urlencode($function),'r');
+	//return stripslashes(fread($furl,200000));
+	eval("\$res= $function;");
+	return $res;
 }
+
 ?>

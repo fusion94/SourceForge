@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id:$
+// $Id: add_survey.php,v 1.13 2000/01/30 09:54:28 precision Exp $
 
 require('pre.php');
 require($DOCUMENT_ROOT.'/survey/survey_utils.php');

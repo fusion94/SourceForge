@@ -4,25 +4,25 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: pending-resend.php,v 1.4 2000/01/13 18:36:34 precision Exp $
+// $Id: pending-resend.php,v 1.9 2000/10/11 19:55:39 tperdue Exp $
 
 require "pre.php";    
 
-$res_user = db_query("SELECT * FROM user WHERE user_id=$form_user");
+$res_user = db_query("SELECT * FROM users WHERE user_name='$form_user'");
 $row_user = db_fetch_array($res_user);
 
 // send mail
 $message = "Thank you for registering on the SourceForge web site. In order\n"
 	. "to complete your registration, visit the following url: \n\n"
-	. "http://sourceforge.net/account/verify.php?confirm_hash=$row_user[confirm_hash]\n\n"
+	. "http://$GLOBALS[sys_default_domain]/account/verify.php?confirm_hash=$row_user[confirm_hash]\n\n"
 	. "Enjoy the site.\n\n"
 	. " -- the SourceForge staff\n";
 
 
 // only mail if pending
 if ($row_user[status] == 'P') {
-	mail($row_user[email],"SourceForge Account Registration",$message,"From: admin@sourceforge.net");
-	site_header(array(title=>"Account Pending Verification"));
+	mail($row_user[email],"SourceForge Account Registration",$message,"From: admin@$GLOBALS[sys_default_domain]");
+	$HTML->header(array(title=>"Account Pending Verification"));
 ?>
 
 <P><B>Pending Account</B>
@@ -37,6 +37,6 @@ in this email to complete the registration process.
 	exit_error("Error","This account is not pending verification.");
 }
 
-site_footer(array());
-site_cleanup(array());
+$HTML->footer(array());
+
 ?>

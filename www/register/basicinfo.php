@@ -4,11 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: basicinfo.php,v 1.12 2000/01/13 18:36:36 precision Exp $
+// $Id: basicinfo.php,v 1.16 2000/08/31 06:11:35 gherteg Exp $
 
 require "pre.php";    // Initial db and session library, opens session
-session_require(array(isloggedin=>1));
-site_header(array(title=>"Basic Project Information"));
+session_require(array('isloggedin'=>'1'));
+$HTML->header(array('title'=>'Basic Project Information'));
 ?>
 
 <H2>Step 3: SourceForge Project Registration</H2>
@@ -24,22 +24,20 @@ the purposes and goals in this statement is prohibited.
 If you need to change this statement at any time, please inform a
 staff member and we will assist you in getting a new statement approved.
 
-<P><B>Project Purpose and Summarization</B>
-
+<P>
+<B>Project Purpose and Summarization</B>
+<P>
+<FONT COLOR="RED"><B>REQUIRED:</B> Provide detailed, accurate description</FONT>
+<P>
 <FONT size=-1>
 <FORM action="projectname.php" method="post">
 <INPUT TYPE="HIDDEN" NAME="insert_purpose" VALUE="y">
-<TEXTAREA name=form_purpose wrap=virtual cols=70 rows=20>
-Description:
-
-Purpose/Goals:
-</TEXTAREA>
+<TEXTAREA name=form_purpose wrap=virtual cols=70 rows=20></TEXTAREA>
 <BR><INPUT type=submit name="Submit" value="Step 4: Project Name">
 </FORM>
 </FONT>
 
 <?php
-site_footer(array());
-site_cleanup(array());
-?>
+$HTML->footer(array());
 
+?>

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: projectname.php,v 1.25 2000/01/13 18:36:36 precision Exp $
+// $Id: projectname.php,v 1.35 2000/11/03 02:17:32 tperdue Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 session_require(array('isloggedin'=>'1'));
@@ -17,7 +17,7 @@ if ($insert_purpose && $form_purpose) {
 	$random_num=rand(0,1000000);
 
 	// make group entry
-	$result = db_query("INSERT INTO groups (group_name,public,unix_group_name,http_domain,homepage,status,"
+	$result = db_query("INSERT INTO groups (group_name,is_public,unix_group_name,http_domain,homepage,status,"
 		. "unix_box,cvs_box,license,register_purpose,register_time,license_other,rand_hash) VALUES ("
 		. "'__$random_num',"
 		. "1," // public
@@ -33,36 +33,16 @@ if ($insert_purpose && $form_purpose) {
 		. "'__$random_num','__".md5($random_num)."')");
 
 	if (!$result) {
-		exit_error('ERROR','INSERT QUERY FAILED. Please notify admin@sourceforge.net');
+		exit_error('ERROR','INSERT QUERY FAILED. Please notify admin@'.$GLOBALS['sys_default_domain']);
 	} else {
-		$group_id=db_insertid($result);
+		$group_id=db_insertid($result,'groups','group_id');
 	}
 
 } else {
-	exit_error('Error','This is an invalid state. 
-		<B>PLEASE</B> report to admin@sourceforge.net and 
-		include info on your browser and platform configuration');
+	exit_error('Error','Missing Information. <B>PLEASE</B> fill in all required information.');
 }
 
-/*
-if ($form_unix_name) {
-	 // check for valid group name
-	if (!account_groupnamevalid($form_unix_name)) {
-		exit_error("Invalid Group Name",$GLOBALS[register_error]);
-	}
-
-	if (db_numrows(db_query("SELECT group_id FROM groups WHERE "
-		. "unix_group_name LIKE '$form_unix_name'")) > 0) {
-		exit_error("Invalid Group Name","That group name already exists.");
-	}
-
-	session_puttextvar("register_unix_name",strtolower($form_unix_name));
-	session_puttextvar("register_full_name",$form_full_name);
-	session_redirect("/register/license.php");
-}
-*/
-
-site_header(array('title'=>'Project Name'));
+$HTML->header(array('title'=>'Project Name'));
 
 ?>
 
@@ -82,7 +62,7 @@ used in so many places around the site. They are:
 <UL>
 <LI>Cannot match the unix name of any other project
 <LI>Must be between 3 and 15 characters in length
-<LI>Can only contain characters, numbers, underscores, and dashes
+<LI>Can only contain characters, numbers, and dashes
 <LI>Must be a valid unix username
 <LI>Cannot match one of our reserved domains
 <LI>Unix name will never change for this project
@@ -92,10 +72,10 @@ used in so many places around the site. They are:
 many things, including:
 
 <UL>
-<LI>A web site at unixname.SourceForge.net
-<LI>Email at aliases@unixname.SourceForge.net
+<LI>A web site at unixname.<?php echo $GLOBALS['sys_default_domain']; ?> 
+<LI>Email at aliases@unixname.<?php echo $GLOBALS['sys_default_domain']; ?> 
 <LI>A CVS Repository root of /cvsroot/unixname
-<LI>Shell access to unixname.SourceForge.net
+<LI>Shell access to unixname.<?php echo $GLOBALS['sys_default_domain']; ?> 
 <LI>Search engines throughout the site
 </UL>
 
@@ -109,10 +89,10 @@ many things, including:
 <INPUT TYPE="HIDDEN" NAME="rand_hash" VALUE="<?php echo md5($random_num); ?>">
 Full Name:
 <BR>
-<INPUT size=40 maxlength=40 type=text name="form_full_name">
+<INPUT size="30" maxlength="30" type=text name="form_full_name">
 <P>Unix Name:
 <BR>
-<INPUT type=text maxlength=20 name="form_unix_name">
+<INPUT type=text maxlength="15" SIZE="15" name="form_unix_name">
 <P>
 <H2><FONT COLOR="RED">Do Not Back Arrow After This Point</FONT></H2>
 <INPUT type=submit name="Submit" value="Step 5: License">
@@ -120,7 +100,7 @@ Full Name:
 </FONT>
 
 <?php
-site_footer(array());
-site_cleanup(array());
+$HTML->footer(array());
+
 ?>
 

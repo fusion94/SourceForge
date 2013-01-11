@@ -4,7 +4,28 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: filechecks.php,v 1.30 2000/01/13 18:36:35 precision Exp $
+// $Id: filechecks.php,v 1.43 2000/08/14 14:53:35 tperdue Exp $
+
+function filechecks_islegalname($filename) {
+	if (strstr($filename,' ') || strstr($filename,'\\')
+		|| strstr($filename,"'") || strstr($filename,'"')
+		|| strstr($filename,';') || strstr($filename,'`')
+		|| strstr($filename,'|') || strstr($filename,'$')
+		|| strstr($filename,',') || strstr($filename,':')
+		|| strstr($filename,'@') || strstr($filename,'*')
+		|| strstr($filename,'%') || strstr($filename,'^')
+		|| strstr($filename,'&') || strstr($filename,'(') 
+		|| strstr($filename,')') || 
+		|| strstr($filename,'>') || strstr($filename,'<')) {
+		return 0;
+	}
+
+	if (ereg('^\.',$filename)) {
+		return 0;
+	}
+
+	return 1;
+}
 
 function filechecks_targz($filename) {
 	exec("tar -ztvf $GLOBALS[FTPINCOMING_DIR]/" . EscapeShellCmd($filename),$output,$ret);
@@ -36,6 +57,12 @@ function filechecks_getfiletype($filename) {
 	elseif (ereg(".diff.gz$",$filename)) {
 		$filetype = "diff/gz";
 		filechecks_gz($filename);
+	}
+	elseif (ereg(".asc$",$filename)) {
+		$filetype = "asc";
+	}
+	elseif (ereg(".bin$",$filename)) {
+		$filetype = "bin";
 	}
 	elseif (ereg(".exe$",$filename)) {
 		$filetype = "exe";
@@ -98,7 +125,12 @@ function filechecks_getfiletype($filename) {
 	}
 	elseif (ereg(".deb$",$filename)) {
 		$filetype = "deb";
-	} else {
+	}
+	elseif (ereg("\.([a-zA-Z]+)$",$filename,$regs)) {
+		$filetype = $regs[1];		
+	} 
+
+	if (!$filetype) {
 		exit_error ("Unknown file type","This file does not have a system-recognized filename type.");
 	}
 
@@ -106,7 +138,7 @@ function filechecks_getfiletype($filename) {
 		exit_error ("File does not exist","You must supply a filename.");
 	}
 
-	if (!file_exists("/nfs/remission/u7/ftp/incoming/$filename")) {
+	if (!file_exists("$GLOBALS[FTPINCOMING_DIR]/$filename")) {
 		exit_error ("File does not exist","File $filename is not in incoming FTP directory.");
 	}
 	return $filetype;

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: submit.php,v 1.10 2000/01/13 18:36:36 precision Exp $
+// $Id: submit.php,v 1.14 2000/11/03 02:17:32 tperdue Exp $
 
 require ('pre.php');
 require ('../snippet/snippet_utils.php');
@@ -18,14 +18,15 @@ if (user_isloggedin()) {
 		if ($name && $description && $language != 0 && $category != 0 && $type != 0 && $version && $code) {
 
 			$sql="INSERT INTO snippet (category,created_by,name,description,type,language,license) ".
-				"VALUES ('$category','".user_getid()."','".htmlspecialchars($name)."','".htmlspecialchars($description)."','$type','$language','$license')";
+				"VALUES ('$category','". user_getid() ."','". htmlspecialchars($name)."','".
+				htmlspecialchars($description)."','$type','$language','$license')";
 			$result=db_query($sql);
 			if (!$result) {
 				$feedback .= ' ERROR DOING SNIPPET INSERT! ';
 				echo db_error();
 			} else {
 				$feedback .= ' Snippet Added Successfully. ';
-				$snippet_id=db_insertid($result);
+				$snippet_id=db_insertid($result,'snippet','snippet_id');
 				/*
 					create the snippet version
 				*/
@@ -75,25 +76,25 @@ if (user_isloggedin()) {
 
 	<TR>
 	<TD><B>Type:</B><BR>
-		<?php util_build_select_box_from_array($SCRIPT_TYPE,'type'); ?>
+		<?php echo html_build_select_box_from_array($SCRIPT_TYPE,'type'); ?>
 	</TD>
 
 	<TD><B>License:</B><BR>
-		<?php util_build_select_box_from_array ($SCRIPT_LICENSE,'license'); ?>
+		<?php echo html_build_select_box_from_array ($SCRIPT_LICENSE,'license'); ?>
 	</TD>
 	</TR>
 
 	<TR>
 	<TD><B>Language:</B><BR>
-		<?php util_build_select_box_from_array ($SCRIPT_LANGUAGE,'language'); ?>
+		<?php echo html_build_select_box_from_array ($SCRIPT_LANGUAGE,'language'); ?>
 		<BR>
-		<A HREF="/sendmessage.php?toaddress=admin_maillink_sourceforge.net">Suggest a Language</A>
+		<A HREF="/support/?func=addsupport&group_id=1">Suggest a Language</A>
 	</TD>
 
 	<TD><B>Category:</B><BR>
-		<?php util_build_select_box_from_array ($SCRIPT_CATEGORY,'category'); ?>
+		<?php echo html_build_select_box_from_array ($SCRIPT_CATEGORY,'category'); ?>
                 <BR>
-                <A HREF="/sendmessage.php?toaddress=admin_maillink_sourceforge.net">Suggest a Category</A>
+                <A HREF="/support/?func=addsupport&group_id=1">Suggest a Category</A>
 	</TD>
 	</TR>
  

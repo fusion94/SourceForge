@@ -4,10 +4,9 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: sendmessage.php,v 1.4 2000/01/13 18:36:34 precision Exp $
+// $Id: sendmessage.php,v 1.14 2000/10/11 19:55:39 tperdue Exp $
 
 require ('pre.php');    
-site_header(array('title'=>'SorceForge Staff'));
 
 if (!$toaddress && !$touser) {
 	exit_error('Error','Error - some variables were not provided');
@@ -18,18 +17,23 @@ if ($touser) {
 		check to see if that user even exists
 		Get their name and email if it does
 	*/
-	$result=db_query("SELECT email,user_name FROM user WHERE user_id='$touser'");
+	$result=db_query("SELECT email,user_name FROM users WHERE user_id='$touser'");
 	if (!$result || db_numrows($result) < 1) {
 		exit_error('Error','Error - That user does not exist.');
 	}
 }
 
+if ($toaddress && !eregi($GLOBALS['sys_default_domain'],$toaddress)) {
+	exit_error("error","You can only send to addresses @".$GLOBALS['sys_default_domain']);
+}
+
+
 if ($send_mail) {
-	if (!$from_email || !$from_name || !$subject || !$body) {
+	if (!$subject || !$body || !$name || !$email) {
 		/*
 			force them to enter all vars
 		*/
-		exit_error('Error','Error - Go back and fill in all required info.');
+		exit_missing_param();
 	}
 
 	if ($toaddress) {
@@ -37,25 +41,30 @@ if ($send_mail) {
 			send it to the toaddress
 		*/
 		$to=eregi_replace('_maillink_','@',$toaddress);
-		$from='From: '.$from_name.' <'.$from_email.'>';
+		$from='From: '. $name .' <'. $email .'>';
 		mail($to, stripslashes($subject),stripslashes($body) ,$from);
+		$HTML->header(array('title'=>'SorceForge Contact'));
 		echo '<H2>Message sent</H2>';
-		site_footer(array());
+		$HTML->footer(array());
 		exit;
 	} else if ($touser) {
 		/*
 			figure out the user's email and send it there
 		*/
 		$to=db_result($result,0,'email');
-		$from='From: '.$from_name.' <'.$from_email.'>';
+		$from='From: '. $name .' <'. $email .'>';
 		mail($to, stripslashes($subject), stripslashes($body),$from);
+		$HTML->header(array('title'=>'SorceForge Contact'));
 		echo '<H2>Message sent</H2>';
-		site_footer(array());
+		$HTML->footer(array());
 		exit;
 	}
 }
 
+$HTML->header(array('title'=>'SorceForge Staff'));
+
 ?>
+
 <H2>Send a Message to <?php 
 
 if ($toaddress) {
@@ -80,13 +89,13 @@ about a project, include your <B>project id</B> (<B>group_id</B>) and <B>Project
 <INPUT TYPE="HIDDEN" NAME="touser" VALUE="<?php echo $touser; ?>">
 
 <B>Your Email Address:</B><BR>
-<INPUT TYPE="TEXT" NAME="from_email" SIZE="25" MAXLENGTH="40">
+<INPUT TYPE="TEXT" NAME="email" SIZE="30" MAXLENGTH="40" VALUE="">
 <P>
 <B>Your Name:</B><BR>
-<INPUT TYPE="TEXT" NAME="from_name" SIZE="20" MAXLENGTH="40">
+<INPUT TYPE="TEXT" NAME="name" SIZE="30" MAXLENGTH="40" VALUE="">
 <P>
 <B>Subject:</B><BR>
-<INPUT TYPE="TEXT" NAME="subject" SIZE="30" MAXLENGTH="40">
+<INPUT TYPE="TEXT" NAME="subject" SIZE="30" MAXLENGTH="40" VALUE="<?php echo $subject; ?>">
 <P>
 <B>Message:</B><BR>
 <TEXTAREA NAME="body" ROWS="15" COLS="60" WRAP="HARD"></TEXTAREA>
@@ -96,5 +105,6 @@ about a project, include your <B>project id</B> (<B>group_id</B>) and <B>Project
 </CENTER>
 </FORM>
 <?php
-site_footer(array());
+$HTML->footer(array());
+
 ?>

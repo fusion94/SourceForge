@@ -4,11 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.16 2000/01/13 18:36:36 precision Exp $
+// $Id: index.php,v 1.18 2000/08/31 06:11:35 gherteg Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 session_require(array(isloggedin=>1));
-site_header(array(title=>"Project Registration"));
+$HTML->header(array(title=>"Project Registration"));
 ?>
 
 <H2>SourceForge Project Registration</H2>
@@ -35,7 +35,7 @@ ignore these; they are very important to you and your project.
 </p>
 
 <?php
-site_footer(array());
-site_cleanup(array());
+$HTML->footer(array());
+
 ?>
 

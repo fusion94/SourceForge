@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id:$
+// $Id: show_results_aggregate.php,v 1.10 2000/05/21 15:55:09 tperdue Exp $
 
 require('pre.php');
 require('HTML_Graphs.php');
@@ -18,7 +18,7 @@ if (!user_isloggedin() || !user_ismember($group_id,'A')) {
 	exit;
 }
 
-$result=db_query($sql);
+//$result=db_query($sql);
 
 /*
 	Select this survey from the database

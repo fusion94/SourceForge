@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: stats_function.php,v 1.14 2000/01/13 18:36:35 precision Exp $
+// $Id: stats_function.php,v 1.24 2000/10/11 19:55:39 tperdue Exp $
 
 require('HTML_Graphs.php');
 
@@ -22,14 +22,31 @@ function stats_sf_stats() {
 		echo '<H1>Stats Problem</H1>';
 		echo db_error();
 	} else {
-		GraphResult($result,'Page Views By Day');
+		$j=0;
+		for ($i=0; $i<$rows; $i++) {
+			//echo $i." - ".($i%7)."<BR>";
+			if ($i % 7 == 0) {
+				//echo $i."<BR>";
+				//increment the new weekly array
+				//and set the beginning date for this week
+				$j++;
+				$name_string[$j]=db_result($result,$i,'day');
+				$vals[$j]=0;
+			}
+			//add today to the week
+                        $vals[$j] += db_result($result,$i,'count');
+		}
+		$j++;
+		$vals[$j]='';
+		$name_string[$j]='';
+		GraphIt($name_string,$vals,'Page Views By Week');
 	}
 
 	echo '<P>';
 
 /*
 	pages/hour
-*/
+* /
 	$sql="SELECT * FROM stats_agg_pages_by_hour";
 
 	$result = db_query ($sql);
@@ -42,6 +59,7 @@ function stats_sf_stats() {
 		GraphResult($result,'Page Views By Hour');
 	}
 	echo '<P>';
+*/
 
 /*
 	Groups added by week
@@ -69,7 +87,7 @@ function stats_sf_stats() {
 /*
 	Users added by week
 */
-	$sql="select (round((add_date/604800),0)*604800) AS time ,count(*) from user group by time";
+	$sql="select (round((add_date/604800),0)*604800) AS time ,count(*) from users group by time";
 	$result = db_query ($sql);
 	$rows = db_numrows($result);
 
@@ -113,7 +131,7 @@ function stats_project_stats() {
 /*
 	logo impressions/group
 */
-	$sql="SELECT * FROM stats_agg_logo_by_group";
+	$sql="SELECT group_id,sum(count) as count FROM stats_agg_logo_by_group GROUP BY group_id";
 
 	$result = db_query ($sql);
 	$rows = db_numrows($result);

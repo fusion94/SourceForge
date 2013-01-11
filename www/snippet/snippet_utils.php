@@ -4,7 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: snippet_utils.php,v 1.15 2000/01/13 18:36:36 precision Exp $
+// $Id: snippet_utils.php,v 1.27 2000/10/11 19:55:40 tperdue Exp $
+
+/*
+	Code Snippet System
+	By Tim Perdue, Sourceforge, Jan 2000
+*/
 
 $SCRIPT_CATEGORY=array();
 $SCRIPT_CATEGORY[0]='Choose One';
@@ -60,74 +65,72 @@ $SCRIPT_LANGUAGE[10] = 'Visual Basic';
 $SCRIPT_LANGUAGE[11] = 'TCL';
 $SCRIPT_LANGUAGE[12] = 'Lisp';
 $SCRIPT_LANGUAGE[13] = 'Mixed';
+$SCRIPT_LANGUAGE[14] = 'JavaScript';
+$SCRIPT_LANGUAGE[15] = 'SQL';
 
 function snippet_header($params) {
-	global $DOCUMENT_ROOT;
-	site_header($params);
+	global $DOCUMENT_ROOT,$HTML;
 
+	$HTML->header($params);
 	/*
 		Show horizontal links
 	*/
+	echo '<FONT face="arial, helvetica">';
+	echo '<H2>' . $params['header'] . '</H2>';
 	echo '<P><B>';
 	echo '<A HREF="/snippet/">Browse</A>
 		 | <A HREF="/snippet/submit.php">Submit A New Snippet</A>
-		 | <A HREF="/snippet/package.php">Create A Package</A>
-		 | <A HREF="/snippet/admin/">Admin</A></B>';
+		 | <A HREF="/snippet/package.php">Create A Package</A></B>';
 	echo '<P>';
 }
 
 function snippet_footer($params) {
+	GLOBAL $HTML;
 	global $feedback;
 	html_feedback_bottom($feedback);
-	site_footer($params);
+	$HTML->footer($params);
 }
 
 function snippet_show_package_snippets($version) {
 	//show the latest version
-	$sql="SELECT snippet_package_item.snippet_version_id, snippet_version.version,snippet.name,user.user_name ".
-		"FROM snippet,snippet_version,snippet_package_item,user ".
+	$sql="SELECT snippet_package_item.snippet_version_id, snippet_version.version,snippet.name,users.user_name ".
+		"FROM snippet,snippet_version,snippet_package_item,users ".
 		"WHERE snippet.snippet_id=snippet_version.snippet_id ".
-		"AND user.user_id=snippet_version.submitted_by ".
+		"AND users.user_id=snippet_version.submitted_by ".
 		"AND snippet_version.snippet_version_id=snippet_package_item.snippet_version_id ".
 		"AND snippet_package_item.snippet_package_version_id='$version'";
 
 	$result=db_query($sql);
 	$rows=db_numrows($result);
+	echo '
+	<P>
+	<H3>Snippets In This Package:</H3>
+	<P>';
+
+	$title_arr=array();
+	$title_arr[]='Snippet ID';
+	$title_arr[]='Download Version';
+	$title_arr[]='Title';
+	$title_arr[]='Author';
+
+	echo html_build_list_table_top ($title_arr,$links_arr);
 
 	if (!$result || $rows < 1) {
 		echo db_error();
 		echo '
-			<P>
-			</H3>No Snippets Are In This Package Yet</H3>';
+			<TR><TD COLSPAN="4"><H3>No Snippets Are In This Package Yet</H3></TD></TR>';
 	} else {
-		echo '
-			<P>
-			<H3>Snippets In This Package:</H3>
-			<P>
-			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
-			<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
-			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Snippet ID</TD>
-			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Download Version</TD>
-			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Title</TD>
-			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Author</TD>
-			</TR>';
 
 		//get the newest version, so we can display it's code
 		$newest_version=db_result($result,0,'snippet_version_id');
 
 		for ($i=0; $i<$rows; $i++) {
-			if ($i % 2 == 0) {
-				$row_color=' BGCOLOR="#FFFFFF"';
-			} else {
-				$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
-			}
-
 			echo '
-				<TR'.$row_color.'><TD>'.db_result($result,$i,'snippet_version_id').
+			<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD>'.db_result($result,$i,'snippet_version_id').
 				'</TD><TD><A HREF="/snippet/download.php?type=snippet&id='.
 				db_result($result,$i,'snippet_version_id').'">'.
 				db_result($result,$i,'version').'</A></TD><TD>'.
-				stripslashes(db_result($result,$i,'name')).'</TD><TD>'.
+				db_result($result,$i,'name').'</TD><TD>'.
 				db_result($result,$i,'user_name').'</TD></TR>';
 		}
 	}
@@ -146,7 +149,7 @@ function snippet_show_package_details($id) {
 	<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
 
 	<TR><TD COLSPAN="2">
-	<H2>'. stripslashes(db_result($result,0,'name')).'</H2>
+	<H2>'. db_result($result,0,'name').'</H2>
 	</TD></TR>
 
 	<TR>
@@ -160,7 +163,7 @@ function snippet_show_package_details($id) {
 	</TR>
 
 	<TR><TD COLSPAN="2">&nbsp;<BR><B>Description:</B><BR>
-	'. util_make_links(nl2br(stripslashes(db_result($result,0,'description')))).'
+	'. util_make_links(nl2br(db_result($result,0,'description'))).'
 	</TD></TR>
 
 	</TABLE>';
@@ -178,7 +181,7 @@ function snippet_show_snippet_details($id) {
 	<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
 
 	<TR><TD COLSPAN="2">
-	<H2>'. stripslashes(db_result($result,0,'name')).'</H2>
+	<H2>'. db_result($result,0,'name').'</H2>
 	</TD></TR>
 
 	<TR><TD><B>Type:</B><BR>
@@ -195,7 +198,7 @@ function snippet_show_snippet_details($id) {
 
 	<TR><TD COLSPAN="2">&nbsp;<BR>
 	<B>Description:</B><BR>
-	'. util_make_links(nl2br(stripslashes(db_result($result,0,'description')))).'
+	'. util_make_links(nl2br(db_result($result,0,'description'))).'
 	</TD></TR>
 
 	</TABLE>';

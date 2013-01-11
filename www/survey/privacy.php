@@ -4,13 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id:$
-
+// $Id: privacy.php,v 1.5 2000/10/19 02:50:30 tperdue Exp $
 
 require('pre.php');
 require('vote_function.php');
 require('../survey/survey_utils.php');
-survey_header(array('title'=>'Survey'));
+echo $HTML->header(array('title'=>'Survey'));
 
 ?>
 
@@ -40,6 +39,6 @@ course have the ability to 'opt-out'.
 <P>
 <?php
 
-survey_footer(array());
+echo $HTML->footer(array());
 
 ?>

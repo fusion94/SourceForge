@@ -4,13 +4,13 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id:$
+// $Id: show_questions.php,v 1.20 2000/08/31 20:15:01 gherteg Exp $
 
 require('pre.php');
 require($DOCUMENT_ROOT.'/survey/survey_utils.php');
 $is_admin_page='y';
 
-generic_header(array('title'=>'Survey Questions'));
+$HTML->header(array('title'=>'Survey Questions'));
 
 if (!user_isloggedin() || !user_ismember($group_id,'A')) {
 	echo "<H1>Permission Denied</H1>";
@@ -43,13 +43,7 @@ Function  ShowResultsEditQuestion($result) {
 	echo( "</tr>");
 	for($j  =  0;  $j  <  $rows;  $j++)  {
 
-		if ($j%2==0) {
-			$row_bg="#FFFFFF";
-		} else {
-			$row_bg="$GLOBALS[COLOR_LTBACK1]";
-		}
-
-		echo( "<tr BGCOLOR=\"$row_bg\">\n");
+		echo( "<tr BGCOLOR=\"". html_get_alt_row_color($j) ."\">\n");
 
 		echo "<TD><A HREF=\"edit_question.php?group_id=$group_id&question_id=".db_result($result,$j,"question_id")."\">".db_result($result,$j,"question_id")."</A></TD>\n";
 
@@ -74,6 +68,6 @@ $result=db_query($sql);
 
 ShowResultsEditQuestion($result);
 
-generic_footer(array());
+$HTML->footer(array());
 
 ?>

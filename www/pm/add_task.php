@@ -4,12 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: add_task.php,v 1.58 2000/01/13 18:36:35 precision Exp $
+// $Id: add_task.php,v 1.63 2000/04/21 13:09:01 tperdue Exp $
 
 pm_header(array('title'=>'Add a New Task'));
 
 ?>
-<H2>Add A Task To <?php echo  get_task_group_name($group_project_id); ?></H2>
+<H2>Add A Task To <?php echo  pm_data_get_group_name($group_project_id); ?></H2>
 
 <FORM ACTION="<?php echo $PHP_SELF; ?>" METHOD="POST">
 <INPUT TYPE="HIDDEN" NAME="func" VALUE="postaddtask">
@@ -21,7 +21,7 @@ pm_header(array('title'=>'Add a New Task'));
 		<TD>
 			<B>Percent Complete:</B>
 			<BR>
-			<?php echo ShowPercentCompleteBox(); ?>
+			<?php echo pm_show_percent_complete_box(); ?>
 		</TD>
 		<TD>
 			<B>Priority:</B>
@@ -45,9 +45,9 @@ pm_header(array('title'=>'Add a New Task'));
     		<TD COLSPAN="2"><B>Start Date:</B>
 		<BR>
 		<?php
-		ShowMonthListSelectBox('start_month',date('m', time()));
-		ShowDaySelectBox('start_day',date('d', time()));
-		ShowYearSelectBox('start_year',date('Y', time()));
+		echo pm_show_month_box ('start_month',date('m', time()));
+		echo pm_show_day_box ('start_day',date('d', time()));
+		echo pm_show_year_box ('start_year',date('Y', time()));
 		?>
 			<BR><a href="calendar.php">View Calendar</a>
 		 </td>
@@ -57,9 +57,9 @@ pm_header(array('title'=>'Add a New Task'));
 		<TD COLSPAN="2"><B>End Date:</B>
 		<BR>
 		<?php
-		ShowMonthListSelectBox('end_month',date('m', time()));
-		ShowDaySelectBox('end_day',date('d', time()));
-		ShowYearSelectBox('end_year',date('Y', time()));
+		echo pm_show_month_box ('end_month',date('m', time()));
+		echo pm_show_day_box ('end_day',date('d', time()));
+		echo pm_show_year_box ('end_year',date('Y', time()));
 		?>
 		</td>
 
@@ -69,21 +69,14 @@ pm_header(array('title'=>'Add a New Task'));
 		<B>Assigned To:</B>
 		<BR>
 		<?php
-		$sql="SELECT user.user_id,user.user_name ".
-			"FROM user,user_group WHERE user.user_id=user_group.user_id ".
-			"AND user_group.group_id='$group_id' AND user_group.project_flags IN (1,2)";
-		$result=db_query($sql);
-		build_multiple_select_box($result,'assigned_to[]',array());
+		echo pm_multiple_assigned_box ('assigned_to[]',$group_id);
 		?>
 		</td>
 		<TD>
 		<B>Dependent On Task:</B>
 		<BR>
 		<?php
-		$sql="SELECT project_task_id,summary ".
-			"FROM project_task WHERE group_project_id='$group_project_id' AND status_id <> '3' ORDER BY project_task_id DESC LIMIT 200";
-		$result=db_query($sql);
-		build_multiple_select_box($result,'dependent_on[]',array());
+		echo pm_multiple_task_depend_box ('dependent_on[]',$group_project_id);
 		?>
 		</TD>
 	</TR>

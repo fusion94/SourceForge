@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: download.php,v 1.11 2000/01/13 18:36:36 precision Exp $
+// $Id: download.php,v 1.14 2000/05/08 15:27:00 tperdue Exp $
 
 require ('pre.php');
 
@@ -13,7 +13,11 @@ $result=db_query($sql);
 
 if ($result && db_numrows($result) > 0) {
 	header('Content-Type: text/plain');
-	echo util_unconvert_htmlspecialchars(stripslashes(db_result($result,0,'code')));
+	if (strlen(db_result($result,0,'code')) > 1) {
+		echo util_unconvert_htmlspecialchars( db_result($result,0,'code') );
+	} else {
+		echo 'nothing in here';
+	}
 } else {
 	echo 'Error';
 }

@@ -4,84 +4,96 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.164 2000/01/13 18:36:34 precision Exp $
+// $Id: index.php,v 1.217 2000/12/12 21:16:57 pfalcon Exp $
 
 require ('pre.php');    // Initial db and session library, opens session
 require ('cache.php');
 require($DOCUMENT_ROOT.'/forum/forum_utils.php');
+require ('features_boxes.php');
 
-site_header(array('title'=>'Welcome'));
+$HTML->header(array('title'=>'Welcome'));
 
 ?>
-
 <!-- whole page table -->
-<TABLE width=100% cellpadding=0 cellspacing=0 border=0>
-<TR valign=top><TD width="65%">
+<TABLE width=100% cellpadding=5 cellspacing=0 border=0>
+<TR><TD width="65%" VALIGN="TOP">
 
+	<hr width="100%" size="1" noshade>
+	<span class="slogan">
+	<div align="center">
+	<?php echo $Language->BREAKING_DOWN_BARRIERS; ?>
+	</div>
+	</span>
+        <hr width="100%" size="1" noshade>
+	&nbsp;<br>
 <P>
-<?php echo news_show_latest(); ?>
+<?php
 
-<B>Help and discussion</B>
-<UL>
-<LI><A href="/forum/forum.php?forum_id=3"><B>SourceForge Help Forum</B></A>
-<LI><A href="/forum/forum.php?forum_id=2"><B>SourceForge Open Discussion Forum</B></A>
-<LI><A href="/forum/forum.php?forum_id=4"><B>SourceForge Feature Request Forum</B></A>
-<LI><A href="/bugs/?group_id=1"><B>SourceForge Bug Tracker</B></A>
-<LI>Join us on IRC at <B>#sourceforge</B> on <B>irc.linux.com</B> (or the OpenProjects network)
-</UL>
-<P>
-<A HREF="/snippet/"><B><IMG SRC="/images/ic/scissors.png" HEIGHT=24 WIDTH=24  BORDER=0> 
-<FONT COLOR="RED">New</FONT> Code Snippet Library</B></A> Share your scripts, 
-README's, and code libraries with the community. 
-Create packages of scripts with a web interface. The system even allows you 
-to create new versions of scripts and packages if you change someone's code 
-and wish to share it.
-<P>
-SourceForge is a <B>free service to 
-<A href="http://www.opensource.org">Open Source</A> developers</B> offering
-easy access to the best in CVS, mailing lists, bug tracking, message boards/forums,
-task management, site hosting, permanent file archival, full backups,
-and total web-based administration. 
-<UL>
-<LI>Read <A href="/docs/site/services.php">a description of the complete SourceForge package</A>,
-available free to opensource developers.
-</UL>
+/*
 
-<P>
-<B>Who are we? What are we doing? Why are we doing it?</B>
-<P>There is too much information about this project to fit in this
-introductory page. You should really take the time to visit
-our <A href="/docs/site/faq.php"><B>Frequently Asked
-Questions</B></A>.
+	Temp way of getting
 
-<P>
-<B>Site Feedback and Participation</B>
-<P>
-In order to get the most out of SourceForge, you'll need
-to <A href="/account/register.php">register as a 
-site user</A>. This will allow you to participate fully in all we have to
-offer. You may of course browse the site without registering, but will
-not have access to participate fully.
-<P>
-<B>Set Up Your Own Project</B>
-<P>
-<A href="/account/register.php">Register as a site user</A>, 
-then <A HREF="/account/login.php">Login</A> and finally,
-<A HREF="/register/">Register Your Project.</A>
-<P>
-Thanks... and enjoy the site.
+	blurb before the content mgr is ready
+
+*/
+
+echo $Language->HOME_PAGE_ABOUT_BLURB;
+echo '<P>';
+// echo $HTML->box1_top($Language->GROUP_LONG_FOUNDRIES);
+?>
+
+<br><b>SourceForge Development Foundries</b><br><br>
+<table bgcolor="White" border="0" cellpadding="0" cellspacing="0" valign="top" width="100%">
+<tr>
+	<td>Hardware:</td>
+	<td>Programming:</td>
+</tr>
+<tr>
+	<td><font size="-1"><a href="/foundry/printing/">Printing</a>, <a href="/foundry/storage/">Storage</a></font></td>
+	<td><font size="-1"><a href="/foundry/java/">Java</a>, <a href="/foundry/perl-foundry/">Perl</a>, <a href="/foundry/php-foundry/">PHP</a>, <a href="/foundry/python-foundry/">Python</a>, <a href="/foundry/tcl-foundry/">Tcl/Tk</a>, <a href="/foundry/gnome-foundry/">GNOME</a></font></td>
+</tr>
+<tr>
+	<td>International:</td>
+	<td>Services:</td>
+</tr>
+<tr>
+	<td><font size="-1"><a href="/foundry/french/">French</a>, <a href="/foundry/spanish/">Espanol</a>, <a href="/foundry/japanese/">Japanese</a></font></td>
+	<td><font size="-1"><a href="/foundry/databases/">Database</a>, <a href="/foundry/web/">Web</a></font></td>
+</tr>
+<tr>
+	<td>Graphics:</td>
+	<td>Fun:</td>
+</tr>
+<tr>
+	<td><font size="-1"><a href="/foundry/vectorgraphics/">Vector Graphics</a>, <a href="/foundry/3d/">3D</a></font></td>
+	<td><font size="-1"><a href="/foundry/games/">Games</a></font></td>
+</tr>
+<tr>
+		<td>&nbsp;</td><td align="right"><font size="-1"><a href="about_foundries.php">[ More ]</a></font></td>
+</tr>
+</table>
+<br>
+
+<?php
+echo $HTML->box1_top($Language->GROUP_LONG_NEWS);
+echo news_show_latest($sys_news_group,5,true,false,false,5);
+echo $HTML->box1_bottom();
+?>
 
 </TD>
-<TD>&nbsp;</TD>
-<TD width="35%">
 
 <?php
-echo cache_display("show_features_boxes","show_features_boxes()",1800);
+
+echo '<TD width="35%" VALIGN="TOP">';
+
+echo cache_display('show_features_boxes','show_features_boxes()',3600);
+
 ?>
 
-</TR></TABLE>
+</TD></TR></TABLE>
 
 <?php
-site_footer(array());
-site_cleanup(array());
+
+$HTML->footer(array());
+
 ?>

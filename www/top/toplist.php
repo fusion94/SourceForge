@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id:$
+// $Id: toplist.php,v 1.36 2000/10/17 21:22:04 tperdue Exp $
 
 require "pre.php";    
 
@@ -15,7 +15,7 @@ if ($GLOBALS[type] == 'downloads_week') {
 }
 else if ($GLOBALS[type] == 'pageviews_proj') {
 	$rankfield = 'pageviews_proj';
-	$title = 'Top Project Pageviews at *.sourceforge.net (from impressions of SF logo)';
+	$title = 'Top Weekly Project Pageviews at *.'.$GLOBALS['sys_default_domain'].' (from impressions of SF logo)';
 	$column1 = 'Pageviews';
 }
 else if ($GLOBALS[type] == 'forumposts_week') {
@@ -31,7 +31,7 @@ else {
 }
 
 
-site_header(array(title=>$title));
+$HTML->header(array('title'=>$title));
 
 print '<P><B><FONT size="+1">'.$title.'</FONT></B>
 <BR><I>(Updated Daily)</I>
@@ -47,14 +47,20 @@ print '<P><B><FONT size="+1">'.$title.'</FONT></B>
 <TD align="right"><B>Change</B>&nbsp;&nbsp;&nbsp;</TD></TR>
 ';
 
-$res_top = db_query("SELECT group_id,group_name,$rankfield,rank_$rankfield,rank_".$rankfield."_old FROM "
-	."top_group WHERE $rankfield > 0 ORDER BY rank_$rankfield LIMIT 100");
+$res_top = db_query("SELECT groups.group_id,groups.group_name,groups.unix_group_name,top_group.$rankfield,".
+	"top_group.rank_$rankfield,top_group.rank_".$rankfield."_old ".
+	"FROM groups,top_group ".
+	"WHERE top_group.$rankfield > 0 ".
+	"AND top_group.group_id=groups.group_id ".
+	"ORDER BY top_group.rank_$rankfield",100);
+
+echo db_error();
 
 while ($row_top = db_fetch_array($res_top)) {
-	html_colored_tr();
-	print '<TD>&nbsp;&nbsp;'.$row_top["rank_$rankfield"]
-		.'</TD><TD><A href="/project/?group_id='.$row_top[group_id].'">'
-		.stripslashes($row_top[group_name])."</A>"
+	$i++;
+	print '<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD>&nbsp;&nbsp;'.$row_top["rank_$rankfield"]
+		.'</TD><TD><A href="/projects/'. strtolower($row_top['unix_group_name']) .'/">'
+		.stripslashes($row_top['group_name'])."</A>"
 		.'</TD><TD align="right">'.$row_top["$rankfield"]
 		.'&nbsp;&nbsp;&nbsp;</TD><TD align="right">'.$row_top["rank_$rankfield"."_old"]
 		.'&nbsp;&nbsp;&nbsp;</TD>'
@@ -81,6 +87,5 @@ while ($row_top = db_fetch_array($res_top)) {
 
 print '</TABLE>';
 
-site_footer(array());
-site_cleanup(array());
+$HTML->footer(array());
 ?>

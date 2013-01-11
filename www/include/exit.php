@@ -4,25 +4,34 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: exit.php,v 1.9 2000/01/13 18:36:35 precision Exp $
+// $Id: exit.php,v 1.18 2000/11/17 14:52:36 pfalcon Exp $
 
 function exit_error($title,$text) {
-	site_header(array('title'=>'Exiting with Error'));
+	GLOBAL $HTML;
+	$HTML->header(array('title'=>'Exiting with Error'));
 	print '<H2><font color="#FF3333">'.$title.'</font></H2><P>'.$text;
-	site_footer(array());
-	site_cleanup(array());
+	$HTML->footer(array());
 	exit;
 }
 
-function exit_permission_denied() {
-	exit_error('Permission Denied','This project\'s administrator will have to grant you permission to view this page.');
+function exit_permission_denied($reason_descr='') {
+	if (!$reason_descr) $reason_descr='This project\'s administrator will have to grant you permission to view this page.';
+	exit_error('Permission Denied',$reason_descr);
 }
 
 function exit_not_logged_in() {
-	exit_error('Not Logged In','Sorry, you have to be <A HREF="https://'.getenv('HTTP_HOST').'/account/login.php">logged in</A> to view this page.');
+	global $REQUEST_URI;
+	//instead of a simple error page, now take them to the login page
+	header ("Location: /account/login.php?return_to=".urlencode($REQUEST_URI));
+	//exit_error('Not Logged In','Sorry, you have to be <A HREF="/account/login.php">logged in</A> to view this page.');
 }
 
 function exit_no_group() {
 	exit_error('Error - Choose a Group','ERROR - No group_id was chosen.');
 }
+
+function exit_missing_param() {
+	exit_error('Error - Missing Params','ERROR - Missing Required Parameteres.');
+}
+
 ?>

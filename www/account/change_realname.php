@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: change_realname.php,v 1.7 2000/01/13 18:36:34 precision Exp $
+// $Id: change_realname.php,v 1.11 2000/10/11 19:55:39 tperdue Exp $
 
 require "pre.php";    
 require "account.php";
@@ -24,7 +24,7 @@ function register_valid()	{
 	}
 	
 	// if we got this far, it must be good
-	db_query("UPDATE user SET realname='$GLOBALS[form_realname]' WHERE user_id=" . user_getid());
+	db_query("UPDATE users SET realname='$GLOBALS[form_realname]' WHERE user_id=" . user_getid());
 	return 1;
 }
 
@@ -33,19 +33,20 @@ function register_valid()	{
 if (register_valid()) {
 	session_redirect("/account/");
 } else { // not valid registration, or first time to page
-	site_header(array(title=>"Change RealName"));
+	site_user_header(array(title=>"Change RealName"));
 
-?>
-<p><b>RealName Change</b>
-<?php if ($register_error) print "<p>$register_error"; ?>
-<form action="change_realname.php" method="post">
-<p>New Real Name:
-<br><input type="text" name="form_realname">
-<p><input type="submit" name="Update" value="Update">
-</form>
+	?>
+	<p><b>RealName Change</b>
+	<?php if ($register_error) print "<p>$register_error"; ?>
+	<form action="change_realname.php" method="post">
+	<p>New Real Name:
+	<br><input type="text" name="form_realname">
+	<p><input type="submit" name="Update" value="Update">
+	</form>
 
-<?php
+	<?php
 }
-site_footer(array());
-site_cleanup(array());
+
+site_user_footer(array());
+
 ?>

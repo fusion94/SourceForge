@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: package.php,v 1.9 2000/01/13 18:36:36 precision Exp $
+// $Id: package.php,v 1.13 2000/11/03 02:17:32 tperdue Exp $
 
 require ('pre.php');
 require ('../snippet/snippet_utils.php');
@@ -31,7 +31,7 @@ if (user_isloggedin()) {
 				exit;
 			} else {
 				$feedback .= ' Snippet Package Added Successfully. ';
-				$snippet_package_id=db_insertid($result);
+				$snippet_package_id=db_insertid($result,'snippet_package','snippet_package_id');
 				/*
 					create the snippet package version
 				*/
@@ -52,7 +52,8 @@ if (user_isloggedin()) {
 					$feedback .= ' Snippet Pacakge Version Added Successfully. ';
 
 					//id for this snippet_package_version
-					$snippet_package_version_id=db_insertid($result);
+					$snippet_package_version_id=
+						db_insertid($result,'snippet_package_version','snippet_package_version_id');
 					snippet_header(array('title'=>'Add Snippets to Package'));
 
 /*
@@ -130,15 +131,15 @@ then add them using the new window link shown above.
 
 	<TR>
 	<TD><B>Language:</B><BR>
-		<?php util_build_select_box_from_array ($SCRIPT_LANGUAGE,'language'); ?>
+		<?php echo html_build_select_box_from_array ($SCRIPT_LANGUAGE,'language'); ?>
 		<BR>
-		<A HREF="/sendmessage.php?toaddress=admin_maillink_sourceforge.net">Suggest a Language</A>
+		<A HREF="/support/?func=addsupport&group_id=1">Suggest a Language</A>
 	</TD>
 
 	<TD><B>Category:</B><BR>
-		<?php util_build_select_box_from_array ($SCRIPT_CATEGORY,'category'); ?>
+		<?php echo html_build_select_box_from_array ($SCRIPT_CATEGORY,'category'); ?>
 		<BR>
-		<A HREF="/sendmessage.php?toaddress=admin_maillink_sourceforge.net">Suggest a Category</A>
+		<A HREF="/support/?func=addsupport&group_id=1">Suggest a Category</A>
 	</TD>
 	</TR>
  
