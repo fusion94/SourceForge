@@ -7,13 +7,11 @@ CREATE TABLE patch (
   assigned_to int(11) DEFAULT '0' NOT NULL,
   open_date int(11) DEFAULT '0' NOT NULL,
   summary text,
-  code mediumtext,
+  code text,
   close_date int NOT NULL DEFAULT '0',
   PRIMARY KEY (patch_id),
   KEY idx_patch_group_id (group_id)
 );
-
-INSERT INTO patch (patch_id) VALUES ('100000');
 
 #
 # Table structure for table 'patch_status'
@@ -21,13 +19,12 @@ INSERT INTO patch (patch_id) VALUES ('100000');
 CREATE TABLE patch_status (
   patch_status_id int(11) DEFAULT '0' NOT NULL auto_increment,
   status_name text,
-  PRIMARY KEY (patch_status_id)
+  PRIMARY KEY (status_id)
 );
 
 insert into patch_status values('1','Open');
 insert into patch_status values('2','Closed');
 insert into patch_status values('3','Deleted');
-insert into patch_status values('4','Postponed');
 
 #
 # Table structure for table 'patch_group'
@@ -39,9 +36,6 @@ CREATE TABLE patch_category (
   PRIMARY KEY (patch_category_id),
   KEY idx_patch_group_group_id (group_id)
 );
-
-insert into patch_category VALUES ('100','0','None');
-insert into patch_category VALUES ('10000','0','None');
 
 #
 # Table structure for table 'patch_history'

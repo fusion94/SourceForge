@@ -4,11 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: filerelease-edit.php,v 1.31 2000/04/03 16:10:51 dtype Exp $
+// $Id: filerelease-edit.php,v 1.27 2000/01/26 10:44:32 tperdue Exp $
 
 require "pre.php";    
 require "paths.php";
-require "filechecks.php";
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
 session_require(array('group'=>$group_id,'adminflags'=>'A'));
@@ -45,10 +44,6 @@ if ($GLOBALS[Submit]) {
 	// make sure not submitting in the future
 	if ($unix_release_time > time()) {
 		$unix_release_time = time();
-	}
-
-	if (! filechecks_islegalname($form_filename)) {
-		exit_error("Illegal Filename","Illegal Filename");
 	}
 
 	// check for changed critical field

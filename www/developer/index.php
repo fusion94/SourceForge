@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.19 2000/04/25 13:44:32 tperdue Exp $
+// $Id: index.php,v 1.17 2000/01/13 18:36:34 precision Exp $
 
 /*
 	Developer Info Page
@@ -19,7 +19,7 @@ site_header(array('title'=>'Developer Profile'));
 $res_user = db_query("SELECT * FROM user WHERE user_id=$form_dev");
 $row_user = db_fetch_array($res_user);
 
-html_box1_top("Developer Profile: " . $row_user['user_name']); 
+html_box1_top("Developer Profile: " . $row_user[user_name]); 
 
 ?>
 <p>
@@ -37,28 +37,22 @@ minimize spamming to these accounts.
 <TABLE width=100% cellpadding=0 cellspacing=0 border=0>
 <TR valign=top>
 	<TD>User ID: </TD>
-	<TD><B><?php print $row_user['user_id']; ?></B></TD>
+	<TD><B><?php print $row_user[user_id]; ?></B></TD>
 </TR>
 <TR valign=top>
 	<TD>Login Name: </TD>
-	<TD><B><?php print $row_user['user_name']; ?></B></TD>
+	<TD><B><?php print $row_user[user_name]; ?></B></TD>
 </TR>
 <TR valign=top>
 	<TD>Real Name: </TD>
-	<TD><B><?php print $row_user['realname']; ?></B></TD>
+	<TD><B><?php print $row_user[realname]; ?></B></TD>
 </TR>
 <TR valign=top>
 	<TD>Email Addr: </TD>
 	<TD>
-	<B><A HREF="/sendmessage.php?touser=<?php print $row_user['user_id']; 
-		?>"><?php print $row_user['user_name']; ?> at users.sourceforge.net</A></B>
+	<B><A HREF="/sendmessage.php?touser=<?php print $row_user[user_id] . '">' . $row_user[user_name]; ?> at users.sourceforge.net</A></B>
 	</TD>
 </TR>
-<TR valign=top>
-        <TD COLSPAN="2">
-        <TD><A HREF="/people/viewprofile.php?user_id=<?php print $row_user['user_id']; ?>"><B>Skills Profile</B></A></TD>
-</TR>
-
 </TABLE>
 <?php html_box1_bottom(); ?>
 
@@ -73,25 +67,24 @@ $res_cat = db_query("SELECT groups.group_name AS group_name, "
 
 // see if there were any groups
 if (db_numrows($res_cat) < 1) {
-	?>
-	<p>This developer is not a member of any project or consultant groups.
-	<?php
+?>
+<p>This developer is not a member of any project or consultant groups.
+<?php
 } else { // endif no groups
 	print "<p>This developer is a member of the following groups:<BR>&nbsp;";
 	while ($row_cat = db_fetch_array($res_cat)) {
 		print ("<BR>" . "<A href=\"/project/?group_id=$row_cat[group_id]\">"
-			. group_getname($row_cat['group_id']) . "</A>\n");
+			. group_getname($row_cat[group_id]) . "</A>\n");
 	}
 	print "</ul>";
 } // end if groups
-
 html_box1_bottom(); ?>
 </TD>
 <TD>&nbsp;</TD>
 <TD width=50%>
 <?php html_box1_top("Usage Statistics"); ?>
 &nbsp;<BR>
-Site Member Since: <B><?php print date("M d, Y",$row_user['add_date']); ?></B>
+Site Member Since: <B><?php print date("M d, Y",$row_user[add_date]); ?></B>
 <?php html_box1_bottom(); ?>
 
 </TD>
@@ -99,4 +92,5 @@ Site Member Since: <B><?php print date("M d, Y",$row_user['add_date']); ?></B>
 
 <?php
 site_footer(array());
+site_cleanup(array());
 ?>

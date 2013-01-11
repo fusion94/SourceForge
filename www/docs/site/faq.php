@@ -4,14 +4,13 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: faq.php,v 1.30 2000/04/25 09:30:06 dtype Exp $
+// $Id: faq.php,v 1.29 2000/01/13 18:36:35 precision Exp $
 
 require "pre.php";    
 site_header(array(title=>"Frequently Asked Questions (FAQ)"));
 ?>
 
 <P><B>SourceForge Frequently Asked Questions (FAQ)</B>
-<BR>v.1.1.0
 
 <UL>
 <LI><A href="#what-main">What is SourceForge?</A>
@@ -71,12 +70,13 @@ available.
 with no fees or royalties for use or distribution. The official definition, as well
 as the rationale and history behind open source software, can be found
 at <A href="http://www.opensource.org">The Open Source Initiative</A>'s web site.
+<P>In the near future we will have an Open Source FAQ, with discussion
+about the legalities of Open Source software, business justification,
+and market trends.
 
 <P><A name="whodev-main">&nbsp;</A><B>Who develops SourceForge?</B>
-<P>The <A href="/staff.php">SourceForge development team</A>, Tim, Drew, and Uriah,
-develop most of what you see on SourceForge now. The site is additionally developed
-and supported by Dan Bressler, our product manager, Tony Guntharp, and Quentin, who
-manages user requests and several other issues. We of course owe a lot of credit
+<P>The <A href="/staff.php">SourceForge admin staff</A>, Tony, Drew, Tim, and Uriah,
+developed most of what you see on SourceForge now. We of course owe a lot of credit
 to the <A href="/docs/site/software.php">software</A> that made our work a lot easier,
 and to the <A href="/thanks.php">people and organizations</A> that donated time
 and hardware to make SourceForge possible. 
@@ -125,17 +125,19 @@ thing. -drew
 <P>There's no catch.
 <P>I'm an Open Source developer. I work on a project to aid other Open Source developers.
 So do many other developers. An Open Source friendly company pays for it, and we thank them a lot.
+<P>Do you always ask this many questions?
 
 <P><A name="whodev-help">&nbsp;</A><B>That's cool! I'd really like to help. Can I?</B>
 <P>Of course.
 <P>We're working on a lot of ways that we can utilize the help of the
 rest of the community.
-<P>We have already released many of the SourceForge web-based tools as
+<P>As soon as we can clean up some of this code and package it in some recognizable
+format, we'll be releasing many of the SourceForge web-based tools as
 Open Source projects in SourceForge. (That still confuses me, but
 somehow the logic works.) This means that we can take on developers on 
 these projects, and as the tools improve, the new versions will automatically
 be available to other SourceForge project developers.
-<P>There are a number of other ways that users of SourceForge to help.
+<P>There will also be a place for other users of SourceForge to help.
 We expect to eventually have some sort of news system that will require maintenance,
 we could definitely use help answering emails, and we could always
 use help with site design. (Don't laugh. We're software developers, not artists.)
@@ -162,12 +164,12 @@ free site hosting services for these sites. Our goal is the advancement
 of Open Source, and if your web site does that, we'd love to have you.
 
 <P><A name="whohost-rest">&nbsp;</A><B>Are there any restrictions on the types of software I can host here?</B>
-<P>For several reasons, we cannot host
+<P>For legal reasons, we can't host strong-encryption products with code
+that originated outside of the US. We're working on a system to allow the hosting
+US-originated strong-encryption, with restricted access to downloads.
+<P>We are also not set up with the right age-checking mechanisms to host
 material/software of a pornographic nature. (As nice as a local connection
-to your porn archive might be to us, we just can't do it.) 
-<P>Because of recent changes in US export regulations, we now *can* host
-strong encryption code, as long as the source code is always available.
-<P>There is a more complete definition
+to your porn archive might be to us, we just can't do it.) There is a more complete definition
 of these restrictions in the terms of service agreement, presented 
 during project registration.
 <P>Cut us some slack on this one. We're trying to keep ourselves and the
@@ -181,7 +183,7 @@ We're not here to start a political discussion.
 <P>If your commercially developed software is not Open Source, but may help
 to advance other Open Source software, then maybe.
 <P>If you just like our tools so much that you want to use them, then
-go ahead. We've released them as Open Source software. If this
+go ahead. We'll be releasing many of them as Open Source soon. If this
 prospect overwhelms you, then contact VA Linux Professional
 Services, they'll be glad to help you. (Shameless plug for
 our sponsors.)
@@ -202,6 +204,7 @@ the copyright holders.
 <P>Because your software was/is Open Source, however, we will probably still
 have the right to continue to make existing versions of your software available
 to the public. If we didn't, someone else probably would anyway.
+<P>We're happy people here. Can't we all just Open Source and be happy together?
 
 <P><A name="whyhost-main">&nbsp;</A><B>Why should I host my software with SourceForge?</B>
 <P>...mumble...free...mumble...gift horse....
@@ -310,7 +313,7 @@ looking at gigabit and more digital drops. (Don't tell the CFO.)
 <LI>The 1.3 terabytes of storage in the room gets very loud.
 <LI>We blew many circuit-breakers when we were building this thing. Dedicated
 220V/30A power circuits solved this problem.
-<LI>Our UPS weighs more than our entire team.
+<LI>Our UPS weighs about as much as our entire team.
 <LI>VA systems rock. (Another shameless sponsor plug)
 </UL>
 
@@ -337,7 +340,8 @@ We expect to publish it soon.
 
 <P><A name="big-wait">&nbsp;</A><B>What improvements in Linux/Open Source software are you still waiting for? </B>
 <P>We're especially anxious to see shared disk arrays over fibre channel,
-32-bit UIDs (should be fixed with a new file system),
+a journalled file system (although we're looking at promising ones now),
+32-bit UIDs (should be fixed with the new file system),
 better scheduling (apparent in the development Linux kernels),
 and support for my Philips PC Camera.
 

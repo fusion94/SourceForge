@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: database.php,v 1.29 2000/04/19 13:19:27 tperdue Exp $
+// $Id: database.php,v 1.25 2000/01/13 18:36:35 precision Exp $
 //
 // /etc/local.inc includes the machine specific database connect info
 
@@ -17,13 +17,13 @@ function db_connect() {
 }
 
 function db_query($qstring,$print=0) {
-//	global $QUERY_COUNT;
-//	$QUERY_COUNT++;
+	global $QUERY_COUNT;
+	$QUERY_COUNT++;
 	if ($print) print "<br>Query is: $qstring<br>";
-//	if ($GLOBALS[IS_DEBUG]) $GLOBALS[G_DEBUGQUERY] .= $qstring . "<BR>\n";
+	if ($GLOBALS[IS_DEBUG]) $GLOBALS[G_DEBUGQUERY] .= $qstring . "<BR>\n";
 	global $sys_dbname;
-	$GLOBALS['db_qhandle'] = @mysql($sys_dbname,$qstring);
-	return $GLOBALS['db_qhandle'];
+	$GLOBALS[db_qhandle] = @mysql($sys_dbname,$qstring);
+	return $GLOBALS[db_qhandle];
 }
 
 function db_numrows($qhandle) {
@@ -55,8 +55,8 @@ function db_fetch_array($qhandle = 0) {
 	if ($qhandle) {
 		return @mysql_fetch_array($qhandle);
 	} else {
-		if ($GLOBALS['db_qhandle']) {
-			return @mysql_fetch_array($GLOBALS['db_qhandle']);
+		if ($GLOBALS[db_qhandle]) {
+			return @mysql_fetch_array($GLOBALS[db_qhandle]);
 		} else {
 			return (array());
 		}
@@ -68,7 +68,7 @@ function db_insertid($qhandle) {
 }
 
 function db_error() {
-	return @mysql_error();
+	return "\n\n<P><B>".@mysql_error()."</B><P>\n\n";
 }
 
 ?>

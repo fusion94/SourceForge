@@ -18,7 +18,10 @@ CREATE TABLE activity_log (
   page text,
   type int(11) DEFAULT '0' NOT NULL,
   KEY idx_activity_log_day (day),
+  KEY idx_activity_log_hour (hour),
   KEY idx_activity_log_group (group_id),
+  KEY idx_activity_log_browser (browser),
+  KEY idx_activity_log_platform (platform),
   KEY type_idx (type)
 );
 
@@ -155,6 +158,19 @@ CREATE TABLE category_link (
   KEY idx_category_link_child (child),
   KEY idx_category_link_primary_parent (primary_parent),
   KEY idx_category_link_parent (parent)
+);
+
+#
+# Table structure for table 'cvs'
+#
+CREATE TABLE cvs (
+  cvs_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  cvs_server char(20) DEFAULT 'cvs1' NOT NULL,
+  cvs_dir char(40) DEFAULT '' NOT NULL,
+  dns_name char(60),
+  group_id int(11) DEFAULT '0' NOT NULL,
+  PRIMARY KEY (cvs_id),
+  KEY idx_cvs_group_id (group_id)
 );
 
 #
@@ -296,33 +312,6 @@ CREATE TABLE forum_thread_id (
 );
 
 #
-# Table structure for table 'frs_dlstats_agg'
-#
-CREATE TABLE frs_dlstats_agg (
-  file_id int(11) DEFAULT '0' NOT NULL,
-  day int(11) DEFAULT '0' NOT NULL,
-  downloads_http int(11) DEFAULT '0' NOT NULL,
-  downloads_ftp int(11) DEFAULT '0' NOT NULL
-);
-
-#
-# Table structure for table 'frs_dlstats_file_agg'
-#
-CREATE TABLE frs_dlstats_file_agg (
-  file_id int(11) DEFAULT '0' NOT NULL,
-  downloads_total int(11) DEFAULT '0' NOT NULL
-);
-
-#
-# Table structure for table 'frs_dlstats_group_agg'
-#
-CREATE TABLE frs_dlstats_group_agg (
-  group_id int(11) DEFAULT '0' NOT NULL,
-  day int(11) DEFAULT '0' NOT NULL,
-  downloads int(11) DEFAULT '0' NOT NULL
-);
-
-#
 # Table structure for table 'group_category'
 #
 CREATE TABLE group_category (
@@ -333,20 +322,6 @@ CREATE TABLE group_category (
   PRIMARY KEY (group_category_id),
   KEY idx_group_category_group_id (group_id),
   KEY idx_group_category_category_id (category_id)
-);
-
-#
-# Table structure for table 'group_cvs_history'
-#
-CREATE TABLE group_cvs_history (
-  group_id int(11) DEFAULT '0' NOT NULL,
-  user_name varchar(80) DEFAULT '' NOT NULL,
-  cvs_commits int(11) DEFAULT '0' NOT NULL,
-  cvs_commits_wk int(11) DEFAULT '0' NOT NULL,
-  cvs_adds int(11) DEFAULT '0' NOT NULL,
-  cvs_adds_wk int(11) DEFAULT '0' NOT NULL,
-  KEY group_id_idx (group_id),
-  KEY user_name_idx (user_name)
 );
 
 #
@@ -401,7 +376,6 @@ CREATE TABLE groups (
   use_pm int(11) DEFAULT '1' NOT NULL,
   use_cvs int(11) DEFAULT '1' NOT NULL,
   use_news int(11) DEFAULT '1' NOT NULL,
-  use_support int(11) DEFAULT '1' NOT NULL,
   PRIMARY KEY (group_id),
   KEY idx_groups_status (status),
   KEY idx_groups_public (public)
@@ -471,6 +445,41 @@ CREATE TABLE news_bytes (
 );
 
 #
+# Table structure for table 'organization'
+#
+CREATE TABLE organization (
+  organization_id int(11) DEFAULT '0' NOT NULL auto_increment,
+  org_name varchar(60) DEFAULT '' NOT NULL,
+  org_type int(11) DEFAULT '0' NOT NULL,
+  org_url text,
+  register_time int(11) DEFAULT '0' NOT NULL,
+  org_icon int(11),
+  org_logo int(11),
+  org_descriptivetext text,
+  PRIMARY KEY (organization_id)
+);
+
+#
+# Table structure for table 'organization_group'
+#
+CREATE TABLE organization_group (
+  group_id int(11) DEFAULT '0' NOT NULL,
+  organization_id int(11) DEFAULT '0' NOT NULL,
+  KEY group_id_idx (group_id),
+  KEY organization_id_idx (organization_id)
+);
+
+#
+# Table structure for table 'organization_user'
+#
+CREATE TABLE organization_user (
+  user_id int(11) DEFAULT '0' NOT NULL,
+  organization_id int(11) DEFAULT '0' NOT NULL,
+  KEY user_id_idx (user_id),
+  KEY organization_id_idx (organization_id)
+);
+
+#
 # Table structure for table 'patch'
 #
 CREATE TABLE patch (
@@ -520,90 +529,6 @@ CREATE TABLE patch_status (
   patch_status_id int(11) DEFAULT '0' NOT NULL auto_increment,
   status_name text,
   PRIMARY KEY (patch_status_id)
-);
-
-#
-# Table structure for table 'people_job'
-#
-CREATE TABLE people_job (
-  job_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  group_id int(11) DEFAULT '0' NOT NULL,
-  created_by int(11) DEFAULT '0' NOT NULL,
-  title text,
-  description text,
-  date int(11) DEFAULT '0' NOT NULL,
-  status_id int(11) DEFAULT '0' NOT NULL,
-  category_id int(11) DEFAULT '0' NOT NULL,
-  PRIMARY KEY (job_id)
-);
-
-#
-# Table structure for table 'people_job_category'
-#
-CREATE TABLE people_job_category (
-  category_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  name text,
-  PRIMARY KEY (category_id)
-);
-
-#
-# Table structure for table 'people_job_inventory'
-#
-CREATE TABLE people_job_inventory (
-  job_inventory_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  job_id int(11) DEFAULT '0' NOT NULL,
-  skill_id int(11) DEFAULT '0' NOT NULL,
-  skill_level_id int(11) DEFAULT '0' NOT NULL,
-  skill_year_id int(11) DEFAULT '0' NOT NULL,
-  PRIMARY KEY (job_inventory_id)
-);
-
-#
-# Table structure for table 'people_job_status'
-#
-CREATE TABLE people_job_status (
-  status_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  name text,
-  PRIMARY KEY (status_id)
-);
-
-#
-# Table structure for table 'people_skill'
-#
-CREATE TABLE people_skill (
-  skill_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  name text,
-  PRIMARY KEY (skill_id)
-);
-
-#
-# Table structure for table 'people_skill_inventory'
-#
-CREATE TABLE people_skill_inventory (
-  skill_inventory_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  user_id int(11) DEFAULT '0' NOT NULL,
-  skill_id int(11) DEFAULT '0' NOT NULL,
-  skill_level_id int(11) DEFAULT '0' NOT NULL,
-  skill_year_id int(11) DEFAULT '0' NOT NULL,
-  PRIMARY KEY (skill_inventory_id)
-);
-
-#
-# Table structure for table 'people_skill_level'
-#
-CREATE TABLE people_skill_level (
-  skill_level_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  name text,
-  PRIMARY KEY (skill_level_id)
-);
-
-#
-# Table structure for table 'people_skill_year'
-#
-CREATE TABLE people_skill_year (
-  skill_year_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  name text,
-  PRIMARY KEY (skill_year_id)
 );
 
 #
@@ -657,17 +582,6 @@ CREATE TABLE project_history (
 );
 
 #
-# Table structure for table 'project_metric'
-#
-CREATE TABLE project_metric (
-  ranking int(11) DEFAULT '0' NOT NULL auto_increment,
-  percentile float(8,2),
-  group_id int(11) DEFAULT '0' NOT NULL,
-  PRIMARY KEY (ranking),
-  KEY idx_project_metric_group (group_id)
-);
-
-#
 # Table structure for table 'project_status'
 #
 CREATE TABLE project_status (
@@ -696,17 +610,6 @@ CREATE TABLE project_task (
 );
 
 #
-# Table structure for table 'project_weekly_metric'
-#
-CREATE TABLE project_weekly_metric (
-  ranking int(11) DEFAULT '0' NOT NULL auto_increment,
-  percentile float(8,2),
-  group_id int(11) DEFAULT '0' NOT NULL,
-  PRIMARY KEY (ranking),
-  KEY idx_project_metric_weekly_group (group_id)
-);
-
-#
 # Table structure for table 'security_log'
 #
 CREATE TABLE security_log (
@@ -729,8 +632,7 @@ CREATE TABLE session (
   time int(11) DEFAULT '0' NOT NULL,
   PRIMARY KEY (session_hash),
   KEY idx_session_user_id (user_id),
-  KEY time_idx (time),
-  KEY idx_session_time (time)
+  KEY time_idx (time)
 );
 
 #
@@ -828,7 +730,6 @@ CREATE TABLE stats_agg_logo_by_day (
 # Table structure for table 'stats_agg_logo_by_group'
 #
 CREATE TABLE stats_agg_logo_by_group (
-  day int(11),
   group_id int(11),
   count int(11)
 );
@@ -873,83 +774,6 @@ CREATE TABLE stats_agg_pages_by_plat_brow_ver (
 CREATE TABLE stats_agg_pages_by_platform (
   platform varchar(8),
   count int(11)
-);
-
-#
-# Table structure for table 'support'
-#
-CREATE TABLE support (
-  support_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  group_id int(11) DEFAULT '0' NOT NULL,
-  support_status_id int(11) DEFAULT '0' NOT NULL,
-  support_category_id int(11) DEFAULT '0' NOT NULL,
-  priority int(11) DEFAULT '0' NOT NULL,
-  submitted_by int(11) DEFAULT '0' NOT NULL,
-  assigned_to int(11) DEFAULT '0' NOT NULL,
-  open_date int(11) DEFAULT '0' NOT NULL,
-  summary text,
-  close_date int(11) DEFAULT '0' NOT NULL,
-  PRIMARY KEY (support_id),
-  KEY idx_support_group_id (group_id)
-);
-
-#
-# Table structure for table 'support_canned_responses'
-#
-CREATE TABLE support_canned_responses (
-  support_canned_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  group_id int(11) DEFAULT '0' NOT NULL,
-  title text,
-  body text,
-  PRIMARY KEY (support_canned_id),
-  KEY idx_support_canned_response_group_id (group_id)
-);
-
-#
-# Table structure for table 'support_category'
-#
-CREATE TABLE support_category (
-  support_category_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  group_id int(11) DEFAULT '0' NOT NULL,
-  category_name text NOT NULL,
-  PRIMARY KEY (support_category_id),
-  KEY idx_support_group_group_id (group_id)
-);
-
-#
-# Table structure for table 'support_history'
-#
-CREATE TABLE support_history (
-  support_history_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  support_id int(11) DEFAULT '0' NOT NULL,
-  field_name text NOT NULL,
-  old_value text NOT NULL,
-  mod_by int(11) DEFAULT '0' NOT NULL,
-  date int(11),
-  PRIMARY KEY (support_history_id),
-  KEY idx_support_history_support_id (support_id)
-);
-
-#
-# Table structure for table 'support_messages'
-#
-CREATE TABLE support_messages (
-  support_message_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  support_id int(11) DEFAULT '0' NOT NULL,
-  from_email text,
-  date int(11) DEFAULT '0' NOT NULL,
-  body text,
-  PRIMARY KEY (support_message_id),
-  KEY idx_support_messages_support_id (support_id)
-);
-
-#
-# Table structure for table 'support_status'
-#
-CREATE TABLE support_status (
-  support_status_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  status_name text,
-  PRIMARY KEY (support_status_id)
 );
 
 #
@@ -1055,50 +879,6 @@ CREATE TABLE top_group (
 );
 
 #
-# Table structure for table 'trove_cat'
-#
-CREATE TABLE trove_cat (
-  trove_cat_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  version int(11) DEFAULT '0' NOT NULL,
-  parent int(11) DEFAULT '0' NOT NULL,
-  root_parent int(11) DEFAULT '0' NOT NULL,
-  shortname varchar(80),
-  fullname varchar(80),
-  description varchar(255),
-  count_subcat int(11) DEFAULT '0' NOT NULL,
-  count_subproj int(11) DEFAULT '0' NOT NULL,
-  fullpath text NOT NULL,
-  fullpath_ids text,
-  PRIMARY KEY (trove_cat_id),
-  KEY parent_idx (parent),
-  KEY root_parent_idx (root_parent),
-  KEY version_idx (version)
-);
-
-#
-# Table structure for table 'trove_group_link'
-#
-CREATE TABLE trove_group_link (
-  trove_group_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  trove_cat_id int(11) DEFAULT '0' NOT NULL,
-  trove_cat_version int(11) DEFAULT '0' NOT NULL,
-  group_id int(11) DEFAULT '0' NOT NULL,
-  trove_cat_root int(11) DEFAULT '0' NOT NULL,
-  PRIMARY KEY (trove_group_id)
-);
-
-#
-# Table structure for table 'trove_treesums'
-#
-CREATE TABLE trove_treesums (
-  trove_treesums_id int(11) DEFAULT '0' NOT NULL auto_increment,
-  trove_cat_id int(11) DEFAULT '0' NOT NULL,
-  limit_1 int(11) DEFAULT '0' NOT NULL,
-  subprojects int(11) DEFAULT '0' NOT NULL,
-  PRIMARY KEY (trove_treesums_id)
-);
-
-#
 # Table structure for table 'unix_user'
 #
 CREATE TABLE unix_user (
@@ -1137,8 +917,6 @@ CREATE TABLE user (
   mail_va int(11) DEFAULT '0' NOT NULL,
   authorized_keys text,
   email_new text,
-  people_view_skills int(11) DEFAULT '0' NOT NULL,
-  people_resume text NOT NULL,
   PRIMARY KEY (user_id),
   KEY idx_user_user (status)
 );
@@ -1155,7 +933,6 @@ CREATE TABLE user_group (
   forum_flags int(11) DEFAULT '0' NOT NULL,
   project_flags int(11) DEFAULT '2' NOT NULL,
   patch_flags int(11) DEFAULT '1' NOT NULL,
-  support_flags int(11) DEFAULT '1' NOT NULL,
   PRIMARY KEY (user_group_id),
   KEY idx_user_group_user_id (user_id),
   KEY idx_user_group_group_id (group_id),
@@ -1175,3 +952,62 @@ CREATE TABLE user_preferences (
   KEY idx_user_pref_user_id (user_id)
 );
 
+#
+# Dumping data for table 'bug_resolution'
+#
+
+INSERT INTO bug_resolution (resolution_id, resolution_name) VALUES (1,'Fixed');
+INSERT INTO bug_resolution (resolution_id, resolution_name) VALUES (2,'Invalid');
+INSERT INTO bug_resolution (resolution_id, resolution_name) VALUES (3,'Wont Fix');
+INSERT INTO bug_resolution (resolution_id, resolution_name) VALUES (4,'Later');
+INSERT INTO bug_resolution (resolution_id, resolution_name) VALUES (5,'Remind');
+INSERT INTO bug_resolution (resolution_id, resolution_name) VALUES (6,'Works For Me');
+INSERT INTO bug_resolution (resolution_id, resolution_name) VALUES (100,'None');
+INSERT INTO bug_resolution (resolution_id, resolution_name) VALUES (101,'Duplicate');
+
+#
+# Dumping data for table 'bug_status'
+#
+
+INSERT INTO bug_status (status_id, status_name) VALUES (1,'Open');
+INSERT INTO bug_status (status_id, status_name) VALUES (3,'Closed');
+INSERT INTO bug_status (status_id, status_name) VALUES (100,'None');
+
+#
+# Dumping data for table 'patch_category'
+#
+
+INSERT INTO patch_category (patch_category_id, group_id, category_name) VALUES (100,0,'None');
+
+#
+# Dumping data for table 'patch_status'
+#
+
+INSERT INTO patch_status (patch_status_id, status_name) VALUES (1,'Open');
+INSERT INTO patch_status (patch_status_id, status_name) VALUES (2,'Closed');
+INSERT INTO patch_status (patch_status_id, status_name) VALUES (3,'Deleted');
+INSERT INTO patch_status (patch_status_id, status_name) VALUES (4,'Postponed');
+INSERT INTO patch_status (patch_status_id, status_name) VALUES (100,'None');
+
+#
+# Dumping data for table 'project_status'
+#
+
+INSERT INTO project_status (status_id, status_name) VALUES (1,'Open');
+INSERT INTO project_status (status_id, status_name) VALUES (2,'Closed');
+INSERT INTO project_status (status_id, status_name) VALUES (100,'None');
+INSERT INTO project_status (status_id, status_name) VALUES (3,'Deleted');
+
+#
+# Dumping data for table 'survey_question_types'
+#
+
+INSERT INTO survey_question_types (id, type) VALUES (1,'Radio Buttons 1-5');
+INSERT INTO survey_question_types (id, type) VALUES (2,'Text Area');
+INSERT INTO survey_question_types (id, type) VALUES (3,'Radio Buttons Yes/No');
+INSERT INTO survey_question_types (id, type) VALUES (4,'Comment Only');
+INSERT INTO survey_question_types (id, type) VALUES (5,'Text Field');
+INSERT INTO survey_question_types (id, type) VALUES (100,'None');
+
+INSERT INTO user 
+(user_id, user_name, email, user_pw, realname, status, shell, unix_pw, unix_status, unix_uid, unix_box, add_date, confirm_hash, mail_siteupdates, mail_va, authorized_keys, email_new)  VALUES (100,'None','noreply@sourceforge.net','*********34343','0','S','0','0','0',0,'0',940000000,NULL,1,0,NULL,NULL);

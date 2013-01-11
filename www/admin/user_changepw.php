@@ -4,11 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: user_changepw.php,v 1.9 2000/03/07 13:20:24 tperdue Exp $
+// $Id: user_changepw.php,v 1.8 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
 require "account.php";
-session_require(array('group'=>'1','admin_flags'=>'A'));
+session_require(array('group'=>'1'));
 
 // ###### function register_valid()
 // ###### checks for valid register from form post
@@ -23,21 +23,21 @@ function register_valid()	{
 	// check against old pw
 	db_query("SELECT user_pw FROM user WHERE user_id=$form_user");
 
-	if (!$GLOBALS['form_pw']) {
-		$GLOBALS['register_error'] = "You must supply a password.";
+	if (!$GLOBALS[form_pw]) {
+		$GLOBALS[register_error] = "You must supply a password.";
 		return 0;
 	}
-	if ($GLOBALS['form_pw'] != $GLOBALS['form_pw2']) {
-		$GLOBALS['register_error'] = "Passwords do not match.";
+	if ($GLOBALS[form_pw] != $GLOBALS[form_pw2]) {
+		$GLOBALS[register_error] = "Passwords do not match.";
 		return 0;
 	}
-	if (!account_pwvalid($GLOBALS['form_pw'])) {
+	if (!account_pwvalid($GLOBALS[form_pw])) {
 		return 0;
 	}
 	
 	// if we got this far, it must be good
-	db_query("UPDATE user SET user_pw='" . md5($GLOBALS['form_pw']) . "',"
-		. "unix_pw='" . account_genunixpw($GLOBALS['form_pw']) . "' WHERE "
+	db_query("UPDATE user SET user_pw='" . md5($GLOBALS[form_pw]) . "',"
+		. "unix_pw='" . account_genunixpw($GLOBALS[form_pw]) . "' WHERE "
 		. "user_id=" . $form_user);
 	return 1;
 }

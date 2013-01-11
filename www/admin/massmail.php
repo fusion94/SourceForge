@@ -4,11 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: massmail.php,v 1.19 2000/03/07 13:20:24 tperdue Exp $
+// $Id: massmail.php,v 1.18 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
-session_require(array('group'=>'1','admin_flags'=>'A'));
-site_header(array('title'=>"Administrative Mass Mail Engine"));
+session_require(array(group=>1,admin_flags=>'A'));
+site_header(array(title=>"Administrative Mass Mail Engine"));
 
 // get numbers of users for each mailing
 $res_count = db_query("SELECT count(*) AS count FROM user WHERE status='A' AND mail_va=1");

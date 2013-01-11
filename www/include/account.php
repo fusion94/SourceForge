@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: account.php,v 1.24 2000/04/26 17:23:55 precision Exp $
+// $Id: account.php,v 1.22 2000/01/29 09:11:03 dtype Exp $
 //
 // adduser.php - All the forms and functions to manage unix users
 //
@@ -75,8 +75,7 @@ function account_groupnamevalid($name) {
 	
 	// illegal names
 	if (eregi("^((www[0-9]?)|(cvs[0-9]?)|(shell[0-9]?)|(ftp[0-9]?)|(irc[0-9]?)|(news[0-9]?)"
-		. "|(mail[0-9]?)|(ns[0-9]?)|(download[0-9]?)|(pub)|(users)|(compile)|(lists)"
-		. "|(slayer)|(orbital)|(tokyojoe)|(webdev)|(projects)|(cvs)|(slayer)|(monitor)|(mirrors?))$",$name)) {
+		. "|(mail[0-9]?)|(ns[0-9]?)|(download[0-9]?)|(pub)|(users)|(mirrors?))$",$name)) {
 		$GLOBALS[register_error] = "Name is reserved for DNS purposes.";
 		return 0;
 	}

@@ -4,17 +4,15 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: orglist.php,v 1.7 2000/03/07 13:20:24 tperdue Exp $
+// $Id: orglist.php,v 1.6 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
-session_require(array('group'=>'1','admin_flags'=>'A'));
+session_require(array('group'=>'1'));
 
-site_header(array('title'=>"Organization List"));
+site_header(array(title=>"Organization List"));
 
 // start from root if root not passed in
-if (!$GLOBALS['form_orgroot']) {
-	$GLOBALS['form_catroot'] = 1;
-}
+if (!$GLOBALS[form_orgroot]) $GLOBALS[form_catroot] = 1;
 
 print "<p>SourceForge Organization List\n";
 print "<br><a href=\"orgedit-add.php\">[New Organization]\n";

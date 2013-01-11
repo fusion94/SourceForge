@@ -4,11 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: lostpw-confirm.php,v 1.9 2000/03/28 10:38:36 dtype Exp $
+// $Id: lostpw-confirm.php,v 1.8 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
 
-$confirm_hash = md5($session_hash . strval(time()) . strval(rand()));
+$confirm_hash = md5($session_hash . time());
 
 $res_user = db_query("SELECT * FROM user WHERE user_name='$form_loginname'");
 if (db_numrows($res_user) < 1) exit_error("Invalid User","That user does not exist on SourceForge.");

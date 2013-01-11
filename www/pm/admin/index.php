@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.15 2000/03/17 12:25:37 tperdue Exp $
+// $Id: index.php,v 1.11 2000/01/14 19:44:14 tperdue Exp $
 
 require('pre.php');
 require('../pm_utils.php');
@@ -48,19 +48,6 @@ if ($group_id && user_ismember($group_id,'P2')) {
 			} else {
 				$feedback .= " Status Updated Successfully ";
 			}
-		} else if ($project_cat_mod) {
-			/*
-				Update a project name
-			*/
-			$sql="UPDATE project_group_list SET project_name='$project_name' WHERE group_project_id='$project_cat_id' AND group_id='$group_id'";
-			$result=db_query($sql);
-			if (!$result || db_affected_rows($result) < 1) {
-				$feedback .= ' Error modifying project name ';
-				echo db_error();
-			} else {
-				$feedback .= ' Project Name Modified ';
-			}
-
 		}
 
 	} 
@@ -84,7 +71,7 @@ if ($group_id && user_ismember($group_id,'P2')) {
 		$result=db_query($sql);
 		echo "<P>";
 		if ($result && db_numrows($result) > 0) {
-			ShowResultSet($result,"Existing Projects","pm_project");
+			ShowResultSet($result,"Existing Projects");
 		} else {
 			echo "\n<H1>No Projects in this group</H1>";
 		}
@@ -172,49 +159,7 @@ if ($group_id && user_ismember($group_id,'P2')) {
 
 		pm_footer(array());
 
-	} else if ($project_cat_mod) {
-
-		/*
-			Form for modifying a project name
-		*/
-		pm_header(array('title'=>'Modify a Project Name'));
-
-		echo '
-			<H1>Modify a Project Name</H3>';
-
-		$sql="SELECT group_project_id,project_name FROM project_group_list WHERE group_project_id='$project_cat_id' AND group_id='$group_id'";
-		$result=db_query($sql);
-		$rows=db_numrows($result);
-
-		if ($result && $rows > 0) {
-			?>
-			<P>
-			<FORM ACTION="<?php echo $PHP_SELF ?>" METHOD="POST">
-			<INPUT TYPE="HIDDEN" NAME="post_changes" VALUE="y">
-			<INPUT TYPE="HIDDEN" NAME="project_cat_mod" VALUE="y">
-			<INPUT TYPE="HIDDEN" NAME="project_cat_id" VALUE="<?php echo $project_cat_id; ?>">
-			<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="<?php echo $group_id; ?>">
-			<H3>Old Project Name: <?php echo db_result($result, 0, 'project_name'); ?></H3>
-			<P>
-			<H3>New Project Name:</H3>
-			<P>
-			<INPUT TYPE="TEXT" NAME="project_name" VALUE="<?php 
-				echo db_result($result, 0, 'project_name'); ?>">
-			<P>
-			<B><FONT COLOR="RED">It is not recommended that you change the project name because other things are dependent upon it.</FONT></B>
-			<P>
-			<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="SUBMIT">
-			</FORM>
-			<?php
-		} else {
-			echo '
-			<H1>The project that you requested a change on was not found.</H1>';
-		}
-
-		pm_footer(array());
-
 	} else {
-
 		/*
 			Show main page
 		*/

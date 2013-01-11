@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: news.php,v 1.12 2000/02/25 23:20:39 dtype Exp $
+// $Id: news.php,v 1.10 2000/01/13 18:36:35 precision Exp $
 
 require "pre.php";    
 site_header(array(title=>"SorceForge Awards"));
@@ -12,14 +12,6 @@ site_header(array(title=>"SorceForge Awards"));
 
 <P>
 <h2>SourceForge in the News</h2>
-
-<BR>02/25/2000 - <A href="http://linuxtoday.com/stories/17320.html">
-Corel To Headquarter Application Print Services Library Development on SourceForge</A>
-on <A href="http://www.linuxtoday.com">Linux Today</A>
-
-<BR>02/09/2000 - <A href="http://www.ecommercetimes.com/news/articles2000/000209-7.shtml">
-VA Linux Expands SourceForge Online Development</A>
-on <A href="http://www.ecommercetimes.com">EcommerceTimes</A>
 
 <BR>01/10/2000 - <A href="http://www.techweb.com/se/directlink.cgi?INW20000110S0019">
 VA Linux Hosts Open-Source Developer Site</A>

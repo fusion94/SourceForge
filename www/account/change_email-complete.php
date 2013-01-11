@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: change_email-complete.php,v 1.5 2000/04/28 08:26:36 dtype Exp $
+// $Id: change_email-complete.php,v 1.4 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
 require "account.php";
@@ -29,7 +29,7 @@ db_query("UPDATE user SET "
 
 session_securitylog("changeemail","User #$row_user[user_id] successfully changed email");
 
-site_header(array(title=>"Email Change Complete"));
+site_header(array(title=>"Lost Password Login"));
 ?>
 <p><b>Email Change Complete</b>
 <P>Welcome, <?php print $row_user[user_name]; ?>. Your email

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: tos.php,v 1.10 2000/02/11 11:02:06 fusion94 Exp $
+// $Id: tos.php,v 1.9 2000/01/28 14:26:42 fusion94 Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 site_header(array(title=>"Terms of Service Agreement"));
@@ -61,8 +61,8 @@ any and all current or future use of the Service (or any portion thereof).
 </p>
 
 <p>
-We are currently working with several well known Open Source Advocates and the
-EFF on writing this policy.
+Registration Data and certain other information about you is subject to our Privacy Policy. For more information, please see our full privacy policy at
+http://SourceForge.com/info/privacy/. 
 </p>
 
 <p>

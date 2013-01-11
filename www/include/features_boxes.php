@@ -4,46 +4,59 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: features_boxes.php,v 1.74 2000/05/04 19:31:41 dtype Exp $
+// $Id: features_boxes.php,v 1.55 2000/01/25 14:06:03 tperdue Exp $
 
 
 function show_features_boxes() {
-	$return .= html_box1_top('SF Statistics',0,$GLOBALS['COLOR_LTBACK2']);
+	$return .= html_box1_top('SF Statistics',0,$GLOBALS[COLOR_LTBACK2]);
 	$return .= show_sitestats();
-	$return .= html_box1_middle('Top Project Downloads',$GLOBALS['COLOR_LTBACK2']);
+	$return .= html_box1_middle('Top Project Downloads',$GLOBALS[COLOR_LTBACK2]);
 	$return .= show_top_downloads();
-	$return .= html_box1_middle('Newest Projects',$GLOBALS['COLOR_LTBACK2']);
+	$return .= html_box1_middle('Newest Projects',$GLOBALS[COLOR_LTBACK2]);
 	$return .= show_newest_projects();
-	$return .= html_box1_middle('Most Active This Week',$GLOBALS['COLOR_LTBACK2']);
+	$return .= html_box1_middle('Highest Ranked Projects',$GLOBALS[COLOR_LTBACK2]);
 	$return .= show_highest_ranked_projects();
 	$return .= html_box1_bottom(0);
 	return $return;
 }
 
 function show_top_downloads() {
-	$return .= "<B>Downloads Yesterday:</B>\n";	
+	$return .= "<B>Past 7 days:</B>\n";	
+	// ############### last week 
+	$res_topdown = db_query("SELECT SUM(filerelease.downloads_week) AS downloads_week,"
+		. "groups.group_name AS group_name,"
+		. "groups.group_id AS group_id "
+		. "FROM filerelease,groups WHERE "
+		. "filerelease.group_id=groups.group_id "
+		. "GROUP BY filerelease.group_id "
+		. "ORDER BY downloads_week DESC LIMIT 10");
+	// print each one
+	while ($row_topdown = db_fetch_array($res_topdown)) {
+		if ($row_topdown[downloads_week] > 0) 
+			$return .= "<BR><A href=\"/project/?group_id=$row_topdown[group_id]\">"
+			. "$row_topdown[group_name]</A> ($row_topdown[downloads_week])\n";
+	}
 
-	#get yesterdays day
-	$yesterday = gmdate("Ymd",time()-(3600*24));
-
-	$res_topdown = db_query("SELECT groups.group_id AS group_id,"
-		."groups.group_name AS group_name,"
-		."frs_dlstats_group_agg.downloads AS downloads "
-		."FROM frs_dlstats_group_agg,groups WHERE day=$yesterday "
-		."AND frs_dlstats_group_agg.group_id=groups.group_id "
-		."ORDER BY downloads DESC LIMIT 10");
+	$return .= "<P><B>All time:</B>\n";
+	// ############### all time
+	$res_topdown = db_query("SELECT SUM(filerelease.downloads) AS downloads,"
+		. "groups.group_name AS group_name,"
+		. "groups.group_id AS group_id "
+		. "FROM filerelease,groups WHERE "
+		. "filerelease.group_id=groups.group_id "
+		. "GROUP BY filerelease.group_id "
+		. "ORDER BY downloads DESC LIMIT 10");
 	// print each one
 	while ($row_topdown = db_fetch_array($res_topdown)) {
 		if ($row_topdown[downloads] > 0) 
 			$return .= "<BR><A href=\"/project/?group_id=$row_topdown[group_id]\">"
 			. "$row_topdown[group_name]</A> ($row_topdown[downloads])\n";
 	}
+
 	$return .= '<P align="center"><A href="/top/">[More Top Projects]</A>';
 	
 	return $return;
-
 }
-
 
 function stats_getprojects_active() {
 	$res_count = db_query("SELECT count(*) AS count FROM groups WHERE status='A'");
@@ -101,20 +114,15 @@ function show_newest_projects() {
 }
 
 function show_highest_ranked_projects() {
-	$sql="SELECT groups.group_name,groups.group_id,project_weekly_metric.ranking,project_weekly_metric.percentile ".
-		"FROM groups,project_weekly_metric ".
-		"WHERE groups.group_id=project_weekly_metric.group_id AND ".
-		"groups.public=1 ".
-		"ORDER BY ranking ASC LIMIT 20";
+	$sql="SELECT groups.group_name,groups.group_id,survey_rating_aggregate.response,survey_rating_aggregate.count ".
+		"FROM groups,survey_rating_aggregate ".
+		"WHERE groups.group_id=survey_rating_aggregate.id AND ".
+		"groups.public=1 AND survey_rating_aggregate.type='1' AND survey_rating_aggregate.count > '9'".
+		"ORDER BY response DESC, count DESC LIMIT 10";
 	$result=db_query($sql);
-	if (!$result || db_numrows($result) < 1) {
-		return db_error();
-	} else {
-		while ($row=db_fetch_array($result)) {
-			$return .= '<B>( '.$row['percentile'].'% )</B>'
-				.' <A HREF="/project/?group_id='.$row['group_id'].'">'.$row['group_name'].'</A><BR>';
-		}
-		$return .= '<BR><CENTER><A href="/top/mostactive.php?type=week">[ more ]</A></CENTER>';
+	while ($row=db_fetch_array($result)) {
+		$return .= '<B>( '.$row['response'].' )</B>'
+			.' <A HREF="/project/?group_id='.$row['group_id'].'">'.$row['group_name'].'</A><BR>';
 	}
 	return $return;
 }

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editgroupinfo.php,v 1.31 2000/04/24 13:28:44 dtype Exp $
+// $Id: editgroupinfo.php,v 1.28 2000/01/26 13:54:40 tperdue Exp $
 
 require ('pre.php');
 require ('vars.php');
@@ -23,34 +23,6 @@ $row_grp = db_fetch_array($res_grp);
 
 if ($Update) {
 
-	if (!$use_bugs) {
-		$use_bugs=0;
-	}
-	if (!$use_mail) {
-		$use_mail=0;
-	}
-	if (!$use_survey) {
-		$use_survey=0;
-	}
-	if (!$use_patch) {
-		$use_patch=0;
-	}
-	if (!$use_forum) {
-		$use_forum=0;
-	}
-	if (!$use_pm) {
-		$use_pm=0;
-	}
-	if (!$use_cvs) {
-		$use_cvs=0;
-	}
-	if (!$use_news) {
-		$use_news=0;
-	}
-	if (!$use_support) {
-		$use_support=0;
-	}
-
 	$result=db_query('UPDATE groups SET '
 		."group_name='$form_group_name',"
 		."homepage='$form_homepage',"
@@ -62,8 +34,7 @@ if ($Update) {
 		."use_forum='$use_forum',"
 		."use_pm='$use_pm',"
 		."use_cvs='$use_cvs',"
-		."use_news='$use_news',"
-		."use_support='$use_support'"
+		."use_news='$use_news'"
 		." WHERE group_id=$group_id");
 
 	if (!$result || db_affected_rows($result) < 1) {
@@ -71,6 +42,29 @@ if ($Update) {
 	} else {
 		$feedback .= ' UPDATE SUCCESSFUL ';
 	}
+/*
+	TIMS CHANGES
+*/
+	db_query("DELETE FROM group_env WHERE group_id='$group_id'");
+	db_query("DELETE FROM group_language WHERE group_id='$group_id'");
+
+	// make updates for software environment and languages
+	if (count($form_env) < 1) {
+		$form_env[]=1;
+	}
+	for ($i=0; $i<count($form_env); $i++) {
+		db_query("INSERT INTO group_env (group_id,env_id) VALUES ('$group_id','$form_env[$i]')");
+	}
+
+	if (count($form_lang) < 1) {
+		$form_lang[]=1;
+	}
+	for ($i=0; $i<count($form_lang); $i++) {
+		db_query("INSERT INTO group_language (group_id,language_id) VALUES ('$group_id','$form_lang[$i]')");
+	}
+/*
+	END TIMS CHANGES
+*/
 
 	// update info for page
 	$res_grp = db_query("SELECT * FROM groups WHERE group_id=$group_id");
@@ -101,6 +95,37 @@ print '
 
 <HR>
 
+<TABLE border="0" cellpadding="0" cellspacing="0">
+<TR>
+<TD VALIGN="TOP">
+	<H3>Software Environment:</H3>
+	<BR>
+	<I>Select all that apply.</I>
+';
+
+//environment checkboxes
+$result=db_query("SELECT env_id FROM group_env WHERE group_id='$group_id'");
+utils_buildcheckboxarray($SOFTENV,'form_env[]',result_column_to_array($result));
+
+
+print '
+</TD>
+<TD>&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+<TD VALIGN="TOP">
+	<H3>Languages Used:</H3>
+	<BR>
+	<I>Select all that apply.</I>';
+
+
+//languages checkboxes
+$result=db_query("SELECT language_id FROM group_language WHERE group_id='$group_id'");
+utils_buildcheckboxarray($SOFTLANG,'form_lang[]',result_column_to_array($result));
+
+
+print '
+</TD>
+<TD>&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+<TD>
 <H3>Active Features:</H3>
 <P>
 ';
@@ -109,32 +134,48 @@ print '
 */
 
 echo '
-	<B>Use Bug Tracker:</B> <INPUT TYPE="CHECKBOX" NAME="use_bugs" VALUE="1"'.( ($row_grp['use_bugs']==1) ? ' CHECKED' : '' ).'><BR>';
+	<B>Bug Tracker:</B><BR>
+	<INPUT TYPE="RADIO" NAME="use_bugs" VALUE="1"'.( ($row_grp['use_bugs']==1) ? ' CHECKED' : '' ).'> Use<BR>
+	<INPUT TYPE="RADIO" NAME="use_bugs" VALUE="0"'.( ($row_grp['use_bugs']==0) ? ' CHECKED' : '' ).'> Don\'t Use<P>';
 
 echo '
-	<B>Use Mailing Lists:</B> <INPUT TYPE="CHECKBOX" NAME="use_mail" VALUE="1"'.( ($row_grp['use_mail']==1) ? ' CHECKED' : '' ).'><BR>';
+	<B>Mailing Lists:</B><BR>
+	<INPUT TYPE="RADIO" NAME="use_mail" VALUE="1"'.( ($row_grp['use_mail']==1) ? ' CHECKED' : '' ).'> Use<BR>
+	<INPUT TYPE="RADIO" NAME="use_mail" VALUE="0"'.( ($row_grp['use_mail']==0) ? ' CHECKED' : '' ).'> Don\'t Use<P>';
 
 echo '
-	<B>Use Surveys:</B> <INPUT TYPE="CHECKBOX" NAME="use_survey" VALUE="1"'.( ($row_grp['use_survey']==1) ? ' CHECKED' : '' ).'><BR>';
+	<B>Surveys:</B><BR>
+	<INPUT TYPE="RADIO" NAME="use_survey" VALUE="1"'.( ($row_grp['use_survey']==1) ? ' CHECKED' : '' ).'> Use<BR>
+	<INPUT TYPE="RADIO" NAME="use_survey" VALUE="0"'.( ($row_grp['use_survey']==0) ? ' CHECKED' : '' ).'> Don\'t Use<P>';
 
 echo '
-	<B>Use Patch Manager:</B> <INPUT TYPE="CHECKBOX" NAME="use_patch" VALUE="1"'.( ($row_grp['use_patch']==1) ? ' CHECKED' : '' ).'><BR>';
+	<B>Patch Manager:</B><BR>
+	<INPUT TYPE="RADIO" NAME="use_patch" VALUE="1"'.( ($row_grp['use_patch']==1) ? ' CHECKED' : '' ).'> Use<BR>
+	<INPUT TYPE="RADIO" NAME="use_patch" VALUE="0"'.( ($row_grp['use_patch']==0) ? ' CHECKED' : '' ).'> Don\'t Use<P>';
 
 echo '
-	<B>Use Forums:</B> <INPUT TYPE="CHECKBOX" NAME="use_forum" VALUE="1"'.( ($row_grp['use_forum']==1) ? ' CHECKED' : '' ).'><BR>';
+	<B>Forums:</B><BR>
+	<INPUT TYPE="RADIO" NAME="use_forum" VALUE="1"'.( ($row_grp['use_forum']==1) ? ' CHECKED' : '' ).'> Use<BR>
+	<INPUT TYPE="RADIO" NAME="use_forum" VALUE="0"'.( ($row_grp['use_forum']==0) ? ' CHECKED' : '' ).'> Don\'t Use<P>';
 
 echo '
-	<B>Use Project/Task Manager:</B> <INPUT TYPE="CHECKBOX" NAME="use_pm" VALUE="1"'.( ($row_grp['use_pm']==1) ? ' CHECKED' : '' ).'><BR>';
+	<B>Project/Task Manager:</B><BR>
+	<INPUT TYPE="RADIO" NAME="use_pm" VALUE="1"'.( ($row_grp['use_pm']==1) ? ' CHECKED' : '' ).'> Use<BR>
+	<INPUT TYPE="RADIO" NAME="use_pm" VALUE="0"'.( ($row_grp['use_pm']==0) ? ' CHECKED' : '' ).'> Don\'t Use<P>';
 
 echo '
-	<B>Use CVS:</B> <INPUT TYPE="CHECKBOX" NAME="use_cvs" VALUE="1"'.( ($row_grp['use_cvs']==1) ? ' CHECKED' : '' ).'><BR>';
+	<B>CVS:</B><BR>
+	<INPUT TYPE="RADIO" NAME="use_cvs" VALUE="1"'.( ($row_grp['use_cvs']==1) ? ' CHECKED' : '' ).'> Use<BR>
+	<INPUT TYPE="RADIO" NAME="use_cvs" VALUE="0"'.( ($row_grp['use_cvs']==0) ? ' CHECKED' : '' ).'> Don\'t Use<P>';
 
 echo '
-	<B>Use News:</B> <INPUT TYPE="CHECKBOX" NAME="use_news" VALUE="1"'.( ($row_grp['use_news']==1) ? ' CHECKED' : '' ).'><BR>';
-echo '
-	<B>Use Support:</B> <INPUT TYPE="CHECKBOX" NAME="use_support" VALUE="1"'.( ($row_grp['use_support']==1) ? ' CHECKED' : '' ).'><BR>';
+	<B>News:</B><BR>
+	<INPUT TYPE="RADIO" NAME="use_news" VALUE="1"'.( ($row_grp['use_news']==1) ? ' CHECKED' : '' ).'> Use<BR>
+	<INPUT TYPE="RADIO" NAME="use_news" VALUE="0"'.( ($row_grp['use_news']==0) ? ' CHECKED' : '' ).'> Don\'t Use<P>';
 
 echo '
+</TD>
+</TR></TABLE>
 <HR>
 <P><INPUT type="submit" name="Update" value="Update">
 </FORM>

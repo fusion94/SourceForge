@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: forum.php,v 1.29 2000/04/21 13:35:03 tperdue Exp $
+// $Id: forum.php,v 1.28 2000/01/13 18:36:35 precision Exp $
 
 require('pre.php');
 require('../forum/forum_utils.php');
@@ -38,7 +38,7 @@ function show_threads($forum_id,$offset,$et=0) {
 	} else {
 		//echo "\n<table cellspacing=\"0\" cellpadding=\"2\" width=\"100%\" BORDER=\"0\"><tr><td align=CENTER bgcolor=\"#666699\">".
 		$ret_val .= '<TABLE WIDTH="100%" CELLPADDING="2" CELLSPACING="0" BGCOLOR="#FFFFFF" BORDER="0">
-			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+			<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
 			<TD WIDTH="25%"><FONT COLOR=#FFFFFF><B>Thread/Subject</TD>
 			<TD><FONT COLOR=#FFFFFF><B>Author</TD>
 			<TD><FONT COLOR="#FFFFFF"><B>Date/Time</TD></TR>';
@@ -49,7 +49,7 @@ function show_threads($forum_id,$offset,$et=0) {
 			*/
 			$total_rows++;
 			if ($total_rows % 2 == 0) {
-				$row_color=' BGCOLOR="'.$GLOBALS['COLOR_LTBACK1'].'"';
+				$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
 			} else {
 				$row_color=' BGCOLOR="#FFFFFF"';
 			}
@@ -58,7 +58,7 @@ function show_threads($forum_id,$offset,$et=0) {
 					Build row if threads are expanded
 				*/
 				$ret_val .= '
-					<TR BGCOLOR="'. util_get_alt_row_color($total_rows) .'"><TD><A HREF="/forum/thread.php?thread_id='.
+					<TR'.$row_color.'><TD><A HREF="/forum/thread.php?thread_id='.
 					db_result($result, $i, 'thread_id').'">'.
 					'<IMG SRC="/images/ic/cfolder15.png" HEIGHT=13 WIDTH=15 BORDER=0>'.
 					'</A> &nbsp;<A HREF="/forum/message.php?msg_id='.
@@ -69,7 +69,7 @@ function show_threads($forum_id,$offset,$et=0) {
 				*/
 				if (get_forum_saved_date($forum_id) < db_result($result,$i,'date')) { $ret_val .= '<B>'; }
 
-				$ret_val .= db_result($result, $i, 'subject').'</A></TD>'.
+				$ret_val .= stripslashes(db_result($result, $i, 'subject')).'</A></TD>'.
 					'<TD>'.db_result($result, $i, 'user_name').'</TD>'.
 					'<TD>'.date($sys_datefmt,db_result($result,$i,'date')).'</TD></TR>';
 
@@ -82,7 +82,7 @@ function show_threads($forum_id,$offset,$et=0) {
 					Build row for collapsed threads
 				*/
 				$ret_val .= '
-					<TR BGCOLOR="'. util_get_alt_row_color($total_rows) .'"><TD><A HREF="/forum/thread.php?thread_id='.
+					<TR'.$row_color.'><TD><A HREF="/forum/thread.php?thread_id='.
 					db_result($result, $i, 'thread_id').'">'.
 					'<IMG SRC="/images/ic/cfolder15.png" HEIGHT=13 WIDTH=15 BORDER=0> ';
 				/*

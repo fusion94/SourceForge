@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: browse.php,v 1.11 2000/05/02 12:57:03 tperdue Exp $
+// $Id: browse.php,v 1.10 2000/01/13 18:36:36 precision Exp $
 
 require ('pre.php');
 require ('../snippet/snippet_utils.php');
@@ -53,7 +53,7 @@ if ((!$result || $rows < 1) && (!$result2 || $rows2 < 1)) {
 
 	echo '
 		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
-		<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'"><TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Snippet ID</TD>
+		<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'"><TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Snippet ID</TD>
 		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Title</TD>
 		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Creator</TD>
 		</TR>';
@@ -67,14 +67,20 @@ if ((!$result || $rows < 1) && (!$result2 || $rows2 < 1)) {
 			<TR BGCOLOR="EFEFEF"><TD COLSPAN="3"><B>Packages Of Snippets</B></TD>';
 	}
 	for ($i=0; $i<$rows2; $i++) {
+		if ($i % 2 == 0) {
+			$row_color=' BGCOLOR="#FFFFFF"';
+		} else {
+			$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+		}
+
 		echo '
-			<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD ROWSPAN="2"><A HREF="/snippet/detail.php?type=package&id='.
+			<TR'.$row_color.'><TD ROWSPAN="2"><A HREF="/snippet/detail.php?type=package&id='.
 			db_result($result2,$i,'snippet_package_id').'"><B>'.
 			db_result($result2,$i,'snippet_package_id').'</B></A></TD><TD><B>'.
 			db_result($result2,$i,'name').'</TD><TD>'.
 			db_result($result2,$i,'user_name').'</TD></TR>';
 		echo '
-			<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD COLSPAN="2">'.util_make_links(nl2br(db_result($result2,$i,'description'))).'</TD></TR>';
+			<TR'.$row_color.'><TD COLSPAN="2">'.util_make_links(nl2br(stripslashes(db_result($result,$i,'description')))).'</TD></TR>';
 	}
 
 
@@ -87,14 +93,20 @@ if ((!$result || $rows < 1) && (!$result2 || $rows2 < 1)) {
 			<TR BGCOLOR="EFEFEF"><TD COLSPAN="3"><B>Snippets</B></TD>';
 	}
 	for ($i=0; $i<$rows; $i++) {
+		if ($i % 2 == 0) {
+	     		$row_color=' BGCOLOR="#FFFFFF"';
+		} else {
+			$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+		}
+
 		echo '
-			<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD ROWSPAN="2"><A HREF="/snippet/detail.php?type=snippet&id='.
+			<TR'.$row_color.'><TD ROWSPAN="2"><A HREF="/snippet/detail.php?type=snippet&id='.
 			db_result($result,$i,'snippet_id').'"><B>'.
 			db_result($result,$i,'snippet_id').'</B></A></TD><TD><B>'.
 			db_result($result,$i,'name').'</TD><TD>'.
 			db_result($result,$i,'user_name').'</TD></TR>';
 		echo '
-			<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD COLSPAN="2">'.util_make_links(nl2br(db_result($result,$i,'description'))).'</TD></TR>';
+			<TR'.$row_color.'><TD COLSPAN="2">'.util_make_links(nl2br(stripslashes(db_result($result,$i,'description')))).'</TD></TR>';
 	}
 
 	echo '

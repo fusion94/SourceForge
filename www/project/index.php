@@ -4,13 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.218 2000/04/26 09:56:09 tperdue Exp $
+// $Id: index.php,v 1.208 2000/01/29 17:27:20 tperdue Exp $
 
 require ('pre.php');    
 require ('vote_function.php');
 require ('vars.php');
 require ('../news/news_utils.php');
-require ('trove.php');
 
 /*
 	Project Summary Page
@@ -34,47 +33,42 @@ if (db_numrows($res_grp) < 1) {
 	$row_grp = db_fetch_array($res_grp);
 }
 
-if ($row_grp['public']==0) {
+if ($row_grp[public]==0) {
 	//if its a private group, you must be a member of that group
 	session_require(array('group'=>$group_id));
 }
 
-if (!(($row_grp['status'] == 'A') || ($row_grp['status'] == 'H'))) {
+if (!(($row_grp[status] == 'A') || ($row_grp[status] == 'H'))) {
 	//only SF group can view non-active, non-holding groups
-	session_require(array('group'=>'1'));
+	session_require(array('group'=>1));
 }
 
-$title = 'Project Info - '.group_getname($group_id);
-site_header(array('title'=>$title,'group'=>$group_id));
+site_header(array('title'=>'Project Info','group'=>$group_id));
 
 // ######################### TABS
 html_tabs("home",$group_id);
 
 // ########################################## top area, not in box 
-$res_admin = db_query("SELECT user.user_id AS user_id,user.user_name AS user_name "
-	. "FROM user,user_group "
+print '<P>'.group_fullname($group_id);
+// admin info
+$res_admin = db_query("SELECT user.user_id AS user_id,user.user_name AS user_name FROM user,user_group "
 	. "WHERE user_group.user_id=user.user_id AND user_group.group_id=$group_id AND "
 	. "user_group.admin_flags = 'A'");
-
-if ($row_grp['status'] == 'H') {
+if ($row_grp[status] == 'H') {
 	print "<P>NOTE: This project entry is maintained by the SourceForge staff. We are not "
 		. "the official site "
 		. "for this product. Additional copyright information may be found on this project's homepage.\n";
 }
 
-if ($row_grp['short_description']) {
-	print "<P>" . stripslashes($row_grp['short_description']);
+if ($row_grp[short_description]) {
+	print "<P>" . stripslashes($row_grp[short_description]);
 } else {
 	print "<P>This project has not yet submitted a description.";
 }
 
-// table: left side trove info, right side voting
-
 print '<TABLE width="100%" cellpadding="0" cellspacing="0" border="0"><TR><TD width="99%">';
-// trove info
-print '&nbsp;<BR>';
-trove_getcatlisting($group_id,0,1);
-print '<BR>&nbsp;';
+print "<BR>License: " . $LICENSE["$row_grp[license]"];
+
 print '</TD><TD align="LEFT" nowrap>';
 print vote_show_release_radios($group_id,1);
 print '</TD></TR></TABLE>
@@ -99,7 +93,7 @@ available at the top of the page for easy navigation.
 
 // ################# Homepage Link
 
-print "<HR><A href=\"http://" . $row_grp['homepage'] . "\">";
+print "<HR><A href=\"http://" . $row_grp[homepage] . "\">";
 html_image("ic/home.png",array());
 print '&nbsp;Project Homepage</A>';
 print '<BR><I>This home page points to the official page for this project,
@@ -137,36 +131,18 @@ if (($row_grp['status'] == 'A') && ($row_grp['use_bugs'])) {
 	print " open bugs, <B>$row_count[count]</B> total.";
 }
 
-// ##################### Support Manager (only for Active)
- 
-if (($row_grp['status'] == 'A') && ($row_grp['use_support'])) {
-	print '
-	<HR>
-	<A href="/support/?group_id='.$group_id.'">';
-	html_image("ic/support.png",array());
-	print '&nbsp;Support Manager</A>';
-	$res_count = db_query("SELECT count(*) AS count FROM support WHERE group_id=$group_id");
-	$row_count = db_fetch_array($res_count);
-	$res_count = db_query("SELECT count(*) AS count FROM support WHERE group_id=$group_id AND support_status_id='1'");
-	$row_count2 = db_fetch_array($res_count);
-	print "<BR><I>There are <B>$row_count2[count]</B>";
-	print " unresolved support items, <B>$row_count[count]</B> total.</I>";
-}
-
 // ##################### Patch Manager (only for Active)
 
 if (($row_grp['status'] == 'A') && ($row_grp['use_patch'])) {
-	print '
+        print '
 		<HR>
 		<A href="/patch/?group_id='.$group_id.'">';
-	html_image("ic/patch.png",array());
-	print '&nbsp;Patch Manager</A>';
-	$res_count = db_query("SELECT count(*) AS count FROM patch WHERE group_id=$group_id");
-	$row_count = db_fetch_array($res_count);
-	$res_count = db_query("SELECT count(*) AS count FROM patch WHERE group_id=$group_id AND patch_status_id='1'");
-	$row_count2 = db_fetch_array($res_count);
-	print "<BR><I>There are <B>$row_count2[count]</B>";
-	print " open patches, <B>$row_count[count]</B> total.</I>";
+        html_image("ic/patch.png",array());
+        print '&nbsp;Patch Manager</A>';
+        $res_count = db_query("SELECT count(*) AS count FROM patch WHERE group_id=$group_id");
+        $row_count = db_fetch_array($res_count);
+        print "<BR><I>There are <B>$row_count[count]</B>";
+        print " Patches.";
 }
 
 // ##################### Mailing lists (only for Active)
@@ -204,9 +180,9 @@ if (($row_grp['status'] == 'A') && ($row_grp['use_cvs'])) {
 
 // ######################## AnonFTP (only for Active
 
-if ($row_grp['status'] == 'A') {
+if ($row_grp[status] == 'A') {
 	print "<HR>";
-	print "<A href=\"ftp://" . $row_grp['http_domain'] . "/pub/$row_grp[unix_group_name]/\">";
+	print "<A href=\"ftp://" . $row_grp[http_domain] . "/pub/$row_grp[unix_group_name]/ " . "\">";
 	print "Anonymous FTP Space</A>";
 	print '<BR><I>Projects may choose to have files other than their main
 	releases available via anonymous FTP.</I>';
@@ -228,7 +204,7 @@ html_box1_bottom();
 
 // ########################### Developers on this project
 
-echo html_box1_top("Developer Info",0,$GLOBALS['COLOR_LTBACK2']);
+echo html_box1_top("Developer Info",0,$GLOBALS[COLOR_LTBACK2]);
 
 echo '&nbsp;<BR></TD></TR>';
 
@@ -263,7 +239,7 @@ print db_numrows($res_count);
 
 // ############################# File Releases
 
-echo html_box1_middle('File Releases',$GLOBALS['COLOR_LTBACK2']); 
+echo html_box1_middle('File Releases',$GLOBALS[COLOR_LTBACK2]); 
 	print "&nbsp;<BR>";
 	$res_modules = db_query("SELECT filemodule_id,module_name,recent_filerelease "
 		. "FROM filemodule WHERE group_id=$group_id");
@@ -277,8 +253,7 @@ echo html_box1_middle('File Releases',$GLOBALS['COLOR_LTBACK2']);
 			print " Module Name: <B>$row_modules[module_name]</B>";
 			$res_files = db_query("SELECT filerelease_id,filename,file_type,downloads "
 				. "FROM filerelease WHERE filemodule_id=$row_modules[filemodule_id] "
-				. "AND release_version='$row_modules[recent_filerelease]' "
-				. "AND status='A'");
+				. "AND release_version='$row_modules[recent_filerelease]'");
 			if (db_numrows($res_files) < 1) {
 				print "<BR>No releases.";
 			} else {
@@ -286,7 +261,7 @@ echo html_box1_middle('File Releases',$GLOBALS['COLOR_LTBACK2']);
 				print "<BR>View: ";
 				print "<A href=\"filenotes.php?group_id=$group_id&form_filemodule_id="
 					. "$row_modules[filemodule_id]&form_release_version="
-					. urlencode($row_modules['recent_filerelease'])
+					. urlencode($row_modules[recent_filerelease])
 					. "\">[Release Notes & Changelog]</A>";
 				print "<BR>Download: ";
 				// print all file types
@@ -309,7 +284,7 @@ echo html_box1_middle('File Releases',$GLOBALS['COLOR_LTBACK2']);
 
 //latest news items for this project
 if (($row_grp['status'] == 'A') && ($row_grp['use_news'])) {
-	echo html_box1_middle('Latest News',$GLOBALS['COLOR_LTBACK2']);
+	echo html_box1_middle('Latest News',$GLOBALS[COLOR_LTBACK2]);
 
 	echo news_show_latest($group_id);
 }
@@ -338,4 +313,5 @@ echo html_box1_bottom();
 <?php
 
 site_footer(array());
+site_cleanup(array());
 ?>

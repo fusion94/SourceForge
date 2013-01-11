@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: postadd_patch.php,v 1.12 2000/05/01 15:38:28 tperdue Exp $
+// $Id: postadd_patch.php,v 1.10 2000/01/20 08:30:57 tperdue Exp $
 
 if (!$patch_category_id) {
 	$patch_category_id=100;
@@ -26,10 +26,6 @@ if (!user_isloggedin()) {
 	$user=100;
 } else {
 	$user=user_getid();
-}
-
-if (!$group_id || !$summary || !$code) {
-	exit_error('Missing Info',$feedback.' - Go Back and fill in all the information requested');
 }
 
 $sql="INSERT INTO patch (close_date,group_id,patch_status_id,patch_category_id,submitted_by,assigned_to,open_date,summary,code) ".

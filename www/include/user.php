@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: user.php,v 1.64 2000/04/14 17:55:46 tperdue Exp $
+// $Id: user.php,v 1.61 2000/01/21 15:14:40 tperdue Exp $
 
 // ############ User functions
 
@@ -18,9 +18,7 @@ function user_isloggedin() {
 // ############################### function user_ismember
 
 function user_ismember($group_id,$type=0) {
-	if (!user_isloggedin()) {
-		return false;
-	}
+
 	unset($user_id); //paranoid
 	$user_id=user_getid(); //optimization
 
@@ -78,16 +76,6 @@ function user_ismember($group_id,$type=0) {
 			$query .= ' AND forum_flags IN (2)';
 			break;
 		}
-		case 'S1' : {
-			//support tech
-			$query .= ' AND support_flags IN (1,2)';
-			break;
-		}
-		case 'S2' : {
-			//support admin
-			$query .= ' AND support_flags IN (2,3)';
-			break;
-		}
 		case '0' : {
 			//just in this group
 			break;
@@ -117,7 +105,7 @@ function user_ismember($group_id,$type=0) {
 
 function user_getid() {
 	global $G_USER;
-	return ($G_USER?$G_USER['user_id']:0);
+	return ($G_USER?$G_USER[user_id]:0);
 }
 
 // ############################# function user_getname()
@@ -126,7 +114,7 @@ function user_getname($user_id = 0) {
 	global $G_USER,$USER_NAMES;
 	// use current user if one is not passed in
 	if (!$user_id) {
-		return ($G_USER?$G_USER['user_name']:"NA");
+		return ($G_USER?$G_USER[user_name]:"NA");
 	}
 	// else must lookup name
 	else {

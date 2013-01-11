@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: project_admin_utils.php,v 1.5 2000/04/26 09:57:12 tperdue Exp $
+// $Id: project_admin_utils.php,v 1.3 2000/01/26 10:53:00 tperdue Exp $
 
 function project_admin_header($params) {
 	global $DOCUMENT_ROOT,$group_id;
@@ -18,11 +18,10 @@ function project_admin_header($params) {
 		<A HREF="/project/admin/?group_id='.$group_id.'">Admin</A> | 
 		<A HREF="/project/admin/userperms.php?group_id='.$group_id.'">User Permissions</A> | 
 		<A HREF="/project/admin/group-addmember.php?group_id='.$group_id.'">Add Member</A> |
-		<A HREF="/project/admin/editgroupinfo.php?group_id='.$group_id.'">Edit Public Info</A>
-		<BR><A HREF="/project/admin/filerelease-list.php?group_id='.$group_id.'">Edit File Releases</A> | 
+		<A HREF="/project/admin/editgroupinfo.php?group_id='.$group_id.'">Edit Public Info</A> |
+		<A HREF="/project/admin/filerelease-list.php?group_id='.$group_id.'">Edit File Releases</A> | 
 		<A HREF="/project/admin/addfile.php?group_id='.$group_id.'">Release New File</A> | 
-		<A HREF="/project/admin/module-add.php?group_id='.$group_id.'">Add New Module</A> |
-		<A HREF="/people/createjob.php?group_id='.$group_id.'">Post/Edit Jobs</A>
+		<A HREF="/project/admin/module-add.php?group_id='.$group_id.'">Add New Module</A>
 		</B>
 		<P>';
 }

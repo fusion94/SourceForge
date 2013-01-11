@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: sendmessage.php,v 1.8 2000/04/25 13:14:11 tperdue Exp $
+// $Id: sendmessage.php,v 1.4 2000/01/13 18:36:34 precision Exp $
 
 require ('pre.php');    
 site_header(array('title'=>'SorceForge Staff'));
@@ -80,13 +80,13 @@ about a project, include your <B>project id</B> (<B>group_id</B>) and <B>Project
 <INPUT TYPE="HIDDEN" NAME="touser" VALUE="<?php echo $touser; ?>">
 
 <B>Your Email Address:</B><BR>
-<INPUT TYPE="TEXT" NAME="from_email" SIZE="25" MAXLENGTH="40" VALUE="<?php echo ((user_isloggedin())?user_getname().'@users.sourceforge.net':''); ?>">
+<INPUT TYPE="TEXT" NAME="from_email" SIZE="25" MAXLENGTH="40">
 <P>
 <B>Your Name:</B><BR>
-<INPUT TYPE="TEXT" NAME="from_name" SIZE="20" MAXLENGTH="40" VALUE="<?php echo ((user_isloggedin())?user_getname():''); ?>">
+<INPUT TYPE="TEXT" NAME="from_name" SIZE="20" MAXLENGTH="40">
 <P>
 <B>Subject:</B><BR>
-<INPUT TYPE="TEXT" NAME="subject" SIZE="30" MAXLENGTH="40" VALUE="<?php echo $subject; ?>">
+<INPUT TYPE="TEXT" NAME="subject" SIZE="30" MAXLENGTH="40">
 <P>
 <B>Message:</B><BR>
 <TEXTAREA NAME="body" ROWS="15" COLS="60" WRAP="HARD"></TEXTAREA>

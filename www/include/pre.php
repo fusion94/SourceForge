@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: pre.php,v 1.345 2000/04/19 12:58:01 tperdue Exp $
+// $Id: pre.php,v 1.335 2000/01/29 17:28:30 tperdue Exp $
 
 /*
 	redirect to proper hostname to get around certificate problem on IE 5
@@ -26,8 +26,6 @@ require('user.php');
 require('group.php');
 require('exit.php');
 require('menu.php');
-require('error.php');
-require('help.php');
 
 $sys_datefmt = "m/d/y H:i";
 
@@ -38,33 +36,26 @@ $sys_datefmt = "m/d/y H:i";
 function generic_header($params) {
 
 	// printable option
-	if ($GLOBALS['printable']) {
+	if ($GLOBALS[printable]) {
 		return;
 	}
 	
 	global $G_USER, $G_SESSION;
 	
-	if (!$params['title']) { 
-		$params['title'] = "SourceForge";
+	if (!$params[title]) { 
+		$params[title] = "SourceForge";
 	} else {
-		$params['title'] = "SourceForge: " . $params['title'];
+		$params[title] = "SourceForge: " . $params[title];
 	}
 	?>
 	<HTML>
 	<HEAD>
-	<TITLE><?php print $params['title']; ?></TITLE>
-	<SCRIPT language="JavaScript">
-	<!--
-	function help_window(helpurl) {
-		HelpWin = window.open(helpurl,'HelpWindow','scrollbars=yes,resizable=yes,toolbar=no,height=400,width=400');
-	}
-	// -->
-	</SCRIPT>
+	<TITLE><?php print $params[title]; ?></TITLE>
 	<LINK rel="stylesheet" href="/sourceforge.css" type="text/css">
 	</HEAD>
 	<BODY bgcolor=#FFFFFF topmargin="0" bottommargin="0" leftmargin="0" rightmargin="0" marginheight="0" marginwidth="0">
 	<!-- top strip -->
-	<TABLE width="100%" border=0 cellspacing=0 cellpadding=2 bgcolor="<?php print $GLOBALS['COLOR_MENUBARBACK']; ?>">
+	<TABLE width="100%" border=0 cellspacing=0 cellpadding=2 bgcolor="<?php print $GLOBALS[COLOR_MENUBARBACK]; ?>">
 	<TR>
 	<TD><SPAN class=maintitlebar>&nbsp;&nbsp;
 	<A class=maintitlebar href="/"><B>Home</B></A> | 
@@ -91,8 +82,8 @@ function generic_header($params) {
 	</TABLE>
 	<!-- end top strip -->
 	<!-- top title table -->
-	<TABLE width="100%" border=0 cellspacing=0 cellpadding=0 bgcolor="<?php echo $GLOBALS['COLOR_BARBACK']; ?>" valign="center">
-	<TR valign="top" bgcolor="<?php echo $GLOBALS['COLOR_LTBACK1']; ?>"><TD>
+	<TABLE width="100%" border=0 cellspacing=0 cellpadding=0 bgcolor="<?php echo $GLOBALS[COLOR_BARBACK]; ?>" valign="center">
+	<TR valign="top" bgcolor="<?php echo $GLOBALS[COLOR_LTBACK1]; ?>"><TD>
 	<A href="/"><?php 
 
 	//html_image('sflogo2-105b.png',array(vspace=>0)); 
@@ -100,10 +91,10 @@ function generic_header($params) {
 	?></A>
 	</TD>
 	<TD width="99%"><!-- right of logo -->
-	<a href="http://www.valinux.com"><?php html_image("valogo3.png",array('align'=>'right','alt'=>'VA Linux Systems','hspace'=>'5','vspace'=>'0')); ?></A>
+	<a href="http://www.valinux.com"><?php html_image("va-btn-small-light.png",array('align'=>'right','alt'=>'VA Linux Systems','hspace'=>'5','vspace'=>'7')); ?></A>
 
-	<BR>
-	<FONT SIZE="+1">Breaking Down The Barriers to Open Source Development</FONT>
+	&nbsp;<BR><FONT size="+1"><B>SourceForge</B></FONT>
+	<BR>Site Application Version: 1.0.4
 	<BR>
 	<?php 
 	if (!user_isloggedin()) {
@@ -118,7 +109,7 @@ function generic_header($params) {
 	<A href="/docs/site/">[Site Docs]</A>
 	<A href="/top/">[Top Projects]</A>
 
-	<!-- VA Linux Stats Counter -->
+	<!-- VA Linux Stets Counter -->
  	<?php if (!session_issecure()) {
  	print '<IMG src="http://www2.valinux.com/clear.gif?id=105" width=1 height=1 alt="Counter">';
  	}
@@ -140,18 +131,18 @@ function generic_header($params) {
 function generic_footer($params) {
 
 	// printable option
-	if ($GLOBALS['printable']) {
+	if ($GLOBALS[printable]) {
 		return;
 	}
 
 	global $IS_DEBUG,$QUERY_COUNT;
-	if ($IS_DEBUG && user_ismember(1,'A')) {
+	if ($IS_DEBUG) {
 		echo "<CENTER><B><FONT COLOR=RED>Query Count: $QUERY_COUNT</FONT></B></CENTER>";
 		echo "<P>$GLOBALS[G_DEBUGQUERY]";
 	}
 	?>
 	<!-- footer table -->
-	<table width="100%" border="0" cellspacing="0" cellpadding="2" bgcolor="<?php print $GLOBALS['COLOR_MENUBARBACK']; ?>">
+	<table width="100%" border="0" cellspacing="0" cellpadding="2" bgcolor="<?php print $GLOBALS[COLOR_MENUBARBACK]; ?>">
 	      <tr>
 		<td align="center"><font color="#ffffff"><span class="titlebar">
 		All trademarks and copyrights on this page are properties of their respective owners. Forum comments are owned by the poster. The rest is copyright ©1999-2000 VA Linux Systems, Inc.
@@ -168,15 +159,14 @@ function generic_footer($params) {
 
 function site_cleanup($params) {
 	// function for any page cleanup later, no HTML
-	return true;
-	//@mysql_close($GLOBALS['conn']);
+	@mysql_close($GLOBALS[conn]);
 }
 
 // ############################
 
 function site_footer($params) {
 	// printable option
-	if ($GLOBALS['printable']) {
+	if ($GLOBALS[printable]) {
 		return;
 	}
 	
@@ -199,7 +189,7 @@ function site_footer($params) {
 function site_header($params) {
 	generic_header($params); 
 	// printable option
-	if ($GLOBALS['printable']) {
+	if ($GLOBALS[printable]) {
 		return;
 	}
 	
@@ -207,7 +197,7 @@ function site_header($params) {
 	<!-- content table -->
 	<TABLE width="100%" cellspacing=0 cellpadding=0 border=0>
 	<TR valign="top">
-	<TD bgcolor=<?php print $GLOBALS['COLOR_MENUBACK']; ?>>
+	<TD bgcolor=<?php print $GLOBALS[COLOR_MENUBACK]; ?>>
 	<!-- menus -->
 	<?php
 
@@ -216,15 +206,23 @@ function site_header($params) {
 
 	//login / logged in menu
 	if (user_isloggedin()) {
-		echo menu_loggedin(); 
+		menu_loggedin(); 
 	} else {
 		echo menu_notloggedin();
 	}
-	if ($params['group']) {
-		echo menu_project($params['group']);
+
+	//project admin
+	if ($params[group] && (user_ismember($params[group],'A'))) {
+		menu_projectadmin($params[group]);
 	}
+
 	//search menu
-	echo menu_search();
+	menu_search();
+
+	//site admin menu
+	if (user_ismember(1)) {
+		menu_admin();
+	}
 
 	?>
 	</TD>

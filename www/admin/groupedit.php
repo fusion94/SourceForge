@@ -4,12 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: groupedit.php,v 1.59 2000/03/07 13:20:24 tperdue Exp $
+// $Id: groupedit.php,v 1.57 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
 require "vars.php";
 
-session_require(array('group'=>'1','admin_flags'=>'A'));
+session_require(array('group'=>'1'));
 
 // group remove
 if ($group_idrm) {
@@ -33,9 +33,9 @@ if (db_numrows($res_grp) < 1) {
 
 $row_grp = db_fetch_array($res_grp);
 
-site_header(array('title'=>"Editing Group"));
+site_header(array(title=>"Editing Group"));
 
-echo '<H2>'.$row_grp['group_name'].'</H2>' ;?>
+echo '<H2>'.$row_grp[group_name].'</H2>' ;?>
 
 <p>
 <?php print "<A href=\"/project/admin/?group_id=$group_id\"><H3>[Project Admin]</H3></A>"; ?></b>
@@ -48,17 +48,17 @@ echo '<H2>'.$row_grp['group_name'].'</H2>' ;?>
 
 <B>Status</B>
 <SELECT name="form_status">
-<OPTION <?php if ($row_grp['status'] == "I") print "selected "; ?> value="I">Incomplete</OPTION>
-<OPTION <?php if ($row_grp['status'] == "A") print "selected "; ?> value="A">Active
-<OPTION <?php if ($row_grp['status'] == "P") print "selected "; ?> value="P">Pending
-<OPTION <?php if ($row_grp['status'] == "H") print "selected "; ?> value="H">Holding
-<OPTION <?php if ($row_grp['status'] == "D") print "selected "; ?> value="D">Deleted
+<OPTION <?php if ($row_grp[status] == "I") print "selected "; ?> value="I">Incomplete</OPTION>
+<OPTION <?php if ($row_grp[status] == "A") print "selected "; ?> value="A">Active
+<OPTION <?php if ($row_grp[status] == "P") print "selected "; ?> value="P">Pending
+<OPTION <?php if ($row_grp[status] == "H") print "selected "; ?> value="H">Holding
+<OPTION <?php if ($row_grp[status] == "D") print "selected "; ?> value="D">Deleted
 </SELECT>
 
 <B>Public?</B>
 <SELECT name="form_public">
-<OPTION <?php if ($row_grp['public'] == 1) print "selected "; ?> value="1">Yes
-<OPTION <?php if ($row_grp['public'] == 0) print "selected "; ?> value="0">No
+<OPTION <?php if ($row_grp[public] == 1) print "selected "; ?> value="1">Yes
+<OPTION <?php if ($row_grp[public] == 0) print "selected "; ?> value="0">No
 </SELECT>
 
 <P><B>License</B>
@@ -68,15 +68,15 @@ echo '<H2>'.$row_grp['group_name'].'</H2>' ;?>
 <?php
 	while (list($k,$v) = each($LICENSE)) {
 		print "<OPTION value=\"$k\"";
-		if ($k == $row_grp['license']) print " selected";
+		if ($k == $row_grp[license]) print " selected";
 		print ">$v\n";
 	}
 ?>
 </SELECT>
 
 <INPUT type="hidden" name="group_id" value="<?php print $group_id; ?>">
-<BR>Home Box: <INPUT type="text" name="form_box" value="<?php print $row_grp['unix_box']; ?>">
-<BR>HTTP Domain: <INPUT size=40 type="text" name="form_domain" value="<?php print $row_grp['http_domain']; ?>">
+<BR>Home Box: <INPUT type="text" name="form_box" value="<?php print $row_grp[unix_box]; ?>">
+<BR>HTTP Domain: <INPUT size=40 type="text" name="form_domain" value="<?php print $row_grp[http_domain]; ?>">
 <BR><INPUT type="submit" name="Update" value="Update">
 </FORM>
 

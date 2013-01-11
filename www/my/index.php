@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.58 2000/05/02 13:04:43 tperdue Exp $
+// $Id: index.php,v 1.56 2000/01/29 17:58:01 tperdue Exp $
 
 require ('pre.php');
 require ('vote_function.php');
@@ -90,8 +90,13 @@ if (user_isloggedin()) {
 					db_result($result,$i,'group_id').'">'.
 					db_result($result,$i,'group_name').'</A></TD></TR>';
 			}
+			if ($i % 2 == 0) {
+				$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+			} else {
+				$row_color=' BGCOLOR="#FFFFFF"';
+			}
 			echo '
-			<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD ALIGN="MIDDLE"><A HREF="/forum/monitor.php?forum_id='.
+			<TR'.$row_color.'><TD ALIGN="MIDDLE"><A HREF="/forum/monitor.php?forum_id='.
 				db_result($result,$i,'group_forum_id').
 				'"><IMG SRC="/images/ic/trash.png" HEIGHT="16" WIDTH="16" '.
 				'BORDER=0"></A></TD><TD WIDTH="99%"><A HREF="/forum/forum.php?forum_id='.
@@ -134,8 +139,13 @@ if (user_isloggedin()) {
 					db_result($result,$i,'group_id').'">'.
 					db_result($result,$i,'group_name').'</A></TD></TR>';
 			}
+			if ($i % 2 == 0) {
+				$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+			} else {
+				$row_color=' BGCOLOR="#FFFFFF"';
+			}
 			echo '
-			<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD ALIGN="MIDDLE"><A HREF="/project/filemodule_monitor.php?filemodule_id='.
+			<TR'.$row_color.'><TD ALIGN="MIDDLE"><A HREF="/project/filemodule_monitor.php?filemodule_id='.
 				db_result($result,$i,'filemodule_id').
 				'"><IMG SRC="/images/ic/trash.png" HEIGHT="16" WIDTH="16" '.
 				'BORDER=0"></A></TD><TD WIDTH="99%"><A HREF="/project/filelist.php?group_id='.
@@ -233,7 +243,7 @@ if (user_isloggedin()) {
 		echo "You're not a member of any projects";
 	} else {
 		while ($row_proj = db_fetch_array($result)) {
-			print "<A href=\"/project/?group_id=$row_proj[group_id]\">$row_proj[group_name]</A> &nbsp; &nbsp; <A href=\"rmproject.php?group_id=$row_proj[group_id]\">[Remove]</A><BR>";
+			print "<A href=\"/project/?group_id=$row_proj[group_id]\">$row_proj[group_name]</A><BR>";
 		}
 	}
 	echo html_box1_bottom();
@@ -247,11 +257,10 @@ if (user_isloggedin()) {
 	</TABLE>
 	<?php
 	site_footer(array());
+	site_cleanup(array());
 
 } else {
-
 	exit_not_logged_in();
-
 }
 
 ?>

@@ -4,11 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.27 2000/05/04 20:54:44 tperdue Exp $
+// $Id: index.php,v 1.24 2000/01/13 18:36:34 precision Exp $
 
 require('pre.php');
 require('../bugs/bug_utils.php');
-require('../bugs/bug_data.php');
 
 if ($group_id) {
 
@@ -20,28 +19,13 @@ if ($group_id) {
 		}
 
 		case 'postaddbug' : {
-			//data control layer
-			bug_data_create_bug($group_id,$summary,$details,$category_id,$bug_group_id);
+			include '../bugs/postadd_bug.php';
 			include '../bugs/browse_bug.php';
 			break;
 		}
 
 		case 'postmodbug' : {
-			//data control layer
-			bug_data_handle_update ($group_id,$bug_id,$status_id,$priority,$category_id,
-				$assigned_to,$summary,$bug_group_id,$resolution_id,$details,
-				$dependent_on_task,$dependent_on_bug);
-			if ($mail_followup) {
-				mail_followup($bug_id);
-			}
-			include '../bugs/browse_bug.php';
-			break;
-		}
-
-		case 'massupdate' : {
-			//data control layer
-			bug_data_mass_update ($group_id,$bug_id,$status_id,$priority,$category_id,
-				$assigned_to,$bug_group_id,$resolution_id);
+			include '../bugs/postmod_bug.php';
 			include '../bugs/browse_bug.php';
 			break;
 		}

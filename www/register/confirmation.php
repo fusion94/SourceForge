@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: confirmation.php,v 1.50 2000/04/24 13:13:35 dtype Exp $
+// $Id: confirmation.php,v 1.49 2000/01/24 14:51:34 tperdue Exp $
 
 require 'pre.php';    // Initial db and session library, opens session
 session_require(array('isloggedin'=>'1'));
@@ -52,6 +52,23 @@ if ($show_confirm) {
 	<B>If Other License:</B><BR>
 	<TEXTAREA name="form_license_other" wrap=virtual cols=60 rows=10>'.db_result($result,0,'license_other').'</TEXTAREA>
 	<P>
+	<B>Software Environment:</B><BR>
+	<I>Select all that apply.</I><BR>
+	';
+	echo utils_buildcheckboxarray($SOFTENV,'form_env[]',$form_env);
+	echo '
+	<P>
+	<B>Languages Used:</B><BR>
+	<BR><I>Select all that apply.</I><BR>
+	';
+	echo utils_buildcheckboxarray($SOFTLANG,'form_lang[]',$form_lang);
+	echo '
+	<P>
+	<B>Category:</B><BR>
+	';
+	echo category_popup('form_category',$form_category); 
+	echo '
+	<P>
 	If you agree, your project will be created. If you disagree, it will be deleted from the system.
 	<P>
 	<INPUT type=submit name="i_agree" value="I AGREE"> <INPUT type=submit name="i_disagree" value="I DISAGREE">
@@ -59,7 +76,7 @@ if ($show_confirm) {
 
 	site_footer(array());
 
-} else if ($i_agree && $group_id && $rand_hash) {
+} else if ($i_agree && $group_id && $form_category && $rand_hash) {
 	/*
 
 		Finalize the db entries
@@ -74,6 +91,31 @@ if ($show_confirm) {
 
 	if (db_affected_rows($result) < 1) {
 		exit_error('Error','UDPATING TO ACTIVE FAILED. <B>PLEASE</B> report to admin@sourceforge.net'.db_error());
+	}
+
+	/*
+		set up environments and languages for this group
+	*/
+	if (count($form_env)<1) {
+		$form_env[]=1;
+	}
+
+	if (count($form_lang)<1) {
+		$form_lang[]=1;
+	}
+
+	for ($i=0; $i<count($form_env); $i++) {
+		db_query("INSERT INTO group_env (group_id,env_id) VALUES ('$group_id','$form_env[$i]')");
+	}
+
+	for ($i=0; $i<count($form_lang); $i++) {
+		db_query("INSERT INTO group_language (group_id,language_id) VALUES ('$group_id','$form_lang[$i]')");
+	}
+
+	// put it in a category
+	$result=db_query("INSERT INTO group_category (group_id,category_id,primary_category) VALUES ('$group_id','$form_category','1')"); 
+	if (!$result) {
+		exit_error('Error','INSERTING CATEGORY FAILED. <B>PLEASE</B> report to admin@sourceforge.net'.db_error());
 	}
 
 	// define a module

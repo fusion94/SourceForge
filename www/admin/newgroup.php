@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: newgroup.php,v 1.11 2000/03/07 13:20:24 tperdue Exp $
+// $Id: newgroup.php,v 1.10 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
-session_require(array('group'=>'1','admin_flags'=>'A'));
+session_require(array('group'=>'1'));
 
 // ###### function submit_valid()
 // ###### checks for valid submit from form post
@@ -19,7 +19,7 @@ function submit_valid()	{
 		return 0;
 	}
 	
-	if ($HTTP_POST_VARS['form_groupname']) {
+	if ($HTTP_POST_VARS[form_groupname]) {
 		db_query("INSERT INTO groups (group_name,public) "
 			. "values ('$HTTP_POST_VARS[form_groupname]',$HTTP_POST_VARS[form_public])");
 		return 1;
@@ -33,7 +33,7 @@ function submit_valid()	{
 if (submit_valid()) {
 	session_redirect("/admin/index.php");
 } else { // not valid registration, or first time to page
-	site_header(array('title'=>"Alexandria: Admin: New Group"));
+	site_header(array(title=>"Alexandria: Admin: New Group"));
 
 ?>
 <p><b>Alexandria New Group Creation</b>

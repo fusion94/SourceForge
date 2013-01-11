@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: staff.php,v 1.26 2000/03/14 11:05:41 tperdue Exp $
+// $Id: staff.php,v 1.24 2000/01/20 11:45:46 dtype Exp $
 
 require ('pre.php');    
 site_header(array('title'=>'SorceForge Staff'));
@@ -16,25 +16,16 @@ site_header(array('title'=>'SorceForge Staff'));
 <table border=0 cellspacing=2 cellpadding=2 bgcolor="">
 
 <tr valign=top>
-<td><a href="/sendmessage.php?toaddress=dlb_maillink_users.sourceforge.net">Dan Bressler</a></td>
-<td>(dlb)</td>
-<td>
-Dan is the new "Product Manager" for SourceForge. We're not sure what that means, only that he
-likes timelines and handles business development issues.
-</td>
-</tr>
-
-<tr valign=top>
 <td><a href="/sendmessage.php?toaddress=fusion94_maillink_users.sourceforge.net">Tony Guntharp</a></td>
 <td>(fusion94)</td>
-<td>Tony is originally from Texas. When he's not working you can usually find him enjoying a pint
-of Guinness somewhere in the Bay area.</td>
+<td>Tony is the Project Manager for SourceForge and is originally from Texas. When he's not working you can usually find him enjoying a pint
+of Guinness somewhere in the Bay area.</a></td>
 </tr>
 
 <tr valign=top>
 <td><a href="/sendmessage.php?toaddress=dtype_maillink_users.sourceforge.net">Drew Streib</a></td>
 <td>(dtype)</td>
-<td>Drew is a developer and community liaison for SourceForge. He also sysadmins 
+<td>Drew is a software developer for SourceForge. He also sysadmins 
 the server for Linux International and was one of the original authors of the 
 VA Linux e-commerce system. He enjoys skydiving, jet piloting, and supermodel
 photography, but has never had a chance to do any of these things because
@@ -44,10 +35,9 @@ he is always programming.</td>
 <tr valign=top>
 <td><a href="/sendmessage.php?toaddress=bigdisk_maillink_users.sourceforge.net">Tim Perdue</a></td>
 <td>(bigdisk)</td>
-<td>Tim is the technical lead on SourceForge and is from Iowa. Yes Iowa. Not Idaho and not Ohio. 
-Iowa. When he's not working you can locate him fairly easy as he has the only BMW Z3 in Iowa.
+<td>Tim is from Iowa. Yes Iowa. Not Idaho and not Ohio. Iowa. When he's not working you can locate him fairly easy as he has the only BMW Z3 in Iowa.
 <P>
-Tim founded <A HREF="http://www.phpbuilder.com/">PHPBuilder.com</A> and <A HREF="http://www.geocrawler.com/">Geocrawler.com</A>.
+Tim founded <A HREF="http://www.phpbuilder.com/">PHPBuilder.com</A> and <A HREF="http://www.geocrawler.com">Geocrawler.com</A>.
 </td>
 </tr>
 
@@ -61,23 +51,13 @@ defrosting his car you'll find him locked away in a dark room somewhere in front
 <tr valign=top>
 <td><a href="/sendmessage.php?toaddress=aphzen_maillink_users.sourceforge.net">Quentin Cregan</a></td>
 <td>(aphzen)</td>
-<td>Quentin handles most of the zillions of tech support inquiries that come into SourceForge, usually 
-with a smile on his face. He works from Australia.
-</td>
-</tr>
-
-<TR><TD COLSPAN="2"><B>Signicant Outside Contributors:</B></TD></TR>
-
-<tr valign=top>
-<td><a href="/sendmessage.php?toaddress=wallace_maillink_users.sourceforge.net">Wallace Lee</a></td>
-<td>(wallace)</td>
-<td>Wallace has contributed significant tweaks and improvements to the SourceForge core code base. We appreciate 
-his efforts, as do the users who benefit from his contributions.
-</td>
+<td>Quentin is also an admin at Linux.com. Trae thinks he still has some sort of control of q,
+but doesn't realize he's been sucked into the time vortex that is SourceForge.</td>
 </tr>
 
 </table>
 
 <?php
 site_footer(array());
+site_cleanup(array());
 ?>

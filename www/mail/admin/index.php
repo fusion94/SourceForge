@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.26 2000/04/28 08:53:34 tperdue Exp $
+// $Id: index.php,v 1.22 2000/01/14 19:44:14 tperdue Exp $
 
 require('pre.php');
 require('../mail_utils.php');
@@ -17,10 +17,8 @@ if ($group_id && user_ismember($group_id,'A')) {
 		*/
 
 		if ($add_list) {
-			$list_password = substr(md5($GLOBALS['session_hash'] . time() . rand(0,40000)),0,16);
-			if (!$list_name || strlen($list_name) < 5) {
-				exit_error('Error','Must Provide List Name That Is 5 or More Characters Long');
-			}
+			$list_password = substr(md5($GLOBALS[session_hash] . time() . rand(0,40000)),0,16);
+
 			$new_list_name=strtolower(group_getunixname($group_id).'-'.$list_name);
 
 			$result=db_query("SELECT * FROM mail_group_list WHERE lower(list_name)='$new_list_name'");
@@ -71,7 +69,7 @@ if ($group_id && user_ismember($group_id,'A')) {
 
 		} else if ($change_status) {
 			/*
-				Change a list to public/private
+				Change a forum to public/private
 			*/
 			$sql="UPDATE mail_group_list SET is_public='$is_public' ".
 				"WHERE group_list_id='$group_list_id' AND group_id='$group_id'";
@@ -125,7 +123,7 @@ if ($group_id && user_ismember($group_id,'A')) {
 		/*
 			Change a forum to public/private
 		*/
-		mail_header(array('title'=>'Update Mailing Lists'));
+		mail_header(array('title'=>'Change Mailing List Status'));
 
 		$sql="SELECT list_name,group_list_id,is_public ".
 			"FROM mail_group_list ".
@@ -141,21 +139,20 @@ if ($group_id && user_ismember($group_id,'A')) {
 			echo db_error();
 		} else {
 			echo '
-				<H2>Update Mailing Lists</H2>
+				<H2>Update Mailing List Status</H2>
 				<P>
-				You can administrate lists from here. Please note that private lists
-				can still be viewed by members of your project, but are not listed on SourceForge.<P>';
+				You can make mailing lists private from here. Please note that private lists
+				can still be viewed by members of your project, not the general public.<P>';
 
 			echo '<TABLE BORDER="0">
-				<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+				<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
 				<TD><FONT COLOR="#FFFFFF"><B>List</TD>
 				<TD><FONT COLOR="#FFFFFF"><B>Status</TD>
-				<TD><FONT COLOR="#FFFFFF"><B>Update</TD>
-				<TD><FONT COLOR="#FFFFFF"><B>List Admin</TD></TR>';
+				<TD><FONT COLOR="#FFFFFF"><B>Update</TD></TR>';
 
 			for ($i=0; $i<$rows; $i++) {
 				if ($i % 2 != 0) {
-					$row_color=' BGCOLOR="'.$GLOBALS['COLOR_LTBACK1'].'"';
+					$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
 				} else {
 					$row_color=' BGCOLOR="#FFFFFF"';
 				}
@@ -177,9 +174,6 @@ if ($group_id && user_ismember($group_id,'A')) {
 					</TD><TD>
 						<FONT SIZE="-1">
 						<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Update Status">
-					</TD>
-					<TD><A href="http://lists.sourceforge.net/mailman/admin/'
-					.db_result($result,$i,'list_name').'">[Administrate this list in GNU Mailman]</A>
 					</TD></TR></FORM>';
 			}
 			echo '</TABLE>';
@@ -199,7 +193,7 @@ if ($group_id && user_ismember($group_id,'A')) {
 			<H2>Mailing List Administration</H2>
 			<P>
 			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&add_list=1">Add Mailing List</A><BR>
-			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&change_status=1">Administrate Lists</A>';
+			<A HREF="'.$PHP_SELF.'?group_id='.$group_id.'&change_status=1">Set Public/Private</A>';
 		mail_footer(array());
 	}
 

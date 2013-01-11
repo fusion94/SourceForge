@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: categoryedit-rename.php,v 1.10 2000/03/07 13:20:24 tperdue Exp $
+// $Id: categoryedit-rename.php,v 1.9 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";
-session_require(array('group'=>'1','admin_flags'=>'A'));
+session_require(array('group'=>'1'));
 
 // ########################################################
 

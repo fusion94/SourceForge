@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.75 2000/04/24 16:11:48 dtype Exp $
+// $Id: index.php,v 1.70 2000/01/26 10:44:32 tperdue Exp $
 
 require "pre.php";    
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
@@ -28,36 +28,12 @@ project_admin_header(array(title=>"Editing Project",group=>$group_id));
 ?>                     
 
 <?php html_box1_top("Group Edit: " . group_getname($group_id)); 
-
 print '&nbsp;<BR>Short Description: '.$row_grp[short_description].'
 <P>Homepage Link: <B>'.$row_grp[homepage].'</B>
 <P align=center>
 <A href="/project/admin/editgroupinfo.php?group_id='.$group_id.'">'
-.'<B>[Edit Group Public Information]</B></A>
+.'<B>[Edit Group Public Information and Categorization]</B></A>
 ';
-
-print '<P><B>Trove Categorization Info</B> - This group is in the following Trove
-categories
-<UL>';
-
-// list all trove categories
-$res_trovecat = db_query('SELECT trove_cat.fullpath AS fullpath,'
-	.'trove_cat.trove_cat_id AS trove_cat_id '
-	.'FROM trove_cat,trove_group_link WHERE trove_cat.trove_cat_id='
-	.'trove_group_link.trove_cat_id AND trove_group_link.group_id='.$group_id
-	.' ORDER BY trove_cat.fullpath');
-while ($row_trovecat = db_fetch_array($res_trovecat)) {
-	print ('<LI>'.$row_trovecat['fullpath'].' '
-		.help_button('trove_cat',$row_trovecat['trove_cat_id'])."\n");
-}
-
-print '
-</UL>
-<P align="center">
-<A href="/project/admin/group_trove.php?group_id='.$group_id.'">'
-.'<B>[Edit Trove Categorization]</B></A>
-';
-
 html_box1_bottom(); 
 ?>
 

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: menu.php,v 1.109 2000/05/03 11:23:45 tperdue Exp $
+// $Id: menu.php,v 1.102 2000/01/27 08:45:31 tperdue Exp $
 
 
 function menu_show_search_box() {
@@ -46,13 +46,13 @@ function menuhtml_top($title) {
 	?>
 
 	<!-- menuhtml_topmain() -->
-	<table cellspacing="0" cellpadding="3" width="100%" border="0" bgcolor="<?php echo $GLOBALS['COLOR_MENUBARBACK']; ?>">
-	<tr bgcolor="<?php echo $GLOBALS['COLOR_MENUBARBACK']; ?>">
+	<table cellspacing="0" cellpadding="3" width="100%" border="0" bgcolor="<?php echo $GLOBALS[COLOR_MENUBARBACK]; ?>">
+	<tr bgcolor="<?php echo $GLOBALS[COLOR_MENUBARBACK]; ?>">
 	<td align="center">
 	<?php html_blankimage(1,135); ?><BR>
 	<span class="titlebar"><font color="#ffffff"><?php print $title; ?></font></span></td>
 	</tr>
-	<tr align="right" BGCOLOR="<?php echo $GLOBALS['COLOR_MENUBACK']; ?>"><td>
+	<tr align="right" BGCOLOR="<?php echo $GLOBALS[COLOR_MENUBACK]; ?>"><td>
 	<!-- end -->
 
 	<?php
@@ -72,26 +72,22 @@ function menuhtml_bottom() {
 }
 
 function menu_main() {
-	menuhtml_top('Software'); 
+	menuhtml_top('SourceForge'); 
 	print '
-		<A class="menus" href="/softwaremap/">Software Map</A>
+		<A class="menus" href="/">Homepage</A>
+		<BR><A class="menus" href="/snippet/">Code Snippet Library</A>
+		<BR><A class="menus" href="/softwaremap/">Software Map</A>
 		<BR><A class="menus" href="/new/">New Releases</a>
-		<BR><A class="menus" href="/mirrors/">Other Site Mirrors</A>
-		<BR><A class="menus" href="/snippet/">Code Snippet Library</A>';
-	menuhtml_bottom();
-	menuhtml_top('SourceForge');
-	print '
-		<A class="menus" href="/docs/site/">Site Documentation</A>
-		<BR><A class="menus" href="/support/?func=addsupport&group_id=1">Request Support</A>
-		<BR><A class="menus" href="/forum/forum.php?forum_id=3">Help Forum</A>
-		<BR><A class="menus" href="/forum/forum.php?forum_id=2">Discussion Forum</A>
-		<BR><A class="menus" href="/people/">Project Help Wanted</A>
-		<P>
-		<A class="menus" href="/forum/forum.php?forum_id=4">Feature Request</A>
-		<BR><A class="menus" href="/bugs/?group_id=1">Report SF Bug</A>
-		<BR><A class="menus" href="/patch/?group_id=1">Submit SF Patch</A>
-
+		<BR><A class="menus" href="/docs/site/">Site Documentation</A>
 		<BR><A class="menus" href="/top/">Top Projects</A>';
+	menuhtml_bottom();
+}
+
+function menu_admin() {
+	menuhtml_top('Site Administrator');
+	print '
+		<A class=menus href="/admin/">Site Admin</A>
+		<BR><A class=menus href="/cgi-bin/cvsweb.cgi">Prodigy CVS Tree</A>';
 	menuhtml_bottom();
 }
 
@@ -101,23 +97,51 @@ function menu_search() {
 	menuhtml_bottom();
 }
 
+function menu_isgroupactive($group) {
+	if (isset($GLOBALS[G_GROUPACTIVE])) {
+		return $GLOBALS[G_GROUPACTIVE];
+	}
+
+	$res_active = db_query('SELECT status FROM groups WHERE group_id='.$group);
+	$row_active = db_fetch_array($res_active);
+	$GLOBALS[G_GROUPACTIVE] = ($row_active[status] == 'A');
+	return $GLOBALS[G_GROUPACTIVE];
+}
+
 function menu_project($grp) {
 	menuhtml_top('Project: ' . group_getname($grp));
 	print '
-		<A class=menus href="/project/?group_id='.$grp.'">Project Summary</A>
-                <P><A class=menus href="/project/admin/?group_id='.$grp.'">Project Admin</A>
-                <BR><A class=menus href="/project/admin/addfile.php?group_id='.$grp.'">File Release</A>
-                <BR><A class=menus href="/project/admin/userperms.php?group_id='.$grp.'">User Permissions</A>';
+		<BR><A class=menus href="/project/?group_id='.$grp.'">Project Summary</A>
+		<BR><A class=menus href="/forum/?group_id='.$grp.'">Message Forums</A>';
+	if (menu_isgroupactive($grp)) print '<BR><A class=menus href="/bugs/?group_id='.$grp.'">Bug Tracking</A>';
+	if (menu_isgroupactive($grp)) print '<BR><A class=menus href="/survey/?group_id='.$grp.'">Surveys</A>';
+	if (menu_isgroupactive($grp)) print '<BR><A class=menus href="/mail/?group_id='.$grp.'">Mailing Lists</A>';
 	menuhtml_bottom();
 }
 
 function menu_projectadmin($grp) {
 	menuhtml_top('Project Administrator');
 	print '
-		<I>(<A class=menus href="/project/?group_id='.$grp.'">Project Summary</A>)</I>
+		<I>(<A class=menus href="/project/?group_id='.$grp.'">'.group_getname($grp).'</A>)</I>
 		<BR>&nbsp;<BR><A class=menus href="/project/admin/?group_id='.$grp.'">Project Admin</A>
 		<BR><A class=menus href="/project/admin/addfile.php?group_id='.$grp.'">File Release</A>
-		<BR><A class=menus href="/project/admin/userperms.php?group_id='.$grp.'">User Permissions</A>';
+		<BR><A class=menus href="/project/admin/userperms.php?group_id='.$grp.'">User Permissions</A>
+		<BR><A class=menus href="/bugs/admin/?group_id='.$grp.'">Bug Admin</A>
+		<BR><A class=menus href="/survey/admin/?group_id='.$grp.'">Survey Admin</A>
+		<BR><A class=menus href="/forum/admin/?group_id='.$grp.'">Forum Admin</A>
+		<BR><A class=menus href="/mail/admin/?group_id='.$grp.'">Mailing List Admin</A>
+		<BR><A class=menus href="/pm/admin/?group_id='.$grp.'">Task Manager Admin</A>';
+	menuhtml_bottom();
+}
+
+function menu_projectdevel($grp) {
+	menuhtml_top('Project Developer');
+	print '
+		<I>(<A class=menus href="/project/?group_id='.$grp.'">'.group_getname($grp).'</A>)</I>
+		<BR>&nbsp;<BR>
+		<A class=menus href="/pm/?group_id='.$grp.'">Task Manager</A>
+		<BR>
+		<A class=menus href="/bugs/?group_id='.$grp.'">Bug Tracking</A>';
 	menuhtml_bottom();
 }
 

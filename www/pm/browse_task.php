@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: browse_task.php,v 1.14 2000/04/21 14:02:20 tperdue Exp $
+// $Id: browse_task.php,v 1.11 2000/01/26 16:08:11 tperdue Exp $
 
 pm_header(array('title'=>'Browse Tasks'));
 
@@ -70,12 +70,11 @@ if (db_numrows($result) < 1) {
 	echo db_error();
 } else {
 	echo '
-		<H3>'.$message.' In '. pm_data_get_group_name($group_project_id) .'</H3>';
-	pm_show_tasklist($result,$offset,$set);
-	echo '<P>* Denotes overdue tasks';
+		<H3>'.$message.' In '.get_task_group_name($group_project_id).'</H3>';
+	show_tasklist($result,$offset,$set);
+
 	show_priority_colors_key();
 }
 
 pm_footer(array());
-
 ?>

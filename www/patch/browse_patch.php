@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: browse_patch.php,v 1.12 2000/02/25 22:02:41 tperdue Exp $
+// $Id: browse_patch.php,v 1.10 2000/01/26 16:20:34 tperdue Exp $
 
 patch_header(array ('title'=>'Browse Patches'));
 
@@ -31,7 +31,7 @@ if ($order) {
 }
 
 if ($order) {
-	$order_by = " ORDER BY $order ".(($set=='closed' && $order=='date') ? ' DESC ':'');
+	$order_by = " ORDER BY $order ";
 } else {
 	$order_by = "";
 }

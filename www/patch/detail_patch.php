@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: detail_patch.php,v 1.10 2000/04/20 14:33:32 tperdue Exp $
+// $Id: detail_patch.php,v 1.8 2000/01/19 09:50:57 tperdue Exp $
 
 patch_header(array ('title'=>'Patch Detail: '.$patch_id));
 
@@ -22,7 +22,7 @@ $result=db_query($sql);
 if (db_numrows($result) > 0) {
 
 	echo '
-		<H2>[ Patch #'.$patch_id.' ] '. db_result($result,0,'summary') .'</H2>
+		<H2>[ Patch #'.$patch_id.' ] '.stripslashes(db_result($result,0,'summary')).'</H2>
 
 	<TABLE CELLPADDING="0" WIDTH="100%">
 		<TR><TD COLSPAN="2"><B>Date:</B><BR>'.date($sys_datefmt,db_result($result,0,'open_date')).'</TD></TR>
@@ -37,11 +37,13 @@ if (db_numrows($result) > 0) {
 			<TD><B>Status:</B><BR>'.db_result($result,0,'status_name').'</TD>
 		</TR>
 
-		<TR><TD COLSPAN="2"><B>Summary:</B><BR>'. db_result($result,0,'summary') .'</TD></TR>';
+		<TR><TD COLSPAN="2"><B>Summary:</B><BR>'.stripslashes(db_result($result,0,'summary')).'</TD></TR>';
 
 	echo '
 		<TR><TD COLSPAN="2"><P><B>Patch:</B><BR>
 		<A HREF="/patch/download.php?id='.$patch_id.'"><B>View Raw Patch</B></A>
+		<P>
+		<FONT FACE="COURIER"><PRE>'. stripslashes(db_result($result,0,'code')) .'
 		</TD></TR>';
 
 	echo '
@@ -64,7 +66,7 @@ if (db_numrows($result) > 0) {
 		<TR><TD COLSPAN="2">';
 
 	if (!user_isloggedin()) {
-		echo '<BR><B><FONT COLOR="RED"><H3>You Are NOT Logged In</H3><P>Please <A HREF="/account/login.php">log in,</A> so followups can be emailed to you.</FONT></B><P>';
+		echo '<BR><B><FONT COLOR="RED">Please <A HREF="/account/login.php">log in,</A> so followups can be emailed to you.</FONT></B><P>';
 	}
 
 	echo '

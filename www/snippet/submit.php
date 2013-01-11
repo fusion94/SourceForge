@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: submit.php,v 1.11 2000/03/29 12:27:29 tperdue Exp $
+// $Id: submit.php,v 1.10 2000/01/13 18:36:36 precision Exp $
 
 require ('pre.php');
 require ('../snippet/snippet_utils.php');
@@ -75,23 +75,23 @@ if (user_isloggedin()) {
 
 	<TR>
 	<TD><B>Type:</B><BR>
-		<?php echo util_build_select_box_from_array($SCRIPT_TYPE,'type'); ?>
+		<?php util_build_select_box_from_array($SCRIPT_TYPE,'type'); ?>
 	</TD>
 
 	<TD><B>License:</B><BR>
-		<?php echo util_build_select_box_from_array ($SCRIPT_LICENSE,'license'); ?>
+		<?php util_build_select_box_from_array ($SCRIPT_LICENSE,'license'); ?>
 	</TD>
 	</TR>
 
 	<TR>
 	<TD><B>Language:</B><BR>
-		<?php echo util_build_select_box_from_array ($SCRIPT_LANGUAGE,'language'); ?>
+		<?php util_build_select_box_from_array ($SCRIPT_LANGUAGE,'language'); ?>
 		<BR>
 		<A HREF="/sendmessage.php?toaddress=admin_maillink_sourceforge.net">Suggest a Language</A>
 	</TD>
 
 	<TD><B>Category:</B><BR>
-		<?php echo util_build_select_box_from_array ($SCRIPT_CATEGORY,'category'); ?>
+		<?php util_build_select_box_from_array ($SCRIPT_CATEGORY,'category'); ?>
                 <BR>
                 <A HREF="/sendmessage.php?toaddress=admin_maillink_sourceforge.net">Suggest a Category</A>
 	</TD>

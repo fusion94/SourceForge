@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: detail.php,v 1.31 2000/05/01 21:23:23 tperdue Exp $
+// $Id: detail.php,v 1.26 2000/01/13 18:36:36 precision Exp $
 
 require ('pre.php');
 require ('../snippet/snippet_utils.php');
@@ -33,7 +33,7 @@ if ($type=='snippet') {
 	/*
 		Get all the versions of this snippet
 	*/
-	$sql="SELECT user.user_name,snippet_version.snippet_version_id,snippet_version.version,snippet_version.date,snippet_version.changes ".
+	$sql="SELECT user.user_name,snippet_version.snippet_version_id,snippet_version.version,snippet_version.date ".
 		"FROM snippet_version,user ".
 		"WHERE user.user_id=snippet_version.submitted_by AND snippet_id='$id' ".
 		"ORDER BY snippet_version.snippet_version_id DESC";
@@ -47,12 +47,12 @@ if ($type=='snippet') {
 			<H3>Versions Of This Snippet:</H3>
 			<P>
 			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
-			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
-			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Snippet ID</B></TD>
-			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Download Version</B></TD>
-			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Date Posted</B></TD>
-			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Author</B></TD>
-			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Delete</B></TD>
+			<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Snippet ID</TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Download Version</TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Date Posted</TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Author</TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Delete</TD>
 			</TR>';
 
 		/*
@@ -64,7 +64,7 @@ if ($type=='snippet') {
 			if ($i % 2 == 0) {
 				$row_color=' BGCOLOR="#FFFFFF"';
 			} else {
-				$row_color=' BGCOLOR="'.$GLOBALS['COLOR_LTBACK1'].'"';
+				$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
 			}
 
 			echo '
@@ -75,21 +75,16 @@ if ($type=='snippet') {
 				date($sys_datefmt,db_result($result,$i,'date')).'</TD><TD>'.
 				db_result($result,$i,'user_name').'</TD><TD ALIGN="MIDDLE"><A HREF="/snippet/delete.php?type=snippet&snippet_version_id='.
 				db_result($result,$i,'snippet_version_id').
-				'"><IMG SRC="/images/ic/trash.png" HEIGHT="16" WIDTH="16" BORDER="0"></A></TD></TR>';
-
-	                        if ($i != ($rows - 1)) {
-					echo '
-					<TR'.$row_color.'><TD COLSPAN=5>Changes since last version:<BR>'.
-					nl2br(db_result($result,$i,'changes')).'</TD></TR>';
-				}
+				'"><IMG SRC="/images/ic/trash.png HEIGHT="16" WIDTH="16" BORDER=0"></A></TD></TR>';
 		}
-		echo '</TABLE>';
+	}
+	echo '</TABLE>';
 
-		echo '
+	echo '
 		<P>
 		Download a raw-text version of this code by clicking on &quot;<B>Download Version</B>&quot;
 		<P>';
-	}
+
 	/*
 		show the latest version of this snippet's code
 	*/
@@ -102,7 +97,7 @@ if ($type=='snippet') {
 		<H2>Latest Snippet Version: '.db_result($result,0,'version').'</H2>
 		<P>
 		<PRE><FONT SIZE="-1">
-'. db_result($result,0,'code') .'
+'. stripslashes(db_result($result,0,'code')).'
 		</FONT></PRE>
 		<P>';
 	/*
@@ -148,11 +143,11 @@ if ($type=='snippet') {
 			<H3>Versions Of This Package:</H3>
 			<P>
 			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
-			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
-			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Package Version</B></TD>
-			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Date Posted</B></TD>
-			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Author</B></TD>
-			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Edit/Del</B></TD>
+			<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Package Version</TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Date Posted</TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Author</TD>
+			<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Edit/Del</TD>
 			</TR>';
 
 		/*
@@ -165,29 +160,30 @@ if ($type=='snippet') {
 			if ($i % 2 == 0) {
 				$row_color=' BGCOLOR="#FFFFFF"';
 			} else {
-				$row_color=' BGCOLOR="'.$GLOBALS['COLOR_LTBACK1'].'"';
+				$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
 			}
 
 			echo '
-				<TR'.$row_color.'><TD><A HREF="/snippet/detail.php?type=packagever&id='.
+				<TR'.$row_color.'><TD><TD><A HREF="/snippet/detail.php?type=packagever&id='.
 				db_result($result,$i,'snippet_package_version_id').'"><B>'.
 				db_result($result,$i,'version').'</B></A></TD><TD>'.
 				date($sys_datefmt,db_result($result,$i,'date')).'</TD><TD>'.
 				db_result($result,$i,'user_name').
 				'</TD><TD ALIGN="MIDDLE"><A HREF="/snippet/add_snippet_to_package.php?snippet_package_version_id='.
 				db_result($result,$i,'snippet_package_version_id').
-				'"><IMG SRC="/images/ic/pencil.png" HEIGHT="25" WIDTH="20" BORDER="0"></A>
+				'"><IMG SRC="/images/ic/pencil.png HEIGHT="25" WIDTH="20" BORDER=0"></A>
 				&nbsp; &nbsp; &nbsp; <A HREF="/snippet/delete.php?type=package&snippet_package_version_id='.
 				db_result($result,$i,'snippet_package_version_id').
-				'"><IMG SRC="/images/ic/trash.png" HEIGHT="16" WIDTH="16" BORDER="0"></A></TD></TR>';
+				'"><IMG SRC="/images/ic/trash.png HEIGHT="16" WIDTH="16" BORDER=0"></A></TD></TR>';
 		}
-		echo '</TABLE>';
+	}
+	echo '</TABLE>';
 
-		echo '
+	echo '
 		<P>
 		Download a raw-text version of this code by clicking on &quot;<B>Download Version</B>&quot;
 		<P>';
-	}
+
 
 	/*
 		show the latest version of the package

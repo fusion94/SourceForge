@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: add_patch.php,v 1.8 2000/04/20 14:33:32 tperdue Exp $
+// $Id: add_patch.php,v 1.7 2000/01/21 16:20:17 tperdue Exp $
 
 patch_header(array ('title'=>'Submit a Patch'));
 
@@ -22,7 +22,14 @@ patch_header(array ('title'=>'Submit a Patch'));
 		<TR><TD VALIGN="TOP" COLSPAN="2"><B>Group:</B><BR>'.group_getname($group_id).'</TD></TR>
 		<TR><TD VALIGN="TOP" COLSPAN="2"><B>Category:</B><BR>';
 
-	echo patch_category_box($group_id,'patch_category_id');
+	/*
+		List of possible patch_categories set up for the project
+	*/
+	$sql="select patch_category_id,category_name from patch_category WHERE group_id='$group_id'";
+
+	$result=db_query($sql);
+
+	build_select_box($result,'patch_category_id');
 
 	?>
 	</TD></TR>
@@ -47,7 +54,7 @@ patch_header(array ('title'=>'Submit a Patch'));
 		<P>
 	<?php 
 	if (!user_isloggedin()) {
-		echo '<B><FONT COLOR="RED"><H3>You Are NOT Logged In</H3><P>Please <A HREF="/account/login.php">log in,</A> so followups can be emailed to you.</FONT></B>';
+		echo '<B><FONT COLOR="RED">Please <A HREF="/account/login.php">log in,</A> so followups can be emailed to you.</FONT></B>';
 	} 
 	?>
 		</FORM>

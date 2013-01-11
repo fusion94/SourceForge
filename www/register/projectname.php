@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: projectname.php,v 1.28 2000/02/16 00:19:33 precision Exp $
+// $Id: projectname.php,v 1.27 2000/01/25 09:27:18 tperdue Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 session_require(array('isloggedin'=>'1'));
@@ -62,7 +62,7 @@ used in so many places around the site. They are:
 <UL>
 <LI>Cannot match the unix name of any other project
 <LI>Must be between 3 and 15 characters in length
-<LI>Can only contain characters, numbers, and dashes
+<LI>Can only contain characters, numbers, underscores, and dashes
 <LI>Must be a valid unix username
 <LI>Cannot match one of our reserved domains
 <LI>Unix name will never change for this project

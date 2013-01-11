@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: detail_bug.php,v 1.35 2000/04/17 16:59:54 tperdue Exp $
+// $Id: detail_bug.php,v 1.33 2000/01/18 02:24:44 tperdue Exp $
 
 bug_header(array ('title'=>'Bug Detail: '.$bug_id));
 
@@ -19,7 +19,7 @@ $result=db_query($sql);
 if (db_numrows($result) > 0) {
 
 	echo '
-		<H2>[ Bug #'.$bug_id.' ] '.db_result($result,0,'summary').'</H2>
+		<H2>[ Bug #'.$bug_id.' ] '.stripslashes(db_result($result,0,'summary')).'</H2>
 
 	<TABLE CELLPADDING="0" WIDTH="100%">
 		<TR><TD COLSPAN="2"><B>Date:</B><BR>'.date($sys_datefmt,db_result($result,0,'date')).'</TD></TR>
@@ -39,9 +39,9 @@ if (db_numrows($result) > 0) {
 			<TD><B>Resolution:</B><BR>'.db_result($result,0,'resolution_name').'</TD>
 		</TR>
 
-		<TR><TD COLSPAN="2"><B>Summary:</B><BR>'.db_result($result,0,'summary').'</TD></TR>
+		<TR><TD COLSPAN="2"><B>Summary:</B><BR>'.stripslashes(db_result($result,0,'summary')).'</TD></TR>
 
-		<TR><TD COLSPAN="2"><P><B>Original Submission:</B><BR>'. nl2br(db_result($result,0,'details')).'</TD></TR>';
+		<TR><TD COLSPAN="2"><P><B>Original Submission:</B><BR>'. nl2br(stripslashes(db_result($result,0,'details'))).'</TD></TR>';
 
 	echo '
 		<FORM ACTION="'.$PHP_SELF.'" METHOD="POST">
@@ -56,7 +56,7 @@ if (db_numrows($result) > 0) {
 		<TR><TD COLSPAN="2">';
 
 	if (!user_isloggedin()) {
-		echo '<BR><B><FONT COLOR="RED"><H2>You Are NOT Logged In</H2><P>Please <A HREF="/account/login.php">log in,</A> so followups can be emailed to you.</FONT></B><P>';
+		echo '<BR><B><FONT COLOR="RED">Please <A HREF="/account/login.php">log in,</A> so followups can be emailed to you.</FONT></B><P>';
 	}
 
 	echo '

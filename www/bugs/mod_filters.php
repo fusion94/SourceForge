@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: mod_filters.php,v 1.13 2000/03/31 13:16:16 tperdue Exp $
+// $Id: mod_filters.php,v 1.12 2000/01/27 14:05:38 tperdue Exp $
 
 function show_filters ($group_id) {
 	/*
@@ -18,6 +18,11 @@ function show_filters ($group_id) {
 
 	if ($result && db_numrows($result) > 0) {
 		for ($i=0; $i<db_numrows($result); $i++) {
+			if ($i % 2 == 0) {
+				$row_color=' BGCOLOR="#FFFFFF"';
+			} else {
+				$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+			}
 			/*
 				iterate and show the existing filters
 			*/
@@ -29,7 +34,7 @@ function show_filters ($group_id) {
 			<INPUT TYPE="HIDDEN" NAME="filter_id" VALUE="<?php
 				echo db_result($result,$i,"filter_id");
 			?>">
-			<TR BGCOLOR="<?php echo util_get_alt_row_color($i); ?>">
+			<TR<?php echo $row_color; ?>>
 				<TD>
 					<FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="delete_filter" VALUE="Delete"><BR>
 					<INPUT TYPE="SUBMIT" NAME="submit" VALUE="Modify/Activate">
@@ -48,13 +53,18 @@ function show_filters ($group_id) {
 	/*
 		empty form for new filter
 	*/
+	if ($i % 2 == 0) {
+	       $row_color=' BGCOLOR="#FFFFFF"';
+	} else {
+	       $row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+	}
 
 	?>
 	<FORM ACTION="<?php echo $PHP_SELF; ?>" METHOD="POST">
 	<INPUT TYPE="HIDDEN" NAME="func" VALUE="postmodfilters">
 	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="<?php echo $group_id; ?>">
 	<INPUT TYPE="HIDDEN" NAME="subfunc" VALUE="add">
-	<TR BGCOLOR="<?php echo util_get_alt_row_color($i); ?>">
+	<TR<?php echo $row_color; ?>>
 		<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Add"></TD>
 		<TD NOWRAP><FONT SIZE="-1">SELECT * FROM bug WHERE<BR>bug.group_id='<?php echo $group_id; ?>' AND (</TD>
 		<TD NOWRAP><FONT SIZE="-1"><INPUT TYPE="TEXT" SIZE="60" MAXLENGTH="250" NAME="sql_clause" VALUE="bug.status_id IN (1,2,3) OR bug.priority > 0 OR bug.bug_group_id IN (1,2,3,4) OR bug.resolution_id IN (1,2,3) OR bug.assigned_to IN (1,2,3,4,5,6) OR bug.category_id IN (1,2,3)"></TD>

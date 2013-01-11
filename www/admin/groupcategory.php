@@ -4,20 +4,20 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: groupcategory.php,v 1.27 2000/03/07 13:20:24 tperdue Exp $
+// $Id: groupcategory.php,v 1.26 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
-session_require(array('group'=>'1','admin_flags'=>'A'));
+session_require(array('group'=>'1'));
 
-site_header(array('title'=>"Alexandria: Admin: Group Info"));
+site_header(array(title=>"Alexandria: Admin: Group Info"));
 
 // group remove
-if ($HTTP_GET_VARS['form_grouprm']) {
+if ($HTTP_GET_VARS[form_grouprm]) {
 	db_query("DELETE FROM group_category WHERE group_id='$HTTP_GET_VARS[form_grouprm]' "
 		. "AND category_id='$HTTP_GET_VARS[form_catremove]'");
 }
 
-if ($HTTP_POST_VARS['form_category_popup']) {
+if ($HTTP_POST_VARS[form_category_popup]) {
 	db_query("INSERT INTO group_category (group_id,category_id) VALUES "
 		. "($HTTP_POST_VARS[form_group],$HTTP_POST_VARS[form_category_popup])");
 }
@@ -36,7 +36,7 @@ $res_cat = db_query("SELECT category.category_name AS category_name, "
 	. "category,group_category WHERE group_category.group_id=$GLOBALS[form_group] AND "
 	. "category.category_id=group_category.category_id");
 while ($row_cat = db_fetch_array($res_cat)) {
-	print ("<br><b>" . category_fullname($row_cat['category_id']) . "</b> "
+	print ("<br><b>" . category_fullname($row_cat[category_id]) . "</b> "
 		. "<a href=\"groupcategory.php?form_group=$form_group&form_grouprm=$form_group&form_catremove=$row_cat[category_id]\">"
 		. "[Remove Group from Category]</a>");
 }

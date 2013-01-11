@@ -4,17 +4,16 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: categorylist.php,v 1.7 2000/03/07 13:20:24 tperdue Exp $
+// $Id: categorylist.php,v 1.6 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
-session_require(array('group'=>'1','admin_flags'=>'A'));
+session_require(array('group'=>'1'));
 
-site_header(array('title'=>'Alexandria: Category List'));
+site_header(array(title=>"Alexandria: Category List"));
 
 // start from root if root not passed in
-if (!$GLOBALS['form_catroot']) {
-	$GLOBALS['form_catroot'] = 1;
-}
+if (!$GLOBALS[form_catroot]) $GLOBALS[form_catroot] = 1;
+
 print "<p>Alexandria Category List\n";
 print "<br><a href=\"categoryedit-add.php\">[New Category]\n";
 

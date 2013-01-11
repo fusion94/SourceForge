@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: forum_utils.php,v 1.142 2000/04/20 17:25:40 tperdue Exp $
+// $Id: forum_utils.php,v 1.134 2000/01/29 18:11:47 tperdue Exp $
 
 /*
 	Message Forums
@@ -42,11 +42,11 @@ function forum_header($params) {
 					<h3>Error - this news item was not found</h3>';
 			} else {
 				echo '
-				<B>Posted By:</B> '.user_getname( db_result($result,0,'submitted_by')).'<BR>
-				<B>Date:</B> '. date($sys_datefmt,db_result($result,0,'date')).'<BR>
-				<B>Summary:</B><A HREF="/forum/forum.php?forum_id='.db_result($result,0,'forum_id').'">'. db_result($result,0,'summary').'</A>
+				<B>Posted By:</B> '.user_getname(db_result($result,0,'submitted_by')).'<BR>
+				<B>Date:</B> '.date($sys_datefmt,db_result($result,0,'date')).'<BR>
+				<B>Summary:</B><A HREF="/forum/forum.php?forum_id='.db_result($result,0,'forum_id').'">'.stripslashes(stripslashes(db_result($result,0,'summary'))).'</A>
 				<P>
-				'. util_make_links( nl2br( db_result($result,0,'details')));
+				'.util_make_links(ereg_replace("\n","<BR>",stripslashes(stripslashes(db_result($result,0,'details')))));
 
 				echo '<P>';
 			}
@@ -62,7 +62,7 @@ function forum_header($params) {
 		Show horizontal links
 	*/
 	if ($forum_id && $forum_name) {
-		echo '<P><H3>Discussion Forums: <A HREF="/forum/forum.php?forum_id='.$forum_id.'">'.$forum_name.'</A></H3>';
+		echo '<P><H3>Discussion Forums: <A HREF="/forum/forum.php?forum_id='.$forum_id.'">'.stripslashes($forum_name).'</A></H3>';
 	}
 	echo '<P><B>';
 
@@ -157,9 +157,10 @@ function show_thread($thread_id,$et=0) {
 	if (!$result || db_numrows($result) < 1) {
 		return 'Broken Thread';
 	} else {
+		//echo "\n<table cellspacing=\"0\" cellpadding=\"2\" width=\"100%\" BORDER=\"0\"><tr><td align=CENTER bgcolor=\"#666699\">".
 		$ret_val .= '
 			<TABLE WIDTH="100%" CELLPADDING="2" CELLSPACING="0" BGCOLOR="#FFFFFF" BORDER="0">
-			<TR BGCOLOR="'. $GLOBALS['COLOR_MENUBARBACK'] .'"><TD WIDTH="25%"><FONT COLOR="#FFFFFF"><B>Thread/Subject</TD>
+			<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'"><TD WIDTH="25%"><FONT COLOR="#FFFFFF"><B>Thread/Subject</TD>
 			<TD><FONT COLOR="#FFFFFF"><B>Author</TD>
 			<TD><FONT COLOR="#FFFFFF"><B>Date/Time</TD></TR>';
 		$rows=db_numrows($result);
@@ -174,14 +175,19 @@ function show_thread($thread_id,$et=0) {
 */
 		for ($i=0; $i<$rows; $i++) {
 			$total_rows++;
-			$ret_val .= '<TR BGCOLOR="'. util_get_alt_row_color($total_rows) .'"><TD><A HREF="/forum/message.php?msg_id='.db_result($result, $i, 'msg_id').
+			if ($total_rows % 2 == 0) {
+				$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+			} else {
+				$row_color=' BGCOLOR="#FFFFFF"';
+			}
+			$ret_val .= '<TR'.$row_color.'><TD><A HREF="/forum/message.php?msg_id='.db_result($result, $i, 'msg_id').
 				'"><IMG SRC="/images/msg.gif" BORDER=0 HEIGHT=12 WIDTH=10> ';
 			/*
 				See if this message is new or not
 			*/
 			if (get_forum_saved_date($forum_id) < db_result($result,$i,'date')) { $ret_val .= '<B>'; }
 
-			$ret_val .= db_result($result, $i, 'subject') .'</A></TD>'.
+			$ret_val .= stripslashes(db_result($result, $i, 'subject')).'</A></TD>'.
 				'<TD>'.db_result($result, $i, 'user_name').'</TD>'.
 				'<TD>'.date($sys_datefmt,db_result($result,$i,'date')).'</TD></TR>';
 			/*
@@ -189,13 +195,13 @@ function show_thread($thread_id,$et=0) {
 			*/
 			if ($et == 1) {
 				$ret_val .= '
-				<TR BGCOLOR="'. util_get_alt_row_color($total_rows) .'"><TD>&nbsp;</TD><TD COLSPAN=2>'.
-				nl2br(db_result($result, $i, 'body')).'</TD><TR>';
+				<TR'.$row_color.'><TD>&nbsp;</TD><TD COLSPAN=2>'.
+				ereg_replace("\n","<BR>",stripslashes(db_result($result, $i, 'body'))).'</TD><TR>';
 			}
 
 			$ret_val .= show_submessages($thread_id,db_result($result, $i, 'msg_id'),1,$et);
 		}
-		$ret_val .= '</TABLE>';
+		$ret_val .= '</TABLE>';//</TD></TR></TABLE>";
 	}
 	return $ret_val;
 }
@@ -222,9 +228,14 @@ function show_submessages($thread_id, $msg_id, $level,$et=0) {
 				Is this row's background shaded or not?
 			*/
 			$total_rows++;
+			if ($total_rows % 2 == 0) {
+				$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+			} else {
+				$row_color=' BGCOLOR="#FFFFFF"';
+			}
 
 			$ret_val .= '
-				<TR BGCOLOR="'. util_get_alt_row_color($total_rows) .'"><TD NOWRAP>';
+				<TR'.$row_color.'><TD NOWRAP>';
 			/*
 				How far should it indent?
 			*/
@@ -239,7 +250,7 @@ function show_submessages($thread_id, $msg_id, $level,$et=0) {
 			*/
 			if (get_forum_saved_date($forum_id) < db_result($result,$i,'date')) { $ret_val .= '<B>'; }
 
-			$ret_val .= db_result($result, $i, 'subject').'</A></TD>'.
+			$ret_val .= stripslashes(db_result($result, $i, 'subject')).'</A></TD>'.
 				'<TD>'.db_result($result, $i, 'user_name').'</TD>'.
 				'<TD>'.date($sys_datefmt,db_result($result,$i,'date')).'</TD></TR>';
 
@@ -248,8 +259,8 @@ function show_submessages($thread_id, $msg_id, $level,$et=0) {
 			*/
 			if ($et == 1) {
 				$ret_val .= '
-					<TR BGCOLOR="'. util_get_alt_row_color($total_rows) .'"><TD>&nbsp;</TD><TD COLSPAN=2>'.
-					nl2br(db_result($result, $i, 'body')).'</TD><TR>';
+					<TR'.$row_color.'><TD>&nbsp;</TD><TD COLSPAN=2>'.
+					ereg_replace("\n","<P>",stripslashes(db_result($result, $i, 'body'))).'</TD><TR>';
 			}
 
 			/*
@@ -301,12 +312,6 @@ function get_forum_saved_date($forum_id) {
 function post_message($thread_id, $is_followup_to, $subject, $body, $group_forum_id) {
 	global $feedback;
 	if (user_isloggedin()) {
-		if (!$group_forum_id) {
-			exit_error('Error','Trying to post without a forum ID');
-		}
-		if (!$body || !$subject) {
-			exit_error('Error','Must include a message body and subject');
-		}
 		if ($thread_id == 0) {
 			$thread_id=get_next_thread_id();
 		}
@@ -357,7 +362,7 @@ function show_post_form($forum_id, $thread_id=0, $is_followup_to=0, $subject="")
 		<INPUT TYPE="TEXT" NAME="subject" VALUE="<?php echo $subject; ?>" SIZE="15" MAXLENGTH="45">
 		</TD></TR>
 		<TR><TD><B>Message:</TD><TD>
-		<TEXTAREA NAME="body" VALUE="" ROWS="10" COLS="70" WRAP="SOFT"></TEXTAREA>
+		<TEXTAREA NAME="body" VALUE="" ROWS="5" COLS="50" WRAP="SOFT"></TEXTAREA>
 		</TD></TR>
 		<TR><TD COLSPAN="2" ALIGN="MIDDLE">
 		<B><FONT COLOR="RED">HTML tags will display in your post as text</FONT></B>
@@ -379,7 +384,7 @@ function show_post_form($forum_id, $thread_id=0, $is_followup_to=0, $subject="")
 function handle_monitoring($forum_id,$msg_id) {
 	global $feedback;
 	/*
-		Checks to see if anyone is monitoring this forum
+		Checks to see if anyone is monitoring this thread
 		If someone is, it sends them the message in email format
 	*/
 
@@ -392,12 +397,9 @@ function handle_monitoring($forum_id,$msg_id) {
 	if ($result && $rows > 0) {
 		$tolist=implode(result_column_to_array($result),', ');
 
-		$sql="SELECT groups.unix_group_name,user.user_name,forum_group_list.forum_name,".
-			"forum.group_forum_id,forum.thread_id,forum.subject,forum.date,forum.body ".
-			"FROM forum,user,forum_group_list,groups ".
+		$sql="SELECT user.user_name,forum.group_forum_id,forum.thread_id,forum.subject,forum.date,forum.body ".
+			"FROM forum,user ".
 			"WHERE user.user_id=forum.posted_by ".
-			"AND forum_group_list.group_forum_id=forum.group_forum_id ".
-			"AND groups.group_id=forum_group_list.group_id ".
 			"AND forum.msg_id='$msg_id'";
 
 		$result = db_query ($sql);
@@ -405,18 +407,18 @@ function handle_monitoring($forum_id,$msg_id) {
 		if ($result && db_numrows($result) > 0) {
 			$body = "To: noreply@sourceforge.net".
 				"\nBCC: $tolist".
-				"\nSubject: [" .db_result($result,0,'unix_group_name'). " - " . db_result($result,0,'forum_name')."] " . 
-					util_unconvert_htmlspecialchars(db_result($result,0,'subject')).
+				"\nSubject: [SourceForge Forums] " . db_result($result,0,'subject').
 				"\n\nRead and respond to this message at: ".
 				"\nhttp://sourceforge.net/forum/message.php?msg_id=".$msg_id.
-				"\nBy: " . db_result($result,0, 'user_name') .
 				"\n\n" . util_unconvert_htmlspecialchars(db_result($result,0, 'body')).
 				"\n\n______________________________________________________________________".
 				"\nYou are receiving this email because you elected to monitor this forum.".
 				"\nTo stop monitoring this forum, login to SourceForge and visit: ".
 				"\nhttp://sourceforge.net/forum/monitor.php?forum_id=$forum_id";
 
-			exec ("/bin/echo \"". util_prep_string_for_sendmail($body) ."\" | /usr/sbin/sendmail -fnoreply@sourceforge.net -t &");
+			$body=ereg_replace("\"","\\\"",$body);
+			//echo $body;
+			exec ("/bin/echo \"$body\" | /usr/sbin/sendmail -fnoreply@sourceforge.net -t");
 
 			$feedback .= ' email sent - people monitoring ';
 		} else {

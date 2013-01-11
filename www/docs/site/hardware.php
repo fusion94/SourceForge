@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: hardware.php,v 1.29 2000/03/29 17:09:11 precision Exp $
+// $Id: hardware.php,v 1.26 2000/01/13 18:36:35 precision Exp $
 
 require "pre.php";    
 site_header(array(title=>"Welcome to Project Alexandria"));
@@ -16,17 +16,17 @@ site_header(array(title=>"Welcome to Project Alexandria"));
 <TABLE>
 <TR valign=top>
 <TD><B>Load Balancing Firewall Server</B></TD>
-<TD>Dual PII 400<BR>512MB RAM<BR>18GB U2W SCSI HDD</TD>
+<TD>PII 350<BR>128MB RAM<BR> 4.5GB U2W SCSI HDD</TD>
 </TR>
 
 <TR valign=top>
 <TD><B>SourceForge Web Server 1</B></TD>
-<TD>Dual PIII 600<BR>512MB RAM<BR>18GB U2W SCSI HDD</TD>
+<TD>Dual PIII 600<BR>512MB RAM<BR> 18GB U2W SCSI HDD</TD>
 </TR>
 
 <TR valign=top>
 <TD><B>SourceForge Web Server 2</B></TD>
-<TD>Dual PIII 600<BR>512MB RAM<BR>18GB U2W SCSI HDD</TD>
+<TD>Dual PIII 600<BR>512MB RAM<BR> 18GB U2W SCSI HDD</TD>
 </TR>
 
 <TR valign=top>
@@ -65,28 +65,13 @@ site_header(array(title=>"Welcome to Project Alexandria"));
 </TR>
 
 <TR valign=top>
-<TD><B>Project Shell Server</B></TD>
-<TD>Dual PIII-600<BR>512MB RAM<BR>2 18GB U2W SCSI HDD</TD>
-</TR>
-
-<TR valign=top>
 <TD><B>Project Database Server</B></TD>
-<TD>Dual PII 500<BR>512MB RAM<BR>3 18.2GB U2W SCSI HDD</TD>
-</TR>
-
-<TR valign=top>
-<TD><B>Compile Farm</B></TD>
-<TD>5 Machines<BR>Dual PIII 500<BR>512MB RAM<BR>9.1GB U2W SCSI HDD</TD>
-</TR>
-
-<TR valign=top>
-<TD><B>Compile Farm File Server</B></TD>
-<TD>Dual PIII 500<BR>512MB RAM<BR>2 18.2GB U2W SCSI HDD</TD>
+<TD>Dual PIII-Xeon 500<BR>1GB RAM<BR>35GB RAID-5</TD>
 </TR>
 
 <TR valign=top>
 <TD><B>Totals (Rough)</B></TD>
-<TD>CPU: 19Gz<BR>RAM: 12.9GB<BR>Storage: 1.48TB (Formatted Storage, After RAID)</TD>
+<TD>CPU: 11.4Gz<BR>RAM: 9.5GB<BR>Storage: 1.34TB (Formatted Storage, After RAID)</TD>
 </TR>
 
 </TABLE>

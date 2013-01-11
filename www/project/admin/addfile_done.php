@@ -4,10 +4,9 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: addfile_done.php,v 1.60 2000/04/03 16:25:14 dtype Exp $
+// $Id: addfile_done.php,v 1.58 2000/01/29 16:15:10 tperdue Exp $
 
 require "pre.php";    
-require "filechecks.php";
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
 session_require(array('group'=>$group_id,'admin_flags'=>'A'));
@@ -15,7 +14,6 @@ session_require(array('group'=>$group_id,'admin_flags'=>'A'));
 
 if (!$form_release_version) exit_error("Submit Error","You must enter a release version number.");
 if (!$form_filemodule) exit_error("Submit Error","You must define and select a filemodule.");
-if (!filechecks_islegalname($form_filename)) exit_error("Illegal Filename","Illegal Filename");
 
 // date field
 if (!$form_release_time) {
@@ -33,10 +31,6 @@ if ($unix_release_time > time()) {
 	$unix_release_time = time();
 }
 
-// check and see if any releases have been made in
-// this filemodule in the last 6 hours.
-
-$then=(time()-21600);
 $result=db_query("SELECT * FROM filerelease WHERE filemodule_id='$form_filemodule' AND post_time > '$then'");
 
 // add to filerelease
@@ -55,6 +49,8 @@ db_query("UPDATE filemodule SET recent_filerelease='$form_release_version' WHERE
 // check and see if any releases have been made in 
 // this filemodule in the last 6 hours. If not, send an email
 // to everyone monitoring the file.
+
+$then=(time()-21600);
 
 if ($result && db_numrows($result) < 1) {
 	//get the emails of those who are monitoring this filemodule

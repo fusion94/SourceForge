@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: snippet_utils.php,v 1.21 2000/05/02 12:57:03 tperdue Exp $
+// $Id: snippet_utils.php,v 1.17 2000/01/14 19:58:01 tperdue Exp $
 
 /*
 	Code Snippet System
@@ -65,8 +65,6 @@ $SCRIPT_LANGUAGE[10] = 'Visual Basic';
 $SCRIPT_LANGUAGE[11] = 'TCL';
 $SCRIPT_LANGUAGE[12] = 'Lisp';
 $SCRIPT_LANGUAGE[13] = 'Mixed';
-$SCRIPT_LANGUAGE[14] = 'JavaScript';
-$SCRIPT_LANGUAGE[15] = 'SQL';
 
 function snippet_header($params) {
 	global $DOCUMENT_ROOT;
@@ -104,11 +102,11 @@ function snippet_show_package_snippets($version) {
 		<H3>Snippets In This Package:</H3>
 		<P>
 		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
-		<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
-		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Snippet ID</B></TD>
-		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Download Version</B></TD>
-		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Title</B></TD>
-		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Author</B></TD>
+		<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Snippet ID</TD>
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Download Version</TD>
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Title</TD>
+		<TD ALIGN="MIDDLE"><FONT COLOR="#FFFFFF"><B>Author</TD>
 		</TR>';
 
 	if (!$result || $rows < 1) {
@@ -121,12 +119,18 @@ function snippet_show_package_snippets($version) {
 		$newest_version=db_result($result,0,'snippet_version_id');
 
 		for ($i=0; $i<$rows; $i++) {
+			if ($i % 2 == 0) {
+				$row_color=' BGCOLOR="#FFFFFF"';
+			} else {
+				$row_color=' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+			}
+
 			echo '
-				<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.db_result($result,$i,'snippet_version_id').
+				<TR'.$row_color.'><TD>'.db_result($result,$i,'snippet_version_id').
 				'</TD><TD><A HREF="/snippet/download.php?type=snippet&id='.
 				db_result($result,$i,'snippet_version_id').'">'.
 				db_result($result,$i,'version').'</A></TD><TD>'.
-				db_result($result,$i,'name').'</TD><TD>'.
+				stripslashes(db_result($result,$i,'name')).'</TD><TD>'.
 				db_result($result,$i,'user_name').'</TD></TR>';
 		}
 	}
@@ -145,7 +149,7 @@ function snippet_show_package_details($id) {
 	<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
 
 	<TR><TD COLSPAN="2">
-	<H2>'. db_result($result,0,'name').'</H2>
+	<H2>'. stripslashes(db_result($result,0,'name')).'</H2>
 	</TD></TR>
 
 	<TR>
@@ -159,7 +163,7 @@ function snippet_show_package_details($id) {
 	</TR>
 
 	<TR><TD COLSPAN="2">&nbsp;<BR><B>Description:</B><BR>
-	'. util_make_links(nl2br(db_result($result,0,'description'))).'
+	'. util_make_links(nl2br(stripslashes(db_result($result,0,'description')))).'
 	</TD></TR>
 
 	</TABLE>';
@@ -177,7 +181,7 @@ function snippet_show_snippet_details($id) {
 	<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
 
 	<TR><TD COLSPAN="2">
-	<H2>'. db_result($result,0,'name').'</H2>
+	<H2>'. stripslashes(db_result($result,0,'name')).'</H2>
 	</TD></TR>
 
 	<TR><TD><B>Type:</B><BR>
@@ -194,7 +198,7 @@ function snippet_show_snippet_details($id) {
 
 	<TR><TD COLSPAN="2">&nbsp;<BR>
 	<B>Description:</B><BR>
-	'. util_make_links(nl2br(db_result($result,0,'description'))).'
+	'. util_make_links(nl2br(stripslashes(db_result($result,0,'description')))).'
 	</TD></TR>
 
 	</TABLE>';

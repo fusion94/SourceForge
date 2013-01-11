@@ -4,16 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: bug_utils.php,v 1.145 2000/05/04 21:28:01 tperdue Exp $
+// $Id: bug_utils.php,v 1.129 2000/01/29 17:29:25 tperdue Exp $
 
 /*
-
 	Bug Tracker
 	By Tim Perdue, Sourceforge, 11/99
-	Heavy rewrite by Tim Perdue, April 2000
-
 */
-
 function bug_header($params) {
 	global $group_id,$is_bug_page,$DOCUMENT_ROOT;
 	$is_bug_page=1;
@@ -44,124 +40,35 @@ function bug_footer($params) {
 	site_footer($params);
 }
 
-function bug_category_box ($name='bug_category_id',$group_id=false,$checked='xyxy') {
-	/*
-		Returns a select box populated with categories defined for this project
-	*/
-	if (!$group_id) {
-		return 'ERROR - no group_id';
-	} else {
-		$result=bug_data_get_categories ($group_id);
-		return util_build_select_box ($result,$name,$checked);
-	}
-}
-
-function bug_group_box ($name='bug_group_id',$group_id=false,$checked='xyxy') {
-	/*
-		Returns a select box populated with groups defined for this project
-	*/
-	if (!$group_id) {
-		return 'ERROR - no group_id';
-	} else {
-		$result=bug_data_get_groups ($group_id);
-		return util_build_select_box ($result,$name,$checked);
-	}
-}
-
-function bug_resolution_box ($name='bug_resolution_id',$checked='xyxy') {
-	/*
-		Returns a select box populated with our predefined resolutions
-	*/
-	$result=bug_data_get_resolutions ();
-	return util_build_select_box ($result,$name,$checked);
-}
-
-function bug_technician_box ($name='assigned_to',$group_id,$checked='xyxy') {
-	/*
-		Returns a select box populated with the bug_techs that are defined for this project
-	*/
-	if (!$group_id) {
-		return 'ERROR - no group_id';
-	} else {
-		$result=bug_data_get_technicians ($group_id);
-		return util_build_select_box ($result,$name,$checked);
-	}
-}
-
-function bug_status_box ($name='bug_status_id',$checked='xyxy') {
-	/*
-		Returns a select box populated with the pre-defined bug statuses
-	*/
-	$result=bug_data_get_statuses ();
-	return util_build_select_box ($result,$name,$checked);
-}
-
-function bug_multiple_task_depend_box ($name='dependent_on_task[]',$group_id=false,$bug_id=false) {
-	if (!$group_id) {
-		return 'ERROR - no group_id';
-	} else if (!$bug_id) {
-		return 'ERROR - no bug_id';
-	} else {
-		$result=bug_data_get_tasks ($group_id);
-		$result2=bug_data_get_dependent_tasks ($bug_id);
-		return util_build_multiple_select_box ($result,$name,util_result_column_to_array($result2));
-
-	}
-}
-
-function bug_multiple_bug_depend_box ($name='dependent_on_bug[]',$group_id=false,$bug_id=false) {
-	if (!$group_id) {
-		return 'ERROR - no group_id';
-	} else if (!$bug_id) {
-		return 'ERROR - no bug_id';
-	} else {
-		$result=bug_data_get_valid_bugs ($group_id,$bug_id);
-		$result2=bug_data_get_dependent_bugs ($bug_id);
-		return util_build_multiple_select_box($result,$name,util_result_column_to_array($result2));
-	}
-}
-
 function show_buglist ($result,$offset,$set='open') {
-	global $sys_datefmt,$group_id,$PHP_SELF;
+	global $sys_datefmt,$group_id;
 	/*
 		Accepts a result set from the bugs table. Should include all columns from
 		the table, and it should be joined to USER to get the user_name.
 	*/
 
-//	$IS_BUG_ADMIN=false; //user_ismember($group_id,'B2');
-
 	$rows=db_numrows($result);
 	$url = "/bugs/?group_id=$group_id&set=$set&order=";
-
-/*
-	echo '
-		<FORM ACTION="'. $PHP_SELF .'" METHOD="POST">
-		<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
-		<INPUT TYPE="HIDDEN" NAME="func" VALUE="massupdate">';
-*/
 	echo '
 		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
-		<TR BGCOLOR="'. $GLOBALS['COLOR_MENUBARBACK'] .'">
+		<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
 		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'bug_id"><FONT COLOR="#FFFFFF"><B>Bug ID</A></TD>
 		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'summary"><FONT COLOR="#FFFFFF"><B>Summary</A></TD>
-		<TD ALIGN="MIDDLE" nowrap><a class=sortbutton href="'.$url.'date"><FONT COLOR="#FFFFFF"><B>Date</A></TD>
+		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'date"><FONT COLOR="#FFFFFF"><B>Date</A></TD>
 		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'assigned_to_user"><FONT COLOR="#FFFFFF"><B>Assigned To</A></TD>
 		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'submitted_by"><FONT COLOR="#FFFFFF"><B>Submitted By</A></TD>
 		</TR>';
 
-	//see if the bugs are too old - so we can highlight them
-	$then=(time()-2592000);
-
 	for ($i=0; $i < $rows; $i++) {
-		//(($IS_BUG_ADMIN)?'<INPUT TYPE="CHECKBOX" NAME="bug_id[]" VALUE="'. db_result($result, $i, 'bug_id') .'"> ':'')
+
 		echo '
-		<TR BGCOLOR="'. get_priority_color(db_result($result, $i, 'priority')) .'">'.
-		'<TD><A HREF="/bugs/?func=detailbug&bug_id='. db_result($result, $i, 'bug_id') .
-		'&group_id='. db_result($result, $i, 'group_id') .'">'. db_result($result, $i, 'bug_id') .'</A></TD>'.
-		'<TD>'. db_result($result, $i, 'summary') .'</TD>'.
-		'<TD>'. (($set != 'closed' && db_result($result, $i, 'date') < $then)?'<B>* ':'&nbsp; ') . date($sys_datefmt,db_result($result, $i, 'date')).'</TD>'.
-		'<TD>'. db_result($result, $i, 'assigned_to_user') .'</TD>'.
-		'<TD>'. db_result($result, $i, 'submitted_by') .'</TD></TR>';
+			<TR BGCOLOR="'.get_priority_color(db_result($result, $i, 'priority')).'">'.
+			'<TD><A HREF="/bugs/?func=detailbug&bug_id='.db_result($result, $i, 'bug_id').
+			'&group_id='.db_result($result, $i, 'group_id').'">'.db_result($result, $i, 'bug_id').'</A></TD>'.
+			'<TD>'.stripslashes(db_result($result, $i, 'summary')).'</TD>'.
+			'<TD>'.date($sys_datefmt,db_result($result, $i, 'date')).'</TD>'.
+			'<TD>'.db_result($result, $i, 'assigned_to_user').'</TD>'.
+			'<TD>'.db_result($result, $i, 'submitted_by').'</TD></TR>';
 
 	}
 
@@ -182,36 +89,20 @@ function show_buglist ($result,$offset,$set='open') {
 	} else {
 		echo '&nbsp;';
 	}
-	echo '</TD></TR>';
+	echo '</TD></TR></TABLE>';
+}
 
+function get_bug_status_name($string) {
 	/*
-		Mass Update Code
-	* /
-	if ($IS_BUG_ADMIN) {
-		echo '<TR><TD COLSPAN="5">
-		<TABLE WIDTH="100%" BORDER="0">
-
-		<TR><TD><B>Category:</B><BR>'. bug_category_box ('bug_category_id',$group_id) .'</TD>
-		<TD><B>Priority:</B><BR>';
-		echo build_priority_select_box ('priority');
-		echo '</TD></TR>
-
-		<TR><TD><B>Group:</B><BR>'. bug_group_box ('bug_group_id',$group_id) .'</TD>
-		<TD><B>Bug Group:</B><BR>'. bug_resolution_box ('resolution_id') .'</TD></TR>
-
-		<TR><TD><B>Assigned To:</B><BR>'. bug_technician_box ('assigned_to',$group_id) .'</TD>
-		<TD><B>Status:</B><BR>'. bug_status_box ('status_id') .'</TD></TR>
-
-		<TR><TD COLSPAN="2" ALIGN="MIDDLE"><INPUT TYPE="SUBMIT" name="submit" VALUE="Mass Update"></TD></TR>
-
-		</TABLE>	
-		</TD></TR>';
-	}
-
+		simply return status_name from bug_status
 	*/
-
-	echo '</TABLE>
-	</FORM>';
+	$sql="select * from bug_status WHERE status_id='$string'";
+	$result=db_query($sql);
+	if ($result && db_numrows($result) > 0) {
+		return db_result($result,0,'status_name');
+	} else {
+		return 'Error - Not Found';
+	}
 }
 
 function mail_followup($bug_id) {
@@ -238,8 +129,8 @@ function mail_followup($bug_id) {
 			"\nResolution: ".db_result($result,0,'resolution_name').
 			"\nBug Group: ".db_result($result,0,'group_name').
 			"\nPriority: ".db_result($result,0,'priority').
-			"\nSummary: ".util_unconvert_htmlspecialchars(db_result($result,0,'summary')).
-			"\n\nDetails: ".util_unconvert_htmlspecialchars(db_result($result,0,'details'));
+			"\nSummary: ".util_unconvert_htmlspecialchars(stripslashes(stripslashes(db_result($result,0,'summary')))).
+			"\n\nDetails: ".util_unconvert_htmlspecialchars(stripslashes(stripslashes(db_result($result,0,'details'))));
 
 		$sql="SELECT user.email,user.user_name,bug_history.date,bug_history.old_value FROM bug_history,user WHERE user.user_id=bug_history.mod_by AND bug_history.field_name='details' AND bug_history.bug_id='$bug_id'";
 		$result2=db_query($sql);
@@ -249,14 +140,14 @@ function mail_followup($bug_id) {
 			for ($i=0; $i<$rows;$i++) {
 				$body .= "\n\nDate: ".date($sys_datefmt,db_result($result2,$i,'date'));
 				$body .= "\nBy: ".db_result($result2,$i,'user_name');
-				$body .= "\n\nComment:\n".util_unconvert_htmlspecialchars(db_result($result2,$i,'old_value'));
+				$body .= "\n\nComment:\n".util_unconvert_htmlspecialchars(stripslashes(stripslashes(db_result($result2,$i,'old_value'))));
 				$body .= "\n-------------------------------------------------------";
 			}
 		}
 		$body .= "\n\nFor detailed info, follow this link:";
 		$body .= "\nhttp://sourceforge.net/bugs/?func=detailbug&bug_id=$bug_id&group_id=".db_result($result,0,'group_id');
 
-		$subject='[Bug #'.db_result($result,0,'bug_id').'] '.util_unconvert_htmlspecialchars(db_result($result,0,'summary'));
+		$subject='[Bug #'.db_result($result,0,'bug_id').'] '.util_unconvert_htmlspecialchars(stripslashes(stripslashes(db_result($result,0,'summary'))));
 
 		$to=db_result($result,0,'email').', '.db_result($result,0,'assigned_to_email');
 
@@ -273,6 +164,47 @@ function mail_followup($bug_id) {
 	}
 }
 
+function get_bug_category_name($string) {
+	/*
+		simply return the category_name from bug_category
+	*/
+	$sql="select * from bug_category WHERE bug_category_id='$string'";
+	$result=db_query($sql);
+	if ($result && db_numrows($result) > 0) {
+		return db_result($result,0,'category_name');
+	} else {
+		return 'Error - Not Found';
+	}
+}
+
+function get_bug_resolution_name($resolution_id) {
+	/*
+		Simply return the resolution name for this id
+	*/
+
+	$sql="select * from bug_resolution WHERE resolution_id='$resolution_id'";
+	$result=db_query($sql);
+	if ($result && db_numrows($result) > 0) {
+		return db_result($result,0,'resolution_name');
+	} else {
+		return 'Error - Not Found';
+	}
+}
+
+function get_bug_group_name($bug_group_id) {
+	/*
+		Simply return the resolution name for this id
+	*/
+
+	$sql="select * from bug_group WHERE bug_group_id='$bug_group_id'";
+	$result=db_query($sql);
+	if ($result && db_numrows($result) > 0) {
+		return db_result($result,0,'group_name');
+	} else {
+		return 'Error - Not Found';
+	}
+}
+
 function show_dependent_bugs ($bug_id,$group_id) {
 	$sql="SELECT bug.bug_id,bug.summary ".
 		"FROM bug,bug_bug_dependencies ".
@@ -286,13 +218,19 @@ function show_dependent_bugs ($bug_id,$group_id) {
 			<H3>Other Bugs That Depend on This Bug</H3>';
 		echo '
 			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
-			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+			<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
 				<TD><FONT COLOR="#FFFFFF"><B>Bug ID</TD>
 				<TD><FONT COLOR="#FFFFFF"><B>Summary</TD></TR>';
 
 		for ($i=0; $i < $rows; $i++) {
+			if ($i % 2 == 0) {
+				$row_color = ' BGCOLOR="#FFFFFF"';
+			} else {
+				$row_color = ' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+			}
+
 			echo '
-			<TR BGCOLOR="'. util_get_alt_row_color($i) .'">
+			<TR'.$row_color.'>
 				<TD><A HREF="/bugs/?func=detailbug&bug_id='.
 				db_result($result, $i, 'bug_id').
 				'&group_id='.$group_id.'">'.db_result($result, $i, 'bug_id').'</A></TD>
@@ -311,19 +249,26 @@ function show_bug_details ($bug_id) {
 		Show the details rows from bug_history
 	*/
 	global $sys_datefmt;
-	$result=bug_data_get_followups ($bug_id);
+	$sql="select bug_history.field_name,bug_history.old_value,bug_history.date,user.user_name ".
+		"FROM bug_history,user where bug_history.mod_by=user.user_id AND bug_history.field_name = 'details' AND bug_id='$bug_id' ORDER BY bug_history.date DESC";
+	$result=db_query($sql);
 	$rows=db_numrows($result);
 
 	if ($rows > 0) {
 		echo '
 			<H3>Followups</H3>
 			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
-			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'"><TD><FONT COLOR="#FFFFFF"><B>Comment</TD>
+			<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'"><TD><FONT COLOR="#FFFFFF"><B>Comment</TD>
 			<TD><FONT COLOR="#FFFFFF"><B>Date</TD>
 			<TD><FONT COLOR="#FFFFFF"><B>By</TD></TR>';
 		for ($i=0; $i < $rows; $i++) {
-			echo '<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.
-				ereg_replace("\n","<BR>",db_result($result, $i, 'old_value')).'</TD>'.
+			if ($i % 2 == 0) {
+				$row_color = ' BGCOLOR="#FFFFFF"';
+			} else {
+				$row_color = ' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+			}
+			echo '<TR'.$row_color.'><TD>'.
+				ereg_replace("\n","<BR>",stripslashes(stripslashes(db_result($result, $i, 'old_value')))).'</TD>'.
 				'</TD>'.
 				'<TD VALIGN="TOP">'.date($sys_datefmt,db_result($result, $i, 'date')).'</TD>'.
 				'<TD VALIGN="TOP">'.db_result($result, $i, 'user_name').'</TD></TR>';
@@ -340,7 +285,9 @@ function show_bughistory ($bug_id) {
 		show the bug_history rows that are relevant to this bug_id, excluding details
 	*/
 	global $sys_datefmt;
-	$result=bug_data_get_history($bug_id);
+	$sql="select bug_history.field_name,bug_history.old_value,bug_history.date,user.user_name ".
+		"FROM bug_history,user where bug_history.mod_by=user.user_id AND bug_history.field_name <> 'details' AND bug_id='$bug_id' ORDER BY bug_history.date DESC";
+	$result=db_query($sql);
 	$rows=db_numrows($result);
 
 	if ($rows > 0) {
@@ -348,23 +295,28 @@ function show_bughistory ($bug_id) {
 		echo '
 			<H3>Bug Change History</H3>
 			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
-			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'"><TD><FONT COLOR="#FFFFFF"><B>Field</TD>
+			<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'"><TD><FONT COLOR="#FFFFFF"><B>Field</TD>
 			<TD><FONT COLOR="#FFFFFF"><B>Old Value</TD>
 			<TD><FONT COLOR="#FFFFFF"><B>Date</TD>
 			<TD><FONT COLOR="#FFFFFF"><B>By</TD></TR>';
 
 		for ($i=0; $i < $rows; $i++) {
 			$field=db_result($result, $i, 'field_name');
+			if ($i % 2 == 0) {
+				$row_color = ' BGCOLOR="#FFFFFF"';
+			} else {
+				$row_color = ' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+			}
 			echo '
-				<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.$field.'</TD><TD>';
+				<TR'.$row_color.'><TD>'.$field.'</TD><TD>';
 
 			if ($field == 'status_id') {
 
-				echo bug_data_get_status_name(db_result($result, $i, 'old_value'));
+				echo get_bug_status_name(db_result($result, $i, 'old_value'));
 
 			} else if ($field == 'category_id') {
 
-				echo bug_data_get_category_name(db_result($result, $i, 'old_value'));
+				echo get_bug_category_name(db_result($result, $i, 'old_value'));
 
 			} else if ($field == 'assigned_to') {
 
@@ -376,15 +328,15 @@ function show_bughistory ($bug_id) {
 
 			} else if ($field == 'resolution_id') {
 
-				echo bug_data_get_resolution_name(db_result($result, $i, 'old_value'));
+				echo get_bug_resolution_name(db_result($result, $i, 'old_value'));
 
 			} else if ($field == 'bug_group_id') {
 
-				echo bug_data_get_group_name(db_result($result, $i, 'old_value'));
+				echo get_bug_group_name(db_result($result, $i, 'old_value'));
 
 			} else {
 
-				echo db_result($result, $i, 'old_value');
+				echo stripslashes(stripslashes(db_result($result, $i, 'old_value')));
 
 			}
 			echo '</TD>'.
@@ -398,6 +350,24 @@ function show_bughistory ($bug_id) {
 	} else {
 		echo '
 			<H3>No Changes Have Been Made to This Bug</H3>';
+	}
+}
+
+function bug_history_create($field_name,$old_value,$bug_id) {
+	/*
+		handle the insertion of history for these parameters
+	*/
+	if (!user_isloggedin()) {
+		$user=100;
+	} else {
+		$user=user_getid();
+	}
+
+	$sql="insert into bug_history(bug_id,field_name,old_value,mod_by,date) VALUES ('$bug_id','$field_name','$old_value','$user','".time()."')";
+	$result=db_query($sql);
+	if (!$result) {
+		echo "\n<H1>Error inserting history for $field_name</H1>";
+		echo db_error();
 	}
 }
 

@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: lastlogins.php,v 1.7 2000/03/07 13:20:24 tperdue Exp $
+// $Id: lastlogins.php,v 1.6 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
-session_require(array('group'=>'1','admin_flags'=>'A'));
+session_require(array('group'=>'1'));
 
 $res_logins = db_query("SELECT session.user_id AS user_id,"
 	. "session.ip_addr AS ip_addr,"
@@ -17,7 +17,7 @@ $res_logins = db_query("SELECT session.user_id AS user_id,"
 	. "session.user_id>0 AND session.time>0 ORDER BY session.time DESC LIMIT 50");
 if (db_numrows($res_logins) < 1) exit_error("No records found","There must be an error somewhere.");
 
-site_header(array('title'=>"Last Logins"));
+site_header(array(title=>"Last Logins"));
 
 print '<P><B>Most Recent Sessions with Logins</B>';
 print "\n<P>";
@@ -27,7 +27,7 @@ while ($row_logins = db_fetch_array($res_logins)) {
 	print '<TR>';
 	print "<TD>$row_logins[user_name]</TD>";
 	print "<TD>$row_logins[ip_addr]</TD>";
-	print "<TD>" . date("Y/m/d G:i",$row_logins['time']) . "</TD>";
+	print "<TD>" . date("Y/m/d G:i",$row_logins[time]) . "</TD>";
 	print '</TR>';
 }
 

@@ -4,16 +4,16 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: massmail_execute.php,v 1.19 2000/03/07 13:20:24 tperdue Exp $
+// $Id: massmail_execute.php,v 1.18 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
-session_require(array('group'=>1,'admin_flags'=>'A'));
+session_require(array(group=>1,admin_flags=>'A'));
 
 header ('Content-Type: text/plain');
 print "Received Post. Making Query.\n";
 flush();
 
-switch ($GLOBALS['destination']) {
+switch ($GLOBALS[destination]) {
 	case 'comm': 
 		$res_mail = db_query("SELECT email,user_name FROM user WHERE status='A' AND mail_va=1");
 		break;
@@ -51,8 +51,8 @@ sleep(10);
 while ($row_mail = db_fetch_array($res_mail)) {
 	print "sending to $row_mail[user_name] <$row_mail[email]>\n";
 	mail(stripslashes("$row_mail[user_name] <$row_mail[email]>"),
-		stripslashes($GLOBALS['mail_subject']),
-		stripslashes($GLOBALS['mail_message']),
+		stripslashes($GLOBALS[mail_subject]),
+		stripslashes($GLOBALS[mail_message]),
 		"From: SourceForge <admin@sourceforge.net>");
 	usleep(250000);
 	flush();

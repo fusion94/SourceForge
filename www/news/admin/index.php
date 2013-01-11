@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.24 2000/02/23 13:57:58 tperdue Exp $
+// $Id: index.php,v 1.23 2000/01/13 18:36:35 precision Exp $
 
 require('pre.php');
 require($DOCUMENT_ROOT.'/forum/forum_utils.php');
@@ -164,9 +164,9 @@ if ($group_id && $group_id != 714 && user_ismember($group_id,'A')) {
 		<B>Submitted by:</B> '.user_getname(db_result($result,0,'submitted_by')).'<BR>
 		<INPUT TYPE="HIDDEN" NAME="approve" VALUE="y">
 		<INPUT TYPE="HIDDEN" NAME="post_changes" VALUE="y">
-		<INPUT TYPE="RADIO" NAME="status" VALUE="1"> Approve For Front Page<BR>
+		<INPUT TYPE="RADIO" NAME="status" VALUE="1" CHECKED> Approve For Front Page<BR>
 		<INPUT TYPE="RADIO" NAME="status" VALUE="0"> Do Nothing<BR>
-		<INPUT TYPE="RADIO" NAME="status" VALUE="2" CHECKED> Delete<BR>
+		<INPUT TYPE="RADIO" NAME="status" VALUE="2"> Delete<BR>
 		<B>Subject:</B><BR>
 		<INPUT TYPE="TEXT" NAME="summary" VALUE="'.stripslashes(stripslashes(db_result($result,0,'summary'))).'" SIZE="30" MAXLENGTH="60"><BR>
 		<B>Details:</B><BR>

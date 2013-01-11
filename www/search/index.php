@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.38 2000/02/10 14:54:08 tperdue Exp $
+// $Id: index.php,v 1.37 2000/01/27 09:01:01 tperdue Exp $
 
 require ('pre.php');
 
@@ -62,7 +62,7 @@ if ($type_of_search == "soft") {
 	if (!$result || $rows < 1) {
 		echo "<H2>No matches found for $words</H2>";
 		echo db_error();
-//		echo $sql;
+		echo $sql;
 	} else {
 
 		if (db_numrows($result) > 25) {
@@ -132,7 +132,7 @@ if ($type_of_search == "soft") {
 	if (!$result || $rows < 1) {
 		echo "<H2>No matches found for $words</H2>";
 		echo db_error();
-//		echo $sql;
+		echo $sql;
 	} else {
 
 		if (db_numrows($result) > 25) {
@@ -197,7 +197,7 @@ if ($type_of_search == "soft") {
 	if (!$result || $rows < 1) {
 		echo "<H2>No matches found for $words</H2>";
 		echo db_error();
-//		echo $sql;
+		echo $sql;
 	} else {
                 if (db_numrows($result) > 25) {
                         $rows=25;
@@ -268,7 +268,7 @@ if ($type_of_search == "soft") {
 	if (!$result || $rows < 1) {
 		echo "<H2>No matches found for $words</H2>";
 		echo db_error();
-//		echo $sql;
+		echo $sql;
 	} else {
                 if (db_numrows($result) > 25) {
                         $rows=25;

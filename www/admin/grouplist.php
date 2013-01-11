@@ -4,22 +4,20 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: grouplist.php,v 1.42 2000/03/07 13:20:24 tperdue Exp $
+// $Id: grouplist.php,v 1.41 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
-session_require(array('group'=>'1','admin_flags'=>'A'));
+session_require(array('group'=>'1'));
 
 site_header(array('title'=>"Alexandria: Group List"));
 
 // start from root if root not passed in
-if (!$GLOBALS['form_catroot']) {
-	$GLOBALS['form_catroot'] = '1';
-}
+if (!$GLOBALS[form_catroot]) $GLOBALS[form_catroot] = 1;
 
 print "<br><a href=\"groupedit-add.php\">[Add Group]</a>";
 print "<p>Alexandria Group List for Category: ";
 
-if ($GLOBALS['form_catroot'] == '1') {
+if ($GLOBALS[form_catroot] == 1) {
 
 	if (isset($group_name_search)) {
 		print "<b>Groups that begin with $group_name_search</b>\n";
@@ -35,7 +33,7 @@ if ($GLOBALS['form_catroot'] == '1') {
 			. "ORDER BY group_name");
 	}
 } else {
-	print "<b>" . category_fullname($GLOBALS['form_catroot']) . "</b>\n";
+	print "<b>" . category_fullname($GLOBALS[form_catroot]) . "</b>\n";
 
 	$res = db_query("SELECT groups.group_name,groups.unix_group_name,groups.group_id,"
 		. "groups.public,"

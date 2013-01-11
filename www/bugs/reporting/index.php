@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.19 2000/03/13 14:49:19 tperdue Exp $
+// $Id: index.php,v 1.18 2000/01/13 18:36:34 precision Exp $
 
 require('pre.php');
 require('../bug_utils.php');
@@ -31,7 +31,7 @@ if ($group_id && user_ismember($group_id,"B2")) {
 				$start=($time_now-($counter*604800));
 				$end=($time_now-(($counter-1)*604800));
 
-				$sql="SELECT avg((close_date-date)/86400) FROM bug WHERE close_date > 0 AND (date >= $start AND date <= $end) AND resolution_id <> '2' AND group_id='$group_id'";
+				$sql="SELECT avg((close_date-date)/86400) FROM bug WHERE close_date > 0 AND (date >= $start AND date <= $end) AND group_id='$group_id'";
 
 				$result = db_query($sql);
 
@@ -48,7 +48,7 @@ if ($group_id && user_ismember($group_id,"B2")) {
 				$start=($time_now-($counter*604800));
 				$end=($time_now-(($counter-1)*604800));
 
-				$sql="SELECT count(*) FROM bug WHERE date >= $start AND date <= $end AND resolution_id <> '2' AND group_id='$group_id'";
+				$sql="SELECT count(*) FROM bug WHERE date >= $start AND date <= $end AND group_id='$group_id'";
 
 				$result = db_query($sql);
 
@@ -65,7 +65,7 @@ if ($group_id && user_ismember($group_id,"B2")) {
 				$start=($time_now-($counter*604800));
 				$end=($time_now-(($counter-1)*604800));
 
-				$sql="SELECT count(*) FROM bug WHERE date <= $end AND (close_date >= $end OR close_date < 1 OR close_date is null) AND resolution_id <> '2' AND group_id='$group_id'";
+				$sql="SELECT count(*) FROM bug WHERE date <= $end AND (close_date >= $end OR close_date < 1 OR close_date is null) AND group_id='$group_id'";
 
 				$result = db_query($sql);
 
@@ -85,7 +85,7 @@ if ($group_id && user_ismember($group_id,"B2")) {
 			echo "\n<H1>Bugs by Category</H1>";
 
 			$sql="SELECT bug_category.category_name AS Category, count(*) AS Count FROM bug_category,bug ".
-				"WHERE bug_category.bug_category_id=bug.category_id AND bug.status_id <> '3' AND bug.resolution_id <> '2' AND bug.group_id='$group_id' ".
+				"WHERE bug_category.bug_category_id=bug.category_id AND bug.status_id <> '3' AND bug.group_id='$group_id' ".
 				"GROUP BY Category";
 
 			$result=db_query($sql);
@@ -98,7 +98,7 @@ if ($group_id && user_ismember($group_id,"B2")) {
 			echo "<P>";
 
 			$sql="SELECT bug_category.category_name AS Category, count(*) AS Count FROM bug_category,bug ".
-				"WHERE bug_category.bug_category_id=bug.category_id AND bug.resolution_id <> '2' AND bug.group_id='$group_id' ".
+				"WHERE bug_category.bug_category_id=bug.category_id AND bug.group_id='$group_id' ".
 				"GROUP BY Category";
 
 			$result=db_query($sql);
@@ -116,7 +116,7 @@ if ($group_id && user_ismember($group_id,"B2")) {
 			echo "\n<H1>Bugs By Technician</H1>";
 
 			$sql="SELECT user.user_name AS Technician, count(*) AS Count FROM user,bug ".
-				"WHERE user.user_id=bug.assigned_to AND bug.status_id <> '3' AND bug.resolution_id <> '2' AND bug.group_id='$group_id' ".
+				"WHERE user.user_id=bug.assigned_to AND bug.status_id <> '3' AND bug.group_id='$group_id' ".
 				"GROUP BY Technician";
 
 			$result=db_query($sql);
@@ -129,7 +129,7 @@ if ($group_id && user_ismember($group_id,"B2")) {
 			echo "<P>";
 
 			$sql="SELECT user.user_name AS Technician, count(*) AS Count FROM user,bug ".
-				"WHERE user.user_id=bug.assigned_to AND bug.resolution_id <> '2' AND bug.group_id='$group_id' ".
+				"WHERE user.user_id=bug.assigned_to AND bug.group_id='$group_id' ".
 				"GROUP BY Technician";
 
 			$result=db_query($sql);
@@ -147,7 +147,7 @@ if ($group_id && user_ismember($group_id,"B2")) {
 			echo "\n<H1>Bugs By Bug Group</H1>";
 
 			$sql="SELECT bug_group.group_name AS Bug_Group_Name, count(*) AS Count FROM bug_group,bug ".
-				"WHERE bug_group.bug_group_id=bug.bug_group_id AND bug.status_id <> '3' AND bug.resolution_id <> '2' AND bug.group_id='$group_id' ".
+				"WHERE bug_group.bug_group_id=bug.bug_group_id AND bug.status_id <> '3' AND bug.group_id='$group_id' ".
 				"GROUP BY Bug_Group_Name";
 
 			$result=db_query($sql);
@@ -160,7 +160,7 @@ if ($group_id && user_ismember($group_id,"B2")) {
 			echo "<P>";
 
 			$sql="SELECT bug_group.group_name AS Bug_Group_Name, count(*) AS Count FROM bug_group,bug ".
-				"WHERE bug_group.bug_group_id=bug.bug_group_id AND bug.resolution_id <> '2' AND bug.group_id='$group_id' ".
+				"WHERE bug_group.bug_group_id=bug.bug_group_id AND bug.group_id='$group_id' ".
 				"GROUP BY Bug_Group_Name";
 
 			$result=db_query($sql);
@@ -178,7 +178,7 @@ if ($group_id && user_ismember($group_id,"B2")) {
 			echo "\n<H1>Bugs By Resolution</H1>";
 
 			$sql="SELECT bug_resolution.resolution_name AS Resolution, count(*) AS Count FROM bug_resolution,bug ".
-				"WHERE bug_resolution.resolution_id=bug.resolution_id AND bug.status_id <> '3' AND bug.resolution_id <> '2' AND bug.group_id='$group_id' ".
+				"WHERE bug_resolution.resolution_id=bug.resolution_id AND bug.status_id <> '3' AND bug.group_id='$group_id' ".
 				"GROUP BY Resolution";
 
 			$result=db_query($sql);
@@ -191,7 +191,7 @@ if ($group_id && user_ismember($group_id,"B2")) {
 			echo "<P>";
 
 			$sql="SELECT bug_resolution.resolution_name AS Resolution, count(*) AS Count FROM bug_resolution,bug ".
-				"WHERE bug_resolution.resolution_id=bug.resolution_id AND bug.resolution_id <> '2' AND bug.group_id='$group_id' ".
+				"WHERE bug_resolution.resolution_id=bug.resolution_id AND bug.group_id='$group_id' ".
 				"GROUP BY Resolution";
 
 			$result=db_query($sql);

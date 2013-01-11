@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: stats_function.php,v 1.16 2000/03/09 09:24:04 tperdue Exp $
+// $Id: stats_function.php,v 1.14 2000/01/13 18:36:35 precision Exp $
 
 require('HTML_Graphs.php');
 
@@ -29,7 +29,7 @@ function stats_sf_stats() {
 
 /*
 	pages/hour
-* /
+*/
 	$sql="SELECT * FROM stats_agg_pages_by_hour";
 
 	$result = db_query ($sql);
@@ -42,7 +42,6 @@ function stats_sf_stats() {
 		GraphResult($result,'Page Views By Hour');
 	}
 	echo '<P>';
-*/
 
 /*
 	Groups added by week
@@ -114,7 +113,7 @@ function stats_project_stats() {
 /*
 	logo impressions/group
 */
-	$sql="SELECT group_id,sum(count) as count FROM stats_agg_logo_by_group GROUP BY group_id";
+	$sql="SELECT * FROM stats_agg_logo_by_group";
 
 	$result = db_query ($sql);
 	$rows = db_numrows($result);

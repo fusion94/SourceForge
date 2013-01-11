@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: detail_task.php,v 1.14 2000/04/21 13:09:01 tperdue Exp $
+// $Id: detail_task.php,v 1.11 2000/01/13 18:36:36 precision Exp $
 
 pm_header(array('title'=>'View A Task'));
 
@@ -14,7 +14,7 @@ $sql="SELECT * FROM project_task ".
 $result=db_query($sql);
 
 ?>
-<H2>View A Task In <?php echo  pm_data_get_group_name($group_project_id); ?></H2>
+<H2>View A Task In <?php echo  get_task_group_name($group_project_id); ?></H2>
 
 <TABLE BORDER="0" WIDTH="100%">
 	<TR>
@@ -32,7 +32,7 @@ $result=db_query($sql);
   	<TR>
 		<TD COLSPAN="2"><B>Task Summary:</B>
 		<BR>
-		<?php echo db_result($result,0,'summary'); ?>
+		<?php echo stripslashes(db_result($result,0,'summary')); ?>
 		</TD>
 	</TR>
 
@@ -40,7 +40,7 @@ $result=db_query($sql);
 		<TD COLSPAN="2">
 		<B>Original Comment:</B>
 		<P>
-		<?php echo nl2br(db_result($result,0,'details')); ?>
+		<?php echo nl2br(stripslashes(db_result($result,0,'details'))); ?>
 		</TD>
 	</TR>
 
@@ -95,32 +95,37 @@ $result=db_query($sql);
 		<B>Status:</B>
 		<BR>
 		<?php
-		echo pm_data_get_status_name(db_result($result,0,'status_id'));
+		$sql="SELECT project_status.status_name ".
+			"FROM project_status,project_task ".
+			"WHERE project_status.status_id=project_task.project_task_id AND project_task.project_task_id='$project_task_id'";
+		$result2=db_query($sql);
+		echo db_result($result2,0,0);
+		echo db_error();
 		?>
 		</TD>
 	</TR>
 
 	<TR>
 		<TD COLSPAN="2">
-			<?php echo pm_show_dependent_tasks ($project_task_id,$group_id,$group_project_id); ?>
+			<?php echo show_dependent_tasks ($project_task_id,$group_id,$group_project_id); ?>
 		</TD>
 	</TR>
 
 	<TR>
 		<TD COLSPAN="2">
-			<?php echo pm_show_dependent_bugs ($project_task_id,$group_id,$group_project_id); ?>
+			<?php echo show_dependent_bugs ($project_task_id,$group_id,$group_project_id); ?>
 		</TD>
 	</TR>
 
 	<TR>
 		<TD COLSPAN="2">
-			<?php echo pm_show_task_details ($project_task_id); ?>
+			<?php echo show_task_details ($project_task_id); ?>
 		</TD>
 	</TR>
 
 	<TR>
 		<TD COLSPAN="2">
-			<?php echo pm_show_task_history ($project_task_id); ?>
+			<?php echo show_task_history ($project_task_id); ?>
 		</TD>
 	</TR>
 

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: lostlogin.php,v 1.11 2000/04/14 15:21:29 dtype Exp $
+// $Id: lostlogin.php,v 1.10 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
 require "account.php";
@@ -36,7 +36,10 @@ site_header(array(title=>"Lost Password Login"));
 ?>
 <p><b>Lost Password Login</b>
 <P>Welcome, <?php print $row_lostuser[user_name]; ?>. You may now
-change your password.
+change your password. Doing so by this method
+will strip you of any administrative
+priveleges you may have. Re-request admin status via email
+to admin@sourceforge.net.
 
 <FORM action="lostlogin.php">
 <p>New Password:

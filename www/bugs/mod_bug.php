@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: mod_bug.php,v 1.46 2000/04/17 10:53:47 tperdue Exp $
+// $Id: mod_bug.php,v 1.43 2000/01/18 05:27:53 tperdue Exp $
 
 bug_header(array ('title'=>'Modify a Bug'));
 
@@ -14,7 +14,7 @@ $result=db_query($sql);
 
 if (db_numrows($result) > 0) {
 
-	echo "\n<H2>[ Bug #$bug_id ] ".db_result($result,0,"summary")."</H2>";
+	echo "\n<H2>[ Bug #$bug_id ] ".stripslashes(db_result($result,0,"summary"))."</H2>";
 
 	echo "<FORM ACTION=\"$PHP_SELF\" METHOD=\"POST\">\n".
 		"<INPUT TYPE=\"HIDDEN\" NAME=\"func\" VALUE=\"postmodbug\">\n".
@@ -26,36 +26,46 @@ if (db_numrows($result) > 0) {
 
 		"\n<TR><TD><B>Category:</B><BR>\n";
 	/*
-		List of bug_categories for this project.
+		List of categories for this bug.
 	*/
-	echo  bug_category_box ('category_id',$group_id,db_result($result,0,'category_id'));
+	$sql="select bug_category_id,category_name from bug_category WHERE group_id='$group_id'";
+	$result2=db_query($sql);
+	build_select_box($result2,"category_id",db_result($result,0,"category_id")); 
 
 	echo "</TD><TD><B>Priority:</B><BR>\n";
 
 	/*
 		Priority of this bug
 	*/
-	echo build_priority_select_box('priority',db_result($result,0,'priority'));
+	build_priority_select_box("priority",db_result($result,0,"priority"));
 
-	?>
+?>
 	</TD></TR>
 
 	<TR><TD><B>Group:</B><BR>
-	<?php
+<?php
 	/*
-		List of possible bug_groups for this project
+		List of possible bug_groups for this group
 	*/
-	echo bug_group_box ('bug_group_id',$group_id,db_result($result,0,'bug_group_id'));
+	$sql="select bug_group_id,group_name from bug_group WHERE group_id='$group_id'";
 
-	?>
+	$result3=db_query($sql);
+
+	build_select_box($result3,"bug_group_id",db_result($result,0,"bug_group_id"));
+
+?>
 	</TD><TD><B>Resolution:</B><BR>
-	<?php
+<?php
 	/*
-		List of possible bug_resolutions
+		List of possible bug_groups for this group
 	*/
-	echo bug_resolution_box ('resolution_id',db_result($result,0,'resolution_id'));
+	$sql="select resolution_id,resolution_name from bug_resolution";
 
-	?>
+	$result4=db_query($sql);
+
+	build_select_box($result4,"resolution_id",db_result($result,0,"resolution_id"));
+
+?>
 	</TD></TR>
 	<TR><TD>
 		<B>Assigned To:</B><BR>
@@ -64,7 +74,10 @@ if (db_numrows($result) > 0) {
 		/*
 			List of people that can be assigned this bug
 		*/
-		echo bug_technician_box ('assigned_to',$group_id,db_result($result,0,'assigned_to'));
+		$sql="SELECT user.user_id,user.user_name FROM user,user_group ".
+			"WHERE user.user_id=user_group.user_id AND user_group.bug_flags IN (1,2) AND user_group.group_id='$group_id'";
+		$result2=db_query($sql);
+		build_select_box($result2,"assigned_to",db_result($result,0,"assigned_to"));
 		?>
 	</TD>
 	<TD>
@@ -73,13 +86,15 @@ if (db_numrows($result) > 0) {
 		/*
 			Status of this bug
 		*/
-		echo bug_status_box ('status_id',db_result($result,0,'status_id'));
+		$sql="select * from bug_status";
+		$result2=db_query($sql);
+		build_select_box($result2,"status_id",db_result($result,0,'status_id'));
 		?>
 	</TD></TR>
 
 	<TR><TD COLSPAN="2"><B>Summary:</B><BR>
 		<INPUT TYPE="TEXT" NAME="summary" SIZE="45" VALUE="<?php 
-			echo db_result($result,0,'summary'); 
+			echo stripslashes(db_result($result,0,'summary')); 
 			?>" MAXLENGTH="60">
 	</TD></TR>
 
@@ -88,7 +103,7 @@ if (db_numrows($result) > 0) {
 		<P>
 		<B>Original Submission:</B><BR>
 		<?php
-			echo nl2br(db_result($result,0,'details'));
+			echo nl2br(stripslashes(db_result($result,0,'details')));
 
 			echo "<P>";
 
@@ -102,8 +117,20 @@ if (db_numrows($result) > 0) {
 	/*
 		Dependent on Task........
 	*/
+	$sql="SELECT project_task.project_task_id,project_task.summary ".
+		"FROM project_task,project_group_list ".
+		"WHERE project_task.group_project_id=project_group_list.group_project_id ".
+		"AND project_task.status_id <> '3' ".
+		"AND project_group_list.group_id='$group_id' ORDER BY project_task_id DESC LIMIT 100";
+	$result3=db_query($sql);
 
-	echo bug_multiple_task_depend_box ('dependent_on_task[]',$group_id,$bug_id);
+	/*
+		Get the list of ids this is dependent on and convert to array
+		to pass into multiple select box
+	*/
+	$result2=db_query("SELECT is_dependent_on_task_id FROM bug_task_dependencies WHERE bug_id='$bug_id'");
+
+	build_multiple_select_box($result3,'dependent_on_task[]',result_column_to_array($result2));
 
 	?>
 	</TD><TD VALIGN="TOP">
@@ -112,7 +139,19 @@ if (db_numrows($result) > 0) {
 	/*
 		Dependent on Bug........
 	*/
-	echo bug_multiple_bug_depend_box ('dependent_on_bug[]',$group_id,$bug_id)
+	$sql="SELECT bug_id,summary ".
+		"FROM bug ".
+		"WHERE group_id='$group_id' ".
+		"AND bug_id <> '$bug_id' ORDER BY bug_id DESC LIMIT 100";
+	$result3=db_query($sql);
+
+	/*
+		Get the list of ids this is dependent on and convert to array
+		to pass into multiple select box
+	*/
+	$result2=db_query("SELECT is_dependent_on_bug_id FROM bug_bug_dependencies WHERE bug_id='$bug_id'");
+
+	build_multiple_select_box($result3,'dependent_on_bug[]',result_column_to_array($result2));
 
 	?>
 	</TD></TR>

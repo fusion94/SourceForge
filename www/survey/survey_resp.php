@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: survey_resp.php,v 1.8 2000/03/31 13:16:16 tperdue Exp $
+// $Id: survey_resp.php,v 1.7 2000/01/30 09:54:28 precision Exp $
 
 require('pre.php');
 require('../survey/survey_utils.php');
@@ -70,10 +70,9 @@ for ($i=0; $i<$count; $i++) {
 		Insert each form value into the responses table
 	*/
 
-	$val="_$quest_array[$i]";
-
+	eval("\$val=\"\$_$quest_array[$i]\";");
 	$sql="INSERT INTO survey_responses (user_id,group_id,survey_id,question_id,response,date) ".
-		"VALUES ('".user_getid()."','$group_id','$survey_id','$quest_array[$i]','". $$val . "','$now')";
+		"VALUES ('".user_getid()."','$group_id','$survey_id','$quest_array[$i]','$val','$now')";
 	$result=db_query($sql);
 	if (!$result) {
 		echo "<h1>Error</h1>";

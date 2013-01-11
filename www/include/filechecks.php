@@ -4,27 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: filechecks.php,v 1.41 2000/04/03 16:37:39 dtype Exp $
-
-function filechecks_islegalname($filename) {
-	if (strstr($filename,' ') || strstr($filename,'\\')
-		|| strstr($filename,"'") || strstr($filename,'"')
-		|| strstr($filename,';') || strstr($filename,'`')
-		|| strstr($filename,'|') || strstr($filename,'$')
-		|| strstr($filename,',') || strstr($filename,':')
-		|| strstr($filename,'@') || strstr($filename,'*')
-		|| strstr($filename,'%') || strstr($filename,'^')
-		|| strstr($filename,'&') 
-		|| strstr($filename,'>') || strstr($filename,'<')) {
-		return 0;
-	}
-
-	if (ereg('^\.',$filename)) {
-		return 0;
-	}
-
-	return 1;
-}
+// $Id: filechecks.php,v 1.34 2000/01/28 11:06:02 dtype Exp $
 
 function filechecks_targz($filename) {
 	exec("tar -ztvf $GLOBALS[FTPINCOMING_DIR]/" . EscapeShellCmd($filename),$output,$ret);

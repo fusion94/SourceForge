@@ -4,21 +4,21 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: orgedit-add.php,v 1.6 2000/03/07 13:20:24 tperdue Exp $
+// $Id: orgedit-add.php,v 1.5 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";
-session_require(array('group'=>'1','admin_flags'=>'A'));
+session_require(array('group'=>'1'));
 
 // ########################################################
 
 if ($GLOBALS["Submit"]) {
-	if ($GLOBALS['form_orgname']) {
+	if ($GLOBALS[form_orgname]) {
 	db_query("INSERT INTO organization (org_name,org_type,org_url,org_descriptivetext) "
 		."VALUES ('"
-		.$GLOBALS['form_orgname']."','"
-		.$GLOBALS['form_orgtype']."','"
-		.$GLOBALS['form_orgurl']."','"
-		.$GLOBALS['form_orgdesc']."')");
+		.$GLOBALS[form_orgname]."','"
+		.$GLOBALS[form_orgtype]."','"
+		.$GLOBALS[form_orgurl]."','"
+		.$GLOBALS[form_orgdesc]."')");
 	} 
 	session_redirect("/admin/orglist.php");
 } 

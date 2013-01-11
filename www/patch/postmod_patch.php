@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: postmod_patch.php,v 1.12 2000/04/20 14:33:33 tperdue Exp $
+// $Id: postmod_patch.php,v 1.11 2000/01/26 16:25:37 tperdue Exp $
 
 $sql="SELECT * FROM patch WHERE patch_id='$patch_id'";
 
@@ -33,13 +33,13 @@ if ((db_numrows($result) > 0) && (user_ismember(db_result($result,0,'group_id'),
 	if (db_result($result,0,'patch_status_id') != $patch_status_id) { patch_history_create('patch_status_id',db_result($result,0,'patch_status_id'),$patch_id);  }
 	if (db_result($result,0,'patch_category_id') != $patch_category_id) { patch_history_create('patch_category_id',db_result($result,0,'patch_category_id'),$patch_id);  }
 	if (db_result($result,0,'assigned_to') != $assigned_to) { patch_history_create('assigned_to',db_result($result,0,'assigned_to'),$patch_id);  }
-	if (db_result($result,0,'summary') != stripslashes(htmlspecialchars($summary))) 
-		{ patch_history_create('summary',htmlspecialchars(addslashes(db_result($result,0,'summary'))),$patch_id);  }
+	if (stripslashes(db_result($result,0,'summary')) != stripslashes(htmlspecialchars($summary))) 
+		{ patch_history_create('summary',htmlspecialchars(addslashes(stripslashes(stripslashes(db_result($result,0,'summary'))))),$patch_id);  }
 
 	/*
 		Details field is handled a little differently
 	*/
-	if ($details != '') { patch_history_create('details',htmlspecialchars($details),$patch_id);  }
+	if ($details != '') { patch_history_create('details',addslashes(htmlspecialchars($details)),$patch_id);  }
 
 	/*
 		Enter the timestamp if we are changing to closed

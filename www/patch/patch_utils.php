@@ -4,16 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: patch_utils.php,v 1.13 2000/04/21 13:23:37 tperdue Exp $
+// $Id: patch_utils.php,v 1.9 2000/01/29 17:29:25 tperdue Exp $
 
 /*
-
 	Patch Manager 
-	By Tim Perdue, Sourceforge, Feb 2000
-	Heavy Rewrite Tim Perdue, April, 2000
-
+	By Tim Perdue, Sourceforge, Jan 2000
 */
-
 function patch_header($params) {
 	global $group_id,$DOCUMENT_ROOT;
 	$params['group']=$group_id;
@@ -42,40 +38,6 @@ function patch_footer($params) {
 	site_footer($params);
 }
 
-function patch_category_box($group_id,$name='patch_category_id',$checked='xzxz') {
-	if (!$group_id) {
-		return 'ERROR - no group_id';
-	} else {
-		/*
-			List of possible patch_categories set up for the project
-		*/
-		$sql="select patch_category_id,category_name from patch_category WHERE group_id='$group_id'";
-		$result=db_query($sql);
-
-		return util_build_select_box($result,$name,$checked);
-	}
-}
-
-function patch_technician_box($group_id,$name='assigned_to',$checked='xzxz') {
-	if (!$group_id) {
-		return 'ERROR - no group_id';
-	} else {
-		$sql="SELECT user.user_id,user.user_name ".
-			"FROM user,user_group ".
-			"WHERE user.user_id=user_group.user_id ".
-			"AND user_group.patch_flags IN (1,2) ".
-			"AND user_group.group_id='$group_id'";
-		$result=db_query($sql);
-		return util_build_select_box($result,$name,$checked);
-	}
-}
-
-function patch_status_box($name='status_id',$checked='xzxz') {
-	$sql="select * from patch_status";
-	$result=db_query($sql);
-	return util_build_select_box($result,$name,$checked);
-}
-
 function show_patchlist ($result,$offset,$set='open') {
 	global $sys_datefmt,$group_id;
 	/*
@@ -87,7 +49,7 @@ function show_patchlist ($result,$offset,$set='open') {
 	$url = "/patch/?group_id=$group_id&set=$set&order=";
 	echo '
 		<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
-		<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+		<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
 		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'patch_id"><FONT COLOR="#FFFFFF"><B>Patch ID</A></TD>
 		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'summary"><FONT COLOR="#FFFFFF"><B>Summary</A></TD>
 		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'date"><FONT COLOR="#FFFFFF"><B>Date</A></TD>
@@ -95,11 +57,17 @@ function show_patchlist ($result,$offset,$set='open') {
 		<TD ALIGN="MIDDLE"><a class=sortbutton href="'.$url.'submitted_by"><FONT COLOR="#FFFFFF"><B>Submitted By</A></TD></TR>';
 
 	for ($i=0; $i < $rows; $i++) {
+		if ($i % 2 == 0) {
+			$row_color = ' BGCOLOR="#FFFFFF"';
+		} else {
+			$row_color = ' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+		}
+
 		echo '
-			<TR BGCOLOR="'. util_get_alt_row_color($i) .'">'.
+			<TR'.$row_color.'>'.
 			'<TD><A HREF="'.$PHP_SELF.'?func=detailpatch&patch_id='.db_result($result, $i, 'patch_id').
 			'&group_id='.db_result($result, $i, 'group_id').'">'.db_result($result, $i, 'patch_id').'</A></TD>'.
-			'<TD>'.db_result($result, $i, 'summary').'</TD>'.
+			'<TD>'.stripslashes(db_result($result, $i, 'summary')).'</TD>'.
 			'<TD>'.date($sys_datefmt,db_result($result, $i, 'date')).'</TD>'.
 			'<TD>'.db_result($result, $i, 'assigned_to_user').'</TD>'.
 			'<TD>'.db_result($result, $i, 'submitted_by').'</TD></TR>';
@@ -130,7 +98,7 @@ function get_patch_status_name($string) {
 	/*
 		simply return status_name from patch_status
 	*/
-	$sql="select * from patch_status WHERE patch_status_id='$string'";
+	$sql="select * from patch_status WHERE status_id='$string'";
 	$result=db_query($sql);
 	if ($result && db_numrows($result) > 0) {
 		return db_result($result,0,'status_name');
@@ -170,13 +138,13 @@ function mail_followup($patch_id) {
 
 		$body = "Patch #".db_result($result,0,"patch_id")." has been updated. ".
 			"\nVisit SourceForge.net for more info.".
-			"\n\nhttp://sourceforge.net/patch/?func=detailpatch&patch_id=".db_result($result,0,'patch_id'). '&group_id='. db_result($result,0,'group_id');
+			"\n\nhttp://sourceforge.net/patch/?func=detailpatch&patch_id=".db_result($result,0,"patch_id")."&group_id=".db_result($result,0,"group_id");
 
-		$subject="[Patch #".db_result($result,0,'patch_id').'] '.util_unconvert_htmlspecialchars(db_result($result,0,'summary'));
+		$subject="[Patch #".db_result($result,0,"patch_id")."] ".util_unconvert_htmlspecialchars(stripslashes(stripslashes(db_result($result,0,"summary"))));
 
-		$to=db_result($result,0,'email'). ', '. db_result($result,0,'assigned_to_email');
+		$to=db_result($result,0,"email").", ".db_result($result,0,"assigned_to_email");
 
-		$more='From: noreply@sourceforge.net';
+		$more="From: noreply@sourceforge.net";
 
 		mail($to,$subject,$body,$more);
 
@@ -196,10 +164,7 @@ function show_patch_details ($patch_id) {
 	*/
 	global $sys_datefmt;
 	$sql="select patch_history.field_name,patch_history.old_value,patch_history.date,user.user_name ".
-		"FROM patch_history,user ".
-		"WHERE patch_history.mod_by=user.user_id ".
-		"AND patch_history.field_name = 'details' ".
-		"AND patch_id='$patch_id' ORDER BY patch_history.date DESC";
+		"FROM patch_history,user where patch_history.mod_by=user.user_id AND patch_history.field_name = 'details' AND patch_id='$patch_id' ORDER BY patch_history.date DESC";
 	$result=db_query($sql);
 	$rows=db_numrows($result);
 
@@ -207,13 +172,18 @@ function show_patch_details ($patch_id) {
 		echo '
 			<H3>Followups</H3>
 			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
-			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+			<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
 			<TD><FONT COLOR="#FFFFFF"><B>Comment</TD>
 			<TD><FONT COLOR="#FFFFFF"><B>Date</TD>
 			<TD><FONT COLOR="#FFFFFF"><B>By</TD></TR>';
 		for ($i=0; $i < $rows; $i++) {
-			echo '<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.
-				nl2br( db_result($result, $i, 'old_value') ) .'</TD>'.
+			if ($i % 2 == 0) {
+				$row_color = ' BGCOLOR="#FFFFFF"';
+			} else {
+				$row_color = ' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+			}
+			echo '<TR'.$row_color.'><TD>'.
+				ereg_replace("\n","<BR>",stripslashes(stripslashes(db_result($result, $i, 'old_value')))).'</TD>'.
 				'</TD>'.
 				'<TD VALIGN="TOP">'.date($sys_datefmt,db_result($result, $i, 'date')).'</TD>'.
 				'<TD VALIGN="TOP">'.db_result($result, $i, 'user_name').'</TD></TR>';
@@ -231,10 +201,7 @@ function show_patchhistory ($patch_id) {
 	*/
 	global $sys_datefmt;
 	$sql="select patch_history.field_name,patch_history.old_value,patch_history.date,user.user_name ".
-		"FROM patch_history,user ".
-		"WHERE patch_history.mod_by=user.user_id ".
-		"AND patch_history.field_name <> 'details' ".
-		"AND patch_id='$patch_id' ORDER BY patch_history.date DESC";
+		"FROM patch_history,user where patch_history.mod_by=user.user_id AND patch_history.field_name <> 'details' AND patch_id='$patch_id' ORDER BY patch_history.date DESC";
 	$result=db_query($sql);
 	$rows=db_numrows($result);
 
@@ -243,7 +210,7 @@ function show_patchhistory ($patch_id) {
 		echo '
 			<H3>Patch Change History</H3>
 			<TABLE WIDTH="100%" BORDER="0" CELLSPACING="1" CELLPADDING="2">
-			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'">
+			<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'">
 			<TD><FONT COLOR="#FFFFFF"><B>Field</TD>
 			<TD><FONT COLOR="#FFFFFF"><B>Old Value</TD>
 			<TD><FONT COLOR="#FFFFFF"><B>Date</TD>
@@ -251,8 +218,13 @@ function show_patchhistory ($patch_id) {
 
 		for ($i=0; $i < $rows; $i++) {
 			$field=db_result($result, $i, 'field_name');
+			if ($i % 2 == 0) {
+				$row_color = ' BGCOLOR="#FFFFFF"';
+			} else {
+				$row_color = ' BGCOLOR="'.$GLOBALS[COLOR_LTBACK1].'"';
+			}
 			echo '
-				<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.$field.'</TD><TD>';
+				<TR'.$row_color.'><TD>'.$field.'</TD><TD>';
 
 			if ($field == 'patch_status_id') {
 
@@ -272,7 +244,7 @@ function show_patchhistory ($patch_id) {
 
 			} else {
 
-				echo db_result($result, $i, 'old_value');
+				echo stripslashes(stripslashes(db_result($result, $i, 'old_value')));
 
 			}
 			echo '</TD>'.
@@ -299,8 +271,7 @@ function patch_history_create($field_name,$old_value,$patch_id) {
 		$user=user_getid();
 	}
 
-	$sql="insert into patch_history(patch_id,field_name,old_value,mod_by,date) ".
-		"VALUES ('$patch_id','$field_name','$old_value','$user','".time()."')";
+	$sql="insert into patch_history(patch_id,field_name,old_value,mod_by,date) VALUES ('$patch_id','$field_name','$old_value','$user','".time()."')";
 	$result=db_query($sql);
 	if (!$result) {
 		echo "\n<H1>Error inserting history for $field_name</H1>";

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: vars.php,v 1.13 2000/02/07 16:36:24 fusion94 Exp $
+// $Id: vars.php,v 1.12 2000/01/13 18:36:35 precision Exp $
 
 
 $LICENSE = array();
@@ -22,7 +22,6 @@ $LICENSE[python] = 'Python License';
 $LICENSE[zlib] = 'zlib/libpng License';
 $LICENSE[website] = 'WebSite Only';
 $LICENSE[other] = 'Other';
-$LICENSE[public] = 'Public Domain';
 
 $SOFTENV = array();
 $SOFTENV[1] = 'Other Environment';

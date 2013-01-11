@@ -4,12 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.48 2000/04/19 13:03:55 tperdue Exp $
+// $Id: index.php,v 1.43 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";
-session_require(array('group'=>'1','admin_flags'=>'A'));
+session_require(array('group'=>'1'));
 
-site_header(array('title'=>"Alexandria Admin"));
+site_header(array(title=>"Alexandria Admin"));
 
 $abc_array = array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9');
 
@@ -23,9 +23,8 @@ fields blank, etc... Also, navigating the admin functions with the
 
 <p><B>User/Group/Category Maintenance</B>
 <ul>
-<!--
 <li><a href="userlist.php">Display Full User List/Edit Users</a>&nbsp;&nbsp;
--->
+
 <li>Display Users Beginning with : 
 <?php
 	for ($i=0; $i < count($abc_array); $i++) {
@@ -33,9 +32,7 @@ fields blank, etc... Also, navigating the admin functions with the
 	}
 ?>
 <BR>&nbsp;
-<!-- 
 <li><a href="grouplist.php">Display Full Group List/Edit Groups</a>
--->
 
 <li>Display Groups Beginning with : 
 <?php
@@ -44,7 +41,7 @@ fields blank, etc... Also, navigating the admin functions with the
 	}
 ?>
 <LI>Groups in <a href="grouplist.php?status=I"><B>I</B> Status</A>
-<LI>Groups in <a href="approve-pending.php"><B>P</B> Status</A>
+<LI>Groups in <a href="grouplist.php?status=P"><B>P</B> Status</A>
 <LI>Groups in <a href="grouplist.php?status=D"><B>D</B> Status</A>
 <BR>&nbsp;
 <li><a href="categorylist.php">Display Full Category List/Edit Categories</a>
@@ -84,4 +81,5 @@ fields blank, etc... Also, navigating the admin functions with the
 
 <?php
 site_footer(array());
+site_cleanup(array());
 ?>

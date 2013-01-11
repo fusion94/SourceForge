@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editsshkeys.php,v 1.11 2000/03/06 13:57:41 dtype Exp $
+// $Id: editsshkeys.php,v 1.10 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
 require "account.php";
@@ -46,8 +46,8 @@ documentation for further information on sharing keys.
 <?php if ($register_error) print "<p>$register_error"; ?>
 <form action="editsshkeys.php" method="post">
 <p>Authorized keys:
-<BR><I>Important: Make sure there are no line breaks except between keys.
-After submitting, verify that the number of keys in your file is what you expected.</I>
+<BR><I>Important: Make sure there are no line breaks except between keys. The
+text box will not show wraps unless they actually exist.</I>
 <br><TEXTAREA rows=10 cols=60 name="form_authorized_keys">
 <?php
 	$res_keys = db_query("SELECT authorized_keys FROM user WHERE user_id=".user_getid());

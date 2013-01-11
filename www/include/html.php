@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: html.php,v 1.271 2000/04/21 15:49:40 tperdue Exp $
+// $Id: html.php,v 1.267 2000/01/26 14:53:00 tperdue Exp $
 
 $COLOR_LTBACK1  = '#EEEEF8';
 $COLOR_LTBACK2  = '#F6F6F6';
@@ -13,6 +13,7 @@ $COLOR_MENUBACK = $COLOR_LTBACK1;
 $COLOR_MENUBARBACK = '737b9c';
 
 $BARBACK = ' bgcolor="'.$COLOR_BARBACK.'" ';
+
 
 function html_feedback_top($feedback) {
 	if (!$feedback) return 0;
@@ -41,10 +42,10 @@ function html_feedback_bottom($feedback) {
 function html_box1_top($title,$echoout=1,$bgcolor='#FFFFFF') {
 	$return = '
 		<TABLE cellspacing="0" cellpadding="1" width="100%" border="0" bgcolor="'
-		.$GLOBALS['COLOR_MENUBARBACK'].'"><TR><TD>';
+		.$GLOBALS[COLOR_MENUBARBACK].'"><TR><TD>';
 
 	$return .= '<TABLE cellspacing="1" cellpadding="2" width="100%" border="0" bgcolor="'.$bgcolor.'">'.
-			'<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'" align="center">'.
+			'<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'" align="center">'.
 			'<TD colspan=2><SPAN class=titlebar>'.$title.'</SPAN></TD></TR>'.
 			'<TR align=left>
 				<TD colspan=2>';
@@ -59,7 +60,7 @@ function html_box1_middle($title,$bgcolor='#FFFFFF') {
 	return '
 				</TD>
 			</TR>
-			<TR BGCOLOR="'.$GLOBALS['COLOR_MENUBARBACK'].'" align="center">
+			<TR BGCOLOR="'.$GLOBALS[COLOR_MENUBARBACK].'" align="center">
 				<TD colspan=2><SPAN class=titlebar>'.$title.'</SPAN></TD>
 			</TR>
 			<TR align=left bgcolor="'.$bgcolor.'">
@@ -112,14 +113,79 @@ function html_displaylanguages($group_id) {
 	return "($return)";
 }
 
+// **************************** functions for users/groups/cats
+
+function html_a_developer($user) {
+	print '<A href="/developer/?form_dev='.$user.'">'.user_getname($user).'</A>';
+}
+
+
 function html_a_group($grp) {
 	print '<A href="/project/?group_id='.$grp.'">' . group_getname($grp) . '</A>';
+}
+
+function html_a_category($cat) {
+	print '<A href="/softwaremap/?form_cat='.$cat.'">' . category_getname($cat) . '</A>';
 }
 
 // *************************** just need this one
 
 function html_blankimage($height,$width) {
 	return html_image('blank.gif',array('height'=>$height,'width'=>$width));
+}
+
+// ************************* for alternating colored rows
+
+function html_colored_tr($args = '') {
+	if ($GLOBALS[html_colored_tr] == 0) {
+		print '<TR bgcolor="'.$GLOBALS[COLOR_LTBACK1].'" '.$args.'>';
+		$GLOBALS[html_colored_tr] = 1;
+	} else {
+		print '<TR bgcolor="#FFFFFF" '.$args.'>';	
+		$GLOBALS[html_colored_tr] = 0;
+	}
+}
+
+function html_colored_tr_toggle() {
+	if ($GLOBALS[html_colored_tr] == 0) {
+		$GLOBALS[html_colored_tr] = 1;
+	} else {
+		$GLOBALS[html_colored_tr] = 0;
+	}
+}
+
+// ################################ font stuff
+
+function html_font($type = 'body') {
+	switch ($type) {
+		case 'body': print '<font color="#333333" face="arial,helvetica,sanserif">';
+			break;
+		default: print '<font color="#333333" face="arial,helvetica,sanserif">';
+	}
+}
+
+// ################################## function browser_png()
+// ## returns true if browser is png capable
+
+function browser_png() {
+	$accept = getenv('HTTP_ACCEPT');
+	if (ereg('image/png',$accept,$ereg_match)) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+// ################################## function image_pngit
+// ## returns either the gif or png, depending on browser
+
+function image_pngit($src) {
+	if (browser_png()) {
+		$image = explode('.',$src);
+		return ($image[0] . '.png');
+	} else {
+		return ($src);
+	}
 }
 
 // ################################# function html_image
@@ -148,15 +214,19 @@ function html_image($src,$args,$display=1) {
 		$return .= ' ' . $size[3];
 	}
 
-	// ## insert alt tag if there isn't one
-	if (!$args[alt]) $return .= " alt=\"$src\"";
-
 	$return .= ('>');
 	if ($display) {
 		print $return;
 	} else {
 		return $return;
 	}
+}
+
+// ## html_imagevar($image_id)
+
+function html_imagevar($image_id) {
+	$return = "<IMG src=\"/dbimage.php?image_id=$image_id\">";
+	return $return;
 }
 
 // ################################### HTML tabs
@@ -185,7 +255,6 @@ function html_tabs($toptab,$group) {
 		case 'home': print 'Summary'; break;
 		case 'forums': print 'Message Forums'; break;
 		case 'bugs': print 'Bug Tracking'; break;
-		case 'support': print 'Support Manager'; break;
 		case 'mail': print 'Mailing Lists'; break;
 		case 'pm': print 'Task Manager'; break;
 		case 'surveys': print 'Surveys'; break;
@@ -231,17 +300,6 @@ function html_tabs($toptab,$group) {
 			print 'class=tabs ';
 		print 'href="/bugs/?group_id='.$group.'">';
 		html_image('ic/bug.png',array('alt'=>'Bug Tracking','border'=>(($toptab=='bugs')?'1':'0')));
-		print '</A>';
-	}
-
-	// Support Tracking
-	if (($row_grp['status'] == 'A') && ($row_grp['use_support'])) {
-		print '
-			<A ';
-		if ($toptab == 'support')
-			print 'class=tabs ';
-		print 'href="/support/?group_id='.$group.'">';
-		html_image('ic/support.png',array('alt'=>'Support Manager','border'=>(($toptab=='support')?'1':'0')));
 		print '</A>';
 	}
 

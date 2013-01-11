@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: postadd_comment.php,v 1.10 2000/04/20 15:23:38 tperdue Exp $
+// $Id: postadd_comment.php,v 1.6 2000/01/26 16:25:37 tperdue Exp $
 
 if ($details != '') { 
-	patch_history_create('details',htmlspecialchars($details),$patch_id);  
+	patch_history_create('details',addslashes(htmlspecialchars($details)),$patch_id);  
 	$feedback .= ' Comment added to patch ';
 	mail_followup($patch_id);
 }
@@ -16,11 +16,16 @@ if ($details != '') {
 if ($upload_new && user_isloggedin()) {
 
 	//see if this user submitted this patch
-	$result=db_query("SELECT * FROM patch WHERE submitted_by='".user_getid()."' AND patch_id='$patch_id'");
+	$result=db_query("SELECT * FROM patch WHERE submitted_by='".user_getid()." AND patch_id='$patch_id'");
 	if (!$result || db_numrows($result) < 1) {
-		exit_error('ERROR','Only the original submittor of a patch can upload a new version.
-			If you submitted your patch anonymously, contact the admin of this project for instructions.');
+		patch_header(array ('title'=>'Patch Modification Failed'));
+                echo '
+                        <H1>Error - Permission problem or patch not found!</H1>
+			<P>
+			<B>Only the original submittor of a patch can upload a new version.</B>';
                 echo db_error();
+                patch_footer(array());
+                exit;
 	} else {
 		//patch for this user was found, so update it now
 
@@ -28,7 +33,7 @@ if ($upload_new && user_isloggedin()) {
 		if ((strlen($code) > 20) && (strlen($code) < 512000)) {
 			//new patch must be > 20 bytes
 
-			$result=db_query("UPDATE patch SET code='".htmlspecialchars($code)."' WHERE submitted_by='".user_getid()."' AND patch_id='$patch_id'");
+			$result=db_query("UPDATE patch SET code='".htmlspecialchars($code)."' WHERE submitted_by='".user_getid()." AND patch_id='$patch_id'");
 
 			//see if the update actually worked
 			if (!$result || db_affected_rows($result) < 1) {
@@ -39,11 +44,11 @@ if ($upload_new && user_isloggedin()) {
 				$feedback .= ' Patch Code Updated ';
 			}
 		} else {
-			exit_error('ERROR','Patch not changed - patch must be > 20 chars and < 512000 chars in length');
+			$feedback .= ' Patch not changed - patch must be > 20 chars and < 512000 chars in length ';
 		}
 	}
 } else if ($upload_new) {
-	exit_not_logged_in();
+	$feedback .= ' Patch not changed - you must be logged in ';
 }
 
 

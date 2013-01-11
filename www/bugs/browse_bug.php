@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: browse_bug.php,v 1.38 2000/04/21 14:06:13 tperdue Exp $
+// $Id: browse_bug.php,v 1.35 2000/01/26 16:54:11 tperdue Exp $
 
 bug_header(array ('title'=>'Browse Bugs'));
 
@@ -31,7 +31,7 @@ if ($order) {
 }
 
 if ($order) {
-	$order_by = " ORDER BY $order ".(($set=='closed' && $order=='date') ? ' DESC ':'');
+	$order_by = " ORDER BY $order ";
 } else {
 	$order_by = "";
 }
@@ -127,7 +127,7 @@ if ($result && db_numrows($result) > 0) {
 	echo "<h3>$statement</H3>";
 
 	show_buglist($result,$offset,$set);
-	echo '<P>* Denotes Bugs > 30 Days Old';
+
 	show_priority_colors_key();
 
 } else {

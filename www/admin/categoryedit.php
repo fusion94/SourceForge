@@ -4,12 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: categoryedit.php,v 1.33 2000/03/07 13:20:24 tperdue Exp $
+// $Id: categoryedit.php,v 1.32 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
-session_require(array('group'=>'1','admin_flags'=>'A'));
+session_require(array('group'=>'1'));
 
-site_header(array('title'=>'Editing Category'));
+site_header(array(title=>"Editing Category"));
 
 // group remove
 if ($HTTP_GET_VARS[form_parentrm]) {

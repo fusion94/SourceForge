@@ -4,21 +4,21 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: groupedit-add.php,v 1.16 2000/03/07 13:20:24 tperdue Exp $
+// $Id: groupedit-add.php,v 1.15 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";
 require "account.php";
-session_require(array('group'=>'1','admin_flags'=>'A'));
+session_require(array('group'=>'1'));
 
 // ########################################################
 
 if ($GLOBALS["Submit"]) {
 	// check for valid group name
-	if (!account_groupnamevalid($GLOBALS['form_unixgrp'])) {
-		exit_error("Invalid Group Name",$GLOBALS['register_error']);
+	if (!account_groupnamevalid($GLOBALS[form_unixgrp])) {
+		exit_error("Invalid Group Name",$GLOBALS[register_error]);
 	}	
 
-	if ($GLOBALS['group_idname']) {
+	if ($GLOBALS[group_idname]) {
 	$newid = db_insertid(db_query("INSERT INTO groups (group_name,public,unix_group_name,http_domain,status) VALUES "
 		. "('$GLOBALS[group_idname]',$GLOBALS[form_public],'$GLOBALS[form_unixgrp]'"
 		. ",'$GLOBALS[form_unixgrp].sourceforge.net','$form_status')")); 
@@ -26,7 +26,7 @@ if ($GLOBALS["Submit"]) {
 	session_redirect("/admin/groupedit.php?group_id=$newid");
 } 
 
-site_header(array('title'=>"Welcome to Project Alexandria"));
+site_header(array(title=>"Welcome to Project Alexandria"));
 ?>
 
 <form action="groupedit-add.php" method="post">

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: change_email-confirm.php,v 1.4 2000/03/08 09:00:32 tperdue Exp $
+// $Id: change_email-confirm.php,v 1.3 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
 
@@ -22,7 +22,7 @@ $message = "You have requested a change of email address on SourceForge.\n"
 	. "https://sourceforge.net/account/change_email-complete.php?confirm_hash=$confirm_hash\n\n"
 	. " -- the SourceForge staff\n";
 
-mail ($form_newemail,"SourceForge Verification",$message,"From: noreply@sourceforge.net");
+mail ($form_newemail,"SourceForge Verification",$message,"From: admin@sourceforge.net");
 
 session_securitylog("changeemail","User #$row_user[user_id] requested email change");
 

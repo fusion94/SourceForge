@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: userlist.php,v 1.25 2000/03/07 13:20:24 tperdue Exp $
+// $Id: userlist.php,v 1.24 2000/01/13 18:36:34 precision Exp $
 
 require "pre.php";    
-session_require(array('group'=>'1','admin_flags'=>'A'));
+session_require(array('group'=>'1'));
 site_header(array('title'=>'Alexandria: User List'));
 
 function show_users_list ($result) {

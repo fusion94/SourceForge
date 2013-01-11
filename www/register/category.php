@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: category.php,v 1.16 2000/04/24 13:15:00 dtype Exp $
+// $Id: category.php,v 1.14 2000/01/24 11:11:13 tperdue Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 require "vars.php";
@@ -37,20 +37,45 @@ site_header(array('title'=>'Project Category'));
 <P><B>Project Category</B>
 
 <P>So that visitors to the site can find your project, you should select
-categories that is most appropriate to your project's purpose.
+a category that is most appropriate to your project's purpose.
+If you aren't yet familiar with the
+<A href="/softwaremap/">software map</A>, you should visit it now
+(right click to open it in another window). If a new category should
+be created for this project, please select the category that is closest
+for now, and email our staff with your new category recommendation.
 
-<P>Your project will not be visible in the Trove software map until
-(1) it is approved and (2) you have manually categorized your project in
-your project administration screens.
-
-<P>After project approval, please immediately categorize your project
-following the instructions in the email you will receive.
+<P>If you are registering for a website-only project, select "Web Site"
+as your project category.
 
 <FONT size=-1>
 <FORM action="confirmation.php" method="post">
 <INPUT TYPE="HIDDEN" NAME="show_confirm" VALUE="y">
 <INPUT TYPE="HIDDEN" NAME="group_id" VALUE="<?php echo $group_id; ?>">
 <INPUT TYPE="HIDDEN" NAME="rand_hash" VALUE="<?php echo $rand_hash; ?>">
+Category:
+<BR><?php category_popup("form_category"); ?>
+
+<P>Your project is further categorized by the environments under
+which it can be run, and the languages used.
+<?php
+print '<P><TABLE border="0" cellpadding="0" cellspacing="0"><TR>
+<TD>
+Software Environment:
+<BR><I>Select all that apply.</I>
+';
+
+utils_buildcheckboxarray($SOFTENV,'form_env[]',array());
+
+print '</TD><TD>&nbsp;&nbsp;&nbsp;&nbsp;</TD><TD>
+Languages Used:
+<BR><I>Select all that apply.</I>';
+
+utils_buildcheckboxarray($SOFTLANG,'form_lang[]',array());
+
+print '
+</TD></TR></TABLE>
+';
+?>
 <P>
 <H2><FONT COLOR="RED">Do Not Back Arrow After This Point</FONT></H2> 
 <P>

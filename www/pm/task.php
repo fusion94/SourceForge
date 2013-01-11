@@ -4,11 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: task.php,v 1.9 2000/04/19 16:36:06 tperdue Exp $
+// $Id: task.php,v 1.8 2000/01/13 18:36:36 precision Exp $
 
 require('pre.php');
 require('../pm/pm_utils.php');
-require('../pm/pm_data.php');
 
 if ($group_id && $group_project_id) {
 	/*
@@ -48,7 +47,7 @@ if ($group_id && $group_project_id) {
 
 		case 'postaddtask' : {
 			if (user_ismember($group_id,'P2')) {
-				echo pm_data_create_task ($group_project_id,$start_month,$start_day,$start_year,$end_month,$end_day,$end_year,$summary,$details,$percent_complete,$priority,$hours,$assigned_to,$dependent_on);
+				include '../pm/postadd_task.php';
 				include '../pm/browse_task.php';
 			} else {
 				exit_permission_denied();
@@ -58,7 +57,7 @@ if ($group_id && $group_project_id) {
 
 		case 'postmodtask' : {
 			if (user_ismember($group_id,'P2')) {
-				echo pm_data_update_task ($group_project_id,$project_task_id,$start_month,$start_day,$start_year,$end_month,$end_day,$end_year,$summary,$details,$percent_complete,$priority,$hours,$status_id,$assigned_to,$dependent_on);
+				include '../pm/postmod_task.php';
 				include '../pm/browse_task.php';
 				break;;
 			} else {

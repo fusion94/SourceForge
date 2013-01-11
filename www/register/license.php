@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: license.php,v 1.26 2000/02/14 14:38:04 fusion94 Exp $
+// $Id: license.php,v 1.24 2000/01/24 16:40:53 tperdue Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 require "vars.php";
@@ -82,8 +82,7 @@ your license.
 <LI><A href="http://cvw.mitre.org/cvw/licenses/source/license.html" target="_blank">Collaborative Virtual Workspace License</A>
 <LI><A href="http://www.risource.org/RPL/RPL-1.0A.shtml" target="_blank">Ricoh Source Code Public License 1.0</A>
 <LI><A href="http://www.python.org/doc/Copyright.html" target="_blank">Python License</A>
-<LI><A href="http://www.opensource.org/licenses/zlib-license.html" target="_blank">zlib/libpng License</A>
-<LI><A href="http://www.sourceforge.net/register/publicdomain.txt" target="_blank">Public Domain</A>
+<LI><A href="http://www.oensource.org/licenses/zlib-license.html" target="_blank">zlib/libpng License</A>
 </UL>
 
 <P><B>License for This Project</B>

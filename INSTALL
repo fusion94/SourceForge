@@ -1,5 +1,5 @@
 There really is no SourceForge install procedure, since our
-site is spread across 21 servers.
+site is spread across 14 servers.
 
 You can play with pieces of the site by setting up Apache/PHP
 and pointing the document root to this distribution. It will
@@ -12,4 +12,4 @@ I'm not sure we'll ever really have something as simple as
 an autoconf install, but we may be able to get certain modules
 to work better as independent systems.
 
-                    - The SourceForge Crew <staff@sourceforge.net>
+                    - The SourceForge Crew <admin@sourceforge.net>
