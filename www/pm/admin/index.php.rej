@@ -1,0 +1,17 @@
+***************
+*** 28,34 ****
+                        /*
+                                Insert a new project
+                        */
+!                       $sql="INSERT INTO project_group_list (group_id,project_name,is_public) VALUES ('$group_id','$project_name','$is_public')";
+                        $result=db_query($sql);
+                        if (!$result) {
+                                $feedback .= " Error inserting value ";
+--- 28,34 ----
+                        /*
+                                Insert a new project
+                        */
+!                       $sql="INSERT INTO project_group_list (group_id,project_name,is_public,description) ".
+! 			"VALUES ('$group_id','$project_name','$is_public','". htmlspecialchars($description) ."')";
+                        $result=db_query($sql);
+                        if (!$result) {
