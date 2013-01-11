@@ -4,21 +4,28 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.120 2000/12/09 01:38:44 tperdue Exp $
+// $Id: index.php,v 1.102 2000/09/06 22:23:15 tperdue Exp $
 
 require ('pre.php');    
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 require ('account.php');
 
-session_require(array('group'=>$group_id));
-
 // get current information
-$project=&group_get_object($group_id);
-$res_grp = $project->getData();
-$is_admin=$project->userIsAdmin();
+$res_grp = group_get_result($group_id);
 
-// Only admin can make modifications via this page
-if ($is_admin && $func) {
+if (db_numrows($res_grp) < 1) {
+	exit_error("Invalid Group","That group could not be found.");
+}
+
+//if the project isn't active, require you to be a member of the super-admin group
+if (!(db_result($res_grp,0,'status') == 'A')) {
+	session_require (array('group'=>1));
+}
+
+//must be a project admin
+session_require(array('group'=>$group_id,'admin_flags'=>'A'));
+
+if ($func) {
 	/*
 		updating the database
 	*/
@@ -26,27 +33,24 @@ if ($is_admin && $func) {
 		/*
 			add user to this project
 		*/
+		account_add_user_to_group ($group_id,$form_unix_name);
 
-		if (!$project->addUser($form_unix_name)) {
-			$feedback .= $project->getErrorMessage();
-		} else {
-			$feedback = ' User Added Successfully ';
-		}
-
+		group_add_history ('Added User',$form_unix_name,$group_id);
 	} else if ($func=='rmuser') {
 		/*
 			remove a user from this portal
 		*/
-		if (!$project->removeUser($rm_id)) {
-			$feedback .= $project->getErrorMessage();
+		$res=db_query("DELETE FROM user_group WHERE group_id='$group_id' AND user_id='$rm_id' AND admin_flags <> 'A'");
+		if (!$res || db_affected_rows($res) < 1) {
+			$feedback .= ' User Not Removed - You cannot remove admins from a project. 
+			You must first turn off their admin flag and/or find another admin for the project ';
 		} else {
-			$feedback = ' User Removed Successfully ';
+			$feedback .= ' Removed a User ';
+			group_add_history ('removed user',$rm_id,$group_id);
 		}
 	}
 
 }
-
-$project->clearError();
 
 project_admin_header(array('title'=>"Project Admin: ".group_getname($group_id),'group'=>$group_id));
 
@@ -57,7 +61,7 @@ project_admin_header(array('title'=>"Project Admin: ".group_getname($group_id),'
 echo '<TABLE width=100% cellpadding=2 cellspacing=2 border=0>
 <TR valign=top><TD width=50%>';
 
-$HTML->box1_top("Misc. Project Information"); 
+$HTML->box1_top("Group Edit: " . group_getname($group_id)); 
 
 print '&nbsp;
 <BR>
@@ -67,24 +71,27 @@ Homepage Link: <B>'. db_result($res_grp,0,'homepage') .'</B>
 <P align=center>
 <A HREF="http://'.$GLOBALS['sys_cvs_host'].'/cvstarballs/'. db_result($res_grp,0,'unix_group_name') .'-cvsroot.tar.gz">[ Download Your Nightly CVS Tree Tarball ]</A>
 <P>
+<B>Trove Categorization Info</B> - This group is in the following Trove categories:
 
-<HR NOSHADE>
-<P>
-<H4>Trove Categorization:</H4>
-<P>
+<UL>';
+
+// list all trove categories
+$res_trovecat = db_query('SELECT trove_cat.fullpath AS fullpath,'
+	.'trove_cat.trove_cat_id AS trove_cat_id '
+	.'FROM trove_cat,trove_group_link WHERE trove_cat.trove_cat_id='
+	.'trove_group_link.trove_cat_id AND trove_group_link.group_id='.$group_id
+	.' ORDER BY trove_cat.fullpath');
+while ($row_trovecat = db_fetch_array($res_trovecat)) {
+	print ('<LI>'.$row_trovecat['fullpath'].' '
+		.help_button('trove_cat',$row_trovecat['trove_cat_id'])."\n");
+}
+
+print '
+</UL>
+<P align="center">
 <A href="/project/admin/group_trove.php?group_id='.$group_id.'">'
 .'<B>[Edit Trove Categorization]</B></A>
-<P>
-<HR NOSHADE>
-<P>
-<H4>Showing The SourceForge Logo:</H4>
-<P>
-'.
-htmlspecialchars('<A href="http://sourceforge.net"> 
-<IMG src="http://sourceforge.net/sflogo.php?group_id='. $group_id .'" width="88" height="31"
-border="0" alt="SourceForge Logo"></A>');
-
-echo '<P>'.html_image('/images/sflogo-88-1.png','88','31',array(),0);
+';
 
 $HTML->box1_bottom(); 
 
@@ -100,46 +107,41 @@ $HTML->box1_top("Group Members");
 
 */
 
-$res_memb = db_query("SELECT users.realname,users.user_id,users.user_name,user_group.admin_flags ".
-		"FROM users,user_group ".
-		"WHERE users.user_id=user_group.user_id ".
+$res_memb = db_query("SELECT user.realname,user.user_id,user.user_name ".
+		"FROM user,user_group ".
+		"WHERE user.user_id=user_group.user_id ".
 		"AND user_group.group_id=$group_id");
 
 	print '<TABLE WIDTH="100%" BORDER="0">
 ';
 	while ($row_memb=db_fetch_array($res_memb)) {
-		if ($row_memb['admin_flags']=='A') $img="trash-x.png";
-		else $img="trash.png";
-                if ($is_admin) $button='<INPUT TYPE="IMAGE" NAME="DELETE" SRC="/images/ic/'.$img.'" HEIGHT="16" WIDTH="16" BORDER="0">';
-                else $button='&nbsp;';
 		print '
 		<FORM ACTION="'. $PHP_SELF .'" METHOD="POST"><INPUT TYPE="HIDDEN" NAME="func" VALUE="rmuser">'.
 		'<INPUT TYPE="HIDDEN" NAME="rm_id" VALUE="'.$row_memb['user_id'].'">'.
 		'<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'. $group_id .'">'.
-		'<TR><TD ALIGN="MIDDLE">'.$button.'</TD></FORM>'.
+		'<TR><TD ALIGN="MIDDLE"><INPUT TYPE="IMAGE" NAME="DELETE" SRC="/images/ic/trash.png" HEIGHT="16" WIDTH="16" BORDER="0"></TD></FORM>'.
 		'<TD><A href="/users/'.$row_memb['user_name'].'/">'.$row_memb['realname'].'</A></TD></TR>';
 	}
 	print '</TABLE>
+	<HR NoShade SIZE="1">
 ';
 
 /*
 	Add member form
 */
 
-if ($is_admin)
 echo '
-	<HR NoShade SIZE="1">
 	<FORM ACTION="'. $PHP_SELF .'" METHOD="POST">
 	<INPUT TYPE="hidden" NAME="func" VALUE="adduser">
 	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'. $group_id .'">
 	<TABLE WIDTH="100%" BORDER="0">
-	<TR><TD><B>Unix Name:</B></TD><TD><INPUT TYPE="TEXT" NAME="form_unix_name" SIZE=10 VALUE=""></TD></TR>
+	<TR><TD><B>Unix Name:</B></TD><TD><INPUT TYPE="TEXT" NAME="form_unix_name" VALUE=""></TD></TR>
 	<TR><TD COLSPAN="2" ALIGN="CENTER"><INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Add User"></TD></TR></FORM>
 	</TABLE>
 
 	<HR NoShade SIZE="1">
 	<div align="center">
-	<A href="/project/admin/userperms.php?group_id='. $group_id.'">[Edit Member Permissions]</A>
+        <A href="/project/admin/userperms.php?group_id='. $group_id.'">[Edit Member Permissions]</A>
 	</div>
 	</TD></TR>
 ';
@@ -191,7 +193,7 @@ $HTML->box1_top("File Releases"); ?>
 	</CENTER>
 
 	<HR>
-	<B>Packages:</B> <A href="/docman/display_doc.php?docid=780&group_id=1">Documentation</A> (Very Important!)
+	<B>Packages:</B> <A href="/docs/site/modules.php">Documentation</A> (Very Important!)
 
 	<P><?php
 

@@ -2,13 +2,14 @@
 // Default Web Page for groups that haven't setup their page yet
 // Please replace this file with your own website
 //
-// $Id: default_page.php,v 1.3 2000/11/03 22:35:29 kingdon Exp $
+// $Id: default_page.php,v 1.2 2000/01/07 18:11:56 precision Exp $
 //
 $headers = getallheaders();
 ?>
 <HTML>
 <HEAD>
 <TITLE>SourceForge: Welcome</TITLE>
+<LINK rel="stylesheet" href="http://sourceforge.net/sourceforge.css" type="text/css">
 </HEAD>
 
 <BODY bgcolor=#FFFFFF topmargin="0" bottommargin="0" leftmargin="0" rightmargin="0" marginheight="0" marginwidth="0">

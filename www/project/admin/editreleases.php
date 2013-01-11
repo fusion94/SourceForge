@@ -4,389 +4,705 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editreleases.php,v 1.50 2000/12/13 18:59:36 dbrogdon Exp $
-
-/* Updated rewrite of the File Release System to clean up the UI 
- * a little and incorporate FRS.class.		-Darrell
- */
+// $Id: editreleases.php,v 1.39 2000/08/21 12:35:12 tperdue Exp $
 
 require ('pre.php');    
-require ('frs.class');
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
-session_require(array('group'=>$group_id));
-$project=&group_get_object($group_id);
-if (!$project->userIsReleaseTechnician()) exit_permission_denied();
-
-project_admin_header(array('title'=>'Release New File Version','group'=>$group_id));
-
-// Create a new FRS object
-$frs = new FRS($group_id);
 
 /*
- * Here's where we do the dirty work based on the step the user has chosen
- */
 
-// Edit release info
-if ($step1) {	
-	$exec_changes = true;
+	File release system rewrite, Tim Perdue, SourceForge, Aug, 2000
 
-	// Check for uploaded release notes
-	if ($uploaded_notes != "none") {
-		$notes = addslashes(fread(fopen($HTTP_POST_FILES['uploaded_notes']['tmp_name'],'r'),filesize($HTTP_POST_FILES['uploaded_notes']['tmp_name'])));
-		if ((strlen($notes) < 20) || (strlen($notes) > 256000)) {
-			$feedback .= " Release Notes Are Either Too Small Or Too Large ";
-			$exec_changes = false;
-		}
-    } else {
-		$notes = $release_notes;
-	}
 
-	// Check for uplaoded change logs
-	if ($uploaded_changes != "none") {
-		$changes = addslashes(fread(fopen($HTTP_POST_FILES['uploaded_changes']['tmp_name'],'r'), filesize($HTTP_POST_FILES['uploaded_changes']['tmp_name'])));
-		if ((strlen($changes) < 20) || (strlen($changes) > 256000)) {
-			$feedback .= " Change Log Is Either Too Small Or Too Large ";
-			$exec_changes = false;
-		}
-	} else {
-		$changes = $release_changes;
-	}
+	Sorry this is a large, complex page but this is a very complex process
 
-	// If we haven't encountered any problems so far then save the changes
-	if ($exec_changes == true) {
-		if ($frs->frsChangeRelease($release_date, $release_name, $preformatted, $status_id, $notes, $changes, $package_id, $release_id)) {
-			$feedback .= " Data Saved ";
+
+	If you pass just the group_id, you will be given a list of releases
+	with the option to edit those releases or create a new release
+
+
+	If you pass the group_id plus the package_id, you will get the list of 
+		releases with just the releases of that package shown
+
+	If you pass in the release_id, you are essentially "editing" that release
+		You are presented with three boxes:
+		1. edit/add the change/release notes
+			You can either upload them, or paste them in
+		2. select from the files you've uploaded
+			This is an improvement because you can select
+			a bunch of files at once and attach them all to the 
+			same release and same change notes
+		3. edit the files in the release
+			delete/change files in this release
+
+
+*/
+
+
+session_require(array('group'=>$group_id,'admin_flags'=>'A'));
+
+if ($submit) {
+	/*
+
+		make updates to the database
+
+	*/
+	if ($func=='add_release' && $release_name && $package_id) {
+
+		/*
+
+			Create a new release of this package
+
+			First, make sure the package is theirs
+			Second, add the release of the package
+			Third, get the new release_id and make it available below
+
+		*/
+
+		if (!$release_name || !$package_id) {
+			$feedback .= ' Must create a package before you create a release. You must also include a release name. ';
 		} else {
-			$feedback .= $frs->getErrorMessage();
-		}
-	}
-} 
+			//create a new release of this package
 
-// Add file(s) to the release
-if ($step2) {	
-	// Build a Unix time value from the supplied Y-m-d value
-	$group_unix_name=group_getunixname($group_id);
-	$project_files_dir=$FTPFILES_DIR.$group_unix_name;
-
-	// For every file selected add that file to this release
-	for($x=0;$x<count($file_list);$x++) {
-		$frs->frsMoveFile($file_list[$x], $group_unix_name, time(), $FTPINCOMING_DIR, $release_id);
-		$frs->frsVerifyFileMoved("$project_files_dir/$file_list[$x]");
-		$frs->frsAddFile(time(), $file_list[$x], filesize("$project_files_dir/$file_list[$x]"), time(), $release_id, $package_id);
-		if( !$frs->isError() ) {
-			$feedback .= " File(s) Added ";
+			//see if this package belongs to this project
+			$res1=db_query("SELECT * FROM frs_package WHERE package_id='$package_id' AND group_id='$group_id'");
+			if (!$res1 || db_numrows($res1) < 1) {
+				$feedback .= ' | Package Doesn\'t Exist Or Isn\'t Yours ';
+				echo db_error();
+			} else {
+				//package_id was fine - now insert the release
+				$res=db_query("INSERT INTO frs_release (package_id,name,status_id,release_date,released_by) ".
+					"VALUES ('$package_id','$release_name','1','". time() ."','". user_getid() ."')");
+				if (!$res) {
+					$feedback .= ' | Adding Release Failed ';
+					echo db_error();
+					//insert failed - go back to definition screen
+				} else {
+					//release added - now show the detail page for this new release
+					$release_id=db_insertid($res);
+					$feedback .= ' Added Release ';
+				}
+			}
 		}
-	}
+
+	} else if ($func=='update_release' && $release_id) {
+		/*
+
+			updating frs_release
+
+			They could be uploading the change_log or release_notes or it may be pasted in
+
+			They could also change the package_id, so we need to see 
+				again if it's a legit package_id for this project
+
+		*/
+		$feedback .= ' Updating Release ';
+		if ($upload_instead) {
+			$code = addslashes(fread( fopen($uploaded_data, 'r'), filesize($uploaded_data)));
+			if ((strlen($code) > 20) && (strlen($code) < 256000)) {
+				//size is fine
+				$feedback .= ' | Data Uploaded ';
+			} else {
+				//too big or small
+				$feedback .= ' | ERROR - uploaded data must be > 20 chars and < 256k in length ';
+				$code='';
+			}
+			if ($upload_instead == 1) {
+				//uploaded change log
+				$changes=$code;
+			} else if ($upload_instead == 2) {
+				//uploaded release notes
+				$notes=$code;
+			} else {
+				$feedback .= ' | ERROR invalid upload flag ';
+			}
+		}
+
+
+		if (!$release_name || !$package_id || !$status_id) {
+			$feedback .= ' Must create a package before you create a release. You must also include a release name and status. ';
+		} else {
+			//see if this release belongs to this project
+			$res1=db_query("SELECT frs_package.package_id FROM frs_package,frs_release ".
+					"WHERE frs_package.package_id='$package_id' ".
+					"AND frs_package.group_id='$group_id' ".
+					"AND frs_release.release_id='$release_id' ".
+					"AND frs_release.package_id=frs_package.package_id");
+			if ($new_package_id != $package_id) {
+				//changing to a different package for this release
+				$res2=db_query("SELECT * FROM frs_package WHERE package_id='$new_package_id' AND group_id='$group_id'");
+				if (!$res2 || db_numrows($res2) < 1) {
+					//new package_id isn't theirs
+					exit_error('ERROR','Trying to change to a package that isn\'t yours');
+				}
+			}
+			if (!$res1 || db_numrows($res1) < 1) {
+				$feedback .= ' | Package Release Doesn\'t Exist Or Isn\'t Yours ';
+				echo db_error();
+				unset($editrelease);
+			} else {
+				//release was there's and they have the right to update it
+				if ($status_id != 1) {
+					//if hiding a package, refuse if it has files under it
+					$res=db_query("SELECT * FROM frs_file WHERE release_id='$release_id'");
+					if (db_numrows($res) > 0) {
+						$feedback .= ' | Sorry - you cannot delete a release that still contains files ';
+						$status_id=1;
+					}
+				}
+
+				//now update the file entry
+				if (!ereg("[0-9]{4}-[0-9]{2}-[0-9]{2}",$release_date)) {
+					$feedback .= ' | Sorry - Date entry could not be parsed. It must be in YYYY-MM-DD format. ';
+				} else { //is valid date... parse it
+
+					$date_list = split("-",$release_date,3);
+					$unix_release_time = mktime(0,0,0,$date_list[1],$date_list[2],$date_list[0]);
+
+					$res=db_query("UPDATE frs_release SET release_date='$unix_release_time',name='$release_name',preformatted='$preformatted', ".
+						"status_id='$status_id',package_id='$new_package_id',notes='$notes',changes='$changes' ".
+						"WHERE release_id='$release_id'");
+					if (!$res) {
+						$feedback .= ' | Updating Release Failed ';
+						echo db_error();
+					} else {
+						$feedback .= ' | Updated Release ';
+					}
+				}
+			}
+		}
+
+	} else if ($func=='update_file' && $file_id) {
+		/*
+
+			Update a file in this release - you can move files between 
+				package releases if you want
+
+			First, make sure this file is theirs
+			Second, if they're moving it to another release, make sure that release is theirs
+			Third, verify the date is parseable
+			Fourth, update the file's info
+
+		*/
+
+		//see if this file is part of this release/project/package
+		$res1=db_query("SELECT frs_package.package_id FROM frs_package,frs_release,frs_file ".
+			"WHERE frs_package.group_id='$group_id' ".
+			"AND frs_release.release_id=frs_file.release_id ".
+			"AND frs_release.package_id=frs_package.package_id ".
+			"AND frs_file.file_id='$file_id'");
+		if (!$res1 || db_numrows($res1) < 1) {
+			//release not found for this project
+			$feedback .= " | Not Your File Or File Doesn't Exist ";
+			echo db_error();
+		} else {
+			//file found and it is for this release/project/package
+			if ($new_release_id != $release_id) {
+				//changing to a different release for this file
+				//see if the new release is valid for this project
+				$res2=db_query("SELECT frs_package.package_id FROM frs_package,frs_release ".
+				"WHERE frs_package.group_id='$group_id' ".
+				"AND frs_release.release_id='$new_release_id' ".
+				"AND frs_release.package_id=frs_package.package_id");
+
+				if (!$res2 || db_numrows($res2) < 1) {
+					//release not found for this project
+					exit_error('ERROR','Not Your Release Or Release Doesn\'t Exist');
+				}
+			}
+			//now update the file entry
+			if (!ereg("[0-9]{4}-[0-9]{2}-[0-9]{2}",$release_time)) {
+				$feedback .= ' | Sorry - Date entry could not be parsed. It must be in YYYY-MM-DD format. ';
+			} else { //is valid date... parse it
+				$date_list = split("-",$release_time,3);
+				$unix_release_time = mktime(0,0,0,$date_list[1],$date_list[2],$date_list[0]);
+
+				$res=db_query("UPDATE frs_file SET release_id='$new_release_id',release_time='$unix_release_time',type_id='$type_id',processor_id='$processor_id' ".
+					"WHERE file_id='$file_id'");
+				$feedback .= ' File Updated ';
 }
+		}
 
-// Edit/Delete files in a release
-if ($step3) {	
-	// If the user chose to delete the file and he's sure then delete the file
-	if( $step3 == "Delete File" && $im_sure ) {
-		// delete the file from the database
-		$frs->frsDeleteFile($file_id, $group_id);
-		if( !$frs->isError() ) {
+	} else if ($func=='add_files' && $file_list) {
+		/*
+
+			Add a file to this release
+
+
+			First, make sure this release belongs to this group
+
+			iterate the following for each file:
+
+			Second see if the filename is legal
+			Third see if they already have a file by the same name
+			Fourth if file actually exists, physically move the file on garbage to the new location
+			Fifth insert it into the database
+
+
+		*/
+		$group_unix_name=group_getunixname($group_id);
+		$project_files_dir=$FTPFILES_DIR.$group_unix_name;
+
+		$count=count($file_list);
+		if ($count > 0) {
+			$feedback .= ' Adding File(s) ';
+			//see if this release belongs to this project
+			$res1=db_query("SELECT frs_package.package_id FROM frs_package,frs_release ".
+				"WHERE frs_package.group_id='$group_id' ".
+				"AND frs_release.release_id='$release_id' ".
+				"AND frs_release.package_id=frs_package.package_id");
+			if (!$res1 || db_numrows($res1) < 1) {
+				//release not found for this project
+				$feedback .= " | Not Your Release Or Release Doesn't Exist ";
+			} else {
+				$now=time();
+				//iterate and add the files to the frs_file table
+				for ($i=0; $i<$count; $i++) {
+					//see if filename is legal before adding it
+					if (!util_is_valid_filename ($file_list[$i])) {
+						$feedback .= " | Illegal FileName: $file_list[$i] ";
+					} else {
+						//see if they already have a file by this name
+
+						$res1=db_query("SELECT frs_package.package_id FROM frs_package,frs_release,frs_file ".
+							"WHERE frs_package.group_id='$group_id' ".
+							"AND frs_release.release_id=frs_file.release_id ".
+							"AND frs_release.package_id=frs_package.package_id ".
+							"AND frs_file.filename='$file_list[$i]'");
+						if (!$res1 || db_numrows($res1) < 1) {
+
+							/*
+								move the file to the project's fileserver directory
+							*/
+							clearstatcache();
+							if (is_file($FTPINCOMING_DIR.'/'.$file_list[$i]) && file_exists($FTPINCOMING_DIR.'/'.$file_list[$i])) {
+								//move the file to a its project page using a setuid program
+								exec ("/usr/local/bin/fileforge $file_list[$i] ".$group_unix_name,$exec_res);
+								if ($exec_res[0]) {
+									echo '<h3>'.$exec_res[0],$exec_res[1].'</H3><P>';
+								}
+								//add the file to the database
+								$res=db_query("INSERT INTO frs_file ".
+									"(release_time,filename,release_id,file_size,post_date) ".
+									"VALUES ('$now','$file_list[$i]','$release_id','". filesize("$project_files_dir/$file_list[$i]") ."','$now') ");
+								if (!$res) {
+									$feedback .= " | Couldn't Add FileName: $file_list[$i] ";
+									echo db_error();
+								}
+							} else {
+								$feedback .= " | FileName Invalid Or Does Not Exist: $file_list[$i] ";
+							}
+						} else {
+							$feedback .= " | FileName Already Exists For This Project: $file_list[$i] ";
+						}
+					}
+				}
+			}
+		} else {
+			//do nothing
+			$feedback .= ' No Files Selected ';
+		}
+	} else if ($func=='delete_file' && $file_id && $im_sure) {
+		/*
+
+			Physically delete a file from the download server and database
+
+			First, make sure the file is theirs
+			Second, delete it from the db
+			Third, delete it from the download server
+
+
+		*/
+		$res1=db_query("SELECT frs_file.filename FROM frs_package,frs_release,frs_file ".
+		"WHERE frs_package.group_id='$group_id' ".
+		"AND frs_release.release_id=frs_file.release_id ".
+		"AND frs_release.package_id=frs_package.package_id ".
+		"AND frs_file.file_id='$file_id'");
+		if (!$res1 || db_numrows($res1) < 1) {
+			//release not found for this project
+			$feedback .= " Not Your File Or File Doesn't Exist ";
+		} else {
+			/*
+				delete the file from the database
+			*/
+			db_query("DELETE FROM frs_file WHERE file_id='$file_id'");
+			//append the filename and project name to a temp file for the root perl job to grab
+			exec ("/bin/echo \"". db_result($res1,0,'filename') ."::". group_getunixname($group_id) ."::xxx\" >> $FTPINCOMING_DIR/.delete_files");
 			$feedback .= " File Deleted ";
 		}
-	// Otherwise update the file information
-	} else {
-		$frs->frsChangeFile($release_time, $type_id, $processor_id, $file_id, $new_release_id, $package_id);
-		if( !$frs->isError() ) {
-			$feedback .= " File Updated ";
+	} else if ($func=='send_notice' && $package_id && $im_sure) {
+		/*
+			Send a release notification email
+		*/
+		$sql="SELECT user.email,frs_package.name ".
+			"FROM user,filemodule_monitor,frs_package ".
+			"WHERE user.user_id=filemodule_monitor.user_id ".
+			"AND filemodule_monitor.filemodule_id=frs_package.package_id ".
+			"AND filemodule_monitor.filemodule_id='$package_id' ".
+			"AND frs_package.group_id='$group_id'";
+		
+		$result=db_query($sql);
+		echo db_error();
+		if ($result && db_numrows($result) > 0) {
+			//send the email
+			$array_emails=result_column_to_array($result);
+			$list=implode($array_emails,', ');
+		
+			$subject='SourceForge File Release Notice';
+		
+			$body = "To: noreply@$GLOBALS[HTTP_HOST]".
+				"\nBCC: $list".
+				"\nSubject: $subject".
+				"\n\nA new version of ". db_result($result,0,'name')." has been released. ".
+				"\nYou can download it from SourceForge by following this link: ".
+				"\n\n<http://".$GLOBALS['HTTP_HOST']."/project/showfiles.php?group_id=$group_id&release_id=$release_id> ".
+				"\n\nYou requested to be notified when new versions of this file ".
+				"\nwere released. If you don't wish to be notified in the ".
+				"\nfuture, please login to SourceForge and click this link: ".
+				"\n<http://$GLOBALS[HTTP_HOST]/project/filemodule_monitor.php?filemodule_id=$package_id> ";
+			
+			exec ("/bin/echo \"$body\" | /usr/sbin/sendmail -fnoreply@$GLOBALS[HTTP_HOST] -t");
+			$feedback .= ' email sent - '. db_numrows($result) .' users tracking ';
 		}
 	}
 }
 
-// Send email notice
-if ($step4) {
-		$frs->frsSendNotice($group_id, $release_id, $package_id);
-		if( !$frs->isError() ) {
-				$feedback .= " Email Notice Sent ";
+?><?php
+
+if ($release_id) {
+
+/*
+
+
+	Show a specific release so it can be edited
+
+	There are three differents parts of this, as described above
+
+
+*/
+
+	$sql="SELECT frs_release.release_date,frs_release.package_id,frs_release.name AS release_name,frs_release.status_id,".
+		"frs_release.notes,frs_release.changes,frs_release.preformatted, ".
+		"frs_package.name AS package_name ".
+		"FROM frs_release,frs_package ".
+		"WHERE frs_release.release_id='$release_id' ".
+		"AND frs_package.package_id=frs_release.package_id ".
+		"AND frs_package.group_id='$group_id'";
+	$result=db_query($sql);
+	if (!$result || db_numrows($result) < 1) {
+		//this result wasn't found
+		echo db_error();
+		exit_error('ERROR','That release ID was not found in the database');
+	}
+
+	project_admin_header(array('title'=>'Release New File Version','group'=>$group_id));
+
+	echo '<TABLE BORDER="0" WIDTH="100%">
+		<TR><TD>
+		<H2>Step 1</H2>
+		<P>
+		Edit the change notes for this release of this package. These notes will apply to all files attached to this release.
+		<P>';
+	/*
+
+		Show the release notes info and release status
+
+	*/
+
+	//get the package_id for use below
+	$package_id=db_result($result,0,'package_id');
+
+	echo '<FORM ACTION="'.$PHP_SELF.'" METHOD="POST" enctype="multipart/form-data">
+		<INPUT TYPE="HIDDEN" NAME="func" VALUE="update_release">
+		<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
+		<INPUT TYPE="HIDDEN" NAME="release_id" VALUE="'.$release_id.'">
+		<INPUT TYPE="HIDDEN" NAME="package_id" VALUE="'. db_result($result,0,'package_id') .'">
+
+		<H3>Edit Release:'. htmlspecialchars(db_result($result,0,'release_name')) .' of Package: '. db_result($result,0,'package_name') .'</H3>
+		<P>
+		<B>Release Date:</B><BR>
+		<INPUT TYPE="TEXT" NAME="release_date" VALUE="'. date('Y-m-d',db_result($result,0,'release_date')) .'" SIZE="10" MAXLENGTH="10">
+		<P>
+		<B>Release Name:</B><BR>
+		<INPUT TYPE="TEXT" NAME="release_name" VALUE="'. db_result($result,0,'release_name') .'" SIZE="20" MAXLENGTH="25">
+		<P>
+		<B>Status:</B><BR>
+		'. frs_show_status_popup ('status_id',db_result($result,0,'status_id')) .'
+		<P>
+		<B>Of Package:</B><BR>
+		'. frs_show_package_popup ($group_id,'new_package_id',db_result($result,0,'package_id')) .'
+		<P>
+		You can either upload the release notes and change log individually, or paste them in together below.
+		<BR>
+		<INPUT TYPE="RADIO" NAME="upload_instead" VALUE="0" CHECKED> <B>Paste The Notes In</B><BR>
+		<INPUT TYPE="RADIO" NAME="upload_instead" VALUE="1"> <B>Upload Change Log</B><BR>
+		<INPUT TYPE="RADIO" NAME="upload_instead" VALUE="2"> <B>Upload Release Notes</B><BR>
+		<P>
+		<input type="file" name="uploaded_data"  size="30">
+		<P>
+		<B>Release Notes:</B><BR>
+		<TEXTAREA NAME="notes" ROWS="10" COLS="60" WRAP="SOFT">'. htmlspecialchars(db_result($result,0,'notes')) .'</TEXTAREA>
+		<P>
+		<B>Change Log:</B><BR>
+		<TEXTAREA NAME="changes" ROWS="10" COLS="60" WRAP="SOFT">'. htmlspecialchars(db_result($result,0,'changes')) .'</TEXTAREA>
+		<P>
+		<INPUT TYPE="CHECKBOX" NAME="preformatted" VALUE="1" '.((db_result($result,0,'preformatted'))?'CHECKED':'').'> Preserve my pre-formatted text.
+		<P>
+		<INPUT TYPE="SUBMIT" NAME="submit" VALUE="Submit/Refresh">
+		</FORM>';
+
+/*
+
+
+	Show other files in the upload directory
+	So they can be attached to this release
+
+
+*/
+
+
+	echo '</TD></TR>
+		<TR><TD>
+		<HR NOSHADE>
+		<H2>Step 2</H2>
+		<P>
+		<H3>Add Files To This Release</H3>
+		<P>
+		Choose your files from the list below. Choose <B>ONLY YOUR files.</B> If you choose someone else\'s files, 
+		they will not be able to access them and they will be rightfully upset.
+		<P>
+		You can upload new files using FTP to <B>download.sourceforge.net</B> in the <B>incoming</B> directory. When you 
+		are done uploading, just hit the refresh button to see the new files.
+		<P>
+		<FORM ACTION="'.$PHP_SELF.'" METHOD="POST" enctype="multipart/form-data">
+		<INPUT TYPE="HIDDEN" NAME="func" VALUE="add_files">
+		<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
+		<INPUT TYPE="HIDDEN" NAME="release_id" VALUE="'.$release_id.'">';
+
+	$dirhandle = opendir($FTPINCOMING_DIR);
+
+	//iterate and show the files in the upload directory
+	while ($file = readdir($dirhandle)) {
+		if (!ereg('^\.',$file[0])) {
+	       //file doesn't start with a .
+			$atleastone = 1;
+			print '
+				<INPUT TYPE="CHECKBOX" NAME="file_list[]" value="'.$file.'">'.$file.'<BR>';
 		}
-}
+	}
 
-if ($package_id) {
-	//narrow the list to just this package's releases
-	$pkg_str = "AND frs_package.package_id='$package_id'";
-}
+	echo '<P>
+	<INPUT TYPE="SUBMIT" NAME="submit" VALUE="Add Files and/or Refresh View">
+	</FORM>';
+	if (!$atleastone) {
+		print '<h3>No available files</H3>
+			<P>
+			You can upload files using FTP to <B>download.sourceforge.net</B> 
+			in the <B>/incoming</B> directory, then hit <B>Refresh View</B>.';
+	}
 
-if( !$release_id ) {
-	$res=$frs->frsGetReleaseList($pkg_str);
+
+?><?php
+
+/*
+
+
+	Show files already attached to this release
+
+
+*/
+
+
+
+	echo '</TD></TR>
+		<TR><TD>
+		<HR NOSHADE>
+		<H2>Step 3</H2>
+		<P>
+		<H3>Edit Files in this Release:</H3>
+		<P>
+		You <B>must</B> update each of these files with the correct information or 
+		they will not appear on your download summary page.
+		<P>';
+
+	$sql="SELECT * FROM frs_file WHERE release_id='$release_id'";
+	$res=db_query($sql);
+	$rows=db_numrows($res);
+	if (!$res || $rows < 1) {
+		echo '<H4>No Files In This Release</H4>
+			<P>
+			You can add files using the box below';
+	} else {
+		$title_arr=array();
+		$title_arr[]='Filename<BR>Release';
+		$title_arr[]='Processor<BR>Release Date';
+		$title_arr[]='File Type<BR>Update';
+
+		echo html_build_list_table_top ($title_arr);
+
+		/*
+
+			iterate and show the files in this release
+
+		*/
+
+		for ($i=0; $i<$rows; $i++) {
+			echo '
+			<FORM ACTION="'. $PHP_SELF .'" METHOD="POST">
+			<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
+			<INPUT TYPE="HIDDEN" NAME="release_id" VALUE="'.$release_id.'">
+			<INPUT TYPE="HIDDEN" NAME="func" VALUE="update_file">
+			<INPUT TYPE="HIDDEN" NAME="file_id" VALUE="'. db_result($res,$i,'file_id') .'">
+			<TR BGCOLOR="'. util_get_alt_row_color($i) .'">
+				<TD NOWRAP><FONT SIZE="-1">'. db_result($res,$i,'filename') .'</TD>
+				<TD><FONT SIZE="-1">'. frs_show_processor_popup ('processor_id', db_result($res,$i,'processor_id')) .'</TD>
+				<TD><FONT SIZE="-1">'. frs_show_filetype_popup ('type_id', db_result($res,$i,'type_id')) .'</TD>
+			</TR>
+			<TR BGCOLOR="'. util_get_alt_row_color($i) .'">
+				<TD><FONT SIZE="-1">'. 
+					frs_show_release_popup ($group_id, $name='new_release_id',db_result($res,$i,'release_id')) .'</TD>
+				<TD><FONT SIZE="-1"><INPUT TYPE="TEXT" NAME="release_time" VALUE="'. date('Y-m-d',db_result($res,$i,'release_time')) .'" SIZE="10" MAXLENGTH="10"></TD>
+				<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="submit" VALUE="Update/Refresh"></TD>
+			</TR></FORM>
+			<FORM ACTION="'. $PHP_SELF .'" METHOD="POST">
+			<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
+			<INPUT TYPE="HIDDEN" NAME="release_id" VALUE="'.$release_id.'">
+			<INPUT TYPE="HIDDEN" NAME="func" VALUE="delete_file">
+			<INPUT TYPE="HIDDEN" NAME="file_id" VALUE="'. db_result($res,$i,'file_id') .'">
+			<TR BGCOLOR="'. util_get_alt_row_color($i) .'">
+				<TD><FONT SIZE="-1">&nbsp;</TD>
+				<TD><FONT SIZE="-1">&nbsp;</TD>
+				<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="submit" VALUE="Delete File"> <INPUT TYPE="checkbox" NAME="im_sure" VALUE="1"> I\'m Sure </TD>
+			</TR></FORM>';
+		}
+		echo '</TABLE>';
+	}
+/*
+
+	Send out file release notice
+
+*/
+	$count=db_result(db_query("SELECT count(*) from filemodule_monitor WHERE filemodule_id='$package_id'"),0,0);
+	if ($count>0) {
+	echo '</TD></TR>
+		<TR><TD>
+		<HR NOSHADE>
+		<H2>Step 4</H2>
+		<P>
+		<H3>Email File Release Notice:</H3>
+		<P>
+		'. $count .' user(s) are monitoring your package. You should send a notice of your file release.
+		<P>
+		<FORM ACTION="'. $PHP_SELF .'" METHOD="POST">
+		<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
+		<INPUT TYPE="HIDDEN" NAME="release_id" VALUE="'.$release_id.'">
+		<INPUT TYPE="HIDDEN" NAME="func" VALUE="send_notice">
+		<INPUT TYPE="HIDDEN" NAME="package_id" VALUE="'. $package_id .'">
+		<INPUT TYPE="SUBMIT" NAME="submit" VALUE="Send Notice"> <INPUT TYPE="checkbox" NAME="im_sure" VALUE="1"> I\'m Sure
+		</FORM>';
+	}
+	echo '</TD></TR></TABLE>';
+
+} else {
+	/*
+
+		Show existing releases and a form to create a new release
+
+	*/
+	project_admin_header(array('title'=>'Release New File Version','group'=>$group_id));
+
+	echo '<H3>Define a New Release of a Package</H3>
+	<P>
+	A release of a package can contain multiple files.
+	<P>
+	<H4>An example of different releases:</h4>
+	<BR>
+	<B>3.22.1</B><BR>
+	<B>3.22.2</B><BR>
+	<B>3.23-beta1</B>
+	<P>
+	<h4>Your Releases:</H4>';
+
+	/*
+
+		Show a list of existing releases
+		for this project so they can
+		be edited in detail
+
+	*/
+
+	if ($package_id) {
+		//narrow the list to just this package's releases
+		$pkg_str = "AND frs_package.package_id='$package_id'";
+	}
+
+	$res=db_query("SELECT frs_release.release_id,frs_package.name AS package_name,".
+		"frs_package.package_id,frs_release.name AS release_name,frs_release.status_id,frs_status.name AS status_name ".
+		"FROM frs_release,frs_package,frs_status ".
+		"WHERE frs_package.group_id='$group_id' ".
+		"AND frs_release.package_id=frs_package.package_id ".
+		" $pkg_str ".
+		"AND frs_status.status_id=frs_release.status_id");
+
 	$rows=db_numrows($res);
 	if (!$res || $rows < 1) {
 		echo '<h4>You Have No Releases '.(($package_id)?'Of This Package ':'').'Defined</h4>';
 		echo db_error();
 	} else {
 		/*
+
 			Show a list of releases
 			For this project or package
+
 		*/
 		$title_arr=array();
 		$title_arr[]='Release Name';
 		$title_arr[]='Package Name';
 		$title_arr[]='Status';
-	
+
 		echo html_build_list_table_top ($title_arr);
 
 		for ($i=0; $i<$rows; $i++) {
-?>
-
-<tr bgcolor="<?php echo html_get_alt_row_color($i); ?>">
-	<td>
-		<font size="-1">
-			<?php echo db_result($res,$i,'release_name'); ?>
-			<a href="editreleases.php?package_id=<?php echo $package_id; ?>&release_id=<?php echo db_result($res,$i,'release_id'); ?>&group_id=<?php echo $group_id; ?>">[Edit This Release]</a>
-		</font>
-	</td>
-	<td>
-		<font size="-1">
-			<?php echo db_result($res,$i,'package_name'); ?>
-			<a href="editpackages.php?group_id=<?php echo $group_id; ?>">[Edit This Package]</a>
-		</font>
-	</td>
-	<td>
-		<font size="-1"><?php echo db_result($res,$i,'status_name'); ?></font>
-	</td>
-</tr>
-</form>
-
-<?php
-	}
-}
-	echo "</table>\n";
-}
-
-/*
- * Show the forms for each step
- */
-if( $release_id ) {
-?>
-
-<h3>
-Step 1:&nbsp;&nbsp;
-Edit Existing Release
-<!-- Edit release '<i><?php // echo $frs->frsResolveRelease("release_name", $release_id, $group_id); ?></i>'  -->
-<!-- of package '<i><?php // echo $frs->frsResolveRelease("package_name", $release_id, $group_id); ?></i>' -->
-</h3>
-
-<form enctype="multipart/form-data" method="post" action="<?php echo $PHP_SELF; ?>">
-<input type="hidden" name="group_id" value="<?php echo $group_id; ?>">
-<input type="hidden" name="package_id" value="<?php echo $package_id; ?>">
-<input type="hidden" name="release_id" value="<?php echo $release_id; ?>">
-<input type="hidden" name="step1" value="1">
-<table border="0" cellpadding="1" cellspacing="1">
-<?php
-	if(!($result = $frs->frsGetRelease($release_id))) {
-		$feedback .= $frs->getErrorMessage();
-	}
-?>
-<tr>
-	<td width="10%"><b>Release Date:<b></td>
-	<td><input type="text" name="release_date" value="<?php echo date('Y-m-d',db_result($result,0,'release_date')) ?>" size="10" maxlength="10"></td>
-</tr>
-<tr>
-	<td><b>Release Name:<b></td>
-	<td><input type="text" name="release_name" value="<?php echo htmlspecialchars(db_result($result,0,'release_name')); ?>"></td>
-</tr>
-<tr>
-	<td><b>Status:</b></td>
-	<td>
-		<?php 
-			echo frs_show_status_popup('status_id',db_result($result,0,'status_id')); 
-		?>
-	</td>
-</tr>
-<tr>
-	<td><b>Of Package:</b></td>
-	<td><?php echo frs_show_package_popup($group_id,'new_package_id',db_result($result,0,'package_id')); ?></td>
-</tr>
-<tr>
-	<td colspan="2">
-		<br>
-		Edit the Release Notes or Change Log for this release of this package. These changes will apply to all files attached to this release.<br>
-		You can either upload the release notes and change log individually, or paste them in together below.<br>
-	</td>
-</tr>
-<tr>
-	<td><b>Upload Release Notes:</b></td>
-	<td><input type="file" name="uploaded_notes" size="30"></td>
-</tr>
-<tr>
-	<td><b>Upload Change Log:</b></td>
-	<td><input type="file" name="uploaded_changes" size="30"></td>
-</tr>
-<tr>
-	<td COLSPAN=2>
-		<b>Paste The Notes In:</b><br>
-		<textarea name="release_notes" rows="10" cols="60" wrap="soft"><?php echo htmlspecialchars(db_result($result,0,'notes')); ?></textarea>
-	</td>
-</TR>
-<TR>
-	<td COLSPAN=2>
-		<b>Paste The Change Log In:</b><br>
-		<textarea name="release_changes" rows="10" cols="60" wrap="soft"><?php echo htmlspecialchars(db_result($result,0,'changes')); ?></textarea>
-	</td>
-</tr>
-<TR>
-	<TD>
-		<br>
-		<input type="checkbox" name="preformatted" value="1" <?php echo ((db_result($result,0,'preformatted'))?'checked':''); ?>> Preserve my pre-formatted text.
-		<p>
-		<input type="submit" name="submit" value="Submit/Refresh">
-	</td>
-</tr>
-</table>
-</form>
-
-<hr noshade>
-
-<h3>Step 2:&nbsp;&nbsp; Add Files To This Release</h3>
-
-<form method="post" action="<?php echo $PHP_SELF; ?>">
-<input type="hidden" name="group_id" value="<?php echo $group_id; ?>">
-<input type="hidden" name="package_id" value="<?php echo $package_id; ?>">
-<input type="hidden" name="release_id" value="<?php echo $release_id; ?>">
-<input type="hidden" name="step2" value="1">
-
-Next, choose your files from the list below. Choose <b>ONLY YOUR</b> files. If you choose someone else's files, 
-they will not be able to access them and they will be rightfully upset.<br>
-You can upload new files using FTP to <b>upload.sourceforge.net</b> in the <b>incoming</b> directory. 
-When you are done uploading, just hit the refresh button to see the new files.
-<br><br>
-<table border="0" cellpadding="3" cellspacing="3">
-<tr>
-<TD>
-<?php
-	$atleastone = 0;
-	$counter = 0;
-	$dirhandle = opendir($FTPINCOMING_DIR);
-	
-	// Iterate through each file in the upload dir and display it with a checkbox
-	while ($file = readdir($dirhandle)) {
-		// Make sure its not a dot file (.file)
-		if (!ereg('^\.',$file[0])) {
-			$atleastone = 1;
-
-			if($counter < 8) {
-				$counter++;
-			} else {
-				//print("</tr>\n<tr>\n");
-				$counter = 0;
-			}
-
-			print("	<input type='checkbox' name='file_list[]' value='$file'>$file<BR>\n");
+			echo '
+			<TR BGCOLOR="'. util_get_alt_row_color($i) .'">
+				<TD><FONT SIZE="-1">'. db_result($res,$i,'release_name') 
+					.' <A HREF="editreleases.php?release_id='. 
+					db_result($res,$i,'release_id') .'&group_id='. 
+					$group_id .'">[Edit This Release]</A></TD>
+				<TD><FONT SIZE="-1">'. 
+					db_result($res,$i,'package_name') 
+					.' <A HREF="editpackages.php?group_id='.
+					$group_id.'">[Edit This Package]</TD>
+				<TD><FONT SIZE="-1">'. db_result($res,$i,'status_name') .'</TD>
+			</TR></FORM>';
 		}
+		echo '</TABLE>';
 	}
 
-	// If there aren't any files in the upload dir then say so
-	if($atleastone == 0) {
-		print("No Files Available\n");
-	}
-?>
-</TD></tr>
-</table>
-<input type="submit" name="submit" value="Add Files and/or Refresh View">
-</form>
+	/*
 
-<hr noshade>
+		Form to create a new release
 
-<h3>Step 3:&nbsp;&nbsp; Edit Files In This Release</h3>
+		When they hit submit, they are shown the detail page for that new release
 
-<?php
-	// Get a list of files associated with this release
-	$res=$frs->frsGetReleaseFiles($release_id);
-	if( !$frs->isError() ) {
-		$rows=db_numrows($res);
-		if($rows < 1) {
-			print("<H4>No Files In This Release</H4>\n");
-		} else {
-			print("Once you have added files to this release you <b>must</b> update each of these files with the correct information or they will not appear on your download summary page.\n");
-			$title_arr[]='Filename<BR>Release';
-			$title_arr[]='Processor<BR>Release Date';
-			$title_arr[]='File Type<BR>Update';
-	
-			echo html_build_list_table_top ($title_arr);
-	
-			for($x=0; $x<$rows; $x++) {
-?>
-			<form action="<?php echo $PHP_SELF; ?>" method="post">
-				<input type="hidden" name="group_id" value="<?php echo $group_id; ?>">
-				<input type="hidden" name="release_id" value="<?php echo $release_id; ?>">
-				<input type="hidden" name="package_id" value="<?php echo $package_id; ?>">
-				<input type="hidden" name="file_id" value="<?php echo db_result($res,$x,'file_id'); ?>">
-				<input type="hidden" name="step3" value="1">
-				<tr bgcolor="<?php echo html_get_alt_row_color($x); ?>">
-					<td nowrap><font size="-1"><?php echo db_result($res,$x,'filename'); ?></td>
-					<td><font size="-1"><?php echo frs_show_processor_popup ('processor_id', db_result($res,$x,'processor_id')); ?></td>
-					<td><font size="-1"><?php echo frs_show_filetype_popup ('type_id', db_result($res,$x,'type_id')); ?></td>
-				</tr>
-				<tr bgcolor="<?php echo html_get_alt_row_color($x); ?>">
-					<td>
-						<font size="-1">
-							<?php echo frs_show_release_popup ($group_id, $name='new_release_id',db_result($res,$x,'release_id')); ?>
-						</font>
-					</td>
-					<td>
-						<font size="-1">
-							<input type="text" name="release_time" value="<?php echo date('Y-m-d',db_result($res,$x,'release_time')); ?>" size="10" maxlength="10">
-						</font>
-					</td>
-					<td><font size="-1"><input type="submit" name="submit" value="Update/Refresh"></td>
-				</tr>
-				</form>
+	*/
 
-			<form action="<?php echo $PHP_SELF; ?>" method="post">
-				<input type="hidden" name="group_id" value="<?php echo $group_id; ?>">
-				<input type="hidden" name="release_id" value="<?php echo $release_id; ?>">
-				<input type="hidden" name="package_id" value="<?php echo $package_id; ?>">
-				<input type="hidden" name="file_id" value="<?php echo db_result($res,$x,'file_id'); ?>">
-				<input type="hidden" name="step3" value="Delete File">
-				<tr bgcolor="<?php echo html_get_alt_row_color($x); ?>">
-					<td><font size="-1">&nbsp;</td>
-					<td><font size="-1">&nbsp;</td>
-					<td>
-						<font size="-1">
-							<input type="submit" name="submit" value="Delete File"> <input type="checkbox" name="im_sure" value="1"> I'm Sure
-						</font>
-					</td>
-				</tr>
-			</form>
-<?php
-			}
-			echo '</table>';
-		}
-	} else {
-		$feedback .= $frs->getErrorMessage();
-	}
-?>
+	echo '<P>
+	<h3>New Release Name:</h3>
+	<P>
+	<FORM ACTION="'. $PHP_SELF .'" METHOD="POST">
+	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
+	<INPUT TYPE="HIDDEN" NAME="func" VALUE="add_release">
+	<INPUT TYPE="TEXT" NAME="release_name" VALUE="" SIZE="20" MAXLENGTH="25">
+	<P>
+	<B>New Release of Which Package:</B>
+	'. frs_show_package_popup ($group_id,'package_id') .'
+	<P>
+	<INPUT TYPE="SUBMIT" NAME="submit" VALUE="Create This Release">
+	</FORM>';
 
-
-<hr noshade>
-
-<h3>Step 4:&nbsp;&nbsp; Email Release Notice</h3>
-
-<?php 
-	$mons = $frs->frsGetReleaseMonitors($package_id); 
-	if( $mons > 0 ) {
-?>
-
-<form action="<?php echo $PHP_SELF; ?>" method="post">
-	<input type="hidden" name="group_id" value="<?php echo $group_id; ?>">
-	<input type="hidden" name="release_id" value="<?php echo $release_id; ?>">
-	<input type="hidden" name="package_id" value="<?php echo $package_id; ?>">
-	<input type="hidden" name="step4" value="Email Release">
-	<?php echo $mons; ?> users(s) are monitoring this package.  You should send a notice of your file release.<br>
-	<input type="submit" value="Send Notice"><input type="checkbox" value="sure"> I'm sure.
-</form>
-
-<?php
-	} else {
-?>
-
-Nobody is monitoring this package at this time.
-
-<?php
-	}
 }
-	project_admin_footer(array());
+
+project_admin_footer(array());
+
 ?>

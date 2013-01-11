@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: users,v 1.3 2000/11/06 22:33:54 tperdue Exp $
+// $Id: users,v 1.1 2000/08/23 22:12:36 tperdue Exp $
 
 require ('pre.php');    
 
@@ -30,8 +30,6 @@ if (db_numrows($res_user) < 1) {
 
 	//set up the group_id
 	$user_id=db_result($res_user,0,'user_id');
-
-	$user=&user_get_object($user_id,$res_user);
 
 	//now show the project page
 	include ('user_home.php');

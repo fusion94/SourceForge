@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editimages.php,v 1.10 2000/12/13 22:56:16 dbrogdon Exp $
+// $Id: editimages.php,v 1.8 2000/08/24 23:46:02 tperdue Exp $
 
 require ('pre.php');    
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
@@ -18,7 +18,7 @@ if ($submit) {
 		if (db_result($res,0,'sum') < 1048576) {
 			$dimensions = @getimagesize($input_file);
 			$size = @filesize($input_file);
-			$data = addslashes(base64_encode(fread( fopen($input_file, 'r'), filesize($input_file))));
+			$data = addslashes(fread( fopen($input_file, 'r'), filesize($input_file)));
 			$width=$dimensions[0];
 			$height=$dimensions[1];
 			//$input_file_name
@@ -77,7 +77,8 @@ for ($i=0; $i<$rows; $i++) {
 	<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD ALIGN="MIDDLE">'.
 	'<A HREF="'. $PHP_SELF .'?submit=1&group_id='.$group_id.'&remove_image=1&id='.
 	db_result($result,$i,'id').
-	'">' . html_image("images/ic/trash.png","16","16",array("BORDER"=>"0")) . '</A></TD><TD>'.
+	'"><IMG SRC="/images/ic/trash.png" HEIGHT="16" WIDTH="16" '.
+	'BORDER=0"></A></TD><TD>'.
 	db_result($result,$i,'id').'</TD><TD>'.
 	stripslashes(db_result($result,$i,'filename')).'</TD></TR>';
 }

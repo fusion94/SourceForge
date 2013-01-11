@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: db_stats_projects_nightly.pl,v 1.7 2000/11/03 21:54:51 pgport Exp $
+# $Id: db_stats_projects_nightly.pl,v 1.5 2000/09/05 06:46:42 msnelham Exp $
 #
 # use strict;
 use DBI;
@@ -31,6 +31,7 @@ if ( $ARGV[0] && $ARGV[1] && $ARGV[2] ) {
 	   ## go until midnight yesterday.
 	$day_begin = timegm( 0, 0, 0, (gmtime( time() - 86400 ))[3,4,5] );
 
+	print "$day_begin $day_end \n";
 }
 
    ## Preformat the important date strings.
@@ -105,16 +106,7 @@ if ( $ARGV[0] && $ARGV[1] && $ARGV[2] ) {
 	$rel = $dbh->prepare($sql)->execute();
 	print "Insert register_time from groups...\n" if $verbose;
 
-} else {
-	## site_views
-	$sql = "INSERT INTO stats_project_build_tmp
-		SELECT group_id,'site_views',COUNT(group_id) 
-		FROM activity_log_old
-		WHERE ( day = '$year$mon$day' AND type = 0 )
-		GROUP BY group_id";
-	$rel = $dbh->prepare($sql)->execute();
-	print "Insert site_views from activity_log...\n" if $verbose;
-}
+} 
 
 print "Postponed: subdomain_views need to be inserted later from the project server logs...\n" if $verbose;
 

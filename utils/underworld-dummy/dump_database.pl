@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: dump_database.pl,v 1.3 2000/10/11 19:55:39 tperdue Exp $
+# $Id: dump_database.pl,v 1.2 2000/08/02 18:09:24 tperdue Exp $
 #
 # dump_database.pl - script to dump data from the database to flat files so the ofher perl
 #		     scripts can process it without needing to access the database.
@@ -13,8 +13,8 @@ my $group_array = ();
 
 &db_connect;
 
-# Dump the users Table information
-my $query = "select unix_uid, unix_status, user_name, shell, unix_pw, realname from users where unix_status != \"N\"";
+# Dump the User Table information
+my $query = "select unix_uid, unix_status, user_name, shell, unix_pw, realname from user where unix_status != \"N\"";
 my $c = $dbh->prepare($query);
 $c->execute();
 	
@@ -34,7 +34,7 @@ $c->execute();
 
 while(my ($group_id, $group_name, $status) = $c->fetchrow()) {
 
-	my $new_query = "select users.user_name AS user_name FROM users,user_group WHERE users.user_id=user_group.user_id AND group_id=$group_id";
+	my $new_query = "select user.user_name AS user_name FROM user,user_group WHERE user.user_id=user_group.user_id AND group_id=$group_id";
 	my $d = $dbh->prepare($new_query);
 	$d->execute();
 

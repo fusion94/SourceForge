@@ -1,10 +1,15 @@
-<?php // // SourceForge: Breaking Down the Barriers to Open Source Development // Copyright 1999-2000 (c) The SourceForge Crew // http://sourceforge.net // // $Id: project_home.php,v 1.107 2000/12/14 22:04:22 tperdue Exp $
+<?php
+//
+// SourceForge: Breaking Down the Barriers to Open Source Development
+// Copyright 1999-2000 (c) The SourceForge Crew
+// http://sourceforge.net
+//
+// $Id: project_home.php,v 1.92 2000/09/01 17:31:12 tperdue Exp $
 
 require ('vote_function.php');
 require ('vars.php');
 require ($DOCUMENT_ROOT.'/news/news_utils.php');
 require ('trove.php');
-require ('project_summary.php');
 
 //make sure this project is NOT a foundry
 if (!$project->isProject()) {
@@ -27,9 +32,9 @@ site_project_header(array('title'=>$title,'group'=>$group_id,'toptab'=>'home'));
 <?php 
 
 // ########################################## top area, not in box 
-$res_admin = db_query("SELECT users.user_id AS user_id,users.user_name AS user_name "
-	. "FROM users,user_group "
-	. "WHERE user_group.user_id=users.user_id AND user_group.group_id=$group_id AND "
+$res_admin = db_query("SELECT user.user_id AS user_id,user.user_name AS user_name "
+	. "FROM user,user_group "
+	. "WHERE user_group.user_id=user.user_id AND user_group.group_id=$group_id AND "
 	. "user_group.admin_flags = 'A'");
 
 if ($project->getStatus() == 'H') {
@@ -47,50 +52,21 @@ if ($project->getDescription()) {
 // trove info
 print '<BR>&nbsp;<BR>';
 trove_getcatlisting($group_id,0,1);
-//print '<BR>&nbsp;';
+print '<BR>&nbsp;';
 
-// Get the activity percentile
-$actv = db_query("SELECT percentile FROM project_weekly_metric WHERE group_id='$group_id'");
-$actv_res = db_result($actv,0,"percentile");
-if (!$actv_res) $actv_res=0;
-
-print("Registered: " . date($sys_datefmt, $project->getStartDate()));
-print '<br>Activity Percentile: ' . $actv_res . '%';
-print '<br>View project activity <a href="/project/stats/?group_id='.$group_id.'">statistics</a>';
-
-$jobs_res = db_query("SELECT name ".
-                "FROM people_job,people_job_category ".
-                "WHERE people_job.category_id=people_job_category.category_id ".
-                "AND people_job.status_id=1 ".
-                "AND group_id='$group_id' ".
-                "GROUP BY name",2);
-if ($jobs_res) {
-	$num=db_numrows($jobs_res);
-        if ($num>0) {
-        	print '<br><br>HELP WANTED: This project is looking for ';
-                if ($num==1) {
-                	print '<a href="/people/?group_id='.$group_id.'">'.
-                              db_result($jobs_res,0,"name").'(s)</a>';
-                } else {
-                	print 'People to fill '.
-                        '<a href="/people/?group_id='.$group_id.'">several '.
-                        'different positions</a>';
-                }
-        }
-}
-
+print 'View project activity <a href="/project/stats/?group_id='.$group_id.'">statistics</a>';
 
 print '</TD><TD NoWrap VALIGN="top">';
 
 // ########################### Developers on this project
 
-echo $HTML->box1_top($Language->DEVELOPER_INFO);
+echo $HTML->box1_top("Developer Info");
 ?>
 <?php
 if (db_numrows($res_admin) > 0) {
 
 	?>
-	<SPAN CLASS="develtitle"><?php echo $Language->PROJECT_ADMINS; ?>:</SPAN><BR>
+	<SPAN CLASS="develtitle">Project Admins:</SPAN><BR>
 	<?php
 		while ($row_admin = db_fetch_array($res_admin)) {
 			print "<A href=\"/users/$row_admin[user_name]/\">$row_admin[user_name]</A><BR>";
@@ -102,7 +78,7 @@ if (db_numrows($res_admin) > 0) {
 }
 
 ?>
-<SPAN CLASS="develtitle"><?php echo $Language->DEVELOPERS; ?>:</SPAN><BR>
+<SPAN CLASS="develtitle">Developers:</SPAN><BR>
 <?php
 //count of developers on this project
 $res_count = db_query("SELECT user_id FROM user_group WHERE group_id=$group_id");
@@ -124,26 +100,23 @@ print '
 
 // ############################# File Releases
 
-echo $HTML->box1_top($Language->LATEST_FILE_RELEASES); 
+echo $HTML->box1_top('Latest File Releases'); 
 	$unix_group_name = $project->getUnixName();
 
 	echo '
 	<TABLE cellspacing="1" cellpadding="5" width="100%" border="0">
 		<TR bgcolor="'.$GLOBALS['COLOR_LTBACK1'].'">
 		<TD align="left"">
-			'.$Language->FILE_PACKAGE.'
+			Package
 		</td>
 		<TD align="center">
-			'.$Language->FILE_VERSION.'
-		</td>
-		<td align="center">
-			'.$Language->FILE_REL_DATE.'
+			Version
 		</td>
 		<TD align="center">
-			'.$Language->FILE_NOTES.' / '.$Language->FILE_MONITOR.'
+			Notes / Monitor
 		</td>
 		<TD align="center">
-			'.$Language->FILE_DOWNLOAD.'
+			Download
 		</td>
 		</TR>';
 
@@ -170,7 +143,6 @@ echo $HTML->box1_top($Language->LATEST_FILE_RELEASES);
 				if (db_result($res_files,$f,'package_id')==db_result($res_files,($f-1),'package_id')) {
 					//same package as last iteration - don't show this release
 				} else {
-					$rel_date = getdate(db_result($res_files,$f,'release_date'));
 					echo '
 					<TR BGCOLOR="'.$GLOBALS['COLOR_LTBACK1'].'" ALIGN="center">
 					<TD ALIGN="left">
@@ -178,14 +150,13 @@ echo $HTML->box1_top($Language->LATEST_FILE_RELEASES);
 					// Releases to display
 					print '<TD>'.db_result($res_files,$f,'release_name') .'
 					</TD>
-					<td>' . $rel_date["month"] . ' ' . $rel_date["mday"] . ', ' . $rel_date["year"] . '</td>
 					<TD><A href="/project/shownotes.php?group_id=' . $group_id . '&release_id=' . db_result($res_files,$f,'release_id') . '">';
-					echo html_image("images/ic/manual16c.png",'15','15',array('alt'=>'Release Notes'));
+					echo	html_image("ic/manual16c.png",array('width'=>'15', 'height'=>'15', 'alt'=>'Release Notes'));
 					echo '</A> - <A HREF="/project/filemodule_monitor.php?filemodule_id=' .	db_result($res_files,$f,'package_id') . '">';
-					echo html_image("images/ic/mail16d.png",'15','15',array('alt'=>'Monitor This Package'));
+					echo html_image("ic/mail16d.png",array('width'=>'15', 'height'=>'15', 'alt'=>'Monitor This Package'));
 					echo '</A>
 					</TD>
-					<TD><A HREF="/project/showfiles.php?group_id=' . $group_id . '&release_id=' . db_result($res_files,$f,'release_id') . '">'.$Language->FILE_DOWNLOAD.'</A></TD></TR>';
+					<TD><A HREF="/project/showfiles.php?group_id=' . $group_id . '&release_id=' . db_result($res_files,$f,'release_id') . '">Download</A></TD></TR>';
 				}
 			}
 
@@ -205,89 +176,129 @@ echo $HTML->box1_top($Language->LATEST_FILE_RELEASES);
 <?php
 
 // ############################## PUBLIC AREAS
-echo $HTML->box1_top($Language->PUBLIC_AREA); 
+echo $HTML->box1_top("Public Areas"); 
 
 // ################# Homepage Link
 
 print "<A href=\"http://" . $project->getHomePage() . "\">";
-print html_image("images/ic/home16b.png",'20','20',array('alt'=>$Language->GROUP_SHORT_HOMEPAGE));
-print '&nbsp;'.$Language->GROUP_LONG_HOMEPAGE.'</A>';
+html_image("ic/home16b.png",array('width'=>'20', 'height'=>'20', 'alt'=>'Homepage'));
+print '&nbsp;Project Homepage</A>';
 
 // ################## forums
 
 if ($project->usesForum()) {
 	print '<HR SIZE="1" NoShade><A href="/forum/?group_id='.$group_id.'">';
-	print html_image("images/ic/notes16.png",'20','20',array('alt'=>$Language->GROUP_SHORT_FORUM)); 
-	print '&nbsp;'.$Language->GROUP_LONG_FORUM.'</A>';
-	print " ( <B>". project_get_public_forum_count($group_id) ."</B> messages in ";
+	html_image("ic/notes16.png",array('width'=>'20', 'height'=>'20', 'alt'=>'Public Forums')); 
+	print '&nbsp;Public Forums</A>';
+	$res_count = db_query("SELECT count(forum.msg_id) AS count FROM forum,forum_group_list WHERE "
+		. "forum_group_list.group_id=$group_id AND forum.group_forum_id=forum_group_list.group_forum_id "
+		. "AND forum_group_list.is_public=1");
+	$row_count = db_fetch_array($res_count);
+	print " ( <B>$row_count[count]</B> messages in ";
 
-	print "<B>". project_get_public_forum_message_count($group_id) ."</B> forums )\n";
+	$res_count = db_query("SELECT count(*) AS count FROM forum_group_list WHERE group_id=$group_id "
+		. "AND is_public=1");
+	$row_count = db_fetch_array($res_count);
+	print "<B>$row_count[count]</B> forums )\n";
+/*
+	$sql="SELECT * FROM forum_group_list WHERE group_id='$group_id' AND is_public=1";
+	$res2 = db_query ($sql);
+	$rows = db_numrows($res2);
+	for ($j = 0; $j < $rows; $j++) {
+		echo '<BR> &nbsp; - <A HREF="forum.php?forum_id='.db_result($res2, $j, 'group_forum_id').'&et=0">'.
+			db_result($res2, $j, 'forum_name').'</A> ';
+		//message count
+		echo '('.db_result(db_query("SELECT count(*) FROM forum WHERE group_forum_id='".db_result($res2, $j, 'group_forum_id')."'"),0,0).' msgs)';
+	}
+*/
 }
 
-// ##################### Bug tracking
+// ##################### Bug tracking (only for Active)
 
 if ($project->usesBugs()) {
 	print '<HR SIZE="1" NoShade><A href="/bugs/?group_id='.$group_id.'">';
-	print html_image("images/ic/bug16b.png",'20','20',array('alt'=>$Language->GROUP_SHORT_BUGS)); 
-	print '&nbsp;'.$Language->GROUP_LONG_BUGS.'</A>';
-	print " ( <B>". project_get_open_bug_count($group_id) ."</B>";
-	print " open bugs, <B>". project_get_total_bug_count($group_id) ."</B> total )";
+	html_image("ic/bug16b.png",array('width'=>'20', 'height'=>'20', 'alt'=>'Bug Tracking')); 
+	print '&nbsp;Bug Tracking</A>';
+	$res_count = db_query("SELECT count(*) AS count FROM bug WHERE group_id=$group_id AND status_id != 3");
+	$row_count = db_fetch_array($res_count);
+	print " ( <B>$row_count[count]</B>";
+	$res_count = db_query("SELECT count(*) AS count FROM bug WHERE group_id=$group_id");
+	$row_count = db_fetch_array($res_count);
+	print " open bugs, <B>$row_count[count]</B> total )";
 }
 
-// ##################### Support Manager
+// ##################### Support Manager (only for Active)
  
 if ($project->usesSupport()) {
 	print '
-		<HR SIZE="1" NoShade>
-		<A href="/support/?group_id='.$group_id.'">';
-	print html_image("images/ic/support16b.jpg",'20','20',array('alt'=>$Language->GROUP_SHORT_SUPPORT));
-	print '&nbsp;'.$Language->GROUP_LONG_SUPPORT.'</A>';
-	print " ( <B>". project_get_open_support_count($group_id) ."</B>";
-	print " open requests, <B>". project_get_total_support_count($group_id) ."</B> total )";
+	<HR SIZE="1" NoShade>
+	<A href="/support/?group_id='.$group_id.'">';
+	html_image("ic/support16b.jpg",array('width'=>'20', 'height'=>'20', 'alt'=>'Support Manager'));
+	print '&nbsp;Tech Support Manager</A>';
+	$res_count = db_query("SELECT count(*) AS count FROM support WHERE group_id=$group_id");
+	$row_count = db_fetch_array($res_count);
+	$res_count = db_query("SELECT count(*) AS count FROM support WHERE group_id=$group_id AND support_status_id='1'");
+	$row_count2 = db_fetch_array($res_count);
+	print " ( <B>$row_count2[count]</B>";
+	print " open requests, <B>$row_count[count]</B> total )";
 }
 
-// ##################### Doc Manager
+// ##################### Doc Manager (only for Active)
 
 if ($project->usesDocman()) {
 	print '
 	<HR SIZE="1" NoShade>
 	<A href="/docman/?group_id='.$group_id.'">';
-	print html_image("images/ic/docman16b.png",'20','20',array('alt'=>$Language->GROUP_SHORT_DOCMAN));
-	print '&nbsp;'.$Language->GROUP_LONG_DOCMAN.'</A>';
+	html_image("ic/docman16b.png",array('width'=>'20', 'height'=>'20', 'alt'=>'Documentation'));
+	print '&nbsp;DocManager: Project Documentation</A>';
+/*
+	$res_count = db_query("SELECT count(*) AS count FROM support WHERE group_id=$group_id");
+	$row_count = db_fetch_array($res_count);
+	$res_count = db_query("SELECT count(*) AS count FROM support WHERE group_id=$group_id AND support_status_id='1'");
+	$row_count2 = db_fetch_array($res_count);
+	print " ( <B>$row_count2[count]</B>";
+	print " open requests, <B>$row_count[count]</B> total )";
+*/
 }
 
-// ##################### Patch Manager
+// ##################### Patch Manager (only for Active)
 
 if ($project->usesPatch()) {
 	print '
 		<HR SIZE="1" NoShade>
 		<A href="/patch/?group_id='.$group_id.'">';
-	print html_image("images/ic/patch.png",'20','20',array('alt'=>$Language->GROUP_SHORT_PATCH));
-	print '&nbsp;'.$Language->GROUP_LONG_PATCH.'</A>';
-	print " ( <B>". project_get_open_patch_count($group_id) ."</B>";
-	print " open patches, <B>". project_get_total_patch_count($group_id) ."</B> total )";
+	html_image("ic/patch.png",array('width'=>'20', 'height'=>'20', 'alt'=>'Patch Manager'));
+	print '&nbsp;Patch Manager</A>';
+	$res_count = db_query("SELECT count(*) AS count FROM patch WHERE group_id=$group_id");
+	$row_count = db_fetch_array($res_count);
+	$res_count = db_query("SELECT count(*) AS count FROM patch WHERE group_id=$group_id AND patch_status_id='1'");
+	$row_count2 = db_fetch_array($res_count);
+	print " ( <B>$row_count2[count]</B>";
+	print " open patches, <B>$row_count[count]</B> total )";
 }
 
-// ##################### Mailing lists
+// ##################### Mailing lists (only for Active)
 
 if ($project->usesMail()) {
 	print '<HR SIZE="1" NoShade><A href="/mail/?group_id='.$group_id.'">';
-	print html_image("images/ic/mail16b.png",'20','20',array('alt'=>$Language->GROUP_SHORT_MAIL)); 
-	print '&nbsp;'.$Language->GROUP_LONG_MAIL.'</A>';
-	print " ( <B>". project_get_mail_list_count($group_id) ."</B> public mailing lists )";
+	html_image("ic/mail16b.png",array('width'=>'20', 'height'=>'20', 'alt'=>'Mailing Lists')); 
+	print '&nbsp;Mailing Lists</A>';
+	$res_count = db_query("SELECT count(*) AS count FROM mail_group_list WHERE group_id=$group_id AND is_public=1");
+	$row_count = db_fetch_array($res_count);
+	print " ( <B>$row_count[count]</B> public mailing lists )";
 }
 
-// ##################### Task Manager 
+// ##################### Task Manager (only for Active)
 
 if ($project->usesPm()) {
 	print '<HR SIZE="1" NoShade><A href="/pm/?group_id='.$group_id.'">';
-	print html_image("images/ic/taskman16b.png",'20','20',array('alt'=>$Language->GROUP_SHORT_PM));
-	print '&nbsp;'.$Language->GROUP_LONG_PM.'</A>';
+	html_image("ic/taskman16b.png",array('width'=>'20', 'height'=>'20', 'alt'=>'Task Manager'));
+	print '&nbsp;Project/Task Manager</A>';
 	$sql="SELECT * FROM project_group_list WHERE group_id='$group_id' AND is_public=1";
 	$result = db_query ($sql);
 	$rows = db_numrows($result);
 	if (!$result || $rows < 1) {
-		echo '<BR><I>There are no public subprojects available</I>';
+		echo '<BR><I>There are no public projects available</I>';
 	} else {
 		for ($j = 0; $j < $rows; $j++) {
 			echo '
@@ -298,43 +309,35 @@ if ($project->usesPm()) {
 	}
 }
 
-// ######################### Surveys 
+// ######################### Surveys (only for Active)
 
 if ($project->usesSurvey()) {
 	print '<HR SIZE="1" NoShade><A href="/survey/?group_id='.$group_id.'">';
-	print html_image("images/ic/survey16b.png",'20','20',array('alt'=>$Language->GROUP_SHORT_SURVEY));
-	print " ".$Language->GROUP_LONG_SURVEY."</A>";
-	echo ' ( <B>'. project_get_survey_count($group_id) .'</B> surveys )';
+	html_image("ic/survey16b.png",array('width'=>'20', 'height'=>'20', 'alt'=>'Survey'));
+	print " Surveys</A>";
+	$sql="SELECT count(*) from surveys where group_id='$group_id' AND is_active='1'";
+	$result=db_query($sql);
+	echo ' ( <B>'.db_result($result,0,0).'</B> surveys )';
 }
 
-// ######################### CVS 
+// ######################### CVS (only for Active)
 
 if ($project->usesCVS()) {
 	print '<HR SIZE="1" NoShade><A href="/cvs/?group_id='.$group_id.'">';
-	print html_image("images/ic/cvs16b.png",'20','20',array('alt'=>$Language->GROUP_SHORT_CVS));
-	print " ".$Language->GROUP_LONG_CVS."</A>";
+	html_image("ic/cvs16b.png",array('width'=>'20', 'height'=>'20', 'alt'=>'CVS'));
+	print " CVS Repository</A>";
 	$sql = "SELECT SUM(cvs_commits) AS commits,SUM(cvs_adds) AS adds from stats_project where group_id='$group_id'";
 	$result = db_query($sql);
-        $cvs_commit_num=db_result($result,0,0);
-        $cvs_add_num=db_result($result,0,1);
-        if (!$cvs_commit_num) $cvs_commit_num=0;
-        if (!$cvs_add_num) $cvs_add_num=0;
-	echo ' ( <B>'.$cvs_commit_num.'</B> commits, <B>'.$cvs_add_num.'</B> adds )';
-        if ($cvs_commit_num || $cvs_add_num) {
-        	echo '<br> &nbsp; - <a href="http://'.$sys_cvs_host
-                     .'/cgi-bin/cvsweb.cgi?cvsroot='.$project->getUnixName()
-                     .'">Browse CVS</a>';
-        }
-
+	echo ' ( <B>'.db_result($result,0,0).'</B> commits, <B>'.db_result($result,0,1).'</B> adds )';
 }
 
-// ######################## AnonFTP 
+// ######################## AnonFTP (only for Active)
 
 if ($project->isActive()) {
 	print '<HR SIZE="1" NoShade>';
 	print "<A href=\"ftp://" . $project->getUnixName() . ".sourceforge.net/pub/". $project->getUnixName() ."/\">";
-	print html_image("images/ic/ftp16b.png",'20','20',array('alt'=>$Language->GROUP_LONG_FTP));
-	print $Language->GROUP_LONG_FTP."</A>";
+	print html_image("ic/ftp16b.png",array('width'=>'20', 'height'=>'20', 'alt'=>'Anonymous FTP Space'));
+	print "Anonymous FTP Space</A>";
 }
 
 $HTML->box1_bottom();
@@ -350,7 +353,7 @@ if ($project->usesNews()) {
 	<?php
 	// ############################# Latest News
 
-	echo $HTML->box1_top($Language->GROUP_LONG_NEWS);
+	echo $HTML->box1_top('Latest News');
 
 	echo news_show_latest($group_id,10,false);
 

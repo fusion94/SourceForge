@@ -9,7 +9,7 @@
 ## checkouts, commits, and adds to each project over the past 24 hours.
 ##
 ##
-## $Id: cvs_history_parse.pl,v 1.7 2000/11/03 02:17:31 tperdue Exp $ 
+## $Id: cvs_history_parse.pl,v 1.6 2000/08/21 17:16:02 msnelham Exp $ 
 ##
 use strict;
 use Time::Local;
@@ -45,26 +45,8 @@ if ( $ARGV[0] && $ARGV[1] && $ARGV[2] ) {
 
 }
 
-<<<<<<< cvs_history_parse.pl
-<<<<<<< cvs_history_parse.pl
-my $daily_log_file;
-
-=======
 print "Parsing cvs logs looking for traffic on day $day, month $month, year $year.\n" if $verbose;
 
->>>>>>> 1.5
-if ( -d $base_log_dir ) {
-	$daily_log_file = $base_log_dir . "/" . sprintf("%04d",$year);
-	if ( ! -d $daily_log_file ) {
-		mkdir( $daily_log_file, 0755 );
-	}
-	$daily_log_file .= "/" . sprintf("%02d", $month);
-	if ( ! -d $daily_log_file ) {
-		mkdir( $daily_log_file, 0755 );
-	}
-	$daily_log_file . "/cvs_traffic_" . sprintf("%04d%02d$02d",$year,$month,$day) . ".log";
-}
-=======
 if ( -d $base_log_dir ) {
 	$daily_log_file = $base_log_dir . "/" . sprintf("%04d", $year);
 	if ( ! -d $daily_log_file ) {
@@ -81,7 +63,6 @@ if ( -d $base_log_dir ) {
 	die("Base log directory \'$base_log_dir\' does not exist!");
 }
 
->>>>>>> 1.4
 open(DAYS_LOG, "> $daily_log_file") || die "Unable to open the log file \'$daily_log_file\'";
 print "Opened log file at \'$daily_log_file\' for writing...\n";
 print "Running tree at /cvsroot/\n";

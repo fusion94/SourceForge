@@ -4,13 +4,13 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: snippet_caching.php,v 1.9 2000/11/12 21:51:13 tperdue Exp $
+// $Id: snippet_caching.php,v 1.8 2000/08/11 18:33:22 gherteg Exp $
+require ($DOCUMENT_ROOT.'/snippet/snippet_utils.php');
 
 function snippet_mainpage() {
 	global $SCRIPT_LANGUAGE,$SCRIPT_CATEGORY;
-
-	$return .= 
-	'<FONT face="arial, helvetica">
+	?>
+	<FONT face="arial, helvetica">
 	<P>
 	The purpose of this archive is to let you share your code snippets, scripts, 
 	and functions with the Open Source Software Community.
@@ -25,6 +25,7 @@ function snippet_mainpage() {
 	<P>
 	You can browse the snippet library quickly:
 	<BR>
+	(Counts last updated <?php echo date("H:i:s l, F dS, Y") ?>
 	<P>
 	<TABLE WIDTH="100%" BORDER="0">
 	<TR><TD>
@@ -32,40 +33,42 @@ function snippet_mainpage() {
 	</TD></TR>
 
 	<TR><TD>
+	<FONT face="arial, helvetica">
 	<B>Browse by Language:</B>
-	<P>';
+	<P>
+	<?php
 
 	$count=count($SCRIPT_LANGUAGE);
 	for ($i=1; $i<$count; $i++) {
 		$sql="SELECT count(*) FROM snippet WHERE language=$i";
 		$result = db_query ($sql);
 
-		$return .= '
+		echo '
 		<LI><A HREF="/snippet/browse.php?by=lang&lang='.$i.'">'.$SCRIPT_LANGUAGE[$i].'</A> ('.db_result($result,0,0).')<BR>';
 	}
 
-	$return .= 	
-	'</TD>
+	?>
+	</TD>
 	<TD>
+	<FONT face="arial, helvetica">
 	<B>Browse by Category:</B>
-	<P>';
+	<P>
+	<?php
 
 	$count=count($SCRIPT_CATEGORY);
 	for ($i=1; $i<$count; $i++) {
 		$sql="SELECT count(*) FROM snippet WHERE category=$i";
 		$result = db_query ($sql);
 
-		$return .= '
+		echo '
 		<LI><A HREF="/snippet/browse.php?by=cat&cat='.$i.'">'.$SCRIPT_CATEGORY[$i].'</A> ('.db_result($result,0,0).')<BR>';
 	}
-
-
-	$return .=
-	'</TD>
+	?>
+	</TD>
 	</TR>
-	</TABLE>';
+	</TABLE>
 
-	return $return;
+	<?php
 
 }
 

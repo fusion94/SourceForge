@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: mailing_lists_dump.pl,v 1.3 2000/10/11 19:55:39 tperdue Exp $
+# $Id: mailing_lists_dump.pl,v 1.2 2000/08/02 18:09:24 tperdue Exp $
 #
 # mailing_list_dump.pl - Script to suck data outta the database to be processed on the mail
 #                        mail server to create mailing lists
@@ -13,7 +13,7 @@ my $list_array = ();
 &db_connect;
 
 # Dump the Table information
-$query = "SELECT users.user_name,mail_group_list.list_name,mail_group_list.password,mail_group_list.is_public FROM mail_group_list,users WHERE mail_group_list.list_admin=users.user_id";
+$query = "SELECT user.user_name,mail_group_list.list_name,mail_group_list.password,mail_group_list.is_public FROM mail_group_list,user WHERE mail_group_list.list_admin=user.user_id";
 $c = $dbh->prepare($query);
 $c->execute();
 while(my ($list_name, $list_admin, $password, $status) = $c->fetchrow()) {

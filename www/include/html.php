@@ -4,9 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: html.php,v 1.374 2000/12/14 22:04:22 tperdue Exp $
-
-// require("exit.php");
+// $Id: html.php,v 1.354 2000/08/31 19:56:43 msnelham Exp $
 
 function html_feedback_top($feedback) {
 	if (!$feedback) 
@@ -27,28 +25,12 @@ function html_a_group($grp) {
 }
 
 function html_blankimage($height,$width) {
-	return '<img src="/images/blank.gif" width="' . $width . '" height="' . $height . '" alt="">';
+	return html_image('blank.gif',array('height'=>$height,'width'=>$width,'alt'=>' '));
 }
 
-function html_dbimage($id) {
-	if (!$id) {
-		return '';
-	}
-	$sql="SELECT width,height ".
-		"FROM db_images WHERE id='$id'";
-	$result=db_query($sql);
-	$rows=db_numrows($result);
-	
-	if (!$result || $rows < 1) {
-		return db_error();
-	} else {
-		return html_image('/dbimage.php?id='.$id,db_result($result,0,'width'),db_result($result,0,'height'),array());
-	}
-}
-
-function html_image($src,$width,$height,$args,$display=1) {
-	global $sys_images_url;
-	$return = ('<IMG src="' . $sys_images_url . $src .'"');
+function html_image($src,$args,$display=1) {
+	GLOBAL $img_size;
+	$return = ('<IMG src="/images/'.$src.'"');
 	reset($args);
 	while(list($k,$v) = each($args)) {
 		$return .= ' '.$k.'="'.$v.'"';
@@ -57,49 +39,30 @@ function html_image($src,$width,$height,$args,$display=1) {
 	// ## insert a border tag if there isn't one
 	if (!$args['border']) $return .= (" border=0");
 
-	// ## add image dimensions
-	$return .= " width=" . $width;
-	$return .= " height=" . $height;
+	// ## if no height AND no width tag, insert em both
+	if (!$args['height'] && !$args['width']) {
+		/* Check to see if we've already fetched the image data */
+		if($img_size){
+			if(!$img_size[$src] && is_file($GLOBALS['sys_urlroot'].'images/'.$src)){
+				$img_size[$src] = @getimagesize($GLOBALS['sys_urlroot'].'images/'.$src);
+			}
+		} else {
+			if(is_file($GLOBALS['sys_urlroot'].'images/'.$src)){		
+				$img_size[$src] = @getimagesize($GLOBALS['sys_urlroot'].'images/'.$src);
+			}
+		}
+		$return .= ' ' . $img_size[$src];
+	}
+
+	// ## insert alt tag if there isn't one
+	if (!$args['alt']) $return .= " alt=\"$src\"";
 
 	$return .= ('>');
-	return $return;
-}
-
-
-
-/*
-
-	Pop up box of supported languages
-
-	requires
-	BaseLanguage object
-	Title
-	Selected
-*/
-
-function html_get_language_popup ($Language,$title='language_id',$selected='xzxzxz') {
-	$res=$Language->getLanguages();
-	return html_build_select_box ($res,$title,$selected,false);
-}
-
-
-
-/*
-
-	Pop up box of supported Timezones
-
-	Assumes you have included Timezones array file
-
-	requires
-
-	title,
-	selected
-
-*/
-
-function html_get_timezone_popup ($title='timezone',$selected='xzxzxzx') {
-	global $TZs;
-	return html_build_select_box_from_arrays ($TZs,$TZs,$title,$selected,false);
+	if ($display) {
+		print $return;
+	} else {
+		return $return;
+	}
 }
 
 function html_build_list_table_top ($title_arr,$links_arr=false) {
@@ -132,6 +95,12 @@ function html_build_list_table_top ($title_arr,$links_arr=false) {
 	return $return.'</TR>';
 }
 
+//deprecated
+function util_get_alt_row_color ($i) {
+	return html_get_alt_row_color ($i);
+}
+
+//function util_get_alt_row_color ($i) {
 function html_get_alt_row_color ($i) {
 	GLOBAL $HTML;
 	if ($i % 2 == 0) {
@@ -181,7 +150,7 @@ function html_build_select_box_from_arrays ($vals,$texts,$select_name,$checked_v
 
 		The infamous '100 row' has to do with the
 			SQL Table joins done throughout all this code.
-		There must be a related row in users, categories, et	, and by default that
+		There must be a related row in users, categories, etc, and by default that
 			row is 100, so almost every pop-up box has 100 as the default
 		Most tables in the database should therefore have a row with an id of 100 in it
 			so that joins are successful
@@ -337,19 +306,19 @@ function html_buildcheckboxarray($options,$name,$checked_array) {
 }
 
 /*!     @function site_user_header
-	@abstract everything required to handle security and
-		add navigation for user pages like /my/ and /account/
-	@param params array() must contain $user_id
-	@result text - echos HTML to the screen directly
+        @abstract everything required to handle security and
+                add navigation for user pages like /my/ and /account/
+        @param params array() must contain $user_id
+        @result text - echos HTML to the screen directly
 */
-function site_header($params) {							 GLOBAL $HTML;
-	GLOBAL $HTML;
-	/*
-		Check to see if active user
-		Check to see if logged in
-	*/
-	echo $HTML->header($params);
-	echo html_feedback_top($GLOBALS['feedback']);
+function site_header($params) {                                                         GLOBAL $HTML;
+
+        /*
+                Check to see if active user
+                Check to see if logged in
+        */
+        echo $HTML->header($params);
+        echo html_feedback_top($GLOBALS['feedback']);
 }
 
 function site_footer($params) {
@@ -374,15 +343,16 @@ function site_project_header($params) {
 	$group_id=$params['group'];
 
 	//get the project object 
-	$project=&project_get_object($group_id);
+	$project=project_get_object($group_id);
 
-	if (!$project || $project->isError()) {
-		exit_error("Group Problem",$project->getErrorMessage());
+	//group doesn't exist
+	if ($project->isError()) {
+		exit_error("Invalid Group","That group does not exist.");
 	}
 
 	//group is private
 	if (!$project->isPublic()) {
-		//if it's a private group, you must be a member of that group
+		//if its a private group, you must be a member of that group
 		session_require(array('group'=>$group_id));
 	}
 
@@ -425,12 +395,7 @@ function site_user_header($params) {
 	*/
 	echo $HTML->header($params);
 	echo html_feedback_top($GLOBALS['feedback']);
-	echo '
-	<P>
-	<A HREF="/my/">My Personal Page</A> | <A HREF="/my/diary.php">Diary &amp; Notes</A> | <A HREF="/account/">Account Options</A>
-	<P>';
-
-}
+}       
 
 /*!     @function site_user_footer
 	@abstract currently a simple shim that should be on every user page, 

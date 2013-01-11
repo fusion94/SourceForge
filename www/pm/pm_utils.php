@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: pm_utils.php,v 1.79 2000/11/15 22:36:13 pfalcon Exp $
+// $Id: pm_utils.php,v 1.67 2000/08/30 22:34:20 tperdue Exp $
 
 /*
 
@@ -35,25 +35,14 @@ function pm_header($params) {
 
 	echo "<P><B>";
 
-	echo "<A HREF=\"/pm/?group_id=$group_id\">Subproject List</A>";
-        $need_bar=1;
 	if ($group_project_id) {
+		echo "<A HREF=\"/pm/?group_id=$group_id\">Project List</A>";
 		if (user_isloggedin()) {
-                	if ($need_bar) echo ' | ';
-			echo "<A HREF=\"/pm/task.php?group_id=$group_id&group_project_id=$group_project_id&func=addtask\">Add Task</A>";
+			echo " | <A HREF=\"/pm/task.php?group_id=$group_id&group_project_id=$group_project_id&func=addtask\">Add Task</A>";
 			echo " | <A HREF=\"/pm/task.php?group_id=$group_id&group_project_id=$group_project_id&func=browse&set=my\">My Tasks</A>";
-                	$need_bar=1;
 		}
-        	if ($need_bar) echo ' | ';
-		echo "<A HREF=\"/pm/task.php?group_id=$group_id&group_project_id=$group_project_id&func=browse&set=open\">Browse Open Tasks</A>";
-                $need_bar=1;
+		echo " | <A HREF=\"/pm/task.php?group_id=$group_id&group_project_id=$group_project_id&func=browse&set=open\">Browse Open Tasks</A> | ";
 	}
-       	if (user_isloggedin()) {
-                if ($need_bar) echo ' | ';
-		echo '<A HREF="/pm/reporting/?group_id='.$group_id.'">Reporting</A>';
-                $need_bar=1;
-       	}
-        if ($need_bar) echo ' | ';
 	echo " <A HREF=\"/pm/admin/?group_id=$group_id\">Admin</A>";
 	echo "</B>";
 
@@ -290,7 +279,7 @@ function pm_show_dependent_tasks ($project_task_id,$group_id,$group_project_id) 
 
 		for ($i=0; $i < $rows; $i++) {
 			echo '
-			<TR BGCOLOR="'. html_get_alt_row_color ($i) .'">
+			<TR BGCOLOR="'. util_get_alt_row_color ($i) .'">
 				<TD><A HREF="/pm/task.php?func=detailtask&project_task_id='.
 				db_result($result, $i, 'project_task_id').
 				'&group_id='.$group_id.
@@ -326,7 +315,7 @@ function pm_show_dependent_bugs ($project_task_id,$group_id,$group_project_id) {
 
 		for ($i=0; $i < $rows; $i++) {
 			echo '
-			<TR BGCOLOR="'. html_get_alt_row_color ($i) .'">
+			<TR BGCOLOR="'. util_get_alt_row_color ($i) .'">
 				<TD><A HREF="/bugs/?func=detailbug&bug_id='.
 				db_result($result, $i, 'bug_id').
 				'&group_id='.$group_id.'">'.db_result($result, $i, 'bug_id').'</A></TD>
@@ -346,9 +335,9 @@ function pm_show_task_details ($project_task_id) {
 		Show the details rows from task_history
 	*/
 	global $sys_datefmt;
-	$sql="SELECT project_history.field_name,project_history.old_value,project_history.date,users.user_name ".
-		"FROM project_history,users ".
-		"WHERE project_history.mod_by=users.user_id AND project_history.field_name = 'details' ".
+	$sql="SELECT project_history.field_name,project_history.old_value,project_history.date,user.user_name ".
+		"FROM project_history,user ".
+		"WHERE project_history.mod_by=user.user_id AND project_history.field_name = 'details' ".
 		"AND project_task_id='$project_task_id' ORDER BY project_history.date DESC";
 	$result=db_query($sql);
 	$rows=db_numrows($result);
@@ -367,7 +356,7 @@ function pm_show_task_details ($project_task_id) {
 
 		for ($i=0; $i < $rows; $i++) {
 			echo '
-			<TR BGCOLOR="'. html_get_alt_row_color ($i) .'">
+			<TR BGCOLOR="'. util_get_alt_row_color ($i) .'">
 				<TD>'. nl2br(db_result($result, $i, 'old_value')).'</TD>
 				<TD VALIGN="TOP">'.date($sys_datefmt,db_result($result, $i, 'date')).'</TD>
 				<TD VALIGN="TOP">'.db_result($result, $i, 'user_name').'</TD></TR>';
@@ -386,9 +375,9 @@ function pm_show_task_history ($project_task_id) {
 		relevant to this project_task_id, excluding details
 	*/
 	global $sys_datefmt;
-	$sql="select project_history.field_name,project_history.old_value,project_history.date,users.user_name ".
-		"FROM project_history,users ".
-		"WHERE project_history.mod_by=users.user_id AND ".
+	$sql="select project_history.field_name,project_history.old_value,project_history.date,user.user_name ".
+		"FROM project_history,user ".
+		"WHERE project_history.mod_by=user.user_id AND ".
 		"project_history.field_name <> 'details' AND project_task_id='$project_task_id' ORDER BY project_history.date DESC";
 	$result=db_query($sql);
 	$rows=db_numrows($result);
@@ -411,7 +400,7 @@ function pm_show_task_history ($project_task_id) {
 			$field=db_result($result, $i, 'field_name');
 
 			echo '
-				<TR BGCOLOR="'. html_get_alt_row_color ($i) .'"><TD>'.$field.'</TD><TD>';
+				<TR BGCOLOR="'. util_get_alt_row_color ($i) .'"><TD>'.$field.'</TD><TD>';
 
 			if ($field == 'status_id') {
 

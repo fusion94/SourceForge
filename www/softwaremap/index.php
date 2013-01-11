@@ -4,8 +4,9 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.103 2000/12/06 19:04:51 tperdue Exp $
+// $Id: index.php,v 1.102 2000/04/24 14:01:15 dtype Exp $
 
-header('Location: trove_list.php');
+require('pre.php');
 
+session_redirect('/softwaremap/trove_list.php');
 ?>

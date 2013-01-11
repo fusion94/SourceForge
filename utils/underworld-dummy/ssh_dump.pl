@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: ssh_dump.pl,v 1.3 2000/10/11 19:55:39 tperdue Exp $
+# $Id: ssh_dump.pl,v 1.2 2000/08/02 18:09:24 tperdue Exp $
 #
 # ssh_dump.pl - Script to suck data outta the database to be processed by ssh_create.pl
 #
@@ -13,7 +13,7 @@ my $ssh_array = ();
 &db_connect;
 
 # Dump the Table information
-$query = "SELECT user_name,authorized_keys FROM users WHERE authorized_keys != \"\"";
+$query = "SELECT user_name,authorized_keys FROM user WHERE authorized_keys != \"\"";
 $c = $dbh->prepare($query);
 $c->execute();
 while(my ($username, $ssh_key) = $c->fetchrow()) {

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: help.php,v 1.5 2000/11/03 22:00:01 kingdon Exp $
+// $Id: help.php,v 1.4 2000/03/15 20:12:48 dtype Exp $
 
 function help_button($type,$helpid) {
 	if ($type == 'trove_cat') {
@@ -18,6 +18,7 @@ function help_header($title) {
 <HTML>
 <HEAD>
 <TITLE><?php print $title; ?></TITLE>
+<LINK rel="stylesheet" href="/sourceforge.css" type="text/css">
 </HEAD>
 <BODY bgcolor="#FFFFFF">
 <H4>SourceForge Site Help System:</H4>

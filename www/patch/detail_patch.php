@@ -4,14 +4,14 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: detail_patch.php,v 1.11 2000/10/11 19:55:39 tperdue Exp $
+// $Id: detail_patch.php,v 1.10 2000/04/20 14:33:32 tperdue Exp $
 
 patch_header(array ('title'=>'Patch Detail: '.$patch_id));
 
-$sql="SELECT patch.code,patch.summary,users.user_name AS submitted_by,".
+$sql="SELECT patch.code,patch.summary,user.user_name AS submitted_by,".
 	"user2.user_name AS assigned_to,patch_status.status_name,patch.open_date,patch_category.category_name ".
-	"FROM patch,users,users user2,patch_category,patch_status ".
-	"WHERE patch.submitted_by=users.user_id ".
+	"FROM patch,user,user user2,patch_category,patch_status ".
+	"WHERE patch.submitted_by=user.user_id ".
 	"AND patch.assigned_to=user2.user_id ".
 	"AND patch.patch_status_id=patch_status.patch_status_id ".
 	"AND patch.patch_category_id=patch_category.patch_category_id ".

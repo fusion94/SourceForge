@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.42 2000/11/08 13:26:04 tperdue Exp $
+// $Id: index.php,v 1.40 2000/08/14 21:09:09 tperdue Exp $
 
 require('pre.php');
 require('../forum_utils.php');
@@ -46,18 +46,8 @@ if ($group_id && (user_ismember($group_id, 'F2'))) {
 			/*
 				Change a forum to public/private
 			*/
-			if ($send_all_posts_to) {
-				if (!validate_email($send_all_posts_to)) {
-					$send_all_posts_to='';
-					$feedback .= 'The Email Address You Provided Was Invalid';
-				}
-			}
-			$sql="UPDATE forum_group_list ".
-				"SET is_public='$is_public',".
-				"forum_name='". htmlspecialchars($forum_name) ."',".
-				"description='". htmlspecialchars($description) ."', ".
-				"allow_anonymous='$allow_anonymous', ".
-				"send_all_posts_to='$send_all_posts_to' ".
+			$sql="UPDATE forum_group_list SET is_public='$is_public',forum_name='". htmlspecialchars($forum_name) ."',".
+				"description='". htmlspecialchars($description) ."' ".
 				"WHERE group_forum_id='$group_forum_id' AND group_id='$group_id'";
 			$result=db_query($sql);
 			if (!$result || db_affected_rows($result) < 1) {
@@ -141,9 +131,9 @@ if ($group_id && (user_ismember($group_id, 'F2'))) {
 				None found for this project';
 		} else {
 			echo '
-			<H2>Update Forum Information</H2>
+			<H2>Update Forum Status</H2>
 			<P>
-			You can adjust forum features from here. Please note that private forums 
+			You can make forums private from here. Please note that private forums 
 			can still be viewed by members of your project, not the general public.<P>';
 
 			$title_arr=array();
@@ -155,20 +145,13 @@ if ($group_id && (user_ismember($group_id, 'F2'))) {
 
 			for ($i=0; $i<$rows; $i++) {
 				echo '
-					<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD COLSPAN="3"><B>'.db_result($result,$i,'forum_name').'</B></TD></TR>';
+					<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.db_result($result,$i,'forum_name').'</TD>';
 				echo '
 					<FORM ACTION="'.$PHP_SELF.'" METHOD="POST">
 					<INPUT TYPE="HIDDEN" NAME="post_changes" VALUE="y">
 					<INPUT TYPE="HIDDEN" NAME="change_status" VALUE="y">
 					<INPUT TYPE="HIDDEN" NAME="group_forum_id" VALUE="'.db_result($result,$i,'group_forum_id').'">
 					<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
-					<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD>
-						<FONT SIZE="-1">
-                                                <B>Allow Anonymous Posts?</B><BR>
-                                                <INPUT TYPE="RADIO" NAME="allow_anonymous" VALUE="1"'.((db_result($result,$i,'allow_anonymous')=='1')?' CHECKED':'').'> Yes<BR>
-                                                <INPUT TYPE="RADIO" NAME="allow_anonymous" VALUE="0"'.((db_result($result,$i,'allow_anonymous')=='0')?' CHECKED':'').'> No<BR>
-						</FONT>
-					</TD>
 					<TD>
 						<FONT SIZE="-1">
 						<B>Is Public?</B><BR>
@@ -177,16 +160,11 @@ if ($group_id && (user_ismember($group_id, 'F2'))) {
 						<INPUT TYPE="RADIO" NAME="is_public" VALUE="9"'.((db_result($result,$i,'is_public')=='9')?' CHECKED':'').'> Deleted<BR>
 					</TD><TD>
 						<FONT SIZE="-1">
-						<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Update Info">
+						<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Update Status">
 					</TD></TR>
-					<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD>
+					<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD COLSPAN="3">
 						<B>Forum Name:</B><BR>
-						<INPUT TYPE="TEXT" NAME="forum_name" VALUE="'. db_result($result,$i,'forum_name').'" SIZE="20" MAXLENGTH="30">
-					</TD><TD COLSPAN="2">
-						<B>Email All Posts To:</B><BR>
-                                                <INPUT TYPE="TEXT" NAME="send_all_posts_to" VALUE="'. db_result($result,$i,'send_all_posts_to').'" SIZE="30" MAXLENGTH="50">
-					</TD></TR>
-					<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD COLSPAN="3">
+						<INPUT TYPE="TEXT" NAME="forum_name" VALUE="'. db_result($result,$i,'forum_name').'" SIZE="20" MAXLENGTH="30"><BR>
 						<B>Description:</B><BR>
 						<INPUT TYPE="TEXT" NAME="description" VALUE="'. db_result($result,$i,'description') .'" SIZE="40" MAXLENGTH="80"><BR>
 					</TD></TR></FORM>';

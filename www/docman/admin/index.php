@@ -69,13 +69,6 @@ function main_page($group_id) {
 			        <td class="example">(e.g. http://www.linux.com/)</td>
 
 			</tr>
-			<tr>
-				<th>Language:</th>
-				<td>';
-
-		echo html_get_language_popup($Language,'language_id',$row['language_id']);
-
-		echo	'
 
 			<tr>
 			        <th>Document Information (in html format):</th>
@@ -181,8 +174,7 @@ function main_page($group_id) {
 				."data = '".htmlspecialchars($data)."', "
 				."updatedate = '".time()."', "
 				."doc_group = '".$doc_group."', "
-				."stateid = '".$stateid."', "
-				."language_id = '".$language_id."', "
+				."stateid = '".$stateid."', " 
 				."description = '".htmlspecialchars($description)."' "
 				."where docid = '".$docid."'"; 
 		

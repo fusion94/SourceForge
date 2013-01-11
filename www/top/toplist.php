@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: toplist.php,v 1.36 2000/10/17 21:22:04 tperdue Exp $
+// $Id: toplist.php,v 1.34 2000/08/31 06:11:36 gherteg Exp $
 
 require "pre.php";    
 
@@ -52,13 +52,13 @@ $res_top = db_query("SELECT groups.group_id,groups.group_name,groups.unix_group_
 	"FROM groups,top_group ".
 	"WHERE top_group.$rankfield > 0 ".
 	"AND top_group.group_id=groups.group_id ".
-	"ORDER BY top_group.rank_$rankfield",100);
+	"ORDER BY top_group.rank_$rankfield LIMIT 100");
 
 echo db_error();
 
 while ($row_top = db_fetch_array($res_top)) {
 	$i++;
-	print '<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD>&nbsp;&nbsp;'.$row_top["rank_$rankfield"]
+	print '<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>&nbsp;&nbsp;'.$row_top["rank_$rankfield"]
 		.'</TD><TD><A href="/projects/'. strtolower($row_top['unix_group_name']) .'/">'
 		.stripslashes($row_top['group_name'])."</A>"
 		.'</TD><TD align="right">'.$row_top["$rankfield"]

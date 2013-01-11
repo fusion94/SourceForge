@@ -4,47 +4,44 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: verify.php,v 1.33 2000/12/10 01:20:47 tperdue Exp $
+// $Id: verify.php,v 1.26 2000/08/31 06:07:52 gherteg Exp $
 
 require "pre.php";    
 
-function account_verify($password,$user_name,$confirm_hash) {
-	global $feedback;
+// ###### function login_valid()
+// ###### checks for valid login from form post
 
-	if (!$user_name) {
-		$feedback .= ' Must Enter a User Name ';
-		return false;
-	}
+function verify_login_valid()	{
+	global $HTTP_POST_VARS;
+
+	if (!$GLOBALS['form_loginname']) return 0;
 
 	// first check just confirmation hash
-	$res = db_query("SELECT confirm_hash,status FROM users 
-		WHERE user_name='" . strtolower($user_name) . "'");
+	$res = db_query('SELECT confirm_hash,status FROM user WHERE '
+		.'user_name=\''.$GLOBALS['form_loginname'].'\'');
 
 	if (db_numrows($res) < 1) {
-		$feedback .= ' Invalid username ';
-		return false;
+		$GLOBALS['error_msg'] = 'Invalid username.';
+		return 0;
 	}
 	$usr = db_fetch_array($res);
 
-	if (strcmp($confirm_hash,$usr['confirm_hash'])) {
-		$feedback .= ' Invalid confirmation hash ';
-		return false;
+	if (strcmp($GLOBALS['confirm_hash'],$usr['confirm_hash'])) {
+		$GLOBALS['error_msg'] = 'Invalid confirmation hash.';
+		return 0;
 	}
 
 	// then check valid login	
-	return (session_login_valid(strtolower($user_name),$password,1));
+	return (session_login_valid($GLOBALS['form_loginname'],$GLOBALS['form_pw'],1));
 }
 
 // ###### first check for valid login, if so, redirect
 
 if ($Login){
-	$success=account_verify($form_pw,$form_loginname,$confirm_hash);
+	$success=verify_login_valid();
 	if ($success) {
-		$res = db_query("UPDATE users SET status='A' 
-			WHERE user_name='" . strtolower($form_loginname) . "'");
+		$res = db_query("UPDATE user SET status='A' WHERE user_name='$GLOBALS[form_loginname]'");
 		session_redirect("/account/first.php");
-	} else {
-		exit_error('ERROR',$feedback);
 	}
 }
 
@@ -57,6 +54,9 @@ then be activated for normal logins.
 <?php 
 if ($GLOBALS['error_msg']) {
 	print '<P><FONT color="#FF0000">'.$GLOBALS['error_msg'].'</FONT>';
+}
+if ($Login && !$success) {
+	echo '<h2><FONT COLOR="RED">'. $feedback .'</FONT></H2>';
 }
 ?>
 <form action="verify.php" method="post">

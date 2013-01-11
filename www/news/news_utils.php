@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: news_utils.php,v 1.81 2000/12/13 11:22:28 pfalcon Exp $
+// $Id: news_utils.php,v 1.72 2000/08/31 21:45:51 gherteg Exp $
 
 /*
 	News System
@@ -12,7 +12,7 @@
 */
 
 function news_header($params) {
-	global $DOCUMENT_ROOT,$HTML,$group_id,$news_name,$news_id,$sys_news_group;
+	global $DOCUMENT_ROOT,$HTML,$group_id,$news_name,$news_id;
 
 	$params['toptab']='news';
 	$params['group']=$group_id;
@@ -20,7 +20,7 @@ function news_header($params) {
 	/*
 		Show horizontal links
 	*/
-	if ($group_id && ($group_id != $sys_news_group)) {
+	if ($group_id && ($group_id != 714)) {
 		site_project_header($params);
 	} else {
 		$HTML->header($params);
@@ -37,29 +37,26 @@ function news_footer($params) {
 	$HTML->footer($params);
 }
 
-function news_show_latest($group_id='',$limit=10,$show_summaries=true,$allow_submit=true,$flat=false,$tail_headlines=0) {
-	global $sys_datefmt,$sys_news_group;
-	if (!$group_id) {
-		$group_id=$sys_news_group;
-	}
+function news_show_latest($group_id=714,$limit=10,$show_summaries=true) {
+	global $sys_datefmt;
 	/*
 		Show a simple list of the latest news items with a link to the forum
 	*/
 
-	if ($group_id != $sys_news_group) {
+	if ($group_id != 714) {
 		$wclause="news_bytes.group_id='$group_id' AND news_bytes.is_approved <> '4'";
 	} else {
 		$wclause='news_bytes.is_approved=1';
 	}
 
-	$sql="SELECT groups.group_name,groups.unix_group_name,groups.type,users.user_name,news_bytes.forum_id,news_bytes.summary,news_bytes.date,news_bytes.details ".
-		"FROM users,news_bytes,groups ".
+	$sql="SELECT groups.group_name,groups.unix_group_name,user.user_name,news_bytes.forum_id,news_bytes.summary,news_bytes.date,news_bytes.details ".
+		"FROM user,news_bytes,groups ".
 		"WHERE $wclause ".
-		"AND users.user_id=news_bytes.submitted_by ".
+		"AND user.user_id=news_bytes.submitted_by ".
 		"AND news_bytes.group_id=groups.group_id ".
-		"ORDER BY date DESC";
+		"ORDER BY date DESC LIMIT $limit";
 
-	$result=db_query($sql,$limit+$tail_headlines);
+	$result=db_query($sql);
 	$rows=db_numrows($result);
 
 	if (!$result || $rows < 1) {
@@ -69,7 +66,7 @@ function news_show_latest($group_id='',$limit=10,$show_summaries=true,$allow_sub
 		echo '
 			<DL COMPACT>';
 		for ($i=0; $i<$rows; $i++) {
-			if ($show_summaries && $limit) {
+			if ($show_summaries) {
 				//get the first paragraph of the story
 				$arr=explode("\n",db_result($result,$i,'details'));
 				//if the first paragraph is short, and so are following paragraphs, add the next paragraph on
@@ -79,45 +76,19 @@ function news_show_latest($group_id='',$limit=10,$show_summaries=true,$allow_sub
 					$summ_txt='<BR>'. util_make_links( $arr[0] );
 				}
 				//show the project name 
-				if (db_result($result,$i,'type')==2) $group_type='/foundry/';
-				else $group_type='/projects/';
-				$proj_name=' &nbsp; - &nbsp; <A HREF="http://'.$GLOBALS['sys_default_domain'].$group_type. strtolower(db_result($result,$i,'unix_group_name')) .'/">'. db_result($result,$i,'group_name') .'</A>';
+				$proj_name=' &nbsp; - &nbsp; <A HREF="/projects/'. strtolower(db_result($result,$i,'unix_group_name')) .'/">'. db_result($result,$i,'group_name') .'</A>';
 			} else {
 				$proj_name='';
 				$summ_txt='';
 			}
-
-                        if (!$limit) {
-				$return .= '
-					<li><A HREF="http://'.$GLOBALS['sys_default_domain'].'/forum/forum.php?forum_id='. db_result($result,$i,'forum_id') .'"><B>'. db_result($result,$i,'summary') . '</B></A>';
-                        	$return .= ' &nbsp; <I>'.date($sys_datefmt,db_result($result,$i,'date')).'</A></I><br>';
-                        }
-                        else {
-				$return .= '
-					<A HREF="http://'.$GLOBALS['sys_default_domain'].'/forum/forum.php?forum_id='. db_result($result,$i,'forum_id') .'"><B>'. db_result($result,$i,'summary') . '</B></A>';
-                        	if (!$flat)
-                        		$return .= '
-					<BR>&nbsp;';
-                        	$return .= '
-                                &nbsp;&nbsp;&nbsp;<I>'. db_result($result,$i,'user_name') .' - '.
+			$return .= '
+				<A HREF="/forum/forum.php?forum_id='. db_result($result,$i,'forum_id') .'"><B>'. db_result($result,$i,'summary') . '</B></A>
+				<BR>&nbsp;&nbsp;&nbsp;&nbsp;<I>'. db_result($result,$i,'user_name') .' - '.
 					date($sys_datefmt,db_result($result,$i,'date')) .' <A HREF="/projects/'. strtolower(db_result($result,$i,'unix_group_name')) .'">'. $proj_name . '</A></I>
 				'. $summ_txt .'<HR width="100%" size="1" noshade>';
-			}
-
-                        if ($limit==1 && $tail_headlines) $return .= "<ul>";
-                	if ($limit) $limit--;
 		}
 	}
-
-	if ($group_id != $sys_news_group)
-          $archive_url='/news/?group_id='.$group_id;
-        else
-          $archive_url='/news/';
-
-        if ($tail_headlines) $return .= '</ul><HR width="100%" size="1" noshade>'."\n";
-
-        $return .= '<div align="center"><a href="'.$archive_url.'">[News archive]</a></div>';
-	if ($allow_submit && $group_id != $sys_news_group) {
+	if ($group_id != 714) {
 		//you can only submit news from a project now
 		//you used to be able to submit general news
 		$return .= '<div align="center"><A HREF="/news/submit.php?group_id='.$group_id.'"><FONT SIZE="-1">[Submit News]</FONT></A></center>';
@@ -131,16 +102,16 @@ function news_foundry_latest($group_id=0,$limit=5,$show_summaries=true) {
 		Show a the latest news for a portal 
 	*/
 
-	$sql="SELECT groups.group_name,groups.unix_group_name,users.user_name,news_bytes.forum_id,news_bytes.summary,news_bytes.date,news_bytes.details ".
-		"FROM users,news_bytes,groups,foundry_news ".
+	$sql="SELECT groups.group_name,groups.unix_group_name,user.user_name,news_bytes.forum_id,news_bytes.summary,news_bytes.date,news_bytes.details ".
+		"FROM user,news_bytes,groups,foundry_news ".
 		"WHERE foundry_news.foundry_id='$group_id' ".
-		"AND users.user_id=news_bytes.submitted_by ".
+		"AND user.user_id=news_bytes.submitted_by ".
 		"AND foundry_news.news_id=news_bytes.id ".
 		"AND news_bytes.group_id=groups.group_id ".
 		"AND foundry_news.is_approved=1 ".
-		"ORDER BY news_bytes.date DESC";
+		"ORDER BY news_bytes.date DESC LIMIT $limit";
 
-	$result=db_query($sql,$limit);
+	$result=db_query($sql);
 	$rows=db_numrows($result);
 
 	if (!$result || $rows < 1) {

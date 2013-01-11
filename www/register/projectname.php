@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: projectname.php,v 1.35 2000/11/03 02:17:32 tperdue Exp $
+// $Id: projectname.php,v 1.34 2000/08/31 06:11:36 gherteg Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 session_require(array('isloggedin'=>'1'));
@@ -35,7 +35,7 @@ if ($insert_purpose && $form_purpose) {
 	if (!$result) {
 		exit_error('ERROR','INSERT QUERY FAILED. Please notify admin@'.$GLOBALS['sys_default_domain']);
 	} else {
-		$group_id=db_insertid($result,'groups','group_id');
+		$group_id=db_insertid($result);
 	}
 
 } else {

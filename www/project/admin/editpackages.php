@@ -4,15 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editpackages.php,v 1.16 2000/12/12 18:50:17 dbrogdon Exp $
+// $Id: editpackages.php,v 1.9 2000/08/16 14:46:55 tperdue Exp $
 
 require ('pre.php');    
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
-session_require(array('group'=>$group_id));
-$project=&group_get_object($group_id);
-if (!$project->userIsReleaseTechnician()) exit_permission_denied();
-$is_admin=$project->userIsAdmin();
+session_require(array('group'=>$group_id,'admin_flags'=>'A'));
 
 /*
 
@@ -22,8 +19,7 @@ $is_admin=$project->userIsAdmin();
 
 */
 
-// only admin can modify packages (vs modifying releases of packages)
-if ($is_admin && $submit) {
+if ($submit) {
 	/*
 
 		make updates to the database
@@ -57,9 +53,6 @@ if ($is_admin && $submit) {
 
 project_admin_header(array('title'=>'Release/Edit File Releases','group'=>$group_id));
 
-echo '<h3>QRS:</h3>';
-echo 'Click here for to <a href="qrs.php?package_id=' . $package_id . '&group_id=' . $group_id . '">quick-release a file</a>.<br>';
-
 echo '<H3>Packages</H3>
 <P>
 You can use packages to group different file releases together, or use them however you like. 
@@ -73,7 +66,7 @@ You can use packages to group different file releases together, or use them howe
 <h4>Your Packages:</H4>
 <P>
 Start by defining your packages, then you can upload files with FTP to the <B>incoming</B> directory on 
-<B>upload.sourceforge.net</B>. Once you have the files uploaded, you can then <B>create releases</B> 
+<B>download.sourceforge.net</B>. Once you have the files uploaded, you can then <B>create releases</B> 
 of your packages.
 <P>
 Once you have have packages defined, you can start creating new <B>releases of packages.</B>
@@ -99,7 +92,7 @@ You can create new releases of packages by clicking on <B>Add/Edit Releases</B> 
 
 */
 
-$res=db_query("SELECT status_id,package_id,name AS package_name FROM frs_package WHERE group_id='$group_id'");
+$res=db_query("SELECT package_id,name AS package_name FROM frs_package WHERE group_id='$group_id'");
 $rows=db_numrows($res);
 if (!$res || $rows < 1) {
 	echo '<h4>You Have No Packges Defined</h4>';
@@ -108,43 +101,24 @@ if (!$res || $rows < 1) {
 	$title_arr[]='Releases';
 	$title_arr[]='Package Name';
 	$title_arr[]='Status';
-	if ($is_admin) $title_arr[]='Update';
+	$title_arr[]='Update';
 
 	echo html_build_list_table_top ($title_arr);
 
 	for ($i=0; $i<$rows; $i++) {
-                // If user is not project admin, use static fields whenever possible
-        	if ($is_admin) {
-                	$name_entry='<INPUT TYPE="TEXT" NAME="package_name" VALUE="'. 
-				db_result($res,$i,'package_name') .'" SIZE="20" MAXLENGTH="30">';
-                } else {
-                	$name_entry=db_result($res,$i,'package_name');
-                }
-		$status_entry= frs_show_status_popup ('status_id', db_result($res,$i,'status_id'));
-
 		echo '
 		<FORM ACTION="'. $PHP_SELF .'" METHOD="POST">
 		<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
 		<INPUT TYPE="HIDDEN" NAME="func" VALUE="update_package">
 		<INPUT TYPE="HIDDEN" NAME="package_id" VALUE="'. db_result($res,$i,'package_id') .'">
-		<TR BGCOLOR="'. html_get_alt_row_color($i) .'">
-			<TD NOWRAP ALIGN="center">
-				<FONT SIZE="-1">
-					<A HREF="newrelease.php?package_id='. 
-						db_result($res,$i,'package_id') .'&group_id='. $group_id .'"><B>[Add Release]</B>
-					</A>
-				</FONT>
-				<FONT SIZE="-1">
-					<A HREF="editreleases.php?package_id='. 
-						db_result($res,$i,'package_id') .'&group_id='. $group_id .'"><B>[Edit Releases]</B>
-					</A>
-				</FONT>
-
-			</TD>
-			<TD><FONT SIZE="-1">'.$name_entry.'</TD>
-			<TD><FONT SIZE="-1">'.$status_entry.'</TD>';
-		if ($is_admin)	echo '<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="submit" VALUE="Update"></TD>';
-		echo '</TR></FORM>';
+		<TR BGCOLOR="'. util_get_alt_row_color($i) .'">
+			<TD NOWRAP><FONT SIZE="-1"><A HREF="editreleases.php?package_id='. 
+				db_result($res,$i,'package_id') .'&group_id='. $group_id .'"><B>[Add/Edit Releases]</B></A></TD>
+			<TD><FONT SIZE="-1"><INPUT TYPE="TEXT" NAME="package_name" VALUE="'. 
+				db_result($res,$i,'package_name') .'" SIZE="20" MAXLENGTH="30"></TD>
+			<TD><FONT SIZE="-1">'. frs_show_status_popup ('status_id', db_result($res,$i,'status_id')) .'</TD>
+			<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="submit" VALUE="Update"></TD>
+		</TR></FORM>';
 	}
 	echo '</TABLE>';
 
@@ -156,7 +130,6 @@ if (!$res || $rows < 1) {
 
 */
 
-if ($is_admin)
 echo '<P>
 <h3>New Package Name:</h3>
 <P>

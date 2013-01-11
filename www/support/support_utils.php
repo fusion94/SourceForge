@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: support_utils.php,v 1.59 2000/11/28 23:02:56 pfalcon Exp $
+// $Id: support_utils.php,v 1.49 2000/08/30 22:34:20 tperdue Exp $
 
 /*
 
@@ -39,9 +39,6 @@ function support_header($params) {
 		echo ' | <A HREF="/support/?func=browse&group_id='.$group_id.'&set=my">My Requests</A>';
 	}
 	echo ' | <A HREF="/support/?func=browse&group_id='.$group_id.'&set=open">Open Requests</A>';
-	if (user_isloggedin()) {
-		echo ' | <A HREF="/support/reporting/?group_id='.$group_id.'">Reporting</A>';
-	}
 	echo ' | <A HREF="/support/admin/?group_id='.$group_id.'">Admin</A>';
 
 	echo '</B>';
@@ -106,13 +103,6 @@ function show_supportlist ($result,$offset,$set='open') {
 	$links_arr[]=$url.'assigned_to_user';
 	$links_arr[]=$url.'submitted_by';
 
-	$IS_SUPPORT_ADMIN=user_ismember($group_id,'S2');
-
-	echo '
-		<FORM ACTION="'. $PHP_SELF .'" METHOD="POST">
-		<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
-		<INPUT TYPE="HIDDEN" NAME="func" VALUE="postmodsupport">';
-
 	echo html_build_list_table_top ($title_arr,$links_arr);
 
 	$then=(time()-1296000);
@@ -120,16 +110,9 @@ function show_supportlist ($result,$offset,$set='open') {
 	for ($i=0; $i < $rows; $i++) {
 		echo '
 			<TR BGCOLOR="'. get_priority_color(db_result($result, $i, 'priority')) .'">'.
-			'<TD NOWRAP>'.
-			($IS_SUPPORT_ADMIN?'<INPUT TYPE="CHECKBOX" NAME="support_id[]" VALUE="'.
-			db_result($result, $i, 'support_id') .'"> ':'').
-	                db_result($result, $i, 'support_id') .
-        	        '</TD>'.
-			'<TD><A HREF="'.$PHP_SELF.'?func=detailsupport&support_id='. 
-			db_result($result, $i, 'support_id').
-			'&group_id='. db_result($result, $i, 'group_id').'">'. 
-			db_result($result, $i, 'summary').
-			'</A></TD>'.
+			'<TD><A HREF="'.$PHP_SELF.'?func=detailsupport&support_id='. db_result($result, $i, 'support_id').
+			'&group_id='. db_result($result, $i, 'group_id').'">'. db_result($result, $i, 'support_id') .'</A></TD>'.
+			'<TD>'. db_result($result, $i, 'summary') .'</TD>'.
 			'<TD>'. (($set != 'closed' && db_result($result, $i, 'date') < $then)?'<B>* ':'&nbsp; ') . date($sys_datefmt,db_result($result, $i, 'date')) .'</TD>'.
 			'<TD>'. db_result($result, $i, 'assigned_to_user') .'</TD>'.
 			'<TD>'. db_result($result, $i, 'submitted_by') .'</TD></TR>';
@@ -148,40 +131,102 @@ function show_supportlist ($result,$offset,$set='open') {
 	}
 	echo '</TD><TD>&nbsp;</TD><TD COLSPAN="2">';
 	
-	if ($rows>=50) {
+	if ($rows==50) {
 		echo '<A HREF="'.$PHP_SELF.'?func=browse&group_id='.$group_id.'&set='.$set.'&offset='.($offset+50).'"><B>Next 50 --></B></A>';
 	} else {
 		echo '&nbsp;';
 	}
-	echo '</TD></TR>';
+	echo '</TD></TR></TABLE>';
+}
 
-       /*
-                Mass Update Code
-        */     
-        if ($IS_SUPPORT_ADMIN) {
-                echo '<TR><TD COLSPAN="5">
-                <FONT COLOR="#FF0000"><B>Support Admin:</B></FONT>  If you wish to apply changes to all support tickets selected above, use these controls to change their properties and click once on "Mass Update".
-                <TABLE WIDTH="100%" BORDER="0">
+function mail_followup($support_id,$more_addresses=false) {
+	global $sys_datefmt,$feedback;
+	/*
+		Send a message to the person who opened this support and the person it is assigned to
+	*/
 
-                <TR><TD><B>Category:</B><BR>'. support_category_box ($group_id,'support_category_id','xyz','No Change') .'</TD>
-                <TD><B>Priority:</B><BR>';
-                echo build_priority_select_box ('priority', '5', true);
-                echo '</TD></TR>
+	$sql="SELECT support.priority,support.group_id,support.support_id,support.summary,".
+		"support_status.status_name,support_category.category_name,support.open_date, ".
+		"user.email,user2.email AS assigned_to_email ".
+		"FROM support,user,user user2,support_status,support_category ".
+		"WHERE user2.user_id=support.assigned_to ".
+		"AND support.support_status_id=support_status.support_status_id ".
+		"AND support.support_category_id=support_category.support_category_id ".
+		"AND user.user_id=support.submitted_by AND support.support_id='$support_id'";
+
+	$result=db_query($sql);
+
+	if ($result && db_numrows($result) > 0) {
+		/*
+			Set up the body
+		*/
+		$body = "\n\nSupport Request #".db_result($result,0,'support_id').", was updated on ".date($sys_datefmt,db_result($result,0,'open_date')). 
+			"\nYou can respond by visiting: ".
+			"\nhttp://".$GLOBALS['sys_default_domain']."/support/?func=detailsupport&support_id=".db_result($result,0,"support_id")."&group_id=".db_result($result,0,"group_id").
+			"\n\nCategory: ".db_result($result,0,'category_name').
+			"\nStatus: ".db_result($result,0,'status_name').
+			"\nPriority: ".db_result($result,0,'priority').
+			"\nSummary: ".util_unconvert_htmlspecialchars(db_result($result,0,'summary'));
 
 
-                <TR><TD><B>Assigned To:</B><BR>'. support_technician_box ($group_id,'assigned_to','xyz','No Change') .'</TD>
-                <TD><B>Status:</B><BR>'. support_status_box ('support_status_id','xyz','No Change') .'</TD></TR>
+		$subject="[ ".db_result($result,0,"support_id")." ] ".util_unconvert_htmlspecialchars(db_result($result,0,"summary"));
 
-                <TR><TD COLSPAN="2"><B>Canned Response:</B><BR>'. support_canned_response_box ($group_id,'canned_response') .'</TD></TR>
+		/*
+			get all the email addresses that have dealt with this request
+		*/
 
-                <TR><TD COLSPAN="3" ALIGN="MIDDLE"><INPUT TYPE="SUBMIT" name="submit" VALUE="Mass Update"></TD></TR>
+		$email_res=db_query("SELECT distinct from_email FROM support_messages WHERE support_id='$support_id'");
+		$rows=db_numrows($email_res);
+		if ($email_res && $rows > 0) {
+			$mail_arr=result_column_to_array($email_res,0);
+			$emails=implode($mail_arr,', ');
+		}
+		if ($more_addresses) {
+			$emails .= ','.$more_addresses;
+		}
 
-                </TABLE>        
-		</FORM>
-                </TD></TR>';
-        }
+		/*
+			Now include the two most recent emails
+		*/
+		$sql="select * ".
+			"FROM support_messages ".
+			"WHERE support_id='$support_id' ORDER BY date DESC LIMIT 2";
+		$result2=db_query($sql);
+		$rows=db_numrows($result2);
+		if ($result && $rows > 0) {
+			for ($i=0; $i<$rows; $i++) {
+				//get the first part of the email address
+				$email_arr=explode('@',db_result($result2,$i,'from_email'));
 
-	echo '</TABLE>';
+				$body .= "\n\nBy: ". $email_arr[0] .
+				"\nDate: ".date($sys_datefmt,db_result($result2,$i,'date')).
+				"\n\nMessage:".
+				"\n".util_unconvert_htmlspecialchars(db_result($result2,$i,'body')).
+				"\n\n----------------------------------------------------------------------";
+			}
+			$body .= "\nYou can respond by visiting: ".
+			"\nhttp://$GLOBALS[HTTP_HOST]/support/?func=detailsupport&support_id=".db_result($result,0,'support_id')."&group_id=".db_result($result,0,'group_id');
+		}
+
+		//attach the headers to the body
+
+		$body = "To: noreply@$GLOBALS[HTTP_HOST]".
+			"\nBCC: $emails".
+			"\nSubject: $subject".
+			$body;
+		/*
+			Send the email
+		*/
+		exec ("/bin/echo \"". util_prep_string_for_sendmail($body) ."\" | /usr/sbin/sendmail -fnoreply@$GLOBALS[HTTP_HOST] -t &");
+//		echo $body;
+		$feedback .= " Support Request Update Emailed ";
+
+	} else {
+
+		$feedback .= " Could Not Send Support Request Update ";
+		echo db_error();
+
+	}
 }
 
 function show_support_details ($support_id) {
@@ -203,7 +248,7 @@ function show_support_details ($support_id) {
 
 		for ($i=0; $i < $rows; $i++) {
 			$email_arr=explode('@',db_result($result,$i,'from_email'));
-			echo '<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD><PRE>
+			echo '<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD><PRE>
 Date: '. date($sys_datefmt,db_result($result, $i, 'date')) .'
 Sender: '. $email_arr[0] . '
 '. util_line_wrap ( db_result($result, $i, 'body'),85,"\n"). '</PRE></TD></TR>';
@@ -236,7 +281,7 @@ function show_supporthistory ($support_id) {
 		for ($i=0; $i < $rows; $i++) {
 			$field=db_result($result, $i, 'field_name');
 			echo '
-			<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD>'.$field.'</TD><TD>';
+			<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.$field.'</TD><TD>';
 
 			if ($field == 'support_status_id') {
 

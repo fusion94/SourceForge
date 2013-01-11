@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: bug_utils.php,v 1.184 2000/11/06 21:14:04 tperdue Exp $
+// $Id: bug_utils.php,v 1.170 2000/08/30 22:34:19 tperdue Exp $
 
 /*
 
@@ -35,7 +35,7 @@ function bug_header($params) {
 	}
 	echo site_project_header($params);
 
-	echo '<BR><B><A HREF="/bugs/?func=addbug&group_id='.$group_id.'">Submit A Bug</A>
+	echo '<P><B><A HREF="/bugs/?func=addbug&group_id='.$group_id.'">Submit A Bug</A>
 	 | <A HREF="/bugs/?func=browse&group_id='.$group_id.'&set=open">Open Bugs</A>';
 	if (user_isloggedin()) {
 		echo ' | <A HREF="/bugs/?func=browse&group_id='.$group_id.'&set=my">My Bugs</A>';
@@ -48,23 +48,6 @@ function bug_header($params) {
 
 function bug_footer($params) {
 	site_project_footer($params);
-}
-
-function bug_user_project_box ($name='project_id',$user_id=false,$checked='xyxy',$text_100='None') {
-	/*
-		Returns a select box populated with projects that the user is bug admin of
-	*/
-	if (!$user_id) {
-		return 'ERROR - no user_id';
-	} else {
-		$result=bug_data_get_user_projects ($user_id);
-		if (!db_numrows($result)) {
-			return html_build_select_box_from_arrays($group_id, $checked, $name, $checked, false);
-		}	
-		else {
-			return html_build_select_box ($result,$name,$checked,false,$text_100);
-		}	
-	}
 }
 
 function bug_category_box ($name='bug_category_id',$group_id=false,$checked='xyxy',$text_100='None') {
@@ -91,12 +74,12 @@ function bug_group_box ($name='bug_group_id',$group_id=false,$checked='xyxy',$te
 	}
 }
 
-function bug_resolution_box ($name='bug_resolution_id',$checked='xyxy',$text_100='None') {
+function bug_resolution_box ($name='bug_resolution_id',$checked='xyxy') {
 	/*
 		Returns a select box populated with our predefined resolutions
 	*/
 	$result=bug_data_get_resolutions ();
-	return html_build_select_box ($result,$name,$checked,true,$text_100);
+	return html_build_select_box ($result,$name,$checked);
 }
 
 function bug_canned_response_box ($group_id,$name='canned_response') {
@@ -108,7 +91,7 @@ function bug_canned_response_box ($group_id,$name='canned_response') {
 	}
 }
 
-function bug_technician_box ($name='assigned_to',$group_id,$checked='xyxy',$text_100='None') {
+function bug_technician_box ($name='assigned_to',$group_id,$checked='xyxy') {
 	/*
 		Returns a select box populated with the bug_techs that are defined for this project
 	*/
@@ -116,7 +99,7 @@ function bug_technician_box ($name='assigned_to',$group_id,$checked='xyxy',$text
 		return 'ERROR - no group_id';
 	} else {
 		$result=bug_data_get_technicians ($group_id);
-		return html_build_select_box ($result,$name,$checked,true,$text_100);
+		return html_build_select_box ($result,$name,$checked);
 	}
 }
 
@@ -134,10 +117,6 @@ function bug_multiple_task_depend_box ($name='dependent_on_task[]',$group_id=fal
 	} else if (!$bug_id) {
 		return 'ERROR - no bug_id';
 	} else {
-		$project=&project_get_object($group_id);
-		if (!$project->usesPmDependencies()) {
-			return '<B>This project has disabled task dependencies</B>';	
-		}
 		$result=bug_data_get_tasks ($group_id);
 		$result2=bug_data_get_dependent_tasks ($bug_id);
 		return html_build_multiple_select_box ($result,$name,util_result_column_to_array($result2));
@@ -151,11 +130,6 @@ function bug_multiple_bug_depend_box ($name='dependent_on_bug[]',$group_id=false
 	} else if (!$bug_id) {
 		return 'ERROR - no bug_id';
 	} else {
-		$project=&project_get_object($group_id);
-
-		if (!$project->usesBugDependencies()) {
-			return '<B>This project has disabled bug dependencies</B>';	
-		}
 		$result=bug_data_get_valid_bugs ($group_id,$bug_id);
 		$result2=bug_data_get_dependent_bugs ($bug_id);
 		return html_build_multiple_select_box($result,$name,util_result_column_to_array($result2));
@@ -169,13 +143,13 @@ function show_buglist ($result,$offset,$set='open') {
 		the table, and it should be joined to USER to get the user_name.
 	*/
 
-        $IS_BUG_ADMIN=user_ismember($group_id,'B2');
-
+//      $IS_BUG_ADMIN=false; //user_ismember($group_id,'B2');
+/*
 	echo '
 		<FORM ACTION="'. $PHP_SELF .'" METHOD="POST">
 		<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
 		<INPUT TYPE="HIDDEN" NAME="func" VALUE="massupdate">';
-      
+*/      
 
 	$rows=db_numrows($result);
 	$url = "/bugs/?group_id=$group_id&set=$set&order=";
@@ -200,14 +174,12 @@ function show_buglist ($result,$offset,$set='open') {
 	$then=(time()-2592000);
 
 	for ($i=0; ($i < $rows && $i < 50); $i++) {
+		//(($IS_BUG_ADMIN)?'<INPUT TYPE="CHECKBOX" NAME="bug_id[]" VALUE="'. db_result($result, $i, 'bug_id') .'"> ':'')
 		echo '
 		<TR BGCOLOR="'. get_priority_color(db_result($result, $i, 'priority')) .'">'.
-		'<TD NOWRAP>'.
-		($IS_BUG_ADMIN?'<INPUT TYPE="CHECKBOX" NAME="bug_id[]" VALUE="'. db_result($result, $i, 'bug_id') .'"> ':'').
-		db_result($result, $i, 'bug_id') .
-		'</TD>'.
 		'<TD><A HREF="/bugs/?func=detailbug&bug_id='. db_result($result, $i, 'bug_id') .
-                '&group_id='. db_result($result, $i, 'group_id') .'">'. db_result($result, $i, 'summary') .'</A></TD>'.
+		'&group_id='. db_result($result, $i, 'group_id') .'">'. db_result($result, $i, 'bug_id') .'</A></TD>'.
+		'<TD>'. db_result($result, $i, 'summary') .'</TD>'.
 		'<TD>'. (($set != 'closed' && db_result($result, $i, 'date') < $then)?'<B>* ':'&nbsp; ') . date($sys_datefmt,db_result($result, $i, 'date')).'</TD>'.
 		'<TD>'. db_result($result, $i, 'assigned_to_user') .'</TD>'.
 		'<TD>'. db_result($result, $i, 'submitted_by') .'</TD></TR>';
@@ -235,22 +207,21 @@ function show_buglist ($result,$offset,$set='open') {
 
        /*
 		Mass Update Code
-	*/     
+	* /     
 	if ($IS_BUG_ADMIN) {
 		echo '<TR><TD COLSPAN="5">
-		<FONT COLOR="#FF0000"><B>Bug Admin:</B></FONT>  If you wish to apply changes to all bugs selected above, use these controls to change their properties and click once on "Mass Update".
 		<TABLE WIDTH="100%" BORDER="0">
 
-		<TR><TD><B>Category:</B><BR>'. bug_category_box ('bug_category_id',$group_id,'xyz','No Change') .'</TD>
+		<TR><TD><B>Category:</B><BR>'. bug_category_box ('bug_category_id',$group_id) .'</TD>
 		<TD><B>Priority:</B><BR>';
-		echo build_priority_select_box ('priority', '5', true);
+		echo build_priority_select_box ('priority');
 		echo '</TD></TR>
 
-		<TR><TD><B>Bug Group:</B><BR>'. bug_group_box ('bug_group_id',$group_id,'xtz','No Change') .'</TD>
-		<TD><B>Resolution:</B><BR>'. bug_resolution_box ('resolution_id','xyz','No Change') .'</TD></TR>
+		<TR><TD><B>Group:</B><BR>'. bug_group_box ('bug_group_id',$group_id) .'</TD>
+		<TD><B>Bug Group:</B><BR>'. bug_resolution_box ('resolution_id') .'</TD></TR>
 
-		<TR><TD><B>Assigned To:</B><BR>'. bug_technician_box ('assigned_to',$group_id,'xyz','No Change') .'</TD>
-		<TD><B>Status:</B><BR>'. bug_status_box ('status_id','xyz','No Change') .'</TD></TR>
+		<TR><TD><B>Assigned To:</B><BR>'. bug_technician_box ('assigned_to',$group_id) .'</TD>
+		<TD><B>Status:</B><BR>'. bug_status_box ('status_id') .'</TD></TR>
 
 		<TR><TD COLSPAN="2" ALIGN="MIDDLE"><INPUT TYPE="SUBMIT" name="submit" VALUE="Mass Update"></TD></TR>
 
@@ -258,20 +229,85 @@ function show_buglist ($result,$offset,$set='open') {
 		</TD></TR>';
 	}
 
-	
+	*/
 
 
 	echo '</TABLE>';
 
 }
 
-function show_dependent_bugs ($bug_id,$group_id) {
-	$project=&group_get_object($group_id);
+function mail_followup($bug_id,$more_addresses=false) {
+	global $sys_datefmt,$feedback;
+	/*
+		Send a message to the person who opened this bug and the person it is assigned to
+	*/
 
-	if (!$project->usesBugDependencies()){
-		return '<H3>Other Bugs That Depend on This Bug</H3>
-		<P><B>This project has disabled bug dependencies</B>';
+	$sql="SELECT bug.date,bug.details,bug.group_id,bug.priority,bug.bug_id,bug.summary,bug_resolution.resolution_name,bug_group.group_name,".
+		"bug.date,bug_category.category_name,bug_status.status_name,user.user_name,user.email,user2.email AS assigned_to_email, groups.group_name AS project_name ".
+		"FROM bug,user,user user2,bug_category,bug_status,bug_group,bug_resolution,groups ".
+		"WHERE user2.user_id=bug.assigned_to AND bug.status_id=bug_status.status_id ".
+		"AND bug_resolution.resolution_id=bug.resolution_id AND bug_group.bug_group_id=bug.bug_group_id ".
+		"AND bug.category_id=bug_category.bug_category_id AND user.user_id=bug.submitted_by AND bug.bug_id='$bug_id' AND groups.group_id = bug.group_id";
+
+	$result=db_query($sql);
+
+
+
+	if ($result && db_numrows($result) > 0) {
+			
+			
+		$body = 'Bug #'.db_result($result,0,'bug_id').', was updated on '.date($sys_datefmt,db_result($result,0,'date')).
+		"\nHere is a current snapshot of the bug.".
+		"\n\nProject: ".db_result($result,0,'project_name').
+		"\nCategory: ".db_result($result,0,'category_name').
+		"\nStatus: ".db_result($result,0,'status_name').
+		"\nResolution: ".db_result($result,0,'resolution_name').
+		"\nBug Group: ".db_result($result,0,'group_name').
+		"\nPriority: ".db_result($result,0,'priority').
+		"\nSummary: ".util_unconvert_htmlspecialchars(db_result($result,0,'summary')).
+		"\n\nDetails: ".util_unconvert_htmlspecialchars(db_result($result,0,'details'));
+
+		$sql="SELECT user.email,user.user_name,bug_history.date,bug_history.old_value ".
+			"FROM bug_history,user ".
+			"WHERE user.user_id=bug_history.mod_by ".
+			"AND bug_history.field_name='details' ".
+			"AND bug_history.bug_id='$bug_id'";
+		$result2=db_query($sql);
+		$rows=db_numrows($result2);
+		if ($result2 && $rows > 0) {
+			$body .= "\n\nFollow-Ups:";
+			for ($i=0; $i<$rows;$i++) {
+				$body .= "\n\nDate: ".date($sys_datefmt,db_result($result2,$i,'date'));
+				$body .= "\nBy: ".db_result($result2,$i,'user_name');
+				$body .= "\n\nComment:\n".util_unconvert_htmlspecialchars(db_result($result2,$i,'old_value'));
+				$body .= "\n-------------------------------------------------------";
+			}
+		}
+		$body .= "\n\nFor detailed info, follow this link:";
+		$body .= "\nhttp://$GLOBALS[sys_default_domain]/bugs/?func=detailbug&bug_id=$bug_id&group_id=".db_result($result,0,'group_id');
+
+		$subject='[Bug #'.db_result($result,0,'bug_id').'] '.util_unconvert_htmlspecialchars(db_result($result,0,'summary'));
+
+		$to=db_result($result,0,'email').','.db_result($result,0,'assigned_to_email');
+
+		if ($more_addresses) {
+			$to .= ','.$more_addresses;
+		}
+
+		$more='From: noreply@'.$GLOBALS['sys_default_domain'];
+
+		mail($to,$subject,$body,$more);
+
+		$feedback .= ' Bug Update Sent '; //to '.$to;
+
+	} else {
+
+		$feedback .= ' Could Not Send Bug Update ';
+
 	}
+}
+
+function show_dependent_bugs ($bug_id,$group_id) {
 	$sql="SELECT bug.bug_id,bug.summary ".
 		"FROM bug,bug_bug_dependencies ".
 		"WHERE bug.bug_id=bug_bug_dependencies.bug_id ".
@@ -291,7 +327,7 @@ function show_dependent_bugs ($bug_id,$group_id) {
 
 		for ($i=0; $i < $rows; $i++) {
 			echo '
-			<TR BGCOLOR="'. html_get_alt_row_color($i) .'">
+			<TR BGCOLOR="'. util_get_alt_row_color($i) .'">
 				<TD><A HREF="/bugs/?func=detailbug&bug_id='.
 				db_result($result, $i, 'bug_id').
 				'&group_id='.$group_id.'">'.db_result($result, $i, 'bug_id').'</A></TD>
@@ -326,7 +362,7 @@ function show_bug_details ($bug_id) {
 		echo html_build_list_table_top ($title_arr);
 
 		for ($i=0; $i < $rows; $i++) {
-			echo '<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD>'.
+			echo '<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.
 				ereg_replace("\n","<BR>",db_result($result, $i, 'old_value')).'</TD>'.
 				'</TD>'.
 				'<TD VALIGN="TOP">'.date($sys_datefmt,db_result($result, $i, 'date')).'</TD>'.
@@ -363,7 +399,7 @@ function show_bughistory ($bug_id) {
 		for ($i=0; $i < $rows; $i++) {
 			$field=db_result($result, $i, 'field_name');
 			echo '
-				<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD>'.$field.'</TD><TD>';
+				<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.$field.'</TD><TD>';
 
 			if ($field == 'status_id') {
 

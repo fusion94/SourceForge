@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: monitor.php,v 1.14 2000/11/16 02:58:57 tperdue Exp $
+// $Id: monitor.php,v 1.13 2000/01/29 17:27:20 tperdue Exp $
 
 require('pre.php');
 require('../forum/forum_utils.php');
@@ -22,6 +22,19 @@ if (user_isloggedin()) {
 			If they are NOT, then insert a row into the db
 		*/
 
+		/*
+			Set up navigation vars
+		*/
+		$result=db_query("SELECT group_id,forum_name,is_public FROM forum_group_list WHERE group_forum_id='$forum_id'");
+
+		$group_id=db_result($result,0,'group_id');
+		$forum_name=db_result($result,0,'forum_name');
+
+		forum_header(array('title'=>'Monitor a forum'));
+
+		echo '
+			<H2>Monitor a Forum</H2>';
+
 		$sql="SELECT * FROM forum_monitored_forums WHERE user_id='".user_getid()."' AND forum_id='$forum_id';";
 
 		$result = db_query($sql);
@@ -36,16 +49,19 @@ if (user_isloggedin()) {
 			$result = db_query($sql);
 
 			if (!$result) {
-				exit_error("ERROR","ERROR - could not insert into database");
+				echo "<FONT COLOR=\"RED\">Error inserting into forum_monitoring</FONT>";
 			} else {
-				header ("Location: /forum/forum.php?forum_id=$forum_id&feedback=".urlencode("Forum Is Now Being Monitored"));
+				echo "<FONT COLOR=\"RED\"><H3>Forum is now being monitored</H3></FONT>";
+				echo "<P>You will now be emailed followups to this entire forum.";
+				echo "<P>To turn off monitoring, simply click the <B>Monitor Forum</B> link again.";
 			}
 
 		} else {
 
 			$sql="DELETE FROM forum_monitored_forums WHERE user_id='".user_getid()."' AND forum_id='$forum_id';";
 			$result = db_query($sql);
-			header ("Location: /forum/forum.php?forum_id=$forum_id&feedback=".urlencode("Forum Monitoring Deactivated"));
+			echo "<FONT COLOR=\"RED\"><H3>Monitoring has been turned off</H3></FONT>";
+			echo "<P>You will not receive any more emails from this forum.";
 		}
 		forum_footer(array());
 	} else {

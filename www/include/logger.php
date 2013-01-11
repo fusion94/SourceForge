@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: logger.php,v 1.22 2000/12/05 18:55:47 pgport Exp $
+// $Id: logger.php,v 1.17 2000/08/04 01:16:58 msnelham Exp $
 
 /*
 	Determine group
@@ -15,38 +15,6 @@ if ($group_id) {
 } else if ($form_grp) {
 	$log_group=$form_grp;
 } else {
-	//
-	//
-	//	This is a hack to allow the logger to have a group_id present
-	//	for foundry and project summary pages
-	//
-	//
-	$expl_pathinfo = explode('/',$REQUEST_URI);
-	if (($expl_pathinfo[1]=='foundry') || ($expl_pathinfo[1]=='projects')) {
-		$res_grp=db_query("SELECT * FROM groups WHERE unix_group_name='$expl_pathinfo[2]'");
-		//set up the group_id
-       		$group_id=db_result($res_grp,0,'group_id');
-		//set up a foundry object for reference all over the place
-		if ($group_id) {
-			$grp =& group_get_object($group_id,$res_grp);
-			if ($grp) {
-				if ($grp->isFoundry()) {
-					//this is a foundry - so set up the foundry var properly
-					$foundry =& $grp;
-					//echo "IS FOUNDRY: ".$group_id;
-				} else {
-					//this is a project - so set up the project var properly
-					$project =& $grp;
-					//echo "IS PROJECT: ".$group_id;
-				}
-				$log_group=$group_id;
-			} else {
-				$log_group=0;
-			}
-		} else {
-			$log_group=0;
-		}
-	}
 	$log_group=0;
 }
 
@@ -58,15 +26,11 @@ $sql =	"INSERT INTO activity_log "
 
 $res_logger = db_query ( $sql );
 
-//
-//	temp hack
-//
-$sys_db_is_dirty=false;
-
 if (!$res_logger) {
 	echo "An error occured in the logger.\n";
 	echo db_error();
 	exit;
 }
+
 
 ?>

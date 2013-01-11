@@ -4,17 +4,17 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: lostpw-confirm.php,v 1.14 2000/10/11 19:55:39 tperdue Exp $
+// $Id: lostpw-confirm.php,v 1.13 2000/08/31 06:07:52 gherteg Exp $
 
 require ('pre.php');    
 
 $confirm_hash = md5($session_hash . strval(time()) . strval(rand()));
 
-$res_user = db_query("SELECT * FROM users WHERE user_name='$form_loginname'");
-if (db_numrows($res_user) < 1) exit_error("Invalid user","That user does not exist.");
+$res_user = db_query("SELECT * FROM user WHERE user_name='$form_loginname'");
+if (db_numrows($res_user) < 1) exit_error("Invalid User","That user does not exist.");
 $row_user = db_fetch_array($res_user);
 
-db_query("UPDATE users SET confirm_hash='$confirm_hash' WHERE user_id=$row_user[user_id]");
+db_query("UPDATE user SET confirm_hash='$confirm_hash' WHERE user_id=$row_user[user_id]");
 
 $message = "Someone (presumably you) on the SourceForge site requested a\n"
 	. "password change through email verification. If this was not you,\n"

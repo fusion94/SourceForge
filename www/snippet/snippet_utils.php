@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: snippet_utils.php,v 1.27 2000/10/11 19:55:40 tperdue Exp $
+// $Id: snippet_utils.php,v 1.25 2000/08/31 20:15:01 gherteg Exp $
 
 /*
 	Code Snippet System
@@ -93,10 +93,10 @@ function snippet_footer($params) {
 
 function snippet_show_package_snippets($version) {
 	//show the latest version
-	$sql="SELECT snippet_package_item.snippet_version_id, snippet_version.version,snippet.name,users.user_name ".
-		"FROM snippet,snippet_version,snippet_package_item,users ".
+	$sql="SELECT snippet_package_item.snippet_version_id, snippet_version.version,snippet.name,user.user_name ".
+		"FROM snippet,snippet_version,snippet_package_item,user ".
 		"WHERE snippet.snippet_id=snippet_version.snippet_id ".
-		"AND users.user_id=snippet_version.submitted_by ".
+		"AND user.user_id=snippet_version.submitted_by ".
 		"AND snippet_version.snippet_version_id=snippet_package_item.snippet_version_id ".
 		"AND snippet_package_item.snippet_package_version_id='$version'";
 
@@ -126,7 +126,7 @@ function snippet_show_package_snippets($version) {
 
 		for ($i=0; $i<$rows; $i++) {
 			echo '
-			<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD>'.db_result($result,$i,'snippet_version_id').
+			<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.db_result($result,$i,'snippet_version_id').
 				'</TD><TD><A HREF="/snippet/download.php?type=snippet&id='.
 				db_result($result,$i,'snippet_version_id').'">'.
 				db_result($result,$i,'version').'</A></TD><TD>'.

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: filemodule_monitor.php,v 1.4 2000/12/07 17:50:11 tperdue Exp $
+// $Id: filemodule_monitor.php,v 1.3 2000/08/31 06:11:35 gherteg Exp $
 
 require('pre.php');
 
@@ -42,7 +42,6 @@ if (user_isloggedin()) {
 			if (!$result) {
 				echo '
 					<FONT COLOR="RED">Error inserting into filemodule_monitor</FONT>';
-				echo db_error();
 			} else {
 				echo '
 					<FONT COLOR="RED"><H3>Package is now being monitored</H3></FONT>

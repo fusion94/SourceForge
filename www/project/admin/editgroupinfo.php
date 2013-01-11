@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editgroupinfo.php,v 1.46 2000/11/30 13:47:39 pfalcon Exp $
+// $Id: editgroupinfo.php,v 1.42 2000/09/01 23:54:18 tperdue Exp $
 
 require ('pre.php');
 require ('vars.php');
@@ -23,9 +23,6 @@ if ($Update) {
 	if (!$use_bugs) {
 		$use_bugs=0;
 	}
-	if (!$use_bug_depend) {
-		$use_bug_depend=0;
-	}
 	if (!$use_mail) {
 		$use_mail=0;
 	}
@@ -40,9 +37,6 @@ if ($Update) {
 	}
 	if (!$use_pm) {
 		$use_pm=0;
-	}
-	if (!$use_pm_depend) {
-		$use_pm_depend=0;
 	}
 	if (!$use_cvs) {
 		$use_cvs=0;
@@ -65,9 +59,6 @@ if ($Update) {
 	if (!$send_all_support) {
 		$send_all_support=0;
 	}
-	if (!$send_all_tasks) {
-		$send_all_tasks=0;
-	}
  
 	//blank out any invalid email addresses
 	if ($new_bug_address && !validate_email($new_bug_address)) {
@@ -82,28 +73,17 @@ if ($Update) {
 		$new_support_address='';
 		$feedback .= ' Support Address Appeared Invalid ';
 	}
-	if ($new_task_address && !validate_email($new_task_address)) {
-		$new_task_address='';
-		$feedback .= ' Task Address Appeared Invalid ';
-	}
-	if (!$form_group_name) {
-		$form_group_name='Invalid Group Name';
-	}
-	if (!$form_homepage) {
-		$form_homepage='http://sourceforge.net';
-	}
+
 	$result=db_query('UPDATE groups SET '
 		."group_name='$form_group_name',"
 		."homepage='$form_homepage',"
 		."short_description='$form_shortdesc',"
 		."use_bugs='$use_bugs',"
-		."use_bug_depend_box='$use_bug_depend',"
 		."use_mail='$use_mail',"
 		."use_survey='$use_survey',"
 		."use_patch='$use_patch',"
 		."use_forum='$use_forum',"
 		."use_pm='$use_pm',"
-		."use_pm_depend_box='$use_pm_depend',"
 		."use_cvs='$use_cvs',"
 		."use_news='$use_news',"
 		."use_support='$use_support',"
@@ -111,11 +91,9 @@ if ($Update) {
 		."new_bug_address='$new_bug_address',"
 		."new_patch_address='$new_patch_address',"
 		."new_support_address='$new_support_address',"
-		."new_task_address='$new_task_address',"
 		."send_all_bugs='$send_all_bugs', "
 		."send_all_patches='$send_all_patches', "
-		."send_all_support='$send_all_support', "
-		."send_all_tasks='$send_all_tasks' "
+		."send_all_support='$send_all_support' "
 		."WHERE group_id=$group_id");
 
 	if (!$result || db_affected_rows($result) < 1) {
@@ -162,27 +140,23 @@ print '
 
 echo '
 	<B>Use Bug Tracker:</B> <INPUT TYPE="CHECKBOX" NAME="use_bugs" VALUE="1"'.( ($row_grp['use_bugs']==1) ? ' CHECKED' : '' ).'><BR>
-	<B>Use Bug Dependency List:</B> <INPUT TYPE="CHECKBOX" NAME="use_bug_depend" VALUE="1"'.( ($row_grp['use_bug_depend_box']==1) ? ' CHECKED' : '' ).'><BR>
 	<B>Use Mailing Lists:</B> <INPUT TYPE="CHECKBOX" NAME="use_mail" VALUE="1"'.( ($row_grp['use_mail']==1) ? ' CHECKED' : '' ).'><BR>
 	<B>Use Surveys:</B> <INPUT TYPE="CHECKBOX" NAME="use_survey" VALUE="1"'.( ($row_grp['use_survey']==1) ? ' CHECKED' : '' ).'><BR>
 	<B>Use Patch Manager:</B> <INPUT TYPE="CHECKBOX" NAME="use_patch" VALUE="1"'.( ($row_grp['use_patch']==1) ? ' CHECKED' : '' ).'><BR>
 	<B>Use Forums:</B> <INPUT TYPE="CHECKBOX" NAME="use_forum" VALUE="1"'.( ($row_grp['use_forum']==1) ? ' CHECKED' : '' ).'><BR>
 	<B>Use Project/Task Manager:</B> <INPUT TYPE="CHECKBOX" NAME="use_pm" VALUE="1"'.( ($row_grp['use_pm']==1) ? ' CHECKED' : '' ).'><BR>
-	<B>Use Task Dependency List:</B> <INPUT TYPE="CHECKBOX" NAME="use_pm_depend" VALUE="1"'.( ($row_grp['use_pm_depend_box']==1) ? ' CHECKED' : '' ).'><BR>
 	<B>Use CVS:</B> <INPUT TYPE="CHECKBOX" NAME="use_cvs" VALUE="1"'.( ($row_grp['use_cvs']==1) ? ' CHECKED' : '' ).'><BR>
 	<B>Use News:</B> <INPUT TYPE="CHECKBOX" NAME="use_news" VALUE="1"'.( ($row_grp['use_news']==1) ? ' CHECKED' : '' ).'><BR>
 	<B>Use Doc Mgr:</B> <INPUT TYPE="CHECKBOX" NAME="use_docman" VALUE="1"'.( ($row_grp['use_docman']==1) ? ' CHECKED' : '' ).'><BR>
 	<B>Use Support:</B> <INPUT TYPE="CHECKBOX" NAME="use_support" VALUE="1"'.( ($row_grp['use_support']==1) ? ' CHECKED' : '' ).'>';
 echo '
 	<P><B>If you wish, you can provide default email addresses to which new submissions will be sent.</B><BR>
-	<B>New Bugs:</B><BR><INPUT TYPE="TEXT" NAME="new_bug_address" VALUE="'.$row_grp['new_bug_address'].'" SIZE="25" MAXLENGTH="250"> 
+	<B>New Bugs:</B><BR><INPUT TYPE="TEXT" NAME="new_bug_address" VALUE="'.$row_grp['new_bug_address'].'" SIZE="25" MAXLENGTH="40"> 
 	(send on all updates) <INPUT TYPE="CHECKBOX" NAME="send_all_bugs" VALUE="1" '. (($row_grp['send_all_bugs'])?'CHECKED':'') .'><BR>
-	<B>New Patches:</B><BR><INPUT TYPE="TEXT" NAME="new_patch_address" VALUE="'.$row_grp['new_patch_address'].'" SIZE="25" MAXLENGTH="250">
+	<B>New Patches:</B><BR><INPUT TYPE="TEXT" NAME="new_patch_address" VALUE="'.$row_grp['new_patch_address'].'" SIZE="25" MAXLENGTH="40">
 	(send on all updates) <INPUT TYPE="CHECKBOX" NAME="send_all_patches" VALUE="1" '. (($row_grp['send_all_patches'])?'CHECKED':'') .'><BR>
-	<B>New Support Requests:</B><BR><INPUT TYPE="TEXT" NAME="new_support_address" VALUE="'.$row_grp['new_support_address'].'" SIZE="25" MAXLENGTH="250">
-	(send on all updates) <INPUT TYPE="CHECKBOX" NAME="send_all_support" VALUE="1" '. (($row_grp['send_all_support'])?'CHECKED':'') .'><BR>
-	<B>New Task Assignments:</B><BR><INPUT TYPE="TEXT" NAME="new_task_address" VALUE="'.$row_grp['new_task_address'].'" SIZE="25" MAXLENGTH="250">
-	(send on all updates) <INPUT TYPE="CHECKBOX" NAME="send_all_tasks" VALUE="1" '. (($row_grp['send_all_tasks'])?'CHECKED':'') .'><BR>';
+	<B>New Support Requests:</B><BR><INPUT TYPE="TEXT" NAME="new_support_address" VALUE="'.$row_grp['new_support_address'].'" SIZE="25" MAXLENGTH="40">
+	(send on all updates) <INPUT TYPE="CHECKBOX" NAME="send_all_support" VALUE="1" '. (($row_grp['send_all_support'])?'CHECKED':'') .'><BR>';
 
 echo '
 <HR>

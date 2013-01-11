@@ -5,7 +5,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: Project.class,v 1.21 2000/11/03 19:03:35 tperdue Exp $
+// $Id: Project.class,v 1.10 2000/08/30 23:00:05 tperdue Exp $
 
 
 /*
@@ -36,10 +36,22 @@
 	helps prevent the same object from being created more than once
 	which would create unnecessary database calls
 */
+$PROJECT_OBJ=array();
 
-function &project_get_object($group_id) {
-	return group_get_object($group_id);
+function project_get_object($group_id) {
+	//create a common set of group objects
+	//saves a little wear on the database
+
+	global $PROJECT_OBJ;
+	if (!$PROJECT_OBJ["_".$group_id."_"]) {
+		$PROJECT_OBJ["_".$group_id."_"]= new Project($group_id);
+		return $PROJECT_OBJ["_".$group_id."_"];
+	} else {
+		return $PROJECT_OBJ["_".$group_id."_"];
+	}
 }
+
+
 
 class Project extends Group {
 
@@ -48,9 +60,8 @@ class Project extends Group {
 	/*
 		basically just call the parent to set up everything
 	*/
-	function Project($id,$res=false) {
-		//echo "\n\nRows: ".db_numrows($res);
-		$this->Group($id,$res);
+	function Project($id) {
+		$this->Group($id);
 
 		//for right now, just point our prefs array at Group's data array
 		//this will change later when we split the project_data table off from groups table
@@ -66,12 +77,12 @@ class Project extends Group {
 		return $this->project_data_array['use_bugs'];
 	}
 
-	function usesBugDependencies() {
-		return $this->project_data_array['use_bug_depend_box'];
-	}
-
 	function usesSupport() {
 		return $this->project_data_array['use_support'];
+	}
+
+	function usesDocman() {
+		return $this->project_data_array['use_docman'];
 	}
 
 	function usesPatch() {
@@ -80,10 +91,6 @@ class Project extends Group {
 
 	function usesPm() {
 		return $this->project_data_array['use_pm'];
-	}
-
-	function usesPmDependencies() {
-		return $this->project_data_array['use_pm_depend_box'];
 	}
 
 
@@ -101,10 +108,6 @@ class Project extends Group {
 
 	function getNewPatchAddress() {
 		return $this->project_data_array['new_patch_address'];
-	}
-
-	function getNewTaskAddress() {
-		return $this->project_data_array['new_task_address'];
 	}
 
 
@@ -126,30 +129,6 @@ class Project extends Group {
 		return $this->project_data_array['send_all_patches'];
 	}
 
-	function sendAllTaskUpdates() {
-		return $this->project_data_array['send_all_tasks'];
-	}
-
-
-	/*
-
-		Project-specific permissions in addition 
-		to those inherited from Group
-
-	*/
-
-	function userIsBugAdmin() {
-		return $this->userIsMember('bug_flags',2);
-	}
-	function userIsSupportAdmin() {
-		return $this->userIsMember('support_flags',2);
-	}
-	function userIsPatchAdmin() {
-		return $this->userIsMember('patch_flags',2);
-	}
-	function userIsPMAdmin() {
-		return $this->userIsMember('project_flags',2);
-	}
 }
 
 /*
@@ -160,19 +139,19 @@ class Project extends Group {
 
 //deprecated
 function group_getname ($group_id = 0) {
-	$grp = &group_get_object($group_id);
+	$grp = project_get_object($group_id);
 	return $grp->getPublicName();
 }
 
 //deprecated
 function group_getunixname ($group_id) {
-	$grp = &group_get_object($group_id);
+	$grp = project_get_object($group_id);
 	return $grp->getUnixName();
 }
 
 //deprecated - should be getting objects instead
-function &group_get_result($group_id=0) {
-	$grp = &group_get_object($group_id);
+function group_get_result($group_id=0) {
+	$grp = project_get_object($group_id);
 	return $grp->getData();
 }       
 	

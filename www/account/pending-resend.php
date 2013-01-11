@@ -4,11 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: pending-resend.php,v 1.9 2000/10/11 19:55:39 tperdue Exp $
+// $Id: pending-resend.php,v 1.8 2000/08/31 06:07:52 gherteg Exp $
 
 require "pre.php";    
 
-$res_user = db_query("SELECT * FROM users WHERE user_name='$form_user'");
+$res_user = db_query("SELECT * FROM user WHERE user_name='$form_user'");
 $row_user = db_fetch_array($res_user);
 
 // send mail

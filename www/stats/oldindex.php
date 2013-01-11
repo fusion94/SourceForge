@@ -4,16 +4,12 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: oldindex.php,v 1.4 2000/11/16 23:16:01 tperdue Exp $ 
+// $Id: oldindex.php,v 1.1 2000/08/31 22:40:16 msnelham Exp $ 
 
-echo "<h1>this page -- if needed -- needs to be fixed to use the new cacher</H1>";
-
-/*
 require('pre.php');
 require('cache.php');
 
-   // require you to be a member of the sfstats group (group_id = 11084)
-session_require( array('group'=>$sys_stats_group) );
+session_require(array('group'=>'1','admin_flags'=>'A'));
 
 $HTML->header(array('title'=>'Site Statistics'));
 
@@ -23,7 +19,4 @@ echo '<P>';
 echo cache_display("stats_sf_stats",'1',1800);
 
 $HTML->footer(array());
-
-*/
-
 ?>

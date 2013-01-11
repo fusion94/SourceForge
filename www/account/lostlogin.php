@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: lostlogin.php,v 1.15 2000/11/06 21:06:50 pfalcon Exp $
+// $Id: lostlogin.php,v 1.13 2000/08/31 06:07:52 gherteg Exp $
 
 require "pre.php";    
 require "account.php";
@@ -12,7 +12,7 @@ require "account.php";
 // ###### function register_valid()
 // ###### checks for valid register from form post
 
-$res_lostuser = db_query("SELECT * FROM users WHERE confirm_hash='$confirm_hash'");
+$res_lostuser = db_query("SELECT * FROM user WHERE confirm_hash='$confirm_hash'");
 if (db_numrows($res_lostuser) > 1) {
 	exit_error("Error","This confirm hash exists more than once.");
 }
@@ -22,12 +22,12 @@ if (db_numrows($res_lostuser) < 1) {
 $row_lostuser = db_fetch_array($res_lostuser);
 
 if ($Update && $form_pw && !strcmp($form_pw,$form_pw2)) {
-        $user=user_get_object($row_lostuser['user_id']);
-        if ($user->setPasswd($form_pw)) {
-		session_redirect("/");
-        }
+	db_query("UPDATE user SET "
+		. "user_pw='" . md5($form_pw) . "',"
+		. "unix_pw='" . account_genunixpw($form_pw) . "' WHERE "
+		. "confirm_hash='$confirm_hash'");
 
-	$feedback=$user->getErrorMessage();
+	session_redirect("/");
 }
 
 $HTML->header(array('title'=>"Lost Password Login"));

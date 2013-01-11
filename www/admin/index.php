@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.62 2000/12/13 22:54:57 dbrogdon Exp $
+// $Id: index.php,v 1.53 2000/09/05 18:46:50 kingdon Exp $
 
 require "pre.php";
 require($DOCUMENT_ROOT.'/admin/admin_utils.php');
@@ -35,7 +35,7 @@ fields blank, etc... Also, navigating the admin functions with the
 	}
 ?>
 <br>
-Search <i>(email,username,realname,userid)</i>:
+Search (email,username,realname,userid):
 <br>
 <form name="usersrch" action="search.php" method="POST">
   <input type="text" name="search">
@@ -53,8 +53,8 @@ Search <i>(email,username,realname,userid)</i>:
 		echo "<a href=\"grouplist.php?group_name_search=$abc_array[$i]\">$abc_array[$i]</a>|";
 	}
 ?>
-<br>
-Search <i>(groupid,groupunixname,groupname)</i>:
+
+Search (groupid,groupunixname,groupname):
 <br>
 <form name="gpsrch" action="search.php" method="POST">
   <input type="text" name="search">
@@ -66,14 +66,8 @@ Search <i>(groupid,groupunixname,groupname)</i>:
 
 
 <LI>Groups in <a href="grouplist.php?status=I"><B>I</B> (incomplete) Status</A>
-<LI>Groups in <a href="approve-pending.php"><B>P</B> (pending) Status</A> <i>(New Project Approval)</i>
+<LI>Groups in <a href="approve-pending.php"><B>P</B> (pending) Status</A>
 <LI>Groups in <a href="grouplist.php?status=D"><B>D</B> (deleted) Status</A>
-</ul>
-
-<p><b>Trove</b>
-<ul>
-<li><a href="trove/trove_cat_list.php">Display Trove Map</a>
-<li><a href="trove/trove_cat_add.php">Add to the Trove Map</a>
 </ul>
 
 <P><B>Statistics</B>
@@ -84,26 +78,28 @@ Search <i>(groupid,groupunixname,groupname)</i>:
 <P><B>Site Utilities</B>
 <UL>
 <LI><A href="massmail.php">Mail Engine for SourceForge Subscribers (MESS)</A>
-<LI><A HREF="add_language.php">Add Supported Language</A>
 </UL>
 
 <P><B>Site Stats</B>
 <?php
-	$res=db_query("SELECT count(*) AS count FROM users WHERE status='A'");
-	$row = db_fetch_array($res);
-	print "<P>Registered active site users: <B>$row[count]</B>";
+        db_query("SELECT count(*) AS count FROM user WHERE status='A'");
+        $row = db_fetch_array();
+        print "<P>Registered active site users: <B>$row[count]</B>";
 
-	$res=db_query("SELECT count(*) AS count FROM groups");
-	$row = db_fetch_array($res);
-	print "<BR>Registered projects: <B>$row[count]</B>";
+        db_query("SELECT count(*) AS count FROM groups");
+        $row = db_fetch_array();
+        print "<BR>Registered projects: <B>$row[count]</B>";
 
-	$res=db_query("SELECT count(*) AS count FROM groups WHERE status='A'");
-	$row = db_fetch_array($res);
-	print "<BR>Registered/hosted projects: <B>$row[count]</B>";
+        db_query("SELECT count(*) AS count FROM groups WHERE status='A'");
+        $row = db_fetch_array();
+        print "<BR>Registered/hosted projects: <B>$row[count]</B>";
 
-	$res=db_query("SELECT count(*) AS count FROM groups WHERE status='P'");
-	$row = db_fetch_array($res);
+        db_query("SELECT count(*) AS count FROM groups WHERE status='P'");
+        $row = db_fetch_array();
 	print "<BR>Pending projects: <B>$row[count]</B>";
-site_admin_footer(array());
+?>
 
+
+<?php
+site_admin_footer(array());
 ?>

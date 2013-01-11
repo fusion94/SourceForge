@@ -1,69 +1,106 @@
 #!/usr/bin/perl
 #
-# $Id: db_top_groups_calc.pl,v 1.9 2000/12/06 19:04:51 tperdue Exp $
+# $Id: db_top_groups_calc.pl,v 1.5 2000/08/31 22:46:33 tperdue Exp $
 #
-# use strict;
 use DBI;
-use Time::Local;
-use POSIX qw( strftime );
 
-require("../include.pl");
-&db_connect();
+require("../include.pl");  # Include all the predefined functions
 
-#my ($sql, $rel);
-my ($day_begin, $day_end, $mday, $year, $mon, $week, $day);
-my $verbose = 1;
+&db_connect;
 
-##
-## Set begin and end times (in epoch seconds) of day to be run
-## Either specified on the command line, or auto-calculated
-## to run yesterday's data.
-##
-if ( $ARGV[0] && $ARGV[1] && $ARGV[2] ) {
+####################################################################
+#get times
 
-        $day_begin = timegm( 0, 0, 0, $ARGV[2], $ARGV[1] - 1, $ARGV[0] - 1900 );
-        $day_end = timegm( 0, 0, 0, (gmtime( $day_begin + 86400 ))[3,4,5] );
+$oneweekago = time()-(3600*7*24);
 
-} else {
+($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($oneweekago);
 
-           ## Start at midnight last night.
-        $day_end = timegm( 0, 0, 0, (gmtime( time() ))[3,4,5] );
-           ## go until midnight yesterday.
-        $day_begin = timegm( 0, 0, 0, (gmtime( time() - 86400 ))[3,4,5] );
+if ($mday < 10) {
+    $mday = "0$mday";
+}
+$month = ($mon + 1);
 
-        print "$day_begin $day_end \n";
+if ($month < 10) {
+    $month = "0$month";
 }
 
-   ## Preformat the important date strings.
-$year   = strftime("%Y", gmtime( $day_begin ) );
-$mon    = strftime("%m", gmtime( $day_begin ) );
-$week   = strftime("%U", gmtime( $day_begin ) );    ## GNU ext.
-$day    = strftime("%d", gmtime( $day_begin ) );
-print "Running week $week, day $day month $mon year $year \n" if $verbose;
+$year = ($year + 1900);
 
+$oneweekago_fmt = $year . $month . $mday;
+
+#####################################################################
+################################### TOP DOWNLOADS
 
 # get all groups, and group_names
-$query = "SELECT group_id,group_name FROM groups WHERE type=1 AND status='A' AND is_public='1'";
-$rel = $dbh->prepare($query);
+my $query = "SELECT group_id,group_name FROM groups WHERE type=1 AND status='A' AND is_public='1'";
+my $rel = $dbh->prepare($query);
 $rel->execute();
-
-while( ($group_id,$group_name) = $rel->fetchrow() ) {
+while(my ($group_id,$group_name) = $rel->fetchrow()) {
 	$top[$group_id][0] = $group_name;
-	if ( $group_id > $max_group_id ) {
+	# hacked method to get last group. dbi sucks
+	if ($group_id>$max_group_id) {
 		$max_group_id = $group_id;
 	}
 }
 
-# get forumposts_week stats
-$query = "SELECT forum_group_list.group_id AS group_id,
-    count(*) AS count 
-    FROM forum,forum_group_list 
-    WHERE forum.group_forum_id=forum_group_list.group_forum_id 
-    GROUP BY forum_group_list.group_id 
-    ORDER BY count DESC";
+# get old top info 
+my $query = "SELECT group_id,rank_downloads_all,rank_downloads_week,rank_userrank,rank_forumposts_week,"
+	."rank_pageviews_proj "
+	."FROM top_group"; 
 my $rel = $dbh->prepare($query);
 $rel->execute();
+while(my ($group_id,$downloads_all,$downloads_week,$userrank,$forumposts_week,$pageviews_proj,) 
+	= $rel->fetchrow()) {
+	$top[$group_id][1] = $downloads_all;
+	$top[$group_id][2] = $downloads_week;
+	$top[$group_id][3] = $userrank;
+	$top[$group_id][4] = $forumposts_week;
+	$top[$group_id][9] = $pageviews_proj;
+}
 
+# get current download counts 
+my $query = "SELECT group_id,downloads AS count FROM frs_dlstats_grouptotal_agg "
+	. "GROUP BY group_id ORDER BY count DESC";
+my $rel = $dbh->prepare($query);
+$rel->execute();
+$currentrank = 1;
+while(my ($group_id,$count) = $rel->fetchrow()) {
+	$top[$group_id][5] = $count;
+	$top[$group_id][6] = $currentrank;
+	$currentrank++;
+}
+
+# get current weekly download counts 
+my $query = "SELECT group_id,SUM(downloads) AS count FROM frs_dlstats_group_agg "
+	. "WHERE ( day >= $oneweekago_fmt ) "
+	. "GROUP BY group_id ORDER BY count DESC";
+my $rel = $dbh->prepare($query);
+$rel->execute();
+$currentrank = 1;
+while(my ($group_id,$count) = $rel->fetchrow()) {
+	$top[$group_id][7] = $count;
+	$top[$group_id][8] = $currentrank;
+	$currentrank++;
+}
+
+# get current project pageview stats
+my $query = "SELECT group_id,SUM(count) AS count FROM stats_agg_logo_by_group WHERE "
+	."day>=$oneweekago_fmt GROUP BY group_id ORDER BY count DESC";
+my $rel = $dbh->prepare($query);
+$rel->execute();
+$currentrank = 1;
+while(my ($group_id,$count) = $rel->fetchrow()) {
+	$top[$group_id][10] = $count;
+	$top[$group_id][11] = $currentrank;
+	$currentrank++;
+}
+
+# get forumposts_week stats
+my $query = "SELECT forum_group_list.group_id AS group_id,count(*) AS count FROM "
+	."forum,forum_group_list WHERE forum.group_forum_id=forum_group_list.group_forum_id "
+	."AND forum_group_list.group_id>0 GROUP BY forum_group_list.group_id ORDER BY count DESC";
+my $rel = $dbh->prepare($query);
+$rel->execute();
 $currentrank = 1;
 while(my ($group_id,$count) = $rel->fetchrow()) {
 	$top[$group_id][12] = $count;
@@ -71,16 +108,23 @@ while(my ($group_id,$count) = $rel->fetchrow()) {
 	$currentrank++;
 }
 
-##
-##	wrap this process inside a transaction
-##
-my $rel = $dbh->do("BEGIN WORK;");
 
-my $query = "DELETE FROM top_group";
-my $rel = $dbh->do($query);
+#
+#
+#    another really bad way of doing this.....
+#    this should be re-written to insert into a tmp table, then swap the temp
+#    table in for the old real one
+#
+#
+
 
 # store new data
 for ($i=1;$i<$max_group_id;$i++) {
+	#doing this one at a time so that there is no time when there is any more than one entry that isn't there
+	my $query = "DELETE FROM top_group WHERE group_id=$i";
+	my $rel = $dbh->prepare($query);
+	$rel->execute();
+
 	my $query = "INSERT INTO top_group (group_id,group_name,downloads_all,"
 		."rank_downloads_all,rank_downloads_all_old,downloads_week,"
 		."rank_downloads_week,rank_downloads_week_old,userrank,rank_userrank,"
@@ -94,12 +138,7 @@ for ($i=1;$i<$max_group_id;$i++) {
 	my $rel = $dbh->prepare($query);
 	$rel->execute();
 
-#	print "Group ID $i: $top[$i][0], $top[$i][1], $top[$i][2], $top[$i][3], $top[$i][4], "
-#		."$top[$i][5], $top[$i][6]\n";
+	print "Group ID $i: $top[$i][0], $top[$i][1], $top[$i][2], $top[$i][3], $top[$i][4], "
+		."$top[$i][5], $top[$i][6]\n";
 }
-
-##
-##      wrap this process inside a transaction
-##
-my $rel = $dbh->do("COMMIT WORK;");
 

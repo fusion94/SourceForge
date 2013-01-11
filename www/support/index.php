@@ -4,14 +4,14 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.21 2000/11/06 21:14:04 tperdue Exp $
+// $Id: index.php,v 1.15 2000/08/30 03:54:01 tperdue Exp $
 
 require('pre.php');
 require('../support/support_utils.php');
 require('../support/support_data.php');
 
 if ($group_id) {
-	$project=&project_get_object($group_id);
+	$project=project_get_object($group_id);
 
 	switch ($func) {
 
@@ -20,13 +20,11 @@ if ($group_id) {
 			break;
 		}
 		case 'postaddsupport' : {
-			/*
+			$support_id=support_data_create_support($group_id,$support_category_id,$user_email,$summary,$details);
 
-				Create a new support request
-
-			*/
-			if (support_data_create_support($project,$support_category_id,$user_email,$summary,$details)) {
-				$feedback = 'Successfully Created Support Request';
+			if ($support_id) {
+				//send an email to the submittor and default address for the project
+				mail_followup($support_id, $project->getNewSupportAddress());
 				include '../support/browse_support.php';
 			} else {
 				//some kind of error in creation
@@ -35,34 +33,29 @@ if ($group_id) {
 			break;
 		}
 		case 'postmodsupport' : {
+			echo support_data_handle_update ($group_id,$support_id,$priority,$support_status_id,
+				$support_category_id,$assigned_to,$summary,$canned_response,$details);
 			/*
-				Modify a support request
-
-				Used by support admins
+				see if we're supposed to send all modifications to an address
 			*/
-			if (support_data_update ($project,$support_id,$priority,$support_status_id,
-				$support_category_id,$assigned_to,$summary,$canned_response,$details)) {
-				$feedback = 'Support Ticket(s) Updated';
-				include '../support/browse_support.php';
-			} else {
-				//some kind of error in creation
-				exit_error('ERROR',$feedback);
+			if ($project->sendAllSupportUpdates()) {
+				$address=$project->getNewSupportAddress();
 			}
+			/*
+				now send the email
+				it's no longer optional due to the group-level notification address
+			*/
+			mail_followup($support_id,$address);
+			include '../support/browse_support.php';
 			break;
 		}
 		case 'postaddcomment' : {
-			/*
-				Attach a comment to a support request
-
-				Used by non-admins
-			*/
-			if (support_data_add_comment ($project,$support_id,$details,$user_email)) {
-				$feedback='Comment Added To Support Ticket';
-				include '../support/browse_support.php';
-			} else {
-				//some kind of error in creation
-				exit_error('ERROR',$feedback);
+			include '../support/postadd_comment.php';
+			if ($project->sendAllSupportUpdates()) {
+				$address=$project->getNewSupportAddress();
 			}
+			mail_followup($support_id,$address);
+			include '../support/browse_support.php';
 			break;
 		}
 		case 'browse' : {
@@ -70,7 +63,7 @@ if ($group_id) {
 			break;
 		}
 		case 'detailsupport' : {
-			if ($project->userIsSupportAdmin()) {
+			if (user_ismember($group_id,'S2')) {
 				include '../support/mod_support.php';
 			} else {
 				include '../support/detail_support.php';

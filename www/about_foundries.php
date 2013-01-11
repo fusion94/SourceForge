@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: about_foundries.php,v 1.16 2000/11/27 23:17:05 kingdon Exp $
+// $Id: about_foundries.php,v 1.13 2000/08/31 06:07:52 gherteg Exp $
 
 require "pre.php";    
 $HTML->header(array(title=>"About Foundries"));
@@ -20,14 +20,29 @@ develop  better software faster (this is Open Source, after all).<br>
 &nbsp;<br>
 
 If you're interested in volunteering to help support or start a foundry, or
-have suggestions, ideas, or gripes please
-<a href="/contact.php" >contact SourceForge</a>.
+have suggestions, ideas, or gripes please contact Jim Kingdon 
+&lt;<a href="mailto:kingdon@sourceforge.net">kingdon@sourceforge.net</a>&gt;,
+SourceForge content and community relations manager.
 
 <h2>Foundries</h2>
 
-<p>Here is a list of all foundries on the system.  Some are more
-complete than others.  If you see a foundry you may want to contribute
-to, contact the existing foundry admins for that foundry.
+<p>The following four foundries are fully functional.  We're
+especially interested in hearing from people who want to contribute to
+them or offer ideas about how they could be more helpful:</p>
+
+<ul>
+
+<li><a href="/foundry/java/" >Java</a> programming language
+<li><a href="/foundry/printing/" >Printing</a> (postscript/ghostscript, libppd, gnome-print, Qt, CUPS, and more)
+<li><a href="/foundry/3d/" >3D</a> graphics (Mesa, OpenGL, &amp;c)
+<li><a href="/foundry/games/" >games</a> (from text classics to the latest 3D games)
+
+</ul>
+
+<h2>Foundries in testing</h2>
+
+<p>Here is a list of all foundries on the system.  Other than the four
+mentioned above, they should be considered alpha test:
 
 <?php
 	$query = "SELECT group_name,unix_group_name ".
@@ -47,6 +62,9 @@ to, contact the existing foundry admins for that foundry.
 		echo "\n</UL>";
 	}
 ?>
+
+<p>Alpha test foundries may not be completely working and all those
+usual kinds of disclaimers.</p>
 
 <?php
 $HTML->footer(array());

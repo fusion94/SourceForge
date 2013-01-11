@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: pre.php,v 1.434 2000/12/08 02:19:04 tperdue Exp $
+// $Id: pre.php,v 1.399 2000/08/31 06:40:03 gherteg Exp $
 
 /*
 	redirect to proper hostname to get around certificate problem on IE 5
@@ -14,23 +14,7 @@
 // This needs to be loaded first becuase the lines below depend upon it.
 require ('/etc/local.inc');
 
-/*
-
-	Override vars are useful during development cycle
-
-	Each developer can set up a file that overrides
-	vars in /etc/local.inc, if needed.
-
-	Each developer has a different hostname, so $sys_default_domain
-	at a minimum must be overridden.
-
-*/
-
-if ($OVERRIDES_PATH) {
-	require ($OVERRIDES_PATH."overrides.inc");
-}
-
-if (($HTTP_HOST != $GLOBALS['sys_default_domain']) && ($HTTP_HOST != $GLOBALS['sys_fallback_domain']) && ($HTTP_HOST != 'localhost') && ($HTTP_HOST != $GLOBALS['sys_default_domain'].':80')) {
+if (($HTTP_HOST != $GLOBALS['sys_default_domain']) && ($HTTP_HOST != 'localhost')) {
 	if ($SERVER_PORT == '443') {
 		header ("Location: https://".$GLOBALS['sys_default_domain']."$REQUEST_URI");
 	} else {
@@ -59,20 +43,14 @@ require('database.php');
 //security library
 require('session.php');
 
-// LDAP library
-require('ldap.php');
-
 //user functions like get_name, logged_in, etc
-require('User.class');
+require('user.php');
 
 //group functions like get_name, etc
 require('Group.class');
 
 //Project extends Group and includes preference accessors
 require('Project.class');
-
-//Foundry extends Group and includes preference/data accessors
-require ('Foundry.class');
 
 //library to set up context help
 require('help.php');
@@ -96,7 +74,7 @@ $sys_datefmt = "Y-M-d H:i";
 db_connect();
 
 if (!$conn) {
-	print "$sys_name Could Not Connect to Database: ".db_error();
+	print "Could Not Connect to Database".db_error();
 	exit;
 }
 
@@ -118,62 +96,11 @@ require('logger.php');
 
 
 */
-
+//set up the user's timezone if they are logged in
 if (user_isloggedin()) {
-	//set up the user's timezone if they are logged in
 	putenv('TZ='.user_get_timezone());
 } else {
-	//just user pacific time as always
+	//just use pacific time as always
 }
-
-/*
-
-	Now figure out what language file to instantiate
-
-*/
-
-require ('BaseLanguage.class');
-
-if (user_isloggedin()) {
-	$user=&user_get_object(user_getid());
-	$res=$user->getData();
-	$classfile=db_result($res,0,'filename');
-	if ($classfile) {
-		include ("languages/$classfile");
-		$classname=db_result($res,0,'classname');
-		$Language=new $classname();
-	} else {
-		include ('languages/English.class');
-	        $Language=new English();
-	}
-} else {
-	//if you aren't logged in, check your browser settings 
-	//and see if we support that language
-	//if we don't support it, just use English as default
-	$res = language_code_to_result ($HTTP_ACCEPT_LANGUAGE);
-	$classfile=db_result($res,0,'filename');
-	if (!$classfile) $classfile="English.class";
-	include ("languages/$classfile");
-	$classname=db_result($res,0,'classname');
-	if (!$classname) $classname="English";
-	$Language=new $classname();
-}
-
-
-/*
-
-
-RESERVED VARIABLES
-
-$conn
-$session_hash
-$Language
-$User
-$HTML
-$foundry
-$project
-$Group
-
-*/
 
 ?>

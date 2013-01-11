@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: license.php,v 1.31 2000/12/07 21:08:41 tperdue Exp $
+// $Id: license.php,v 1.30 2000/08/31 06:11:36 gherteg Exp $
 
 require "pre.php";    // Initial db and session library, opens session
 require "vars.php";
@@ -15,21 +15,19 @@ if ($insert_group_name && $group_id && $rand_hash && $form_full_name && $form_un
 	/*
 		check for valid group name
 	*/
-	$form_unix_name=strtolower($form_unix_name);
-
 	if (!account_groupnamevalid($form_unix_name)) {
 		exit_error("Invalid Group Name",$register_error);
 	}
 	/*
 		See if it's taken already
 	*/
-	if (db_numrows(db_query("SELECT group_id FROM groups WHERE unix_group_name='$form_unix_name'")) > 0) {
+	if (db_numrows(db_query("SELECT group_id FROM groups WHERE unix_group_name LIKE '$form_unix_name'")) > 0) {
 		exit_error("Group Name Taken","That group name already exists.");
 	}
 	/*
 		Hash prevents them from updating a live, existing group account
 	*/
-	$sql="UPDATE groups SET unix_group_name='$form_unix_name', group_name='$form_full_name', ".
+	$sql="UPDATE groups SET unix_group_name='". strtolower($form_unix_name) ."', group_name='$form_full_name', ".
 		"http_domain='$form_unix_name.$GLOBALS[sys_default_domain]', homepage='$form_unix_name.$GLOBALS[sys_default_domain]' ".
 		"WHERE group_id='$group_id' AND rand_hash='__$rand_hash'";
 	$result=db_query($sql);

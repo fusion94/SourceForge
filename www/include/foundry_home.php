@@ -1,8 +1,7 @@
 <?php
 
 require($DOCUMENT_ROOT.'/news/news_utils.php');
-require('features_boxes.php');
-require('cache.php');
+require($DOCUMENT_ROOT.'/include/features_boxes.php');
 
 //we already know $foundry is set up from the master page
 
@@ -13,7 +12,20 @@ echo'	<TABLE cellspacing="0" cellpadding="10" border="0" width="100%">
 		<TD align="left" valign="top" colspan="2">
 ';
 
-echo html_dbimage($foundry->getLogoImageID());
+$sql="SELECT db_images.width,db_images.height,db_images.id ".
+	"FROM db_images,foundry_data ".
+	"WHERE db_images.id=foundry_data.logo_image_id ".
+	"AND foundry_data.foundry_id='$group_id'";
+$result=db_query($sql);
+$rows=db_numrows($result);
+
+if (!$result || $rows < 1) {
+//	echo 'No Projects';
+	echo db_error();
+} else {
+	echo '<IMG SRC="/dbimage.php?id='.db_result($result,$i,'id').'" HEIGHT="'.db_result($result,$i,'height').'" WIDTH="'.db_result($result,$i,'width').'">';
+}
+
 
 echo '
 		</td>
@@ -50,14 +62,7 @@ echo '<P>
 
 $HTML->box1_top('Discussion Forums');
 
-//$sql="SELECT * FROM forum_group_list WHERE group_id='$group_id' AND is_public='1';";
-
-$sql="SELECT g.group_forum_id,g.forum_name, g.description, count(*) as total " //, max(date) as latest"		 
-	." FROM forum_group_list g, forum f"
-	." WHERE g.group_id='$group_id' AND g.is_public=1"
-	." AND g.group_forum_id = f.group_forum_id"
-	." group by g.group_forum_id, g.forum_name, g.description";
-
+$sql="SELECT * FROM forum_group_list WHERE group_id='$group_id' AND is_public='1';";
 
 $result = db_query ($sql);
 
@@ -76,10 +81,10 @@ if (!$result || $rows < 1) {
 	for ($j = 0; $j < $rows; $j++) {
 		echo '
 			<A HREF="/forum/forum.php?forum_id='. db_result($result, $j, 'group_forum_id') .'">'.
-			html_image("images/ic/cfolder15.png","15","13",array("BORDER"=>"0")) . '&nbsp;'.
+			'<IMG SRC="/images/ic/cfolder15.png" HEIGHT=13 WIDTH=15 BORDER=0> &nbsp;'.
 			db_result($result, $j, 'forum_name').'</A> ';
 		//message count
-		echo '('. db_result($result,$j,'total') .' msgs)';
+		echo '('.db_result(db_query("SELECT count(*) FROM forum WHERE group_forum_id='".db_result($result, $j, 'group_forum_id')."'"),0,0).' msgs)';
 		echo "<BR>\n";
 		echo db_result($result,$j,'description').'<P>';
 	}
@@ -94,7 +99,7 @@ echo '</TD><TD VALIGN="TOP" WIDTH="30%">';
 
 echo $foundry->getSponsorHTML1();
 
-echo cache_display('foundry'.$group_id.'_features_boxes','foundry_features_boxes()',3600);
+echo foundry_features_boxes($group_id);
 
 echo '</TD></TR></TABLE>';
 

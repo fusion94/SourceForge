@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: mod_filters.php,v 1.15 2000/10/11 19:55:39 tperdue Exp $
+// $Id: mod_filters.php,v 1.13 2000/03/31 13:16:16 tperdue Exp $
 
 function show_filters ($group_id) {
 	/*
@@ -29,7 +29,7 @@ function show_filters ($group_id) {
 			<INPUT TYPE="HIDDEN" NAME="filter_id" VALUE="<?php
 				echo db_result($result,$i,"filter_id");
 			?>">
-			<TR BGCOLOR="<?php echo html_get_alt_row_color($i); ?>">
+			<TR BGCOLOR="<?php echo util_get_alt_row_color($i); ?>">
 				<TD>
 					<FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="delete_filter" VALUE="Delete"><BR>
 					<INPUT TYPE="SUBMIT" NAME="submit" VALUE="Modify/Activate">
@@ -54,7 +54,7 @@ function show_filters ($group_id) {
 	<INPUT TYPE="HIDDEN" NAME="func" VALUE="postmodfilters">
 	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="<?php echo $group_id; ?>">
 	<INPUT TYPE="HIDDEN" NAME="subfunc" VALUE="add">
-	<TR BGCOLOR="<?php echo html_get_alt_row_color($i); ?>">
+	<TR BGCOLOR="<?php echo util_get_alt_row_color($i); ?>">
 		<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Add"></TD>
 		<TD NOWRAP><FONT SIZE="-1">SELECT * FROM bug WHERE<BR>bug.group_id='<?php echo $group_id; ?>' AND (</TD>
 		<TD NOWRAP><FONT SIZE="-1"><INPUT TYPE="TEXT" SIZE="60" MAXLENGTH="250" NAME="sql_clause" VALUE="bug.status_id IN (1,2,3) OR bug.priority > 0 OR bug.bug_group_id IN (1,2,3,4) OR bug.resolution_id IN (1,2,3) OR bug.assigned_to IN (1,2,3,4,5,6) OR bug.category_id IN (1,2,3)"></TD>
@@ -83,7 +83,7 @@ if (user_isloggedin()) {
 
 	show_filters($group_id);
 
-	$sql="SELECT users.user_id,users.user_name FROM users,user_group WHERE users.user_id=user_group.user_id AND user_group.bug_flags IN (1,2) AND user_group.group_id='$group_id'";
+	$sql="SELECT user.user_id,user.user_name FROM user,user_group WHERE user.user_id=user_group.user_id AND user_group.bug_flags IN (1,2) AND user_group.group_id='$group_id'";
 	$result=db_query($sql);
 
 	$sql="select * from bug_status";

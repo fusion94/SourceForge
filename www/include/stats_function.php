@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: stats_function.php,v 1.24 2000/10/11 19:55:39 tperdue Exp $
+// $Id: stats_function.php,v 1.23 2000/05/17 21:51:55 tperdue Exp $
 
 require('HTML_Graphs.php');
 
@@ -87,7 +87,7 @@ function stats_sf_stats() {
 /*
 	Users added by week
 */
-	$sql="select (round((add_date/604800),0)*604800) AS time ,count(*) from users group by time";
+	$sql="select (round((add_date/604800),0)*604800) AS time ,count(*) from user group by time";
 	$result = db_query ($sql);
 	$rows = db_numrows($result);
 

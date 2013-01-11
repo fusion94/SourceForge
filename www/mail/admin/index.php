@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.37 2000/10/11 19:55:39 tperdue Exp $
+// $Id: index.php,v 1.34 2000/09/07 21:26:45 tperdue Exp $
 
 require('pre.php');
 require('../mail_utils.php');
@@ -18,8 +18,8 @@ if ($group_id && user_ismember($group_id,'A')) {
 
 		if ($add_list) {
 			$list_password = substr(md5($GLOBALS['session_hash'] . time() . rand(0,40000)),0,16);
-			if (!$list_name || strlen($list_name) < 3) {
-				exit_error('Error','Must Provide List Name That Is 3 or More Characters Long');
+			if (!$list_name || strlen($list_name) < 4) {
+				exit_error('Error','Must Provide List Name That Is 4 or More Characters Long');
 			}
 			$new_list_name=strtolower(group_getunixname($group_id).'-'.$list_name);
 
@@ -53,7 +53,7 @@ if ($group_id && user_ismember($group_id,'A')) {
 					}
 			
 					// get email addr
-					$res_email = db_query("SELECT email FROM users WHERE user_id='".user_getid()."'");
+					$res_email = db_query("SELECT email FROM user WHERE user_id='".user_getid()."'");
 					if (db_numrows($res_email) < 1) {
 						exit_error("Invalid userid","Does not compute.");
 					}
@@ -173,7 +173,7 @@ if ($group_id && user_ismember($group_id,'A')) {
 
 			for ($i=0; $i<$rows; $i++) {
 				echo '
-					<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD>'.db_result($result,$i,'list_name').'</TD>';
+					<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>'.db_result($result,$i,'list_name').'</TD>';
 				echo '
 					<FORM ACTION="'.$PHP_SELF.'" METHOD="POST">
 					<INPUT TYPE="HIDDEN" NAME="post_changes" VALUE="y">
@@ -193,7 +193,7 @@ if ($group_id && user_ismember($group_id,'A')) {
 					<TD><A href="http://'. $GLOBALS['sys_lists_host'] .'/mailman/admin/'
 					.db_result($result,$i,'list_name').'">[Administrate this list in GNU Mailman]</A>
 				       </TD></TR>
-				       <TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD COLSPAN="3">
+				       <TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD COLSPAN="3">
 				       		<B>Description:</B><BR>
 						<INPUT TYPE="TEXT" NAME="description" VALUE="'.
 						db_result($result,$i,'description') .'" SIZE="40" MAXLENGTH="80"><BR>

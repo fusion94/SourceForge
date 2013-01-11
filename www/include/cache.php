@@ -4,14 +4,13 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: cache.php,v 1.47 2000/12/14 17:56:51 tperdue Exp $
+// $Id: cache.php,v 1.41 2000/08/10 03:01:37 tperdue Exp $
 
 
 // #################################### function cache_display
 
 function cache_display($name,$function,$time) {
-	global $Language;
-	$filename = $GLOBALS['sf_cache_dir']."/sfcache_". $Language->getLanguageId() ."_". $GLOBALS['sys_theme'] ."_$name.sf";
+	$filename = $GLOBALS['sf_cache_dir']."/sfcache_".$GLOBALS['sys_theme']."_$name.sf";
 
 	while ((filesize($filename)<=1) || ((time() - filectime($filename)) > $time)) {
 		// file is non-existant or expired, must redo, or wait for someone else to
@@ -60,12 +59,7 @@ function cache_display($name,$function,$time) {
 }
 
 function cache_get_new_data($function) {
-	global $Language;
-	// Here should be localhost! It is chacked in write_cache.php .
-	//$furl=fopen("http://localhost/write_cache.php?sys_themeid=".$GLOBALS['sys_themeid']."&lang=".$Language->getLanguageId()."&function=".urlencode($function),'r');
-	//return stripslashes(fread($furl,200000));
-	eval("\$res= $function;");
-	return $res;
+	$furl=fopen("http://localhost/write_cache.php?sys_themeid=".$GLOBALS['sys_themeid']."&function=".urlencode($function),'r');
+	return stripslashes(fread($furl,200000));
 }
-
 ?>

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.20 2000/12/13 22:32:50 dbrogdon Exp $
+// $Id: index.php,v 1.15 2000/07/02 17:03:31 tperdue Exp $
 
 require('pre.php');
 require('../forum/forum_utils.php');
@@ -19,19 +19,14 @@ if ($group_id) {
 		$public_flag='1';
 	}
 
-	$sql="SELECT g.group_forum_id,g.forum_name, g.description, count(*) as total " //, max(date) as latest"		 
-		." FROM forum_group_list g "
-		." LEFT JOIN forum f USING (group_forum_id) "
-		." WHERE g.group_id='$group_id' AND g.is_public IN ($public_flag)"
-		." group by g.group_forum_id, g.forum_name, g.description";
+	$sql="SELECT * FROM forum_group_list WHERE group_id='$group_id' AND is_public IN ($public_flag);";
 
 	$result = db_query ($sql);
 
 	$rows = db_numrows($result); 
 
 	if (!$result || $rows < 1) {
-		echo '<H1>No forums found for '. group_getname($group_id) .'</H1>';
-		echo db_error();
+		echo '<H1>No forums found for '.group_getname($group_id).'</H1>';
 		forum_footer(array());
 		exit;
 	}
@@ -44,12 +39,11 @@ if ($group_id) {
 	*/
 
 	for ($j = 0; $j < $rows; $j++) { 
-		echo '<A HREF="forum.php?forum_id='. db_result($result, $j, 'group_forum_id') .'">'.
-			html_image("images/ic/cfolder15.png","15","13",array("BORDER"=>"0")) . 
-			'&nbsp;' .
+		echo '<A HREF="forum.php?forum_id='.db_result($result, $j, 'group_forum_id').'">'.
+			'<IMG SRC="/images/ic/cfolder15.png" HEIGHT=13 WIDTH=15 BORDER=0> &nbsp;'.
 			db_result($result, $j, 'forum_name').'</A> ';
 		//message count
-		echo '('.db_result($result,$j,'total').' msgs)';
+		echo '('.db_result(db_query("SELECT count(*) FROM forum WHERE group_forum_id='".db_result($result, $j, 'group_forum_id')."'"),0,0).' msgs)';
 		echo "<BR>\n";
 		echo db_result($result,$j,'description').'<P>';
 	}

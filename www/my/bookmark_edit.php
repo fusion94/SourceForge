@@ -8,7 +8,7 @@
 require ('pre.php');
 require ('bookmarks.php');
 
-site_user_header(array("title"=>"Edit Bookmark"));
+$HTML->header(array("title"=>"Edit Bookmark"));
 
 print "<H3>Edit Bookmark</H3>";
 
@@ -36,6 +36,6 @@ Bookmark Title:<br>
 
 print "<P><A HREF=\"/my/\">Return</A>";
 
-site_user_footer(array());
+$HTML->footer(array());
 
 ?>

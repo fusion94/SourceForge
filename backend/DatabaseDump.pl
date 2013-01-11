@@ -4,7 +4,7 @@
 # Copyright 1999-2000 (c) The SourceForge Crew
 # http://sourceforge.net
 #
-# $Id: DatabaseDump.pl,v 1.3 2000/10/11 19:55:39 tperdue Exp $
+# $Id: DatabaseDump.pl,v 1.2 2000/04/13 10:28:30 precision Exp $
 #
 use DBI;
 use Sys::Hostname;
@@ -48,11 +48,11 @@ print("Dumping Table Data\n");
 my ($query, $c, @tmp_array);
 
 ###################################
-# First the users Information.
+# First the User Information.
 ###################################
-print("Dumping users Data: ");
+print("Dumping User Data: ");
 
-$query = "select unix_uid, unix_status, user_name, shell, unix_pw, realname from users where unix_status != \"N\"";
+$query = "select unix_uid, unix_status, user_name, shell, unix_pw, realname from user where unix_status != \"N\"";
 $c = $dbh->prepare($query);
 $c->execute();
 
@@ -75,7 +75,7 @@ $c = $dbh->prepare($query);
 $c->execute();
 
 while(my ($group_id, $group_name, $status) = $c->fetchrow()) {
-	$new_query = "select users.user_name AS user_name FROM users,user_group WHERE users.user_id=user_group.user_id AND group_id=$group_id";
+	$new_query = "select user.user_name AS user_name FROM user,user_group WHERE user.user_id=user_group.user_id AND group_id=$group_id";
 	$d = $dbh->prepare($new_query);
 	$d->execute();
 
@@ -98,7 +98,7 @@ undef @tmp_array;
 ###################################
 print("Dumping SSH Data: ");
 
-$query = "SELECT user_name,authorized_keys FROM users WHERE authorized_keys != \"\"";
+$query = "SELECT user_name,authorized_keys FROM user WHERE authorized_keys != \"\"";
 $c = $dbh->prepare($query);
 $c->execute();
 
@@ -117,7 +117,7 @@ undef @tmp_array;
 ###################################
 print("Dumping Mailing List Data: ");
 
-$query = "SELECT users.user_name,mail_group_list.list_name,mail_group_list.password,mail_group_list.status FROM mail_group_list,users WHERE mail_group_list.list_admin=users.user_id";
+$query = "SELECT user.user_name,mail_group_list.list_name,mail_group_list.password,mail_group_list.status FROM mail_group_list,user WHERE mail_group_list.list_admin=user.user_id";
 $c = $dbh->prepare($query);
 $c->execute();
 
@@ -178,8 +178,8 @@ while(($username,$domainname,$userlist) = $c->fetchrow()) {
         push @tmp_array, "$username:$domainname:$userlist\n";
 }
 
-# now dump all the normal users stuff
-$query = "SELECT user_name,email FROM users WHERE status = \"A\" AND email != \"\"";
+# now dump all the normal user stuff
+$query = "SELECT user_name,email FROM user WHERE status = \"A\" AND email != \"\"";
 $c = $dbh->prepare($query);
 $c->execute();
 while(my ($username, $email) = $c->fetchrow()) {

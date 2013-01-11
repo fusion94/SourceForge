@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.32 2000/10/09 03:18:27 tperdue Exp $
+// $Id: index.php,v 1.30 2000/08/31 21:13:13 gherteg Exp $
 
 require ('pre.php');    
 
@@ -12,11 +12,12 @@ require ('pre.php');
 $project=project_get_object($group_id);
 
 if (!$project->isProject()) {
- 	exit_error('Error','Only Projects Can Use CVS');
+	exit_error('Error','Only Projects Can Use CVS');
 }
 if (!$project->usesCVS()) {
 	exit_error('Error','This Project Has Turned Off CVS');
 }
+
 
 site_project_header(array('title'=>'CVS Repository','group'=>$group_id,'toptab'=>'cvs'));
 

@@ -2,16 +2,16 @@
 
 require('squal_pre.php');
 
-$query = "SELECT COUNT(*) FROM users";
+if (!$conn) {
+	echo "mysql-bad-conn";
+	exit;
+}
 
-$result = db_query($query);
-
+$query = "SELECT COUNT(*) FROM alexandria.user";
+$result = @mysql_query($query);
 if (!$result || db_numrows($result) < 1) {
 	echo 'mysql-bad';
 } else {
 	echo 'mysql-good';
 }
-
-echo "fuck the man!";
-
 ?>

@@ -1,7 +1,7 @@
 #
 #
 #  permanent, archival ratings table
-#  lists every rating of every users
+#  lists every rating of every user
 #
 #
 
@@ -26,8 +26,7 @@ id int not null default 0 auto_increment primary key,
 user_id int not null default 0, 
 date_posted int not null default 0,
 summary text,
-details text,
-is_public int not null default 0
+details text
 );
 
 create index idx_user_diary_user_date on user_diary(user_id,date_posted);
@@ -42,12 +41,11 @@ create index idx_user_diary_user on user_diary(user_id);
 
 create table user_diary_monitor (
 monitor_id int not null default 0 auto_increment primary key,
-monitored_user int not null default 0,
+user_monitored int not null default 0,
 user_id int not null default 0
 );
 
 create index idx_user_diary_monitor_user on user_diary_monitor(user_id);
-create index idx_user_diary_monitor_monitored_user on user_diary_monitor(monitored_user);
 
 #
 #
@@ -78,9 +76,9 @@ CREATE INDEX idx_user_metric0_user_id on user_metric0 (user_id);
 #  10200 is the group_id for the sfpeerratings project
 #
 #
-INSERT INTO user_metric0 SELECT DISTINCT '',users.user_id,5,1.25,1,0,0,1.25 
-FROM users,user_group,project_weekly_metric 
-WHERE users.user_id=user_group.user_id 
+INSERT INTO user_metric0 SELECT DISTINCT '',user.user_id,5,1.25,1,0,0,1.25 
+FROM user,user_group,project_weekly_metric 
+WHERE user.user_id=user_group.user_id 
 AND user_group.group_id=10200 
 AND user_group.admin_flags='A';
 
@@ -89,7 +87,7 @@ AND user_group.admin_flags='A';
 
 UPDATE user_metric0 SET 
 metric=(log(times_ranked)*avg_rating),
-percentile=(100-(100*((ranking-1)/5))),
+percentile=(100-(100*((ranking-1)/70))),
 importance_factor=(1+((percentile/100)*.5));
 
 

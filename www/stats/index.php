@@ -4,14 +4,14 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.28 2000/12/02 20:31:04 pgport Exp $ 
+// $Id: index.php,v 1.24 2000/09/05 19:22:25 msnelham Exp $ 
 require('pre.php');
 require('site_stats_utils.php');
 
-   // require you to be a member of the sfstats group
-session_require( array('group'=>$sys_stats_group) );
+   // require you to be a member of the super-admin group
+session_require(array('group'=>'1','admin_flags'=>'A'));
 
-$HTML->header(array('title'=>"SourceForge Site Statistics "));
+$HTML->header(array(title=>"SourceForge Site Statistics "));
 
 //
 // BEGIN PAGE CONTENT CODE
@@ -44,13 +44,7 @@ print '<BR><BR>' . "\n";
 //stats_site_projects_weekly( 52 );
 print '<BR><BR>' . "\n";
 print '</DIV>' . "\n";
-echo '
-<p>Other statistics:
-<ul>
-<li><a href="i18n.php">i18n statistics</a>
-</ul>
-</p>
-';
+
 //
 // END PAGE CONTENT CODE
 //

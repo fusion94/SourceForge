@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: browse_patch.php,v 1.30 2000/12/09 19:46:36 tperdue Exp $
+// $Id: browse_patch.php,v 1.26 2000/08/31 06:25:37 gherteg Exp $
 
 if (!$offset || $offset < 0) {
 	$offset=0;
@@ -31,7 +31,7 @@ if ($order) {
 if ($order) {
 	$order_by = " ORDER BY $order ".(($set=='closed' && $order=='date') ? ' DESC ':'');
 } else {
-	$order_by = " ORDER BY patch.group_id,patch.patch_status_id ";
+	$order_by = "";
 }
 
 if (!$set) {
@@ -134,19 +134,21 @@ patch_header(array('title'=>'Browse Patches'.
 
 
 $sql="SELECT patch.group_id,patch.patch_id,patch.summary,".
-	"patch.open_date AS date,users.user_name AS submitted_by,user2.user_name AS assigned_to_user ".
-	"FROM patch,users,users user2 ".
-	"WHERE users.user_id=patch.submitted_by ".
+	"patch.open_date AS date,user.user_name AS submitted_by,user2.user_name AS assigned_to_user ".
+	"FROM patch,user,user user2 ".
+	"WHERE user.user_id=patch.submitted_by ".
 	" $category_str ".
 	" $status_str ".
 	"AND user2.user_id=patch.assigned_to ".
 	" $assigned_str ".
 	"AND group_id='$group_id'".
-	$order_by;
+	$order_by .
+	" LIMIT $offset,50";
 
 	$statement='Viewing custom patches';
 
-$result=db_query($sql,51,$offset);
+$result=db_query($sql);
+
 
 /*
 	creating a custom technician box which includes "any" and "unassigned"

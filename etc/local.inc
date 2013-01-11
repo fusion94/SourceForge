@@ -27,12 +27,10 @@
 // The default SourceForge domain
 // this is used where ever the "naked" form of the SourceForge domain
 // might be used.  E.g., "mailto:admin@sourceforge.net"
-$sys_default_domain = 'webdev.company.com';
-$sys_fallback_domain = 'sf-www.sourceforge.net';
-$sys_internal_network = '192.168.1.';
+$sys_default_domain = "webdev.company.com";
  
 // Machine that hosts CVS
-$sys_cvs_host = 'cvs.company.com';
+$sys_cvs_host = "cvs.company.com";
  
 // Machine used for downloading sources/packages
 $sys_download_host = "download.company.com";
@@ -63,34 +61,12 @@ $sys_dns1_host = "ns1.company.com";
 $sys_dns2_host = "ns2.company.com";
 
 // Part II - Databases, html/php/other paths
-//server to use for updates and reads
 $sys_dbhost="localhost";
-//whether or not to use mysql replication
-$sys_db_use_replication=true;
-//server to use for read-only stuff
-$sys_dbreadhost='localhost';
 $sys_dbname="alexandria";
 $sys_dbuser="www";
 $sys_dbpasswd="";
 $sys_server="mysql";
-
-// 
-// LDAP configurataion
-//
-// disable ldap use altogether
-$sys_use_ldap=0;
-$sys_ldap_host="ldap.company.com";
-$sys_ldap_port=389;
-// this is dn under which all information stored
-$sys_ldap_base_dn="dc=company,dc=com";
-// and this, how we do access it (add permission required) 
-$sys_ldap_bind_dn="cn=SF_robot,dc=company,dc=com";
-$sys_ldap_passwd="";
-// admin dn - login dn which has permissions to delete entries
-// NOT used by web code, only by support utilities
-// note that password NOT stored here
-$sys_ldap_admin_dn="cn=Manager,dc=company,dc=com";
-
+ 
 // Where files are placed when uploaded
 $FTPINCOMING_DIR = "/nfs/remission/u7/ftp/incoming";
 
@@ -119,17 +95,6 @@ $sys_name="prodigy";
 // Themeing related vars... Some of this needs to change in the session stuff
 // The theme base directory, everything else is handled by theme_sysinit()
 $sys_themeroot=$sys_urlroot."themes/";
-
-// Akamization of images
-$sys_images_url = "//a248.e.akamai.net/7/248/1710/949111342/sourceforge.net/";
-
-// Part IV - Groups
-//  The SourceForge permission model is based on groups
-//  certain parts of the site, like news, stats, etc
-//  are based on special group_id numbers
-//  group_id #1 is the super-user group of sitewide admins
-$sys_news_group=714;
-$sys_stats_group=11084;
 
 // End of customizations -- place nothing after the closing PHP tag!
 ?>

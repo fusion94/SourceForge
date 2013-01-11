@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.13 2000/10/11 19:55:40 tperdue Exp $
+// $Id: index.php,v 1.12 2000/08/31 21:23:04 gherteg Exp $
 
 require "pre.php";    
 session_require(array('isloggedin'=>'1'));
@@ -94,7 +94,7 @@ $HTML->header(array('title'=>$title));
 
 echo "<H3>$title</H3>";
 // get global user vars
-$res_user = db_query("SELECT * FROM users WHERE user_id=" . user_getid());
+$res_user = db_query("SELECT * FROM user WHERE user_id=" . user_getid());
 $row_user = db_fetch_array($res_user);
 
 $HTML->box1_top("Choosing Theme and Colors for " . user_getname()); ?>

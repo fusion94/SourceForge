@@ -4,86 +4,13 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: account.php,v 1.35 2000/11/03 02:17:32 tperdue Exp $
+// $Id: account.php,v 1.27 2000/06/16 12:57:22 tperdue Exp $
 //
 // adduser.php - All the forms and functions to manage unix users
 //
 
-/*
-
-	Create a new user account
-
-	returns user_id/false and $feedback
-
-
-*/
-function account_register_new($unix_name,$realname,$password1,$password2,$email,$language,$timezone,$mail_site,$mail_va,$language_id,$timezone) {
-	global $feedback;
-
-	if (db_numrows(db_query("SELECT user_id FROM users WHERE user_name LIKE '$unix_name'")) > 0) {
-		$feedback .= "That username already exists.";
-		return false;
-	}       
-	if (!$unix_name) {
-		$feedback .= "You must supply a username.";
-		return false;
-	}       
-	if (!$password1) {
-		$feedback .= "You must supply a password.";
-		return false;
-	}       
-	if ($password1 != $password2) {
-		$feedback .= "Passwords do not match.";
-		return false;
-	}       
-	if (!account_pwvalid($password1)) {
-		$feedback .= ' Password must be at least 6 characters. ';
-		return false;
-	}       
-	if (!account_namevalid($unix_name)) {
-		$feedback .= ' Invalid Unix Name ';
-		return false;
-	}       
-	if (!validate_email($email)) {
-		$feedback .= ' Invalid Email Address ';
-		return false;
-	}
-	// if we got this far, it must be good
-	$confirm_hash = substr(md5($session_hash . $HTTP_POST_VARS['form_pw'] . time()),0,16);
-
-	$result=db_query("INSERT INTO users (user_name,user_pw,unix_pw,realname,email,add_date,"
-		. "status,confirm_hash,mail_siteupdates,mail_va,language,timezone) "
-		. "VALUES ('$unix_name',".
-		"'". md5($password1) . "',".
-		"'". account_genunixpw($password1) . "',".
-		"'". "$realname',".
-		"'$email',".
-		"'" . time() . "',".
-		"'P',".
-		"'$confirm_hash',".
-		"'". (($mail_site)?"1":"0") . "',".
-		"'". (($mail_va)?"1":"0") . "',".
-		"'$language_id',".
-		"'$timezone')");
-	$user_id=db_insertid($result,'users','user_id');
-
-	if (!$result || !$user_id) {
-		$feedback .= ' Insert Failed '.db_error();
-		return false;
-	} else {
-	
-		// send mail
-		$message = "Thank you for registering on the SourceForge web site. In order\n"
-			. "to complete your registration, visit the following url: \n\n"
-			. "<https://". $GLOBALS['HTTP_HOST'] ."/account/verify.php?confirm_hash=$confirm_hash>\n\n"
-			. "Enjoy the site.\n\n"
-			. " -- the SourceForge staff\n";
-			
-		mail($email,"SourceForge Account Registration",$message,"From: noreply@".$GLOBALS['HTTP_HOST']);
-		
-		return $user_id;
-	}       
-}
+// ***** function account_pwvalid()
+// ***** check for valid password
 
 function account_pwvalid($pw) {
 	if (strlen($pw) < 6) {
@@ -91,6 +18,35 @@ function account_pwvalid($pw) {
 		return 0;
 	}
 	return 1;
+}
+
+function account_add_user_to_group ($group_id,$user_unix_name) {
+	global $feedback;
+	$res_newuser = db_query("SELECT user_id FROM user WHERE user_name='$user_unix_name'");
+
+	if (db_numrows($res_newuser) > 0) {
+		//user was found
+		$form_newuid = db_result($res_newuser,0,'user_id');
+
+		//if not already a member, add them
+		$res_member = db_query("SELECT user_id FROM user_group WHERE user_id='$form_newuid' AND group_id='$group_id'");
+		if (db_numrows($res_member) < 1) {
+			//not alread a member
+			db_query("INSERT INTO user_group (user_id,group_id) VALUES ('$form_newuid','$group_id')");
+
+			//if no unix account, give them a unix_uid
+			if ((db_result($res_newuser,0,'unix_status') == 'N') || (!db_result($res_newuser,0,'unix_uid') )) {
+				db_query("UPDATE user SET unix_status='A',unix_uid=" . account_nextuid() . " WHERE user_id=$form_newuid");
+			}
+			$feedback .= " User was added ";
+		} else {
+			//user was a member
+			$feedback .= " User was already a member ";
+		}
+	} else {
+		//user doesn't exist
+		$feedback .= "That user does not exist on SourceForge";
+	}
 }
 
 function account_namevalid($name) {
@@ -184,6 +140,13 @@ function account_genunixpw($plainpw) {
 	return crypt($plainpw,account_gensalt());
 }
 
+// returns next userid
+function account_nextuid() {
+	db_query("SELECT max(unix_uid) AS maxid FROM user");
+	$row = db_fetch_array();
+	return ($row[maxid] + 1);
+}
+
 // print out shell selects
 function account_shellselects($current) {
 	$shells = file("/etc/shells");
@@ -199,4 +162,3 @@ function account_shellselects($current) {
 	}
 }
 
-?>

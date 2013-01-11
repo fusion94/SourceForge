@@ -62,10 +62,7 @@ $res->execute();
 while ( $temp = $res->fetchrow_arrayref() ) {
 	$groups{${$temp}[1]} = ${$temp}[0];
 }
-##
-##	wrap this process in a transaction
-##
-$dbh->do( "BEGIN WORK;" );
+
 
    ## begin parsing the log file line by line.
 print "Parsing the information into the database..." if $verbose;
@@ -108,11 +105,6 @@ while(<LOGFILE>) {
 
 }
 close( LOGFILE );
-##
-##      wrap this process in a transaction
-##
-$dbh->do( "COMMIT WORK;" );
-
 print " done.\n" if $verbose;
 
 ##

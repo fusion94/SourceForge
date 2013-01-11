@@ -1,6 +1,6 @@
 #!/usr/bin/perl 
 #
-# $Id: db_stats_site_nightly.pl,v 1.8 2000/10/11 19:55:39 tperdue Exp $
+# $Id: db_stats_site_nightly.pl,v 1.7 2000/08/28 04:33:48 msnelham Exp $
 #
 
 use DBI;
@@ -74,13 +74,13 @@ $sql	= "SELECT COUNT(session_hash) FROM session WHERE (time < $day_end AND time 
 
 ## total_users
 ##
-$sql	= "SELECT COUNT(user_id) FROM users WHERE ( add_date < $day_end AND status='A' )";
+$sql	= "SELECT COUNT(user_id) FROM user WHERE ( add_date < $day_end AND status='A' )";
 ($rel = $dbh->prepare($sql))->execute() || die "SQL error: $!";
 ($total_users) = ($rel->fetchrow_array)[0]; 
 
 ## new_users
 ##
-$sql	= "SELECT COUNT(user_id) FROM users WHERE ( add_date < $day_end AND add_date > $day_begin )";
+$sql	= "SELECT COUNT(user_id) FROM user WHERE ( add_date < $day_end AND add_date > $day_begin )";
 ($rel = $dbh->prepare($sql))->execute() || die "SQL error: $!";
 ($new_users) = ($rel->fetchrow_array)[0]; 
 

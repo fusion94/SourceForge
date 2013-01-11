@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: sendmessage.php,v 1.14 2000/10/11 19:55:39 tperdue Exp $
+// $Id: sendmessage.php,v 1.13 2000/08/31 06:07:52 gherteg Exp $
 
 require ('pre.php');    
 
@@ -17,7 +17,7 @@ if ($touser) {
 		check to see if that user even exists
 		Get their name and email if it does
 	*/
-	$result=db_query("SELECT email,user_name FROM users WHERE user_id='$touser'");
+	$result=db_query("SELECT email,user_name FROM user WHERE user_id='$touser'");
 	if (!$result || db_numrows($result) < 1) {
 		exit_error('Error','Error - That user does not exist.');
 	}

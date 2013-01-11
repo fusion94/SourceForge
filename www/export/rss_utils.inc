@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: rss_utils.inc,v 1.5 2000/11/29 01:29:07 pfalcon Exp $
+// $Id: rss_utils.inc,v 1.3 2000/06/06 05:58:43 tperdue Exp $
 
 function rss_setscheme() {
 	if ($GLOBALS['scheme'] == "netscape") {
@@ -25,38 +25,6 @@ function rss_description ($in) {
 		$in = "No description available.";
 	}
 	return htmlspecialchars($in);
-}
-
-// callback is optional function name which should be called for each project
-// row and which result will be appended to description element
-function rss_dump_project_result_set ($res,$title,$desription='',$callback=0) {
-        if (!$desription) $desription=$title;
-	// ## one time output
-	print " <channel>\n";
-	print "  <copyright>Copyright 1999-2000 VA Linux Systems, Inc.</copyright>\n";
-	print "  <pubDate>".gmdate('D, d M Y g:i:s',time())." GMT</pubDate>\n";
-	print "  <description>$desription</description>\n";
-	print "  <link>http://$GLOBALS[sys_default_domain]</link>\n";
-	print "  <title>$title</title>\n";
-	print "  <webMaster>webmaster@$GLOBALS[sys_default_domain]</webMaster>\n";
-	print "  <language>en-us</language>\n";
-
-	// ## item outputs
-	while ($row = db_fetch_array($res)) {
-                if ($callback) {
-                	$addendum=$callback($row);
-                }
-		print "  <item>\n";
-		print "   <title>".htmlspecialchars($row[group_name])."</title>\n";
-		print "   <link>http://$GLOBALS[sys_default_domain]/projects/$row[unix_group_name]/</link>\n";
-		print "   <description>";
-		print ereg_replace(" *\r*\n *"," ",rss_description($row[short_description]));
-                print $addendum;
-		print "</description>\n";
-		print "  </item>\n";
-	}
-	// ## end output
-	print " </channel>\n";
 }
 
 ?>

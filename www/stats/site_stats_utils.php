@@ -1,6 +1,6 @@
 <?php
 //
-// $Id: site_stats_utils.php,v 1.72 2000/12/02 20:31:04 pgport Exp $
+// $Id: site_stats_utils.php,v 1.68 2000/09/01 02:12:13 msnelham Exp $
 //
 
 
@@ -123,15 +123,12 @@ function stats_site_projects_form( $span = 21, $orderby = "downloads", $offset =
 
 }
 
-?><?php
 
    // stats_site_projects
 function stats_site_projects( $span = 7, $orderby = "ranking", $offset = 0, $projects = 0, $trove_cat = 0 ) {
 
-	$sql	= "SELECT s.group_id, g.group_name, "
-		. "AVG(m.ranking) AS ranking, "
-		. "AVG(m.percentile) AS percentile, "
-		. "SUM(s.downloads) AS downloads, "
+	$sql	= "SELECT s.month AS month, s.week AS week, s.day AS day, s.group_id AS group_id, "
+		. "g.group_name AS group_name, m.ranking AS ranking, m.percentile AS percentile, SUM(s.downloads) AS downloads, "
 		. "SUM(s.site_views) AS site_views, SUM(s.subdomain_views) AS subdomain_views, "
 		. "SUM(s.msg_posted) AS msg_posted, SUM(s.bugs_opened) AS bugs_opened, "
 		. "SUM(s.bugs_closed) AS bugs_closed, SUM(s.support_opened) AS support_opened, "
@@ -139,7 +136,7 @@ function stats_site_projects( $span = 7, $orderby = "ranking", $offset = 0, $pro
 		. "SUM(s.patches_closed) AS patches_closed, SUM(s.tasks_opened) AS tasks_opened, "
 		. "SUM(s.tasks_closed) AS tasks_closed, SUM(s.cvs_checkouts) AS cvs_checkouts, "
 		. "SUM(s.cvs_commits) AS cvs_commits, SUM(s.cvs_adds) AS cvs_adds "
-		. "FROM stats_project s, groups g, project_metric m ";
+		. "FROM stats_project AS s,groups AS g,project_metric AS m ";
 
 	   // Get information about the date $span days ago 
 	$begin_date = localtime( (time() - ($span * 86400)), 1);
@@ -156,15 +153,13 @@ function stats_site_projects( $span = 7, $orderby = "ranking", $offset = 0, $pro
 
 	$sql .= "AND ( s.group_id = g.group_id ) ";
 	$sql .= "AND ( s.group_id = m.group_id ) ";
-//PROBLEM
-//	must be re-written as EXISTS query
-//
+
 	if ( is_array( $projects ) ) {
 		$sql .= "AND ( s.group_id IN (" . implode(",", $projects ) . ") ) ";
 	} 
 
 	$sql .= " ) ";
-	$sql .= "GROUP BY s.group_id, g.group_name ";
+	$sql .= "GROUP BY s.group_id ";
 
 	if ( $orderby == "ranking" ) {
 		$sql .= "ORDER BY $orderby ASC ";
@@ -172,10 +167,16 @@ function stats_site_projects( $span = 7, $orderby = "ranking", $offset = 0, $pro
 		$sql .= "ORDER BY $orderby DESC ";
 	}
 
+	if ( $offset > 0 ) {
+		$sql .= "LIMIT $offset,50";
+	} else {
+		$sql .= "LIMIT 50";
+	}
+
 	//print "\n\n<BR><HR><BR> $sql <BR><HR><BR>\n\n";
 
-	// Executions will continue until morale improves.
-	$res = db_query( $sql,50,$offset );
+	   // Executions will continue until morale improves.
+	$res = db_query( $sql );
 
 	   // if there are any rows, we have valid data (or close enough).
 	if ( ($valid_days = db_numrows( $res )) > 1 ) {
@@ -240,7 +241,7 @@ function stats_site_projects( $span = 7, $orderby = "ranking", $offset = 0, $pro
 	
 		$i = $offset;	
 		while ( $row = db_fetch_array($res) ) {
-			print	'<TR bgcolor="' . html_get_alt_row_color($i) . '">'
+			print	'<TR bgcolor="' . util_get_alt_row_color($i) . '">'
 				. '<TD>' . ($i + 1) . '. <A HREF="/project/stats/?group_id=' . $row["group_id"] . '">' . $row["group_name"] . '</A></TD>'
 				. '<TD align="right">&nbsp;&nbsp;' . number_format( $row["ranking"] ) . ' (' . $row["percentile"] . '%) </TD>'
 				. '<TD align="right">&nbsp;&nbsp;' . number_format( $row["site_views"] ) . '</TD>'
@@ -265,7 +266,7 @@ function stats_site_projects( $span = 7, $orderby = "ranking", $offset = 0, $pro
 		if ( $trove_cat == -1 ) {
 			print '<TR><TD COLSPAN="16">&nbsp;</TD></TR>' . "\n";
 			print '<TR><TD COLSPAN="16" align="center"></TD></TR>' . "\n";
-			print	'<TR bgcolor="' . html_get_alt_row_color($i) . '">'
+			print	'<TR bgcolor="' . util_get_alt_row_color($i) . '">'
 				. '<TD><B>Totals:</B></TD>'
 				. '<TD>&nbsp;</TD>'
 				. '<TD align="right">&nbsp;&nbsp;' . number_format( $sum["site_views"] ) . '</TD>'
@@ -294,7 +295,6 @@ function stats_site_projects( $span = 7, $orderby = "ranking", $offset = 0, $pro
 
 }
 
-?><?php
 
    // stats_site_projects_daily
 function stats_site_projects_daily( $span = 14 ) {
@@ -309,25 +309,19 @@ function stats_site_projects_daily( $span = 14 ) {
 	$month = sprintf("%02d", $begin_date["tm_mon"] + 1);
 	$day = $begin_date["tm_mday"];
 
-	$sql  = "SELECT s.month, s.day, s.downloads, s.site_views, s.subdomain_views, ".
-		"SUM(p.msg_posted) AS msg_posted, ".
-		"SUM(p.bugs_opened) AS bugs_opened, ".
-		"SUM(p.bugs_closed) AS bugs_closed, ".
-		"SUM(p.support_opened) AS support_opened, ".
-		"SUM(p.support_closed) AS support_closed, ".
-		"SUM(p.patches_opened) AS patches_opened, ".
-		"SUM(p.patches_closed) AS patches_closed, ".
-		"SUM(p.tasks_opened) AS tasks_opened, ".
-		"SUM(p.tasks_closed) AS tasks_closed, ".
-		"SUM(p.cvs_checkouts) AS cvs_checkouts, ".
-		"SUM(p.cvs_commits) AS cvs_commits, ".
-		"SUM(p.cvs_adds) AS cvs_adds ".
-		"FROM stats_project AS p, stats_site AS s ".
-		"WHERE ( ( s.month = p.month AND s.day = p.day ) AND ".
-		"( ( p.month = " . $year . $month . " AND p.day >= " . $day . " ) OR ".
-		"( p.month > " . $year . $month . " ) ) ) ".
-		"GROUP BY s.month, s.day, s.downloads, s.site_views, s.subdomain_views ".
-		"ORDER BY s.month DESC, s.day DESC";
+	$sql  = "SELECT s.month AS month, s.day AS day, s.downloads AS downloads, "
+		. "s.site_views AS site_views, s.subdomain_views AS subdomain_views, "
+		. "SUM(p.msg_posted) AS msg_posted, SUM(p.bugs_opened) AS bugs_opened, "
+		. "SUM(p.bugs_closed) AS bugs_closed, SUM(p.support_opened) AS support_opened, "
+		. "SUM(p.support_closed) AS support_closed, SUM(p.patches_opened) AS patches_opened, "
+		. "SUM(p.patches_closed) AS patches_closed, SUM(p.tasks_opened) AS tasks_opened, "
+		. "SUM(p.tasks_closed) AS tasks_closed, SUM(p.cvs_checkouts) AS cvs_checkouts, "
+		. "SUM(p.cvs_commits) AS cvs_commits, SUM(p.cvs_adds) AS cvs_adds "
+		. "FROM stats_project AS p, stats_site AS s "
+		. "WHERE ( ( s.month = p.month AND s.day = p.day ) AND "
+		. "( ( p.month = " . $year . $month . " AND p.day >= " . $day . " ) OR "
+		. "( p.month > " . $year . $month . " ) ) ) "
+		. "GROUP BY month,day ORDER BY month DESC, day DESC";
 
 	   // Executions will continue until morale improves.
 	$res = db_query( $sql );
@@ -354,7 +348,7 @@ function stats_site_projects_daily( $span = 14 ) {
 		while ( $row = db_fetch_array($res) ) {
 			$i++;
 
-			print	'<TR bgcolor="' . html_get_alt_row_color($i) . '">'
+			print	'<TR bgcolor="' . util_get_alt_row_color($i) . '">'
 				. '<TD>' . gmstrftime("%d %b %Y", mktime(0,0,1,substr($row["month"],4,2),$row["day"],substr($row["month"],0,4)) ) . '</TD>'
 				. '<TD align="right">' . number_format( $row["site_views"] ) . '</TD>'
 				. '<TD align="right">' . number_format( $row["subdomain_views"] ) . '</TD>'
@@ -389,26 +383,14 @@ function stats_site_projects_weekly( $span = 14 ) {
 	$day = $begin_date["tm_mday"];
 
 
-	$sql  = "SELECT month,week,AVG(group_ranking) AS group_ranking, ".
-		"AVG(group_metric) AS group_metric, ".
-		"SUM(downloads) AS downloads, ".
-		"SUM(site_views) AS site_views, ".
-		"SUM(subdomain_views) AS subdomain_views, ".
-		"SUM(msg_posted) AS msg_posted, ".
-		"SUM(bugs_opened) AS bugs_opened, ".
-		"SUM(bugs_closed) AS bugs_closed, ".
-		"SUM(support_opened) AS support_opened, ".
-		"SUM(support_closed) AS support_closed, ".
-		"SUM(patches_opened) AS patches_opened, ".
-		"SUM(patches_closed) AS patches_closed, ".
-		"SUM(tasks_opened) AS tasks_opened, ".
-		"SUM(tasks_closed) AS tasks_closed, ".
-		"SUM(cvs_commits) AS cvs_commits, ".
-		"SUM(cvs_adds) AS cvs_adds ".
-		"FROM stats_project ".
-		"WHERE ( ( month = " . $year . $month . " AND day >= " . $day . " ) OR ".
-		"( month > " . $year . $month . " ) ) ".
-		"GROUP BY month,week ORDER BY month DESC, week DESC";
+	$sql  = "SELECT month,day,AVG(group_ranking),AVG(group_metric),SUM(downloads),SUM(site_views),SUM(subdomain_views),";
+	$sql .= "SUM(msg_posted),SUM(bugs_opened),SUM(bugs_closed),SUM(support_opened),";
+	$sql .= "SUM(support_closed),SUM(patches_opened),SUM(patches_closed),SUM(tasks_opened),";
+	$sql .= "SUM(tasks_closed),SUM(cvs_commits),SUM(cvs_adds)";
+	$sql .= "FROM stats_project ";
+	$sql .= "WHERE ( ( month = " . $year . $month . " AND day >= " . $day . " ) OR ";
+	$sql .= "( month > " . $year . $month . " ) ) ";
+	$sql .= "GROUP BY month,day ORDER BY month DESC, day DESC";
 
 	   // Executions will continue until morale improves.
 	$res = db_query( $sql );
@@ -435,16 +417,16 @@ function stats_site_projects_weekly( $span = 14 ) {
 		while ( $row = db_fetch_array($res) ) {
 			$i++;
 
-			print	'<TR bgcolor="' . html_get_alt_row_color($i) . '">'
+			print	'<TR bgcolor="' . util_get_alt_row_color($i) . '">'
 				. '<TD>' . gmstrftime("%d %b %Y", mktime(0,0,1,substr($row["month"],4,2),$row["day"],substr($row["month"],0,4)) ) . '</TD>'
-				. '<TD align="right">' . number_format( $row["site_views"] ) . '</TD>'
-				. '<TD align="right">' . number_format( $row["subdomain_views"] ) . '</TD>'
-				. '<TD align="right">' . number_format( $row["downloads"] ) . '</TD>'
-				. '<TD align="right">&nbsp;&nbsp;' . $row["bugs_opened"] . " ( " . $row["bugs_closed"] . ' )</TD>'
-				. '<TD align="right">&nbsp;&nbsp;' . $row["support_opened"] . " ( " . $row["support_closed"] . ' )</TD>'
-				. '<TD align="right">&nbsp;&nbsp;' . $row["patches_opened"] . " ( " . $row["patches_closed"] . ' )</TD>'
-				. '<TD align="right">&nbsp;&nbsp;' . $row["tasks_opened"] . " ( " . $row["tasks_closed"] . ' )</TD>'
-				. '<TD align="right">&nbsp;&nbsp;' . $row["cvs_checkouts"] . " ( " . $row["cvs_commits"] . ' )</TD>'
+				. '<TD align="right">' . number_format( $row["SUM(site_views)"] ) . '</TD>'
+				. '<TD align="right">' . number_format( $row["SUM(subdomain_views)"] ) . '</TD>'
+				. '<TD align="right">' . number_format( $row["SUM(downloads)"] ) . '</TD>'
+				. '<TD align="right">&nbsp;&nbsp;' . $row["SUM(bugs_opened)"] . " ( " . $row["SUM(bugs_closed)"] . ' )</TD>'
+				. '<TD align="right">&nbsp;&nbsp;' . $row["SUM(support_opened)"] . " ( " . $row["SUM(support_closed)"] . ' )</TD>'
+				. '<TD align="right">&nbsp;&nbsp;' . $row["SUM(patches_opened)"] . " ( " . $row["SUM(patches_closed)"] . ' )</TD>'
+				. '<TD align="right">&nbsp;&nbsp;' . $row["SUM(tasks_opened)"] . " ( " . $row["SUM(tasks_closed)"] . ' )</TD>'
+				. '<TD align="right">&nbsp;&nbsp;' . $row["SUM(cvs_checkouts)"] . " ( " . $row["SUM(cvs_commits)"] . ' )</TD>'
 				. '</TR>' . "\n";
 		}
 
@@ -452,7 +434,6 @@ function stats_site_projects_weekly( $span = 14 ) {
 
 	} else {
 		echo "Project did not exist on this date.";
-		echo db_error();
 	}
 }
 
@@ -470,7 +451,7 @@ function stats_site_agregate( $group_id ) {
 	$res = db_query( $sql );
 	$groups = db_fetch_array($res);
 
-	$sql	= "SELECT COUNT(*) AS count FROM users WHERE status='A'";
+	$sql	= "SELECT COUNT(*) AS count FROM user WHERE status='A'";
 	$res = db_query( $sql );
 	$users = db_fetch_array($res);
 	

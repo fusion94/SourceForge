@@ -4,16 +4,16 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.76 2000/12/07 01:22:03 dbrogdon Exp $
+// $Id: index.php,v 1.71 2000/08/31 06:07:52 gherteg Exp $
 
 require ('pre.php');    
 
 session_require(array('isloggedin'=>'1'));
 
-site_user_header(array('title'=>"Account Maintenance"));
+$HTML->header(array('title'=>"Account Maintenance"));
 
-// get global users vars
-$res_user = db_query("SELECT * FROM users WHERE user_id=" . user_getid());
+// get global user vars
+$res_user = db_query("SELECT * FROM user WHERE user_id=" . user_getid());
 $row_user = db_fetch_array($res_user);
 
 $HTML->box1_top("Account Maintenance: " . user_getname()); ?>
@@ -23,7 +23,7 @@ $HTML->box1_top("Account Maintenance: " . user_getname()); ?>
 to view your developer/consultant profiles and ratings.
 
 <UL>
-<LI><A href="/users/<?php print strtolower($row_user['user_name']); ?>/"><B>View My Developer Profile</B></A>
+<LI><A href="/users/<?php print $row_user['user_name']; ?>/"><B>View My Developer Profile</B></A>
 <LI><A HREF="/people/editprofile.php"><B>Edit My Skills Profile</B></A>
 </UL>
 <?php $HTML->box1_bottom(); ?>
@@ -42,16 +42,18 @@ to view your developer/consultant profiles and ratings.
 
 <TR valign=top>
 <TD>Login Name: </TD>
-<TD><B><?php print strtolower($row_user['user_name']); ?></B>
+<TD><B><?php print $row_user['user_name']; ?></B>
 <BR><A href="change_pw.php">[Change Password]</A></TD>
 </TR>
 
 <TR valign=top>
-<TD>Timezone/Language: </TD>
-<TD><B><?php print $row_user['timezone']; ?></B> / <B><?php echo $Language->getLanguageName($row_user['language']); ?></B>
-<BR><A href="change_timezone.php">[Change]</A></TD>
+<TD>Timezone: </TD>
+<TD><B><?php print $row_user['timezone']; ?></B>
+<BR><A href="change_timezone.php">[Change Timezone]</A></TD>
 </TR>
 
+
+<TR valign=top>
 <TD>Real Name: </TD>
 <TD><B><?php print $row_user['realname']; ?></B>
 <BR><A href="change_realname.php">[Change Real Name]</A></TD>
@@ -84,11 +86,6 @@ $HTML->box1_top("Preferences"); ?>
 	if ($row_user['mail_va']) print " checked"; ?>> Receive additional community mailings. 
 <I>(Low traffic.)</I>
 
-<P><INPUT type="checkbox"  name="form_remember_user" value="1"<?php
-	if ($sf_user_hash) print " checked"; ?>> "Remember me".
-<I>(Allows to access your <a href="/my/">personal page</a> without being logged
-in. You will still need to login explicitly before making any changes.)</I>
-
 <P align=center><CENTER><INPUT type="submit" name="Update" value="Update"></CENTER>
 </FORM>
 <?php $HTML->box1_bottom(); 
@@ -118,5 +115,5 @@ if ($row_user['unix_status'] == 'A') {
 </TABLE>
 
 <?php
-site_user_footer(array());
+$HTML->footer(array());
 ?>

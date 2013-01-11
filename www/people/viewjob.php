@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: viewjob.php,v 1.16 2000/10/11 19:55:39 tperdue Exp $
+// $Id: viewjob.php,v 1.15 2000/08/28 23:59:44 tperdue Exp $
 
 require('pre.php');
 require('../people/people_utils.php');
@@ -19,11 +19,11 @@ if ($group_id && $job_id) {
 	//for security, include group_id
 	$sql="SELECT groups.group_name,people_job_category.name AS category_name,".
 		"people_job_status.name AS status_name,people_job.title,".
-		"people_job.description,people_job.date,users.user_name,users.user_id ".
-		"FROM people_job,groups,people_job_status,people_job_category,users ".
+		"people_job.description,people_job.date,user.user_name,user.user_id ".
+		"FROM people_job,groups,people_job_status,people_job_category,user ".
 		"WHERE people_job_category.category_id=people_job.category_id ".
 		"AND people_job_status.status_id=people_job.status_id ".
-		"AND users.user_id=people_job.created_by ".
+		"AND user.user_id=people_job.created_by ".
 		"AND groups.group_id=people_job.group_id ".
 		"AND people_job.job_id='$job_id' AND people_job.group_id='$group_id'";
 	$result=db_query($sql);

@@ -17,19 +17,19 @@ $res = db_query("SELECT groups.group_name AS group_name,"
 	. "groups.short_description AS short_description,"
 	. "groups.license AS license,"
 	. "groups.file_downloads AS file_downloads,"
-	. "users.user_name AS user_name,"
-	. "users.user_id AS user_id,"
+	. "user.user_name AS user_name,"
+	. "user.user_id AS user_id,"
 	. "filemodule.filemodule_id AS filemodule_id,"
 	. "filemodule.module_name AS module_name,"
 	. "filerelease.release_time AS release_time,"
 	. "filerelease.filename AS filename,"
 	. "filerelease.release_version AS release_version,"
 	. "filerelease.filerelease_id AS filerelease_id "
-	. "FROM users,filerelease,filemodule,groups WHERE "
-	. "filerelease.user_id=users.user_id AND "
+	. "FROM user,filerelease,filemodule,groups WHERE "
+	. "filerelease.user_id=user.user_id AND "
 	. "filerelease.group_id=groups.group_id AND "
 	. "filerelease.filemodule_id=filemodule.filemodule_id "
-	. "ORDER BY filerelease.release_time DESC",($limit * 3));
+	. "ORDER BY filerelease.release_time DESC LIMIT ".($limit * 3));
 
 
 // ## one time output

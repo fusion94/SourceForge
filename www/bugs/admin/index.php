@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.45 2000/12/10 19:50:20 tperdue Exp $
+// $Id: index.php,v 1.42 2000/08/13 15:43:44 tperdue Exp $
 
 require('pre.php');
 require('../bug_utils.php');
@@ -17,10 +17,41 @@ if ($group_id && (user_ismember($group_id,'B2') || user_ismember($group_id,'A'))
 			Update the database
 		*/
 
-		if ($bug_cat) {
+		if ($mod_admins) {
 
-			$sql="INSERT INTO bug_category (group_id,category_name) 
-				VALUES ('$group_id','$cat_name')";
+			/*
+				Post changes for admins
+			*/
+
+			$sql="SELECT user_id FROM user_group WHERE group_id='$group_id'";
+			$result=db_query($sql);
+			$rows=db_numrows($result);
+
+			if ($result && $rows > 0) {
+				/*
+					Begin iterating and setting the values in the db
+				*/
+				for ($i=0; $i<$rows; $i++) {
+					$user_id=db_result($result,$i,"user_id");
+					eval("\$val=\"\$_$user_id\";");
+					$sql="UPDATE user_group SET bug_flags='$val' WHERE user_id='$user_id' AND group_id='$group_id'";
+					$result2=db_query($sql);
+					if (!$result2) {
+						$feedback .= " Error Updating User ID $user_id ";
+					}
+				}
+				$feedback .= ' Members Updated ';
+
+			} else {
+				bug_header(array ('title'=>'Add/Remove Administrators'));
+				echo '<H1>No members in this group</H1>';
+				bug_footer(array());
+				exit;
+			}
+
+		} else if ($bug_cat) {
+
+			$sql="INSERT INTO bug_category VALUES ('', '$group_id','$cat_name')";
 			$result=db_query($sql);
 			if (!$result) {
 				$feedback .= ' Error inserting value ';
@@ -30,8 +61,7 @@ if ($group_id && (user_ismember($group_id,'B2') || user_ismember($group_id,'A'))
 
 		} else if ($bug_group) {
 
-			$sql="INSERT INTO bug_group (group_id,group_name) 
-				VALUES ('$group_id','$bug_group_name')";
+			$sql="INSERT INTO bug_group VALUES ('', '$group_id','$bug_group_name')";
 			$result=db_query($sql);
 			if (!$result) {
 				$feedback .= ' Error inserting value ';
@@ -41,8 +71,7 @@ if ($group_id && (user_ismember($group_id,'B2') || user_ismember($group_id,'A'))
 
 		} else if ($bug_cat_mod) {
 
-			$sql="UPDATE bug_category SET category_name='$cat_name' 
-				WHERE bug_category_id='$bug_cat_id' AND group_id='$group_id'";
+			$sql="UPDATE bug_category SET category_name='$cat_name' WHERE bug_category_id='$bug_cat_id' AND group_id='$group_id'";
 			$result=db_query($sql);
 			if (!$result || db_affected_rows($result) < 1) {
 				$feedback .= ' Error modifying bug category ';
@@ -53,8 +82,7 @@ if ($group_id && (user_ismember($group_id,'B2') || user_ismember($group_id,'A'))
 
 		} else if ($bug_group_mod) {
 
-			$sql="UPDATE bug_group SET group_name = '$group_name' 
-				WHERE bug_group_id='$bug_group_id' AND group_id='$group_id'";
+			$sql="UPDATE bug_group SET group_name = '$group_name' WHERE bug_group_id='$bug_group_id' AND group_id='$group_id'";
 			$result=db_query($sql);
 			if (!$result || db_affected_rows($result) < 1) {
 				$feedback .= ' Error modifying bug group ';
@@ -65,8 +93,7 @@ if ($group_id && (user_ismember($group_id,'B2') || user_ismember($group_id,'A'))
 
 	       } else if ($create_canned) {
 
-			$sql="INSERT INTO bug_canned_responses (group_id,title,body) 
-				VALUES ('$group_id','". htmlspecialchars($title) . "','". htmlspecialchars($body) ."')";
+			$sql="INSERT INTO bug_canned_responses (group_id,title,body) VALUES ('$group_id','". htmlspecialchars($title) . "','". htmlspecialchars($body) ."')";
 			$result=db_query($sql);
 			if (!$result) {
 				$feedback .= ' Error inserting canned bug response! ';
@@ -77,9 +104,7 @@ if ($group_id && (user_ismember($group_id,'B2') || user_ismember($group_id,'A'))
  
 		} else if ($update_canned) {
  
-			$sql="UPDATE bug_canned_responses 
-				SET title='". htmlspecialchars($title) ."', body='". htmlspecialchars($body). "' 
-				WHERE group_id='$group_id' AND bug_canned_id='$bug_canned_id'";
+			$sql="UPDATE bug_canned_responses SET title='". htmlspecialchars($title) ."', body='". htmlspecialchars($body). "' WHERE group_id='$group_id' AND bug_canned_id='$bug_canned_id'";
 			$result=db_query($sql);
 			if (!$result) {
 				$feedback .= ' Error updating canned bug response! ';
@@ -278,7 +303,7 @@ if ($group_id && (user_ismember($group_id,'B2') || user_ismember($group_id,'A'))
 			echo html_build_list_table_top ($title_arr);
 
 			for ($i=0; $i < $rows; $i++) {
-				echo '<TR BGCOLOR="'. html_get_alt_row_color($i) .'">'.
+				echo '<TR BGCOLOR="'. util_get_alt_row_color($i) .'">'.
 				'<TD>'.db_result($result, $i, 'bug_canned_id').'</TD>'.
 				'<TD><A HREF="'.$PHP_SELF.'?update_canned=1&bug_canned_id='.
 				db_result($result, $i, 'bug_canned_id').'&group_id='.$group_id.'">'.

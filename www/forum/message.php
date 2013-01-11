@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: message.php,v 1.42 2000/11/08 13:26:04 tperdue Exp $
+// $Id: message.php,v 1.40 2000/08/13 15:43:44 tperdue Exp $
 
 require('pre.php');
 require('vote_function.php');
@@ -15,23 +15,20 @@ if ($msg_id) {
 	/*
 		Figure out which group this message is in, for the sake of the admin links
 	*/
-	$result=db_query("SELECT forum_group_list.send_all_posts_to,forum_group_list.group_id,".
-		"forum_group_list.allow_anonymous,forum_group_list.forum_name,forum.group_forum_id,forum.thread_id ".
+	$result=db_query("SELECT forum_group_list.group_id,forum_group_list.forum_name,forum.group_forum_id,forum.thread_id ".
 		"FROM forum_group_list,forum WHERE forum_group_list.group_forum_id=forum.group_forum_id AND forum.msg_id='$msg_id'");
 
 	$group_id=db_result($result,0,'group_id');
 	$forum_id=db_result($result,0,'group_forum_id');
 	$thread_id=db_result($result,0,'thread_id');
 	$forum_name=db_result($result,0,'forum_name');
-	$allow_anonymous=db_result($result,0,'allow_anonymous');
-	$send_all_posts_to=db_result($result,0,'send_all_posts_to');
 
 	forum_header(array('title'=>db_result($result,0,'subject')));
 
 	echo "<P>";
 
-	$sql="SELECT users.user_name,forum.group_forum_id,forum.thread_id,forum.subject,forum.date,forum.body ".
-		"FROM forum,users WHERE users.user_id=forum.posted_by AND forum.msg_id='$msg_id';";
+	$sql="SELECT user.user_name,forum.group_forum_id,forum.thread_id,forum.subject,forum.date,forum.body ".
+		"FROM forum,user WHERE user.user_id=forum.posted_by AND forum.msg_id='$msg_id';";
 
 	$result = db_query ($sql);
 
@@ -53,6 +50,8 @@ if ($msg_id) {
 	echo "SUBJECT: ". db_result($result,0, "subject")."<P>";
 	echo util_make_links(nl2br(db_result($result,0, 'body')));
 	echo "</TD></TR></TABLE>";
+//	echo '<BR><CENTER>';
+//	vote_show_release_radios ($msg_id,3);
 
 	/*
 		Show entire thread

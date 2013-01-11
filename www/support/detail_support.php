@@ -4,14 +4,14 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: detail_support.php,v 1.9 2000/10/11 19:55:40 tperdue Exp $
+// $Id: detail_support.php,v 1.8 2000/04/20 14:52:41 tperdue Exp $
 
 support_header(array ('title'=>'Support Request Detail: '.$support_id));
 
-$sql="SELECT support.summary,users.user_name AS submitted_by,support.priority,".
+$sql="SELECT support.summary,user.user_name AS submitted_by,support.priority,".
 	"user2.user_name AS assigned_to,support_status.status_name,support.open_date,support_category.category_name ".
-	"FROM support,users,users user2,support_category,support_status ".
-	"WHERE support.submitted_by=users.user_id ".
+	"FROM support,user,user user2,support_category,support_status ".
+	"WHERE support.submitted_by=user.user_id ".
 	"AND support.assigned_to=user2.user_id ".
 	"AND support.support_status_id=support_status.support_status_id ".
 	"AND support.support_category_id=support_category.support_category_id ".

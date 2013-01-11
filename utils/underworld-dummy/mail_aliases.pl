@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: mail_aliases.pl,v 1.3 2000/10/11 19:55:39 tperdue Exp $
+# $Id: mail_aliases.pl,v 1.2 2000/08/02 18:09:24 tperdue Exp $
 #
 use DBI;
 
@@ -31,7 +31,7 @@ while(my ($list_name) = $c->fetchrow()) {
 
 #push @alias_array, "\n\n### Begin User Aliases ###\n\n";
 
-#$query = "SELECT user_name,email FROM users WHERE status = \"A\"";
+#$query = "SELECT user_name,email FROM user WHERE status = \"A\"";
 
 #$c = $dbh->prepare($query);
 #$c->execute();

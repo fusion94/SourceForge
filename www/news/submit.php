@@ -4,42 +4,35 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: submit.php,v 1.21 2000/11/17 14:55:54 pfalcon Exp $
+// $Id: submit.php,v 1.17 2000/06/17 06:34:16 tperdue Exp $
 
 require('pre.php');
 require('../forum/forum_utils.php');
 
 if (user_isloggedin()) {
 
-	if (!user_ismember($group_id,'A')) {
-		exit_permission_denied('You cannot submit news '.
-                	'for a project unless you are an admin on that project');
-        }
-
 	if ($post_changes) {
-		//check to make sure both fields are there
-		if ($summary && $details) {
+		/*
+			Insert the row into the db if it's a generic message
+			OR this person is an admin for the group involved
+		*/
+		if (user_ismember($group_id,'A')) {
 			/*
-				Insert the row into the db if it's a generic message
-				OR this person is an admin for the group involved
+				create a new discussion forum without a default msg
+				if one isn't already there
 			*/
 
-       			/*
-       				create a new discussion forum without a default msg
-       				if one isn't already there
-       			*/
-
-       			$new_id=forum_create_forum($sys_news_group,$summary,1,0);
-       			$sql="INSERT INTO news_bytes (group_id,submitted_by,is_approved,date,forum_id,summary,details) ".
-       				" VALUES ('$group_id','".user_getid()."','0','".time()."','$new_id','".htmlspecialchars($summary)."','".htmlspecialchars($details)."')";
-       			$result=db_query($sql);
-       			if (!$result) {
-       				$feedback .= ' ERROR doing insert ';
-       			} else {
-       				$feedback .= ' News Added. ';
-       			}
+			$new_id=forum_create_forum(714,$summary,1,0);
+			$sql="INSERT INTO news_bytes (group_id,submitted_by,is_approved,date,forum_id,summary,details) ".
+				" VALUES ('$group_id','".user_getid()."','0','".time()."','$new_id','".htmlspecialchars($summary)."','".htmlspecialchars($details)."')";
+			$result=db_query($sql);
+			if (!$result) {
+				$feedback .= ' ERROR doing insert ';
+			} else {
+				$feedback .= ' News Added. ';
+			}
 		} else {
-			$feedback .= ' ERROR - both subject and body are required ';
+			exit_error('Permission Denied.','Permission Denied. You cannot submit news for a project unless you are an admin on that project');
 		}
 	}
 

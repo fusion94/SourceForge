@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.22 2000/12/13 22:33:25 dbrogdon Exp $
+// $Id: index.php,v 1.21 2000/08/31 20:19:12 gherteg Exp $
 
 require('pre.php');
 require('../mail/mail_utils.php');
@@ -49,9 +49,7 @@ if ($group_id) {
 
 	for ($j = 0; $j < $rows; $j++) {
 		echo '<A HREF="http://www.geocrawler.com/redir-sf.php3?list='.
-			db_result($result, $j, 'list_name').'">' . 
-			html_image("images/ic/cfolder15.png","15","13",array("BORDER"=>"0")) . ' &nbsp; '.
-			db_result($result, $j, 'list_name').' Archives</A>'; 
+			db_result($result, $j, 'list_name').'"><IMG SRC="/images/ic/cfolder15.png" HEIGHT=13 WIDTH=15 BORDER=0> &nbsp; '.db_result($result, $j, 'list_name').' Archives</A>'; 
 		echo ' (go to <A HREF="http://'.$GLOBALS['sys_lists_host'].'/mailman/listinfo/'.
 			db_result($result, $j, 'list_name').'">Subscribe/Unsubscribe/Preferences</A>)<BR>';
 		echo '&nbsp;'.  db_result($result, $j, 'description') .'<P>';

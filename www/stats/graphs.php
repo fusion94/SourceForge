@@ -4,14 +4,15 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: graphs.php,v 1.7 2000/12/13 22:59:35 dbrogdon Exp $ 
+// $Id: graphs.php,v 1.4 2000/08/31 23:15:04 msnelham Exp $ 
 require('pre.php');
 require('site_stats_utils.php');
 
-   // require you to be a member of the sfstats group (group_id = 11084)
-session_require( array('group'=>$sys_stats_group) );
+$HTML->header(array(title=>"SourceForge Site Statistics "));
 
-$HTML->header(array('title'=>"SourceForge Site Statistics "));
+   // require you to be a member of the super-admin group
+session_require(array('group'=>'1','admin_flags'=>'A'));
+
 
 //
 // BEGIN PAGE CONTENT CODE
@@ -38,9 +39,9 @@ print '<font size="+1"><b>Sitewide Statistics Graphs</b></font><BR>' . "\n";
 <?php
 
 print '<BR><BR>' . "\n";
-print '<IMG SRC="' . 'stats/views_graph.png">' . "\n";
+print '<IMG SRC="views_graph.png">' . "\n";
 print '<BR><BR>' . "\n";
-print '<IMG SRC="u' . 'stats/sers_graph.png">' . "\n";
+print '<IMG SRC="users_graph.png">' . "\n";
 print '<BR><BR>' . "\n";
 print '</DIV>' . "\n";
 

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: browse_support.php,v 1.33 2000/12/09 19:46:36 tperdue Exp $
+// $Id: browse_support.php,v 1.29 2000/08/10 03:01:37 tperdue Exp $
 
 if (!$offset || $offset < 0) {
 	$offset=0;
@@ -32,7 +32,7 @@ if ($order) {
 	//if ordering by priority OR closed date, sort DESC
 	$order_by = " ORDER BY $order ".((($set=='closed' && $order=='date') || ($order=='priority')) ? ' DESC ':'');
 } else {
-	$order_by = " ORDER BY support.group_id,support.support_status_id ";
+	$order_by = "";
 }
 
 if (!$set) {
@@ -126,13 +126,14 @@ support_header(array('title'=>'Browse Support Requests'.
 
 //now build the query using the criteria built above
 $sql="SELECT support.priority,support.group_id,support.support_id,support.summary,".
-	"support.open_date AS date,users.user_name AS submitted_by,user2.user_name AS assigned_to_user ".
-	"FROM support,users,users user2 ".
-	"WHERE users.user_id=support.submitted_by ".
+	"support.open_date AS date,user.user_name AS submitted_by,user2.user_name AS assigned_to_user ".
+	"FROM support,user,user user2 ".
+	"WHERE user.user_id=support.submitted_by ".
 	" $status_str $assigned_str $category_str ".
 	"AND user2.user_id=support.assigned_to ".
 	"AND group_id='$group_id'".
-	$order_by;
+	$order_by .
+	" LIMIT $offset,50";
 
 /*
         creating a custom technician box which includes "any" and "unassigned"
@@ -161,7 +162,7 @@ echo '<TABLE WIDTH="10%" BORDER="0"><FORM ACTION="'. $PHP_SELF .'" METHOD="GET">
 	'<TD><FONT SIZE="-1">'. support_category_box ($group_id,$name='_category',$_category,'Any') .'</TD>'.
 '<TD><FONT SIZE="-1"><INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Browse"></TD></TR></FORM></TABLE>';
 
-$result=db_query($sql,51,$offset);
+$result=db_query($sql);
 
 if ($result && db_numrows($result) > 0) {
 

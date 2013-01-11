@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: deleted.php,v 1.8 2000/09/12 22:09:41 tperdue Exp $
+// $Id: deleted.php,v 1.7 2000/08/31 06:07:52 gherteg Exp $
 
 require "pre.php";    
-site_user_header(array(title=>"Deleted Account"));
+$HTML->header(array(title=>"Deleted Account"));
 ?>
 
 <P><B>Deleted Account</B>
@@ -17,6 +17,6 @@ please email <A HREF="mailto:staff@<?php echo $GLOBALS['sys_default_domain']; ?>
 Inquiries through other channels will be directed to this address.
 
 <?php
-site_user_footer(array());
+$HTML->footer(array());
 
 ?>

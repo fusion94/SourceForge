@@ -5,7 +5,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: Foundry.class,v 1.13 2000/11/03 19:03:35 tperdue Exp $
+// $Id: Foundry.class,v 1.8 2000/09/06 18:30:41 tperdue Exp $
 
 
 /*
@@ -34,10 +34,21 @@
 	helps prevent the same object from being created more than once
 	which would create unnecessary database calls
 */	      
+$FOUNDRY_OBJ=array();
 
-function &foundry_get_object($group_id) {
-	return group_get_object($group_id);
+function foundry_get_object($group_id) {
+	//create a common set of foundry objects
+	//saves a little wear on the database
+
+	global $FOUNDRY_OBJ;
+	if (!$FOUNDRY_OBJ["_".$group_id."_"]) {
+		$FOUNDRY_OBJ["_".$group_id."_"]= new Foundry($group_id);
+		return $FOUNDRY_OBJ["_".$group_id."_"];
+	} else {
+		return $FOUNDRY_OBJ["_".$group_id."_"];
+	}
 }
+
 
 class Foundry extends Group {
 
@@ -51,8 +62,8 @@ class Foundry extends Group {
 	/*
 		basically just call the parent to set up everything
 	*/
-	function Foundry($id,$res=false) {
-		$this->Group($id,$res);
+	function Foundry($id) {
+		$this->Group($id);
 
 		//now set up the foundry data
 
@@ -65,12 +76,6 @@ class Foundry extends Group {
 			//set up an associative array for use by other functions
 			$this->foundry_data_array=db_fetch_array($this->foundry_db_result);
 		}       
-	}
-
-	function refreshFoundryData() {
-		$this->refreshGroupData();
-		$this->foundry_db_result=db_query("SELECT * FROM foundry_data WHERE foundry_id='". $this->getGroupId() ."'");
-		$this->foundry_data_array=db_fetch_array($this->foundry_db_result);
 	}
 
 	function getFreeformHTML1() {
@@ -124,7 +129,7 @@ class Foundry extends Group {
 	*/
 	function getMemberProjects() {
 		//return an array of group_id's in this project
-		$sql="SELECT DISTINCT project_id FROM foundry_projects WHERE foundry_id='". $this->getGroupId() ."' ORDER BY project_id ASC";
+		$sql="SELECT project_id FROM foundry_projects WHERE foundry_id='". $this->getGroupId() ."' ORDER BY project_id ASC";
 		$result=db_query($sql);
 		return util_result_column_to_array($result);
 	}

@@ -4,17 +4,11 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: survey.php,v 1.8 2000/11/20 20:54:45 dbrogdon Exp $
+// $Id: survey.php,v 1.6 2000/01/30 09:54:28 precision Exp $
 
 require('pre.php');
 require('vote_function.php');
 require('../survey/survey_utils.php');
-
-// Check to make sure they're logged in.
-if (!user_isloggedin()) {
-	exit_not_logged_in();
-}
-
 survey_header(array('title'=>'Survey'));
 
 if (!$survey_id || !$group_id) {

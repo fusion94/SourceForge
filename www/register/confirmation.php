@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: confirmation.php,v 1.54 2000/10/20 04:47:14 tperdue Exp $
+// $Id: confirmation.php,v 1.53 2000/08/31 06:11:35 gherteg Exp $
 
 require 'pre.php';    // Initial db and session library, opens session
 session_require(array('isloggedin'=>'1'));
@@ -76,19 +76,13 @@ if ($show_confirm) {
 		exit_error('Error','UDPATING TO ACTIVE FAILED. <B>PLEASE</B> report to admin@'.$GLOBALS['sys_default_domain'].' '.db_error());
 	}
 
-/*
-// define a module
+	// define a module
 	$result=db_query("INSERT INTO filemodule (group_id,module_name) VALUES ('$group_id','".group_getunixname($group_id)."')");
 	if (!$result) {
 		exit_error('Error','INSERTING FILEMODULE FAILED. <B>PLEASE</B> report to admin@'.$GLOBALS['sys_default_domain'].' '.db_error());
 	}
-*/
 
-	//
 	// make the current user an admin
-	//
-	//	temporary insert until the project is approved
-	//
 	$result=db_query("INSERT INTO user_group (user_id,group_id,admin_flags,bug_flags,forum_flags) VALUES ("
 		. user_getid() . ","
 		. $group_id . ","

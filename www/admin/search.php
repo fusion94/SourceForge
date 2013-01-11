@@ -27,8 +27,8 @@ if ($search == "") {
 
 if ($usersearch) {
 
-	$sql = "select distinctrow * from users where user_id like '%$search%' or user_name like '%$search%' or email like '%$search%' or realname like '%$search%'";
-	$result = db_query($sql); 
+	$sql = "select distinctrow * from user where user_id like '%$search%' or user_name like '%$search%' or email like '%$search%' or realname like '%$search%'";
+	$result = db_query($sql) or exit_db(db_error());
 	if (db_numrows($result) < 1) {
 		print "No matches.<p><a href=\"/admin/\">Back</a>";
 
@@ -50,7 +50,7 @@ if ($usersearch) {
 if ($groupsearch) {
 
 	$sql = "select distinctrow * from groups where group_id like '%$search%' or unix_group_name like '%$search%' or group_name like '%$search%'";
-	$result = db_query($sql); 
+	$result = db_query($sql) or exit_db(db_error());
 
 	if (db_numrows($result) < 1) {
 

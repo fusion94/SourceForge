@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: staff.php,v 1.35 2000/11/27 19:56:34 kingdon Exp $
+// $Id: staff.php,v 1.30 2000/08/31 06:07:52 gherteg Exp $
 
 require ('pre.php');    
 $HTML->header(array('title'=>'SorceForge Staff'));
@@ -16,18 +16,11 @@ $HTML->header(array('title'=>'SorceForge Staff'));
 <table border=0 cellspacing=2 cellpadding=2 bgcolor="">
 
 <tr valign=top>
-<td><a href="/sendmessage.php?toaddress=pat_maillink_users.sourceforge.net">Patrick McGovern</a></td>
-<td>(pat)</td>
-<td>
-Patrick McGovern (pat) - Pat "Sounds Good" McGovern is the new Director of <A HREF="http://sourceforge.net/">SourceForge.net</A>.  We're glad to have Pat on board, as he used to run <A HREF="http://www.valinux.com/">valinux.com</A>, so he knows a thing or two about running important web sites.
-</td>
-</tr>
-
-<tr valign=top>
 <td><a href="/sendmessage.php?toaddress=dlb_maillink_users.sourceforge.net">Dan Bressler</a></td>
 <td>(dlb)</td>
 <td>
-Dan is the "Product Manager" for SourceForge. We're not sure what that means, only that he likes timelines and handles business development issues.
+Dan is the new "Product Manager" for SourceForge. We're not sure what that means, only that he
+likes timelines and handles business development issues.
 </td>
 </tr>
 
@@ -38,27 +31,6 @@ Dan is the "Product Manager" for SourceForge. We're not sure what that means, on
 Iowa. When he's not working you can locate him fairly easy as he has the only BMW Z3 in Iowa.
 <P>
 Tim founded <A HREF="http://www.phpbuilder.com/">PHPBuilder.com</A> and <A HREF="http://www.geocrawler.com/">Geocrawler.com</A>.
-</td>
-</tr>
-
-<tr valign=top>
-<td><a href="/sendmessage.php?toaddress=pfalcon_maillink_users.sourceforge.net">Paul Sokolovsky</a></td>
-<td>(pfalcon)</td>
-<td>Paul is a developer, living in the Ukraine. Yep, it's where Chernobyl
-is located. He
-*claims* he had nothing to do with what happened.  He describes
-himself as a "confirmed geek/workaholic type".
-</td>
-</tr>
-
-<tr valign=top>
-<td><a
-href="/sendmessage.php?toaddress=zelphyr_maillink_users.sourceforge.net"
->Darrell Brogdon</a></td>
-<td>(zelphyr)</td>
-<td>Darrell is also on the SourceForge development team. He worked for
-another company, but they wanted to ditch Open Source and move to ASP
-for their web applications... Now he works for us.
 </td>
 </tr>
 
@@ -76,6 +48,15 @@ defrosting his car you'll find him locked away in a dark room somewhere in front
 with a smile on his face. He works from Australia.
 </td>
 </tr>
+
+<tr valign=top>
+<td><a href="/sendmessage.php?toaddress=kingdon_maillink_users.sourceforge.net">Jim Kingdon</a></td>
+<td>(kingdon)</td>
+<td>Jim is our "content and community relations manager".  And yes, we
+ realize that is a long title.  Contact him concerning projects
+ which are considering moving to sourceforge and foundries and the like.
+</td>
+</tr> 
 
 <TR><TD COLSPAN="2"><B>Founders:</B></TD></TR>
 

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: browse_bug.php,v 1.75 2000/12/09 19:46:36 tperdue Exp $
+// $Id: browse_bug.php,v 1.67 2000/08/30 01:47:53 msnelham Exp $
 
 if (!$offset || $offset < 0) {
 	$offset=0;
@@ -32,7 +32,7 @@ if ($order) {
 	//if ordering by priority OR closed date, sort DESC
 	$order_by = " ORDER BY $order ".((($set=='closed' && $order=='date') || ($order=='priority')) ? ' DESC ':'');
 } else {
-	$order_by = " ORDER BY bug.group_id,bug.status_id ";
+	$order_by = "";
 }
 
 if (!$set) {
@@ -42,7 +42,6 @@ if (!$set) {
 	*/
 	if (user_isloggedin()) {
 		$custom_pref=user_get_preference('bug_brow_cust'.$group_id);
-//		echo $custom_pref;
 		if ($custom_pref) {
 			$pref_arr=explode('|',$custom_pref);
 			$_assigned_to=$pref_arr[0];
@@ -157,7 +156,7 @@ echo '<FORM ACTION="'. $PHP_SELF .'" METHOD="GET">
 	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
 	<INPUT TYPE="HIDDEN" NAME="set" VALUE="custom">
 	<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
-	<TR><TD COLSPAN="5" nowrap><b>Browse Requests by User and/or Status/Category/Group:</b><br><br></TD></TR>
+	<TR><TD COLSPAN="5" nowrap><b>Browse Requests by User and/or Status/Group/Category:</b><br><br></TD></TR>
 	<TR><TD><FONT SIZE="-1">'. $tech_box . '</TD>'.
 	'<TD><FONT SIZE="-1">'. bug_status_box('_status',$_status,'Any') .'</TD>'.
 	'<TD><FONT SIZE="-1">'. bug_category_box ('_category',$group_id,$_category,'Any') .'</TD>'.
@@ -169,21 +168,20 @@ if ($set=='open') {
 	/*
 		For open or default, see if the user has a filer set up
 	*/
-	if (user_isloggedin()) {
-		$sql="SELECT sql_clause FROM bug_filter WHERE user_id='".user_getid()."' AND group_id='$group_id' AND is_active='1'";
-		$result=db_query($sql);
-	} else {
-		$result=false;
-	}
+	$sql="SELECT sql_clause FROM bug_filter WHERE user_id='".user_getid()."' AND group_id='$group_id' AND is_active='1'";
+
+	$result=db_query($sql);
+
 	if ($result && db_numrows($result) > 0) {
-		$sql="SELECT bug.group_id,bug.priority,bug.bug_id,bug.summary,bug.date,users.user_name AS submitted_by,".
+		$sql="SELECT bug.group_id,bug.priority,bug.bug_id,bug.summary,bug.date,user.user_name AS submitted_by,".
 			"user2.user_name AS assigned_to_user ".
-			"FROM bug,users,users user2 ".
+			"FROM bug,user,user user2 ".
 			"WHERE (". stripslashes( db_result($result,0,'sql_clause') ) .") ".
-			"AND users.user_id=bug.submitted_by ".
+			"AND user.user_id=bug.submitted_by ".
 			"AND user2.user_id=bug.assigned_to ".
 			"AND group_id='$group_id'".
-			$order_by ; 
+			$order_by .
+			" LIMIT $offset,50";
 
 		$statement="Using Your Filter";
 
@@ -191,14 +189,15 @@ if ($set=='open') {
 		/*
 			Just browse the bugs in this group
 		*/
-		$sql="SELECT bug.group_id,bug.priority,bug.bug_id,bug.summary,bug.date,users.user_name AS submitted_by,".
+		$sql="SELECT bug.group_id,bug.priority,bug.bug_id,bug.summary,bug.date,user.user_name AS submitted_by,".
 			"user2.user_name AS assigned_to_user ".
-			"FROM bug,users,users user2 ".
-			"WHERE users.user_id=bug.submitted_by ".
+			"FROM bug,user,user user2 ".
+			"WHERE user.user_id=bug.submitted_by ".
 			"AND bug.status_id <> '3' ".
 			"AND user2.user_id=bug.assigned_to ".
 			"AND group_id='$group_id'".
-			$order_by ;
+			$order_by .
+			" LIMIT $offset,50";
 
 	}
 
@@ -206,18 +205,19 @@ if ($set=='open') {
 	/*
 		Use the query from the form post
 	*/
-	$sql="SELECT bug.group_id,bug.priority,bug.bug_id,bug.summary,bug.date,users.user_name AS submitted_by,".
+	$sql="SELECT bug.group_id,bug.priority,bug.bug_id,bug.summary,bug.date,user.user_name AS submitted_by,".
 		"user2.user_name AS assigned_to_user ".
-		"FROM bug,users,users user2 ".
-		"WHERE users.user_id=bug.submitted_by ".
+		"FROM bug,user,user user2 ".
+		"WHERE user.user_id=bug.submitted_by ".
 		" $status_str $assigned_str $bug_group_str $category_str ".
 		"AND user2.user_id=bug.assigned_to ".
 		"AND group_id='$group_id'".
-		$order_by ;
+		$order_by .
+		" LIMIT $offset,51";
 
 }
 
-$result=db_query($sql,51,$offset);
+$result=db_query($sql);
 
 if ($result && db_numrows($result) > 0) {
 

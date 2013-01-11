@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.58 2000/12/13 22:33:43 dbrogdon Exp $
+// $Id: index.php,v 1.57 2000/07/16 05:02:17 tperdue Exp $
 
 require('pre.php');
 require('../pm/pm_utils.php');
@@ -45,8 +45,7 @@ if ($group_id) {
 	for ($j = 0; $j < $rows; $j++) { 
 		echo '
 		<A HREF="/pm/task.php?group_project_id='.db_result($result, $j, 'group_project_id').
-		'&group_id='.$group_id.'&func=browse">' .
-		html_image("images/ic/index.png","15","13",array("BORDER"=>"0")) . ' &nbsp;'.
+		'&group_id='.$group_id.'&func=browse"><IMG SRC="/images/ic/index.png" HEIGHT=13 WIDTH=15 BORDER=0> &nbsp;'.
 		db_result($result, $j, 'project_name').'</A><BR>'.
 		db_result($result, $j, 'description').'<P>';
 	}

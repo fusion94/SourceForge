@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: mod_bug.php,v 1.60 2000/12/14 17:56:51 tperdue Exp $
+// $Id: mod_bug.php,v 1.54 2000/08/26 05:26:51 tperdue Exp $
 
 bug_header(array ('title'=>'Modify a Bug'));
 
@@ -22,25 +22,19 @@ if (db_numrows($result) > 0) {
 		"<INPUT TYPE=\"HIDDEN\" NAME=\"bug_id\" VALUE=\"$bug_id\">";
 
 	echo	"\n<TABLE WIDTH=\"100%\">
+	<TR><TD><B>Submitted By:</B><BR>".user_getname(db_result($result,0,"submitted_by"))."</TD>
+		<TD><B>Group:</B><BR>".group_getname($group_id)."</TD></TR>
+
 	<TR>
-		<TD><B>Submitted By:</B><BR>".user_getname(db_result($result,0,"submitted_by"))."</TD>
-		<TD><B>Date Submitted:</B><BR>". date($sys_datefmt,db_result($result,0,'date')) ."</TD>
+		<TD><B>Date Submitted:</B><BR>
+		". date($sys_datefmt,db_result($result,0,'date')) ."
+		</TD>
+		<TD><FONT SIZE=\"-1\">
+		<INPUT TYPE=\"SUBMIT\" NAME=\"SUBMIT\" VALUE=\"Submit Changes\">
+		</TD>
 	</TR>
 
-	<TR>
-		<TD><B>Move To Project:</B><BR>\n";
-	/*
-		List of projects that this user is admin of
-	*/
-	echo  bug_user_project_box ('project_id', user_getid(),$group_id);
-
-	echo "
-		</TD>
-		<TD><FONT SIZE=\"-1\"><INPUT TYPE=\"SUBMIT\" NAME=\"SUBMIT\" VALUE=\"Submit Changes\">
-		</TD>
-	</TR>";
-
-	echo "<TR><TD><B>Category:</B><BR>\n";
+	<TR><TD><B>Category:</B><BR>\n";
 	/*
 		List of bug_categories for this project.
 	*/

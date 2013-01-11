@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: people_utils.php,v 1.51 2000/11/30 20:25:09 pfalcon Exp $
+// $Id: people_utils.php,v 1.41 2000/08/31 23:33:27 kingdon Exp $
 
 /*
 	Job/People finder 
@@ -73,7 +73,7 @@ function people_job_status_box($name='status_id',$checked='xyxy') {
 }
 
 function people_job_category_box($name='category_id',$checked='xyxy') {
-	$sql="SELECT category_id,name FROM people_job_category WHERE private_flag=0";
+	$sql="SELECT * FROM people_job_category";
 	$result=db_query($sql);
 	return html_build_select_box ($result,$name,$checked);
 }
@@ -127,7 +127,7 @@ function people_show_skill_inventory($user_id) {
 	} else {
 		for ($i=0; $i < $rows; $i++) {
 			echo '
-			<TR BGCOLOR="'. html_get_alt_row_color($i) .'">
+			<TR BGCOLOR="'. util_get_alt_row_color($i) .'">
 				<TD>'.db_result($result,$i,'skill_name').'</TD>
 				<TD>'.db_result($result,$i,'level_name').'</TD>
 				<TD>'.db_result($result,$i,'year_name').'</TD></TR>';
@@ -161,7 +161,7 @@ function people_edit_skill_inventory($user_id) {
 			echo '
 			<FORM ACTION="'.$PHP_SELF.'" METHOD="POST">
 			<INPUT TYPE="HIDDEN" NAME="skill_inventory_id" VALUE="'.db_result($result,$i,'skill_inventory_id').'">
-			<TR BGCOLOR="'. html_get_alt_row_color($i) .'">
+			<TR BGCOLOR="'. util_get_alt_row_color($i) .'">
 				<TD><FONT SIZE="-1">'. people_get_skill_name(db_result($result,$i,'skill_id')) .'</TD>
 				<TD><FONT SIZE="-1">'. people_skill_level_box('skill_level_id',db_result($result,$i,'skill_level_id')). '</TD>
 				<TD><FONT SIZE="-1">'. people_skill_year_box('skill_year_id',db_result($result,$i,'skill_year_id')). '</TD>
@@ -177,7 +177,7 @@ function people_edit_skill_inventory($user_id) {
 	echo '
 	<TR><TD COLSPAN="4"><H3>Add A New Skill</H3></TD></TR>
 	<FORM ACTION="'.$PHP_SELF.'" METHOD="POST">
-	<TR BGCOLOR="'. html_get_alt_row_color($i) .'">
+	<TR BGCOLOR="'. util_get_alt_row_color($i) .'">
 		<TD><FONT SIZE="-1">'. people_skill_box('skill_id'). '</TD>
 		<TD><FONT SIZE="-1">'. people_skill_level_box('skill_level_id'). '</TD>
 		<TD><FONT SIZE="-1">'. people_skill_year_box('skill_year_id'). '</TD>
@@ -239,7 +239,7 @@ function people_show_job_inventory($job_id) {
 	} else {
 		for ($i=0; $i < $rows; $i++) {
 			echo '
-			<TR BGCOLOR="'. html_get_alt_row_color($i) .'">
+			<TR BGCOLOR="'. util_get_alt_row_color($i) .'">
 				<TD>'.db_result($result,$i,'skill_name').'</TD>
 				<TD>'.db_result($result,$i,'level_name').'</TD>
 				<TD>'.db_result($result,$i,'year_name').'</TD></TR>';
@@ -305,7 +305,7 @@ function people_edit_job_inventory($job_id,$group_id) {
 			<INPUT TYPE="HIDDEN" NAME="job_inventory_id" VALUE="'. db_result($result,$i,'job_inventory_id') .'">
 			<INPUT TYPE="HIDDEN" NAME="job_id" VALUE="'. db_result($result,$i,'job_id') .'">
 			<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
-			<TR BGCOLOR="'. html_get_alt_row_color($i) .'">
+			<TR BGCOLOR="'. util_get_alt_row_color($i) .'">
 				<TD><FONT SIZE="-1">'. people_get_skill_name(db_result($result,$i,'skill_id')) . '</TD>
 				<TD><FONT SIZE="-1">'. people_skill_level_box('skill_level_id',db_result($result,$i,'skill_level_id')). '</TD>
 				<TD><FONT SIZE="-1">'. people_skill_year_box('skill_year_id',db_result($result,$i,'skill_year_id')). '</TD>
@@ -323,7 +323,7 @@ function people_edit_job_inventory($job_id,$group_id) {
 	<FORM ACTION="'.$PHP_SELF.'" METHOD="POST">
 	<INPUT TYPE="HIDDEN" NAME="job_id" VALUE="'. $job_id .'">
 	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">
-	<TR BGCOLOR="'. html_get_alt_row_color($i) .'">
+	<TR BGCOLOR="'. util_get_alt_row_color($i) .'">
 		<TD><FONT SIZE="-1">'. people_skill_box('skill_id'). '</TD>
 		<TD><FONT SIZE="-1">'. people_skill_level_box('skill_level_id'). '</TD>
 		<TD><FONT SIZE="-1">'. people_skill_year_box('skill_year_id'). '</TD>
@@ -344,30 +344,18 @@ function people_show_category_table() {
 
 	$return .= html_build_list_table_top ($title_arr);
 
-/*
-	$sql="SELECT pjc.category_id, pjc.name, count(*) as total ". //, max(date) AS latest ".
-		"FROM people_job_category pjc,people_job pj ".
-		"WHERE pjc.category_id=pj.category_id ".
-		"AND pj.status_id=1 ".
-		"GROUP BY pjc.category_id, pjc.name";
-*/
-	$sql="SELECT pjc.category_id, pjc.name, COUNT(pj.category_id) AS total ". //, max(date) AS latest ".
-		"FROM people_job_category pjc LEFT JOIN people_job pj ".
-                "ON pjc.category_id=pj.category_id ".
-                "WHERE pjc.private_flag=0 ".
-		"AND (pj.status_id=1 OR pj.status_id IS NULL) ".
-		"GROUP BY pjc.category_id, pjc.name";
-
+	$sql="SELECT * FROM people_job_category ORDER BY category_id";
 	$result=db_query($sql);
 	$rows=db_numrows($result);
 	if (!$result || $rows < 1) {
 		$return .= '<TR><TD><H2>No Categories Found</H2></TD></TR>';
 	} else {
 		for ($i=0; $i<$rows; $i++) {
+			$count_res=db_query("SELECT count(*) AS count FROM people_job WHERE category_id='". db_result($result,$i,'category_id') ."' AND status_id='1'");
 			echo db_error();
-			$return .= '<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD><A HREF="/people/?category_id='. 
+			$return .= '<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD><A HREF="/people/?category_id='. 
 				db_result($result,$i,'category_id') .'">'. 
-				db_result($result,$i,'name') .'</A> ('. db_result($result,$i,'total') .')</TD></TR>';
+				db_result($result,$i,'name') .'</A> ('. db_result($count_res,0,'count') .')</TD></TR>';
 		}
 	}
 	$return .= '</TABLE>';
@@ -376,7 +364,7 @@ function people_show_category_table() {
 
 function people_show_project_jobs($group_id) {
 	//show open jobs for this project
-	$sql="SELECT people_job.group_id,people_job.job_id,groups.group_name,groups.unix_group_name,people_job.title,people_job.date,people_job_category.name AS category_name ".
+	$sql="SELECT people_job.group_id,people_job.job_id,groups.group_name,people_job.title,people_job.date,people_job_category.name AS category_name ".
 		"FROM people_job,people_job_category,groups ".
 		"WHERE people_job.group_id='$group_id' ".
 		"AND people_job.group_id=groups.group_id ".
@@ -420,7 +408,7 @@ function people_show_job_list($result) {
 	} else {
 		for ($i=0; $i < $rows; $i++) {	
 			$return .= '
-				<TR BGCOLOR="'. html_get_alt_row_color($i) .
+				<TR BGCOLOR="'. util_get_alt_row_color($i) .
 					'"><TD><A HREF="/people/viewjob.php?group_id='. 
 					db_result($result,$i,'group_id') .'&job_id='. 
 					db_result($result,$i,'job_id') .'">'. 

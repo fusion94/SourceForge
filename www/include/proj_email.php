@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: proj_email.php,v 1.7 2000/11/07 20:13:35 dbrogdon Exp $
+// $Id: proj_email.php,v 1.5 2000/07/12 21:11:54 tperdue Exp $
 
 function send_new_project_email($group_id) {
 
@@ -16,8 +16,8 @@ function send_new_project_email($group_id) {
 
 	$row_grp = db_fetch_array($res_grp);
 
-	$res_admins = db_query("SELECT users.user_name,users.email FROM users,user_group WHERE "
-		. "users.user_id=user_group.user_id AND user_group.group_id='$group_id' AND "
+	$res_admins = db_query("SELECT user.user_name,user.email FROM user,user_group WHERE "
+		. "user.user_id=user_group.user_id AND user_group.group_id='$group_id' AND "
 		. "user_group.admin_flags='A'");
 
 	if (db_numrows($res_admins) < 1) {
@@ -72,27 +72,6 @@ if there is anything we can do to help you.
 
 }
 
-}
-
-/*
- * This function sends out a rejection message to a user who
- * registers a project
- */
-function send_project_rejection($group_id, $response_id, $message="zxcv")
-{
-	// Get the email addr of the user who wants to register the project.
-	$email = db_result(db_query("SELECT u.email AS email FROM users u, user_group ug WHERE ug.group_id='$group_id' AND u.user_id=ug.user_id;"),0,"email");
-	
-	// Check to see if they want to send a custom rejection response
-	if( $response_id == 0 ) {
-		$response = $message;
-	} else {
-		$response = db_result(db_query("SELECT response_text FROM canned_responses WHERE response_id='$response_id'"),0,"response_text");
-	}
-
-	mail($email, "SourceForge Project Denied", $response, "From: noreply@sourceforge.net");
-
-	return true;
 }
 
 ?>

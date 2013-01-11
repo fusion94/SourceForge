@@ -4,22 +4,27 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: user_home.php,v 1.28 2000/11/30 16:13:20 dbrogdon Exp $
+// $Id: user_home.php,v 1.4 2000/08/31 06:11:35 gherteg Exp $
+
+/*
+	Developer Info Page
+	Written by dtype Oct 1999
+*/
+
 
 /*
 
-	Developer Info Page
-	Written by dtype Oct 1999
 
-
-	Assumes $user object for displayed user is present
+	Assumes $res_user result handle is present
 
 
 */
 
-require ('vote_function.php');
-
 $HTML->header(array('title'=>'Developer Profile'));
+
+if (!$res_user || db_numrows($res_user) < 1) {
+	exit_error('No Such User','No Such User');
+}
 
 ?>
 
@@ -28,74 +33,66 @@ $HTML->header(array('title'=>'Developer Profile'));
 <TABLE width=100% cellpadding=2 cellspacing=2 border=0><TR valign=top>
 <TD width=50%>
 
-<?php echo $HTML->box1_top("Personal Information",true,false,false); ?>
-<TR>
+<?php $HTML->box1_top("Personal Information"); ?>
+&nbsp;
+<BR>
+<TABLE width=100% cellpadding=0 cellspacing=0 border=0>
+<TR valign=top>
 	<TD>User ID: </TD>
-	<TD><B><?php print $user_id; ?></B> ( <A HREF="/people/viewprofile.php?user_id=<?php print $user_id; ?>"><B>Skills Profile</B></A> )</TD>
+	<TD><B><?php print db_result($res_user,0,'user_id'); ?></B></TD>
 </TR>
-
 <TR valign=top>
 	<TD>Login Name: </TD>
-	<TD><B><?php print $user->getUnixName(); ?></B></TD>
+	<TD><B><?php print db_result($res_user,0,'user_name'); ?></B></TD>
 </TR>
-
 <TR valign=top>
 	<TD>Real Name: </TD>
-	<TD><B><?php print $user->getRealName(); ?></B></TD>
+	<TD><B><?php print db_result($res_user,0,'realname'); ?></B></TD>
 </TR>
-
 <TR valign=top>
 	<TD>Email Addr: </TD>
 	<TD>
-	<B><A HREF="/sendmessage.php?touser=<?php print $user_id; 
-		?>"><?php print $user->getUnixName(); ?> at <?php print $GLOBALS['sys_users_host']; ?></A></B>
+	<B><A HREF="/sendmessage.php?touser=<?php print db_result($res_user,0,'user_id'); 
+		?>"><?php print db_result($res_user,0,'user_name'); ?> at <?php print $GLOBALS['sys_users_host']; ?></A></B>
 	</TD>
+</TR>
+<TR valign=top>
+        <TD COLSPAN="2">
+        <A HREF="/people/viewprofile.php?user_id=<?php print db_result($res_user,0,'user_id'); ?>"><B>Skills Profile</B></A></TD>
 </TR>
 
 <TR>
 	<TD>
 	Site Member Since: 
 	</TD>
-	<TD><B><?php print date($sys_datefmt, $user->getAddDate()); ?></B>
-	<?php
+	<TD><B><?php print date("M d, Y",db_result($res_user,0,'add_date')); ?></B></TD>
+</TR>
 
-	echo $HTML->box1_middle('Peer Rating',false,false);
-
-	echo vote_show_user_rating($user_id);
-
-	echo $HTML->box1_middle('Diary And Notes');
- 
-	/*
-
-		Get their diary information
-
-	*/
-
-	$res=db_query("SELECT count(*) from user_diary ".
-		"WHERE user_id='". $user_id ."' AND is_public=1");
-	echo 'Diary/Note Entries: '.db_result($res,0,0).'
-	<P>
-	<A HREF="/developer/diary.php?user='. $user_id .'">View Diary & Notes</A>
-	<P>
-	<A HREF="/developer/monitor.php?user='. $user_id .'">'. html_image("/images/ic/check.png",'15','13',array(),0) .'Monitor This Diary</A>';
-
-	?>
+<?php 
+/*
+<TR><TD VALIGN=TOP>
+Rating:
+</TD><TD>
+<P>&nbsp;
+<?php echo vote_show_release_radios (db_result($res_user,0,'user_id'],4); ? >
 </TD></TR>
+*/ 
+?>
+</TABLE>
+<?php $HTML->box1_bottom(); ?>
 
-<TR><TD COLSPAN=2>
-	<H4>Project Info</H4>
-	<P>
-<?php
-	// now get listing of groups for that user
-	$res_cat = db_query("SELECT groups.group_name, "
+</TD>
+<TD>&nbsp;</TD>
+<TD width=50%>
+<?php $HTML->box1_top("Group Info"); 
+// now get listing of groups for that user
+$res_cat = db_query("SELECT groups.group_name, "
 	. "groups.unix_group_name, "
 	. "groups.group_id, "
 	. "user_group.admin_flags, "
 	. "user_group.bug_flags FROM "
 	. "groups,user_group WHERE user_group.user_id='$user_id' AND "
-	// We don't need to block out foundries from displaying.
-	//. "groups.group_id=user_group.group_id AND groups.is_public='1' AND groups.status='A' AND groups.type='1'");
-	. "groups.group_id=user_group.group_id AND groups.is_public='1' AND groups.status='A'");
+	. "groups.group_id=user_group.group_id AND groups.is_public='1' AND groups.status='A' AND groups.type='1'");
 
 // see if there were any groups
 if (db_numrows($res_cat) < 1) {
@@ -111,36 +108,9 @@ if (db_numrows($res_cat) < 1) {
 } // end if groups
 
 $HTML->box1_bottom(); ?>
-
-</TD><TD>
-If you are familiar with this user, please take a moment to rate him/her
-on the following criteria. Keep in mind, that your rating will be visible to
-the user and others.
-<P>
-The SourceForge Peer Rating system is based on concepts from 
-<A HREF="http://www.advogato.com">Advogato.</A> The system has been re-implemented and expanded in a few ways.
-	<CENTER>
-        <?php echo vote_show_user_rate_box ($user_id); ?>
-	</CENTER>
-<P>
-The Peer Rating box shows all rating averages
-(and response levels) for each individual criteria. Due to the math and
-processing required to do otherwise, these numbers incoporate responses from
-both "trusted" and "non-trusted" users.
-<ul>
-<li> The "Sitewide Rank" field shows the user's rank compared to all ranked
-SourceForge users. 
-<li>The "Aggregate Score" shows an average, weighted overall score, based on
-trusted-responses only. 
-<li>The "Personal Importance" field shows the weight that users ratings of
-other developers will be given (between 1 and 1.5) -- higher rated user's
-responses are given more weight.  
-</ul>
 </TD></TR>
-</TABLE>
 
-<TABLE width=100% cellpadding=2 cellspacing=2 border=0><TR valign=top>
-<TR><TD COLSPAN="2">
+<TR><TD COLSPAN="3">
 
 <?php 
 
@@ -149,7 +119,7 @@ if (user_isloggedin()) {
 	?>
 	&nbsp;
 	<P>
-	<H3>Send a Message to <?php echo $user->getRealName(); ?></H3>
+	<H3>Send a Message to <?php echo db_result($res_user,0,'realname'); ?></H3>
 	<P>
 	<FORM ACTION="/sendmessage.php" METHOD="POST">
 	<INPUT TYPE="HIDDEN" NAME="touser" VALUE="<?php echo $user_id; ?>">
@@ -170,7 +140,7 @@ if (user_isloggedin()) {
 	<INPUT TYPE="TEXT" NAME="subject" SIZE="30" MAXLENGTH="40" VALUE="">
 	<P>
 	<B>Message:</B><BR>
-	<TEXTAREA NAME="body" ROWS="15" COLS="50" WRAP="HARD"></TEXTAREA>
+	<TEXTAREA NAME="body" ROWS="15" COLS="60" WRAP="HARD"></TEXTAREA>
 	<P>
 	<CENTER>
 	<INPUT TYPE="SUBMIT" NAME="send_mail" VALUE="Send Message">
@@ -190,7 +160,6 @@ if (user_isloggedin()) {
 </TABLE>
 
 <?php
-
 $HTML->footer(array());
 
 ?>

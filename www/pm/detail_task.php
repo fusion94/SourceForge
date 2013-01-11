@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: detail_task.php,v 1.15 2000/10/11 19:55:39 tperdue Exp $
+// $Id: detail_task.php,v 1.14 2000/04/21 13:09:01 tperdue Exp $
 
 pm_header(array('title'=>'View A Task'));
 
@@ -66,8 +66,8 @@ $result=db_query($sql);
 			to pass into multiple select box
 		*/
 
-		$result2=db_query("SELECT users.user_name AS User_Name FROM users,project_assigned_to ".
-			"WHERE users.user_id=project_assigned_to.assigned_to_id AND project_task_id='$project_task_id'");
+		$result2=db_query("SELECT user.user_name AS User_Name FROM user,project_assigned_to ".
+			"WHERE user.user_id=project_assigned_to.assigned_to_id AND project_task_id='$project_task_id'");
 		ShowResultSet($result2,'Assigned To');
 		?>
 		</TD>

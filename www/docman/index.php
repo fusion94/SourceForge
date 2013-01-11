@@ -17,13 +17,6 @@ require('pre.php');
 
 if ($group_id) {
 
-	if (!($language_id)) {
-		if (!($language_id = user_get_language())) {
-			// default to English
-			$language_id = 1;
-		}
-	}
-
 	$usermem = user_ismember($group_id);
 	docman_header('Project Documentation','Project Documentation');
 	//get a list of group numbers that this project owns
@@ -37,16 +30,12 @@ if ($group_id) {
 	if (db_numrows($result) < 1) {
 		print "<b>This project has no categorized data.</b><p>";
 	} else { 
-		doc_droplist_count($group_id, $language_id);
-		print "<hr>";
 		// get the groupings and display them with their members.
 		while ($row = db_fetch_array($result)) {
 			$query = "select description, docid, title, doc_group "
 				."from doc_data "
 				."where doc_group = '".$row['doc_group']."' "
-				."and stateid ='1' "
-				."and language_id = ".$language_id."";
-				
+				."and stateid ='1'";
 				//state 1 == 'active'
 				if ($usermem == true) {
 					$query .= " or stateid = '5' "

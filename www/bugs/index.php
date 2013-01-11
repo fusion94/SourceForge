@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.44 2000/12/06 19:07:35 pfalcon Exp $
+// $Id: index.php,v 1.39 2000/08/30 03:48:32 tperdue Exp $
 
 require('pre.php');
 require('../bugs/bug_utils.php');
@@ -12,8 +12,7 @@ require('../bugs/bug_data.php');
 
 if ($group_id) {
 
-	$project=&project_get_object($group_id);
-
+	$project=project_get_object($group_id);
 	switch ($func) {
 
 		case 'addbug' : {
@@ -23,9 +22,11 @@ if ($group_id) {
 
 		case 'postaddbug' : {
 			//data control layer
-			$bug_id=bug_data_create_bug($project,$summary,$details,$category_id,$bug_group_id,$priority,$assigned_to);
+			$bug_id=bug_data_create_bug($group_id,$summary,$details,$category_id,$bug_group_id,$priority,$assigned_to);
 			if ($bug_id) {
-				$feedback='Bug Submitted Successfully';
+				// send an email to notify the user and 
+				// let the project know the bug was submitted
+				mail_followup($bug_id,$project->getNewBugAddress());
 				include '../bugs/browse_bug.php';
 			} else {
 				//some error occurred
@@ -36,44 +37,39 @@ if ($group_id) {
 
 		case 'postmodbug' : {
 			//data control layer
-			if (bug_data_handle_update ($project,$bug_id,$status_id,$priority,$category_id,
+			bug_data_handle_update ($group_id,$bug_id,$status_id,$priority,$category_id,
 				$assigned_to,$summary,$bug_group_id,$resolution_id,$details,
-				$dependent_on_task,$dependent_on_bug,$canned_response,$project_id)) {
-				$feedback ='Bug Updated Successfully';
-				include '../bugs/browse_bug.php';
-			} else {
-				//some error occurred
-				exit_error('ERROR',$feedback);
+				$dependent_on_task,$dependent_on_bug,$canned_response);
+			/*
+				see if we're supposed to send all modifications to an address
+			*/
+			if ($project->sendAllBugUpdates()) {
+				$address=$project->getNewBugAddress();
 			}
+			/*
+				now send the email
+				it's no longer optional due to the group-level notification address
+			*/
+			mail_followup($bug_id,$address);
+			include '../bugs/browse_bug.php';
 			break;
 		}
+/*
 		case 'massupdate' : {
 			//data control layer
-			if (bug_data_mass_update ($project,$bug_id,$status_id,$priority,$bug_category_id,
-				$assigned_to,$bug_group_id,$resolution_id)) {
-				$feedback='Bugs Updated Successfully';
-				include '../bugs/browse_bug.php';
-			} else {
-				//some error occurred
-				exit_error('ERROR',$feedback);
-			}
+			bug_data_mass_update ($group_id,$bug_id,$status_id,$priority,$category_id,
+				$assigned_to,$bug_group_id,$resolution_id);
+			include '../bugs/browse_bug.php';
 			break;
 		}
+*/
 		case 'postaddcomment' : {
-			/*
-				Attach a comment to the bug report
-			*/
-			if (bug_data_add_followup($project,$bug_id,$details)) {
-				$feedback='Comment Added To Bug<br>';
-				if ($project->sendAllBugUpdates()) {
-					$address=$project->getNewBugAddress();
-				}
-				mail_followup($bug_id,$address);
-				include '../bugs/browse_bug.php';
-			} else {
-				//some error occurred
-                                exit_error('ERROR',$feedback);
-			}
+			include '../bugs/postadd_comment.php';
+                        if ($project->sendAllBugUpdates()) {
+                                $address=$project->getNewBugAddress();
+                        }       
+			mail_followup($bug_id,$address);
+			include '../bugs/browse_bug.php';
 			break;
 		}
 
@@ -83,7 +79,7 @@ if ($group_id) {
 		}
 
 		case 'detailbug' : {
-			if ($project->userIsBugAdmin()) {
+			if (user_ismember($group_id,'B2')) {
 				include '../bugs/mod_bug.php';
 			} else {
 				include '../bugs/detail_bug.php';
@@ -122,5 +118,4 @@ if ($group_id) {
 	exit_no_group();
 
 }
-
 ?>

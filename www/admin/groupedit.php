@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: groupedit.php,v 1.73 2000/11/06 21:14:18 pfalcon Exp $
+// $Id: groupedit.php,v 1.68 2000/09/01 23:39:50 tperdue Exp $
 
 require "pre.php";    
 require "vars.php";
@@ -29,42 +29,12 @@ if ($Update) {
 	if (db_result($res_grp,0,'unix_box') != $form_box)
 		{ group_add_history ('unix_box',db_result($res_grp,0,'unix_box'),$group_id);  }
 
-	if ($form_status=='A' && !sf_ldap_check_group($group_id)) {
-		if (!sf_ldap_create_group($group_id)) {
-			$feedback.=sf_ldap_get_error_msg();
-		} else {
-		//
-		//	need to properly add all the admins to the group
-		//	so their unix_uid gets set up
-		//
-		    $group=group_get_object($group_id,$res_grp);
 
-		    $res_admin=db_query("SELECT users.user_name ".
-			"FROM user_group,users ".
-			"WHERE users.user_id=user_group.user_id ".
-			"AND user_group.group_id='$group_id' ".
-			"AND user_group.admin_flags='A'");
-
-		    while ($row_admin=db_fetch_array($res_admin)) {
-			    if (!$group->addUser($row_admin['user_name'])) {
-				    echo $group->getErrorMessage();
-		    	    }
-		    }
-		}
-
-	} else if (sf_ldap_check_group($group_id)) {
-		sf_ldap_remove_group($group_id);
-	}
-
-	if (sf_ldap_get_error_msg()) {
-		$feedback .= sf_ldap_get_error_msg();
-		group_add_history ('ldap:',sf_ldap_get_error_msg(),$group_id);
-	} else {
-		db_query("UPDATE groups SET is_public=$form_public,status='$form_status',"
+	db_query("UPDATE groups SET is_public=$form_public,status='$form_status',"
 		. "license='$form_license',type='$group_type',"
 		. "unix_box='$form_box',http_domain='$form_domain' WHERE group_id=$group_id");
-		$feedback .= 'Updated Project Info<br>';
-	}
+
+	$feedback .= ' Updating Project Info ';
 
 	/*
 		If this is a foundry, see if they have a preferences row, if not, create one
@@ -104,7 +74,7 @@ echo '<H2>'.$row_grp['group_name'].'</H2>' ;?>
 
 <p>
 <FORM action="<?php echo $PHP_SELF; ?>" method="POST">
-<B>Group Type:</B>
+<B>Group Type:</B><BR>
 <?php
 
 echo show_group_type_box('group_type',$row_grp['type']);
@@ -154,9 +124,9 @@ echo show_group_type_box('group_type',$row_grp['type']);
 print "<HR><P><B>Other Information</B>";
 print "<P>Unix Group Name: $row_grp[unix_group_name]";
 
-print "<P>Submitted Description:</P> <blockquote>$row_grp[register_purpose]</blockquote>";
+print "<P>Submitted Description:<P> $row_grp[register_purpose]";
 
-print "<P>License Other: </P> <blockquote>$row_grp[license_other]</blockquote>";
+print "<P>License Other: <P> $row_grp[license_other]";
 
 echo '
 <P>'.show_grouphistory ($group_id);

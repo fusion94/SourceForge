@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.117 2000/12/13 22:33:34 dbrogdon Exp $
+// $Id: index.php,v 1.113 2000/08/31 06:11:35 gherteg Exp $
 
 require "pre.php";    
 require "vote_function.php";
@@ -17,31 +17,29 @@ if ( !$offset || $offset < 0 ) {
 // For expediancy, list only the filereleases in the past three days.
 $start_time = time() - (7 * 86400);
 
-$query	= "SELECT groups.group_name,"
-	. "groups.group_id,"
-	. "groups.unix_group_name,"
-	. "groups.short_description,"
-	. "users.user_name,"
-	. "users.user_id,"
-	. "frs_release.release_id,"
+$query	= "SELECT groups.group_name AS group_name,"
+	. "groups.group_id AS group_id,"
+	. "groups.unix_group_name AS unix_group_name,"
+	. "groups.short_description AS short_description,"
+	. "groups.license AS license,"
+	. "user.user_name AS user_name,"
+	. "user.user_id AS user_id,"
+	. "frs_release.release_id AS release_id,"
 	. "frs_release.name AS release_version,"
-	. "frs_release.release_date,"
-	. "frs_release.released_by,"
+	. "frs_release.release_date AS release_date,"
+	. "frs_release.released_by AS released_by,"
 	. "frs_package.name AS module_name, "
-	. "frs_dlstats_grouptotal_agg.downloads "
-	. "FROM groups,users,frs_package,frs_release,frs_dlstats_grouptotal_agg "
+	. "frs_dlstats_grouptotal_agg.downloads AS downloads "
+	. "FROM groups,user,frs_package,frs_release,frs_dlstats_grouptotal_agg "
 	. "WHERE ( frs_release.release_date > $start_time "
 	. "AND frs_release.package_id = frs_package.package_id "
 	. "AND frs_package.group_id = groups.group_id "
-	. "AND frs_release.released_by = users.user_id "
+	. "AND frs_release.released_by = user.user_id "
 	. "AND frs_package.group_id = frs_dlstats_grouptotal_agg.group_id "
 	. "AND frs_release.status_id=1 ) "
-//
-//appears that this group by is unnecessary in this query
-//	. "GROUP BY groups.group_name,groups.group_id,groups.unix_group_name,"
-//	."groups.short_description,users.user_name,users.user_id,frs_release.release_id "
-	. "ORDER BY frs_release.release_date DESC";
-$res_new = db_query($query,21,$offset);
+	. "GROUP BY frs_release.release_id "
+	. "ORDER BY frs_release.release_date DESC LIMIT $offset,21";
+$res_new = db_query( $query );
 
 if (!$res_new || db_numrows($res_new) < 1) {
 	echo $query . "<BR><BR>";
@@ -104,9 +102,7 @@ if (!$res_new || db_numrows($res_new) < 1) {
 	echo "<TR BGCOLOR=\"#EEEEEE\"><TD>";
         if ($offset != 0) {
 		echo "<FONT face=\"Arial, Helvetica\" SIZE=3 STYLE=\"text-decoration: none\"><B>";
-        	echo "<A HREF=\"/new/?offset=".($offset-20)."\"><B>" . 
-			html_image("images/t2.gif","15,"15",array("BORDER"=>"0","ALIGN"=>"MIDDLE")) . 
-			" Newer Releases</A></B></FONT>";
+        	echo "<A HREF=\"/new/?offset=".($offset-20)."\"><B><IMG SRC=\"/images/t2.gif\" HEIGHT=15 WIDTH=15 BORDER=0 ALIGN=MIDDLE> Newer Releases</A></B></FONT>";
         } else {
         	echo "&nbsp;";
         }
@@ -114,9 +110,7 @@ if (!$res_new || db_numrows($res_new) < 1) {
 	echo "</TD><TD COLSPAN=\"2\" ALIGN=\"RIGHT\">";
 	if (db_numrows($res_new)>$rows) {
 		echo "<FONT face=\"Arial, Helvetica\" SIZE=3 STYLE=\"text-decoration: none\"><B>";
-		echo "<A HREF=\"/new/?offset=".($offset+20)."\"><B>Older Releases " .
-		html_image("images/t.gif","15","15",array("BORDER"=>"0","ALIGN"=>"MIDDLE")) . 
-		"</A></B></FONT>";
+		echo "<A HREF=\"/new/?offset=".($offset+20)."\"><B>Older Releases <IMG SRC=\"/images/t.gif\" HEIGHT=15 WIDTH=15 BORDER=0 ALIGN=MIDDLE></A></B></FONT>";
 	} else {
 		echo "&nbsp;";
 	}

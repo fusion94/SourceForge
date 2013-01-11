@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: new_aliases.pl,v 1.3 2000/10/11 19:55:39 tperdue Exp $
+# $Id: new_aliases.pl,v 1.2 2000/08/02 18:09:24 tperdue Exp $
 # new_aliases.pl - Updates virtusertable and /etc/sendmail.cw on mail1
 
 use DBI;
@@ -21,7 +21,7 @@ while(($username,$domainname,$userlist) = $c->fetchrow()) {
 	push @alias_array, "$username:$domainname:$userlist\n";
 }
 
-$query = "SELECT user_name,email FROM users WHERE status = \"A\"";
+$query = "SELECT user_name,email FROM user WHERE status = \"A\"";
 
 push @alias_array, "*:eterm.org:mej\@valinux.com\n";
 push @alias_array, "log4j-announce:log4j.org:log4j-announce\@lists.sourceforge.net\n";

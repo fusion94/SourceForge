@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: foundry_admin.php,v 1.25 2000/12/14 17:56:51 tperdue Exp $
+// $Id: foundry_admin.php,v 1.20 2000/09/07 17:50:25 tperdue Exp $
 
 
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
@@ -29,11 +29,15 @@ if ($func) {
 		/*
 			remove a user from this foundry
 		*/
-		if (!$foundry->removeUser($rm_id)) {
-			$feedback .= $foundry->getErrorMessage();
+		$res=db_query("DELETE FROM user_group WHERE group_id='$group_id' AND user_id='$rm_id' AND admin_flags <> 'A'");
+		if (!$res || db_affected_rows($res) < 1) {
+			$feedback .= ' User Not Removed - You cannot remove admins from a project. 
+			You must first turn off their admin flag and/or find another admin for the project ';
 		} else {
-			$feedback = ' User Removed Successfully ';
+			$feedback .= ' Removed a User ';
+			group_add_history ('removed user',$rm_id,$group_id);
 		}
+
 	} else if ($func=='addproject') {
 		/*
 			Add a project to this foundry
@@ -60,7 +64,9 @@ if ($func) {
 			$feedback .= "That project does not exist on SourceForge";
 		}
 
-		$foundry->refreshFoundryData();
+		//data has changed, so create a new object for reference below
+		//there must be a better way to do this.......
+		$foundry = new Foundry($group_id);
 
 	} else if ($func=='setfoundrydata') {
 		$res=db_query("UPDATE foundry_data SET guide_image_id='$guide_image_id',logo_image_id='$logo_image_id',trove_categories='$trove_categories' WHERE foundry_id='$group_id'");
@@ -71,19 +77,13 @@ if ($func) {
 			group_add_history ('data updated','',$group_id);
 			$feedback .= " Data Updated ";
 		}
-
-		$foundry->refreshFoundryData();
-
 	} else if ($func=='adduser') {
 		/*
 			Add a user to this project
 			They don't need unix access
 		*/
-		if (!$foundry->addUser($form_unix_name)) {
-			$feedback .= $foundry->getErrorMessage();
-		} else {
-			$feedback = ' User Added Successfully ';
-		}
+		include ('account.php');
+		account_add_user_to_group ($group_id,$form_unix_name);
 	}
 }
 
@@ -142,9 +142,9 @@ echo '
 
 $HTML->box1_top("Group Members");
 
-$res_memb = db_query("SELECT users.realname,users.user_id,users.user_name ".
-		"FROM users,user_group ".
-		"WHERE users.user_id=user_group.user_id ".
+$res_memb = db_query("SELECT user.realname,user.user_id,user.user_name ".
+		"FROM user,user_group ".
+		"WHERE user.user_id=user_group.user_id ".
 		"AND user_group.group_id=$group_id");
 
 	print '<TABLE WIDTH="100%" BORDER="0">

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: foundry_news.php,v 1.27 2000/12/14 17:56:51 tperdue Exp $
+// $Id: foundry_news.php,v 1.21 2000/09/01 01:24:20 kingdon Exp $
 
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
 
@@ -61,10 +61,7 @@ if (user_ismember($group_id,'A')) {
 			Show the submit form
 		*/
 
-		$sql="SELECT groups.unix_group_name,groups.group_name,".
-			"news_bytes.* ".
-			"FROM news_bytes,groups WHERE id='$id' ".
-			"AND news_bytes.group_id = groups.group_id ";
+		$sql="SELECT * FROM news_bytes WHERE id='$id'";
 		$result=db_query($sql);
 		if (db_numrows($result) < 1) {
 			exit_error('Error','Error - not found');
@@ -75,9 +72,7 @@ if (user_ismember($group_id,'A')) {
 		<P>
 		<FORM ACTION="'.$PHP_SELF.'" METHOD="POST">
 		<INPUT TYPE="HIDDEN" NAME="news_id" VALUE="'.db_result($result,0,'id').'">
-		<B>Submitted for Project:</B> <a href="/projects/'.
-		strtolower(db_result($result,0,'unix_group_name')).
-		'/">'.db_result($result,0,'group_name').'</a><BR>
+		<B>Submitted for Project:</B> '.group_getname(db_result($result,0,'group_id')).'<BR>
 		<B>Submitted by:</B> '.user_getname(db_result($result,0,'submitted_by')).'<BR>
 		<INPUT TYPE="HIDDEN" NAME="approve" VALUE="y">
 		<INPUT TYPE="HIDDEN" NAME="post_changes" VALUE="y">
@@ -97,19 +92,55 @@ if (user_ismember($group_id,'A')) {
 
 			Show list of waiting news items
 
+			SURE WISH I HAD SUBSELECTS........... tim ;-)
+
 		*/
 
-		$old_date=(time()-(86400*28));
+		$old_date=(time()-(86400*7));
 
-		$sql="SELECT * FROM news_bytes
-			WHERE date > '$old_date' AND EXISTS (SELECT project_id FROM foundry_projects 
-			WHERE news_bytes.group_id=foundry_projects.project_id 
-			AND foundry_projects.foundry_id='$group_id')
-			AND NOT EXISTS (SELECT news_id FROM foundry_news 
-			WHERE foundry_id='$group_id' 
-			AND approve_date > '$old_date' 
-			AND foundry_news.news_id=news_bytes.id)";
-		//echo "<P>$sql<P>";
+		//get a list of IDs that have been approved
+		//hack to get around lack of subselects....
+		$sql="SELECT news_id ".
+			"FROM foundry_news ".
+			"WHERE is_approved=1 ".
+			"AND foundry_id='$group_id' ".
+			"AND approve_date > '$old_date'";
+		$result=db_query($sql);
+		//echo 'APPROVED IDS:'.db_error();
+		$approved_ids=implode(',',util_result_column_to_array($result));
+		//echo '|'.$approved_ids;
+
+		//get a list of IDs that have been deleted
+		//hack to get around lack of subselects....
+		$sql="SELECT news_id ".
+			"FROM foundry_news ".
+			"WHERE is_approved=2 ".
+			"AND foundry_id='$group_id' ".
+			"AND approve_date > '$old_date'";
+		$result=db_query($sql);
+		//echo 'DELETED IDS:'.db_error();
+		$deleted_ids=implode(',',util_result_column_to_array($result));
+		//echo '|'.$deleted_ids;
+
+		//get all news for these projects for this week 
+		//if they haven't already been deleted or approved
+		//hack to get around lack of subselects
+
+		if ($approved_ids && $deleted_ids) {
+			$query="AND id NOT IN ($deleted_ids,$approved_ids)";
+		} else if ($approved_ids) {
+			$query="AND id NOT IN ($approved_ids)";
+		} else if ($deleted_ids) {
+			$query="AND id NOT IN ($deleted_ids)";
+		} else {
+			$query='';
+		}
+		$sql="SELECT * FROM news_bytes ".
+			"WHERE group_id IN ($list) ".
+			"AND date > '$old_date' ".
+			"$query";
+
+		//echo $sql;
 		$result=db_query($sql);
 		$rows=db_numrows($result);
 		if ($rows < 1) {
@@ -130,51 +161,52 @@ if (user_ismember($group_id,'A')) {
 		/*
 			Show list of deleted news items for this week
 		*/
-		$sql="SELECT * FROM news_bytes WHERE EXISTS (SELECT news_id FROM foundry_news 
-		WHERE is_approved=2 
-		AND foundry_id='$group_id' 
-		AND approve_date > '$old_date' 
-		AND foundry_news.news_id=news_bytes.id)";
-
-		$result=db_query($sql);
-		$rows=db_numrows($result);
-		if ($rows < 1) {
-			echo db_error();
-			echo '
-			<H4>No deleted items found for this week</H4>';
+		if ($deleted_ids) {
+			$sql="SELECT * FROM news_bytes WHERE id IN ($deleted_ids)";
+			$result=db_query($sql);
+			$rows=db_numrows($result);
+			if ($rows < 1) {
+				echo db_error();
+				echo '
+				<H4>No deleted items found for this week</H4>';
+			} else {
+				echo '
+				<H4>These items were deleted this past week</H4>
+				<P>';
+				for ($i=0; $i<$rows; $i++) {
+					echo '
+					<A HREF="'.$PHP_SELF.'?approve=1&id='.db_result($result,$i,'id').'">'.db_result($result,$i,'summary').'</A><BR>';
+				}
+			}
 		} else {
 			echo '
-			<H4>These items were deleted this past week</H4>
-			<P>';
-			for ($i=0; $i<$rows; $i++) {
-				echo '
-				<A HREF="'.$PHP_SELF.'?approve=1&id='.db_result($result,$i,'id').'">'.db_result($result,$i,'summary').'</A><BR>';
-			}
+			<H4>No deleted items found for this week</H4>';
 		}
 
 
 		/*
 			Show list of approved news items for this week
 		*/
-		$sql="SELECT * FROM news_bytes WHERE EXISTS (SELECT news_id FROM foundry_news 
-		WHERE is_approved=1
-		AND foundry_id='$group_id' 
-		AND approve_date > '$old_date' 
-		AND foundry_news.news_id=news_bytes.id)";
-		$result=db_query($sql);
-		$rows=db_numrows($result);
-		if ($rows < 1) {
-			echo db_error();
-			echo '
-			<H4>No approved items found for this week</H4>';
+		if ($approved_ids) {
+			$sql="SELECT * FROM news_bytes WHERE id IN ($approved_ids)";
+			$result=db_query($sql);
+			$rows=db_numrows($result);
+			if ($rows < 1) {
+				echo db_error();
+				echo '
+				<H4>No approved items found for this week</H4>';
+			} else {
+				echo '
+				<H4>These items were approved this past week</H4>
+				<P>';
+				for ($i=0; $i<$rows; $i++) {
+					echo '
+					<A HREF="'.$PHP_SELF.'?approve=1&id='.db_result($result,$i,'id').'">'.db_result($result,$i,'summary').'</A><BR>';
+				}
+			}
 		} else {
 			echo '
-			<H4>These items were approved this past week</H4>
-			<P>';
-			for ($i=0; $i<$rows; $i++) {
-				echo '
-				<A HREF="'.$PHP_SELF.'?approve=1&id='.db_result($result,$i,'id').'">'.db_result($result,$i,'summary').'</A><BR>';
-			}
+			<H4>No approved items found for this week</H4>';
 		}
 
 	}

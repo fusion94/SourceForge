@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: include.pl,v 1.8 2000/12/10 23:45:19 pfalcon Exp $
+# $Id: include.pl,v 1.4 2000/08/04 03:46:26 msnelham Exp $
 #
 # include.pl - Include file for all the perl scripts that contains reusable functions
 #
@@ -17,12 +17,11 @@ $grpdir_prefix  =	"/home/groups/";	# What prefix to add to the user's homedir
 $file_dir	=	"/home/dummy/dumps/";	# Where should we stick files we're working with
 $dummy_uid      =       "103";                  # UserID of the dummy user that will own group's files
 $date           =       int(time()/3600/24);    # Get the number of days since 1/1/1970 for /etc/shadow
-$ldap_prefix	=	"/usr/local/ldap/bin/";	# Where OpenLDAP tools installed
 
-##################################
-# Configuration parsing Functions
-##################################
-sub parse_local_inc {
+##############################
+# Database Connect Functions
+##############################
+sub db_connect {
 	my ($foo, $bar);
 	
 	# open up database include file and get the database variables
@@ -33,19 +32,9 @@ sub parse_local_inc {
 		if ($foo) { eval $_ };
 	}
 	close(FILE);
-}
 
-##############################
-# Database Connect Functions
-##############################
-sub db_connect {
-	&parse_local_inc;
-	
 	# connect to the database
-	$dbh ||= DBI->connect("DBI:Pg:dbname=$sys_dbname;host=$sys_dbhost;user=$sys_dbuser;password=$sys_dbpasswd");
-	#$dbh ||= DBI->connect("DBI:mysql:$sys_dbname:$sys_dbhost", "$sys_dbuser", "$sys_dbpasswd");
-
-	die "Cannot connect to database: $!" if ( ! $dbh );
+	$dbh ||= DBI->connect("DBI:mysql:$sys_dbname:$sys_dbhost", "$sys_dbuser", "$sys_dbpasswd");
 }
 
 ##############################

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: addversion.php,v 1.4 2000/11/03 02:17:32 tperdue Exp $
+// $Id: addversion.php,v 1.3 2000/01/13 18:36:36 precision Exp $
 
 require ('pre.php');
 require ('../snippet/snippet_utils.php');
@@ -123,8 +123,7 @@ if (user_isloggedin()) {
 					$feedback .= ' Snippet Pacakge Version Added Successfully. ';
 
 					//id for this snippet_package_version
-					$snippet_package_version_id=
-						db_insertid($result,'snippet_package_version','snippet_package_version_id');
+					$snippet_package_version_id=db_insertid($result);
 					snippet_header(array('title'=>'Add Snippets to Package'));
 
 /*

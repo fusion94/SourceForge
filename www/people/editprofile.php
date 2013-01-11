@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editprofile.php,v 1.5 2000/10/11 19:55:39 tperdue Exp $
+// $Id: editprofile.php,v 1.4 2000/05/03 10:55:28 tperdue Exp $
 
 require('pre.php');
 require('../people/people_utils.php');
@@ -20,7 +20,7 @@ if (user_isloggedin()) {
 			exit_error('error - missing info','Fill in all required fields');
 		}
 
-		$sql="UPDATE users SET people_view_skills='$people_view_skills',people_resume='$people_resume' ".
+		$sql="UPDATE user SET people_view_skills='$people_view_skills',people_resume='$people_resume' ".
 			"WHERE user_id='".user_getid()."'";
 		$result=db_query($sql);
 		if (!$result || db_affected_rows($result) < 1) {
@@ -85,7 +85,7 @@ if (user_isloggedin()) {
 	people_header(array('title'=>'Edit Your Profile'));
 
 	//for security, include group_id
-	$sql="SELECT * FROM users WHERE user_id='". user_getid() ."'";
+	$sql="SELECT * FROM user WHERE user_id='". user_getid() ."'";
 	$result=db_query($sql);
 	if (!$result || db_numrows($result) < 1) {
 		echo db_error();

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: memberlist.php,v 1.33 2000/11/28 11:09:44 pfalcon Exp $
+// $Id: memberlist.php,v 1.29 2000/08/29 19:05:14 msnelham Exp $
 
 require "pre.php";    
 
@@ -17,19 +17,17 @@ print '<P>If you would like to contribute to this project by becoming a develope
 contact one of the project admins, designated in bold text below.<br><br>';
 
 // list members
-$query =  "SELECT users.user_name AS user_name,users.user_id AS user_id,"
-	. "users.realname AS realname, users.add_date AS add_date, "
-	. "user_group.admin_flags AS admin_flags, people_job_category.name AS role "
-	. "FROM users,user_group,people_job_category "
-	. "WHERE users.user_id=user_group.user_id AND user_group.group_id=$group_id "
-        . "AND user_group.member_role=people_job_category.category_id "
-	. "ORDER BY users.user_name";
+$query =  "SELECT user.user_name AS user_name,user.user_id AS user_id,"
+	. "user.realname AS realname, user.add_date AS add_date, "
+	. "user_group.admin_flags AS admin_flags "
+	. "FROM user,user_group "
+	. "WHERE user.user_id=user_group.user_id AND user_group.group_id=$group_id "
+	. "ORDER BY user.user_name";
 
 
 $title_arr=array();
 $title_arr[]='Developer';
 $title_arr[]='Username';
-$title_arr[]='Role/Position';
 $title_arr[]='Email';
 $title_arr[]='Skills';
 
@@ -45,11 +43,10 @@ while ( $row_memb=db_fetch_array($res_memb) ) {
 		print "\t\t<td>$row_memb[realname]</td>\n";
 	}
 	print "\t\t<td align=\"middle\"><A href=\"/users/$row_memb[user_name]/\">$row_memb[user_name]</A></td>\n";
-	print "\t\t<td align=\"middle\">$row_memb[role]</td>\n";
 	print "\t\t<td align=\"middle\"><A href=\"/sendmessage.php?touser=".$row_memb['user_id'].
 		"\">".$row_memb['user_name']." at ".$GLOBALS['sys_users_host']."</td>\n";
 	print "\t\t<td align=\"middle\"><A href=\"/people/viewprofile.php?user_id=".
-		$row_memb['user_id']."\">View</a></td>\n";
+		$row_memb['user_id']."\">View Skills</a></td>\n";
 	print "\t<tr>\n";
 }
 print "\t</table>";

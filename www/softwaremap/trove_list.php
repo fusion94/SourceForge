@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: trove_list.php,v 1.148 2000/12/14 22:08:02 tperdue Exp $
+// $Id: trove_list.php,v 1.141 2000/08/31 18:48:55 tperdue Exp $
 
 require "pre.php";    
 require "vars.php";
@@ -61,7 +61,7 @@ if ($discrim) {
 		// need additional AND entries for aliased tables
 		$discrim_queryand .= 'AND trove_group_link_'.$i.'.trove_cat_id='
 			.$expl_discrim[$i].' AND trove_group_link_'.$i.'.group_id='
-			.'trove_agg.group_id ';
+			.'groups.group_id ';
 
 		// must build query string for all urls
 		if ($i==0) {
@@ -114,7 +114,7 @@ for ($i=0;$i<$folders_len;$i++) {
 	for ($sp=0;$sp<($i*2);$sp++) {
 		print " &nbsp; ";
 	}
-	echo html_image("/images/ic/ofolder15.png",'15','13',array());
+	html_image("ic/ofolder15.png",array());
 	print "&nbsp; ";
 	// no anchor for current cat
 	if ($folders_ids[$i] != $form_cat) {
@@ -146,7 +146,7 @@ while ($row_sub = db_fetch_array($res_sub)) {
 		print " &nbsp; ";
 	}
 	print ('<a href="trove_list.php?form_cat='.$row_sub['trove_cat_id'].$discrim_url.'">');
-	echo html_image("/images/ic/cfolder15.png",'15','13',array());
+	html_image("ic/cfolder15.png",array());
 	print ('&nbsp; '.$row_sub['fullname'].'</a> <I>('
 		.($row_sub['subprojects']?$row_sub['subprojects']:'0')
 		.' projects)</I><BR>');
@@ -164,12 +164,12 @@ while ($row_rootcat = db_fetch_array($res_rootcat)) {
 	print ('<BR>');
 	if (($row_rootcat['trove_cat_id'] == $row_trove_cat['root_parent'])
 		|| ($row_rootcat['trove_cat_id'] == $row_trove_cat['trove_cat_id'])) {
-		echo html_image('/images/ic/ofolder15.png','15','13',array());
+		html_image('ic/ofolder15.png',array());
 		print ('&nbsp; <B>'.$row_rootcat['fullname']."</B>\n");
 	} else {
 		print ('<A href="/softwaremap/trove_list.php?form_cat='
 			.$row_rootcat['trove_cat_id'].$discrim_url.'">');
-		echo html_image('/images/ic/cfolder15.png','15','13',array());
+		html_image('ic/cfolder15.png',array());
 		print ('&nbsp; '.$row_rootcat['fullname']."\n");
 		print ('</A>');
 	}
@@ -180,15 +180,9 @@ print '</TD></TR></TABLE>';
 <?php
 // one listing for each project
 
-$query_projlist = "SELECT * 
-	FROM trove_agg
-	$discrim_queryalias
-	WHERE trove_agg.trove_cat_id='$form_cat'
-	$discrim_queryand";
+//BAD QUERY!!!
 
-/*
-
-//old query
+// now do limiting query
 $query_projlist = "SELECT groups.group_id, "
 	. "groups.group_name, "
 	. "groups.unix_group_name, "
@@ -207,60 +201,12 @@ $query_projlist = "SELECT groups.group_id, "
 	. "(groups.status='A') AND "
 	. "trove_group_link.trove_cat_id=$form_cat "
 	. $discrim_queryand
-//	. "GROUP BY groups.group_id "
-	. "ORDER BY groups.group_name ";
-*/
-/*
+	. "GROUP BY groups.group_id ORDER BY groups.group_name "
+	. "LIMIT ".$TROVE_HARDQUERYLIMIT;
 
-//nightly aggregation query
-CREATE TABLE trove_agg AS
-SELECT tgl.trove_cat_id, g.group_id, g.group_name, g.unix_group_name, g.status, g.register_time, g.short_description, 
-        project_metric.percentile, project_metric.ranking 
-        FROM groups g
-        LEFT JOIN project_metric USING (group_id) , 
-        trove_group_link tgl 
-        WHERE 
-        tgl.group_id=g.group_id 
-        AND (g.is_public=1) 
-        AND (g.type=1) 
-        AND (g.status='A') 
-	ORDER BY g.group_name;
+//echo "\n\n\n".$query_projlist."\n\n\n";
 
-CREATE INDEX troveagg_trovecatid ON trove_agg(trove_cat_id);
-
-SELECT * 
-	FROM trove_agg ,
-	trove_group_link trove_group_link_0 ,
-	trove_group_link trove_group_link_1 
-	WHERE trove_agg.trove_cat_id='20' 
-	AND trove_group_link_0.trove_cat_id=7 
-	AND trove_group_link_0.group_id=trove_agg.group_id 
-	AND trove_group_link_1.trove_cat_id=226 
-	AND trove_group_link_1.group_id=trove_agg.group_id LIMIT 300 OFFSET 0
-
-SELECT g.group_id, g.group_name, g.unix_group_name, g.status, g.register_time, g.short_description, 
-	project_metric.percentile, project_metric.ranking 
-	FROM groups 
-	LEFT JOIN project_metric USING (group_id) , 
-	trove_group_link ,
-	trove_group_link trove_group_link_0 ,
-	trove_group_link trove_group_link_1 
-	WHERE 
-	trove_group_link.group_id=groups.group_id 
-	AND (groups.is_public=1) 
-	AND (groups.type=1) 
-	AND (groups.status='A') 
-	AND trove_group_link.trove_cat_id=7 
-	AND trove_group_link_0.trove_cat_id=7 
-	AND trove_group_link_0.group_id=groups.group_id 
-	AND trove_group_link_1.trove_cat_id=233 
-	AND trove_group_link_1.group_id=groups.group_id 
-	ORDER BY groups.group_name 
-	LIMIT 300 OFFSET 0
-
-*/
-
-$res_grp = db_query($query_projlist,$TROVE_HARDQUERYLIMIT);
+$res_grp = db_query($query_projlist);
 echo db_error();
 $querytotalcount = db_numrows($res_grp);
 	
@@ -334,14 +280,7 @@ for ($i_proj=1;$i_proj<=$querytotalcount;$i_proj++) {
 		print 'Activity Percentile: <B>'.$row_grp['percentile'].'</B>';
 		print '<BR>Activity Ranking: <B>'.$row_grp['ranking'].'</B>';
 		print '<BR>Register Date: <B>'.date($sys_datefmt,$row_grp['register_time']).'</B>';
-		print '</TD></TR>';
-/*
-                if ($row_grp['jobs_count']) {
-                	print '<tr><td colspan="2" align="center">'
-                              .'<a href="/people/?group_id='.$row_grp['group_id'].'">[This project needs help]</a></td></td>';
-                }
-*/
-                print '</TABLE>';
+		print '</TD></TR></TABLE>';
 		print '<HR>';
 	} // end if for row and range chacking
 }

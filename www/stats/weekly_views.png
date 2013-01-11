@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: weekly_views.png,v 1.3 2000/09/04 21:47:20 msnelham Exp $
+// $Id: weekly_views.png,v 1.4 2000/09/04 21:50:05 msnelham Exp $
 require('pre.php');
 require("graph_lib.php");
 
@@ -17,8 +17,8 @@ if ( ! $year ) {
 }
 
 $sql	= "SELECT month,week,day,SUM(site_views) AS site_views, SUM(subdomain_views) AS subdomain_views "
-	. "FROM stats_site GROUP BY month,week,day ORDER BY month ASC, week ASC";
-$res = db_query( $sql,52 );
+	. "FROM stats_site GROUP BY week ORDER BY month ASC, week ASC LIMIT 52";
+$res = db_query( $sql );
 
 $i = 0;
 while ( $row = db_fetch_array($res) ) {

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: trove_cat_list.php,v 1.16 2000/12/14 22:04:22 tperdue Exp $
+// $Id: trove_cat_list.php,v 1.13 2000/08/31 06:07:52 gherteg Exp $
 
 require "pre.php";
 require "trove.php";
@@ -16,7 +16,7 @@ function printnode ($nodeid,$text) {
 	// print current node, then all subnodes
 	print ('<BR>');
 	for ($i=0;$i<$GLOBALS[depth];$i++) { print "&nbsp; &nbsp; "; }
-	print html_image('images/ic/cfolder15.png','15','13',array());
+	html_image('ic/cfolder15.png',array());
 	print ('&nbsp; '.$text." ");
 	print ('<A href="trove_cat_edit.php?trove_cat_id='.$nodeid.'">[Edit]</A> ');
 	print (help_button('trove_cat',$nodeid)."\n");

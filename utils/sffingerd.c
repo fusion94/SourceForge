@@ -6,7 +6,7 @@
    Mukund <muks@users.sourceforge.net>
    6th July, 2000
    
-   #undef LOG_REQUESTS if you don't wanna log any users requests.
+   #undef LOG_REQUESTS if you don't wanna log any user requests.
    
    gcc -s -I/path/to/mysql/include -o sffingerd sffingerd.c -L/path/to/mysql/lib/mysql -lmysqlclient
    cp -f sffingerd /usr/local/sbin
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	
-	snprintf(qbuf, 4095, "SELECT user_id, user_name, realname, people_view_skills, people_resume, add_date FROM users WHERE user_name='%s'", user);
+	snprintf(qbuf, 4095, "SELECT user_id, user_name, realname, people_view_skills, people_resume, add_date FROM user WHERE user_name='%s'", user);
 	
 	if (mysql_query(sock, qbuf) != 0)
 	{

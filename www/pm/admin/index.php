@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.24 2000/10/09 22:36:17 tperdue Exp $
+// $Id: index.php,v 1.23 2000/08/13 15:43:44 tperdue Exp $
 
 require('pre.php');
 require('../pm_utils.php');
@@ -143,7 +143,7 @@ if ($group_id && user_ismember($group_id,'P2')) {
 					<INPUT TYPE="HIDDEN" NAME="group_project_id" VALUE="'.db_result($result,$i,'group_project_id').'">
 					<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="'.$group_id.'">';
 				echo '
-					<TR BGCOLOR="'. html_get_alt_row_color($i) .'"><TD>
+					<TR BGCOLOR="'. util_get_alt_row_color($i) .'"><TD>
 						<FONT SIZE="-1">
 						<B>Is Public?</B><BR>
 						<INPUT TYPE="RADIO" NAME="is_public" VALUE="1"'.((db_result($result,$i,'is_public')=='1')?' CHECKED':'').'> Yes<BR>
@@ -155,7 +155,7 @@ if ($group_id && user_ismember($group_id,'P2')) {
 						<FONT SIZE="-1">
 						<INPUT TYPE="SUBMIT" NAME="SUBMIT" VALUE="Update">
 					</TD></TR>
-					<TR BGCOLOR="'.html_get_alt_row_color($i) .'"><TD COLSPAN="3">
+					<TR BGCOLOR="'.util_get_alt_row_color($i) .'"><TD COLSPAN="3">
 						<B>Description:</B><BR>
 						<INPUT TYPE="TEXT" NAME="description" VALUE="'.
 						db_result($result,$i,'description') .'" SIZE="40" MAXLENGTH="80"><BR>

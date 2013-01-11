@@ -4,32 +4,32 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: massmail.php,v 1.25 2000/10/11 19:55:39 tperdue Exp $
+// $Id: massmail.php,v 1.23 2000/08/31 06:07:52 gherteg Exp $
 
 require "pre.php";    
 session_require(array('group'=>'1','admin_flags'=>'A'));
 $HTML->header(array('title'=>"Administrative Mass Mail Engine"));
 
 // get numbers of users for each mailing
-$res_count = db_query("SELECT count(*) AS count FROM users WHERE status='A' AND mail_va=1");
+$res_count = db_query("SELECT count(*) AS count FROM user WHERE status='A' AND mail_va=1");
 $row_count = db_fetch_array($res_count);
 $count_comm = $row_count[count];
-$res_count = db_query("SELECT count(*) AS count FROM users WHERE status='A' AND mail_siteupdates=1");
+$res_count = db_query("SELECT count(*) AS count FROM user WHERE status='A' AND mail_siteupdates=1");
 $row_count = db_fetch_array($res_count);
 $count_sf = $row_count[count];
-$res_count = db_query("SELECT count(*) AS count FROM users WHERE status='A'");
+$res_count = db_query("SELECT count(*) AS count FROM user WHERE status='A'");
 $row_count = db_fetch_array($res_count);
 $count_all = $row_count[count];
-$res_count = db_query("SELECT count(*) AS count FROM users,user_group WHERE "
-	."users.user_id=user_group.user_id AND users.status='A' AND user_group.admin_flags='A'");
+$res_count = db_query("SELECT count(*) AS count FROM user,user_group WHERE "
+	."user.user_id=user_group.user_id AND user.status='A' AND user_group.admin_flags='A'");
 $row_count = db_fetch_array($res_count);
 $count_admin = $row_count[count];
-$res_count = db_query("SELECT count(*) AS count FROM users,user_group WHERE "
-	."users.user_id=user_group.user_id AND users.status='A'");
+$res_count = db_query("SELECT count(*) AS count FROM user,user_group WHERE "
+	."user.user_id=user_group.user_id AND user.status='A'");
 $row_count = db_fetch_array($res_count);
 $count_devel = $row_count[count];
-$res_count = db_query("SELECT count(*) AS count FROM users,user_group WHERE "
-	."users.user_id=user_group.user_id AND users.status='A' AND user_group.group_id=1");
+$res_count = db_query("SELECT count(*) AS count FROM user,user_group WHERE "
+	."user.user_id=user_group.user_id AND user.status='A' AND user_group.group_id=1");
 $row_count = db_fetch_array($res_count);
 $count_sfadmin = $row_count[count];
 
@@ -58,10 +58,8 @@ Send only to SourceForge administrators (test) ('
 Send to all users, regardless of their preferences ('
 .$count_all
 .')
-<P><B>Start With User ID:</B> (for use when the process quits)
-<BR><INPUT type="text" name="first_user" value="0">
-<P>
-Subject:
+
+<P>Subject:
 <BR><INPUT type="text" name="mail_subject" value="SourceForge: ">
 
 <P>Text of Message:

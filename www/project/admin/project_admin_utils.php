@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: project_admin_utils.php,v 1.30 2000/12/12 15:36:45 tperdue Exp $
+// $Id: project_admin_utils.php,v 1.24 2000/09/05 16:41:33 tperdue Exp $
 
 /*
 
@@ -18,22 +18,16 @@ function project_admin_header($params) {
 	$params['toptab']='home';
 	$params['group']=$group_id;
 	site_project_header($params);
-	$project=&group_get_object($group_id);
-	$is_admin=$project->userIsAdmin();
 
 	echo '
 	<P><B>
-	<A HREF="/project/admin/?group_id='.$group_id.'">Admin</A> | ';
-        if ($is_admin)
-	echo '<A HREF="/project/admin/userperms.php?group_id='.$group_id.'">User Permissions</A> | 
+	<A HREF="/project/admin/?group_id='.$group_id.'">Admin</A> | 
+	<A HREF="/project/admin/userperms.php?group_id='.$group_id.'">User Permissions</A> | 
 	<A HREF="/project/admin/editgroupinfo.php?group_id='.$group_id.'">Edit Public Info</A> |
 	<A HREF="/project/admin/history.php?group_id='.$group_id.'">Project History</A>
-        <br>';
-	echo '
-	<A HREF="/project/admin/editpackages.php?group_id='.$group_id.'">Edit/Release Files</A>';
-        if ($is_admin)
-        echo '
-        | <A HREF="/people/createjob.php?group_id='.$group_id.'">Post Jobs</A> | 
+	<BR>
+	<A HREF="/project/admin/editpackages.php?group_id='.$group_id.'">Edit/Release Files</A> | 
+	<A HREF="/people/createjob.php?group_id='.$group_id.'">Post Jobs</A> | 
 	<A HREF="/people/?group_id='.$group_id.'">Edit Jobs</A> |
 	<A HREF="/project/admin/editimages.php?group_id='.$group_id.'">Edit Screenshots</A>
 	</B>
@@ -127,7 +121,7 @@ function frs_show_release_popup ($group_id, $name='release_id', $checked_val="xz
 		return 'ERROR - GROUP ID REQUIRED';
 	} else {
 		if (!isset($FRS_RELEASE_RES)) {
-			$FRS_RELEASE_RES=db_query("SELECT frs_release.release_id,(frs_package.name || ' : ' || frs_release.name) ".
+			$FRS_RELEASE_RES=db_query("SELECT frs_release.release_id,concat(frs_package.name,' : ',frs_release.name) ".
 				"FROM frs_release,frs_package ".
 				"WHERE frs_package.group_id='$group_id' ".
 				"AND frs_release.package_id=frs_package.package_id");
@@ -152,8 +146,7 @@ function frs_show_package_popup ($group_id, $name='package_id', $checked_val="xz
 		return 'ERROR - GROUP ID REQUIRED';
 	} else {
 		if (!isset($FRS_PACKAGE_RES)) {
-			$FRS_PACKAGE_RES=db_query("SELECT package_id,name 
-				FROM frs_package WHERE group_id='$group_id'");
+			$FRS_PACKAGE_RES=db_query("SELECT package_id,name FROM frs_package WHERE group_id='$group_id'");
 			echo db_error();
 		}
 		return html_build_select_box ($FRS_PACKAGE_RES,$name,$checked_val,false);
@@ -172,16 +165,21 @@ function frs_show_package_popup ($group_id, $name='package_id', $checked_val="xz
 */
 
 function group_get_history ($group_id=false) {
-	$sql="SELECT group_history.field_name,group_history.old_value,group_history.date,users.user_name ".
-		 "FROM group_history,users ".
-		 "WHERE group_history.mod_by=users.user_id ".
-		 "AND group_id='$group_id' ORDER BY group_history.date DESC";
+	$sql="select group_history.field_name,group_history.old_value,group_history.date,user.user_name ".
+		"FROM group_history,user ".
+		"WHERE group_history.mod_by=user.user_id ".
+		"AND group_id='$group_id' ORDER BY group_history.date DESC";
 	return db_query($sql);
 }	       
 	
 function group_add_history ($field_name,$old_value,$group_id) {
-	$group=group_get_object($group_id);
-	$group->addHistory($field_name,$old_value);
+	/*      
+		handle the insertion of history for these parameters
+	*/
+	
+	$sql="insert into group_history(group_id,field_name,old_value,mod_by,date) ".
+		"VALUES ('$group_id','$field_name','$old_value','". user_getid() ."','".time()."')";
+	return db_query($sql);
 }	       
 
 /*

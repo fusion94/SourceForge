@@ -4,14 +4,14 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.12 2000/12/02 20:31:14 pgport Exp $ 
+// $Id: index.php,v 1.8 2000/08/31 22:58:45 msnelham Exp $ 
 require('pre.php');
 require('project_stats_utils.php');
 
 site_project_header(array('title'=>"Project statistics ".$groupname,'group'=>$group_id,'toptab'=>'home'));
 
 if ( !$group_id ) {
-	exit_no_group();
+	exit_error("Invalid Group","That group could not be found.");
 }
    //if the project isn't active, require you to be a member of the super-admin group
 //if ( !(db_result($res_grp,0,'status') == 'A') ) {
@@ -27,27 +27,27 @@ echo "\n\n";
 if ( !$span ) {
 	$span = 14;
 }
-if (!$view) $view=$period;
+
 if ( !$view ) { 
-	$view = "day";
+	$view = "daily";
 }
 
 print '<DIV ALIGN="CENTER">';
 print '<font size="+1"><b>Usage Statistics </b></font><BR>';
-print '<IMG SRC="stats_graph.png?group_id='.$group_id.'&span='.$span.'&period='.$view.'">';
+print '<IMG SRC="stats_graph.png?group_id='.$group_id.'&span='.$span.'&view='.$view.'">';
 print '</DIV>';
 
-if ( $view == 'day' ) {
+if ( $view == 'daily' ) {
 
 	print '<P>';
 	stats_project_daily( $group_id, $span );
 
-} elseif ( $view == 'week' ) {
+} elseif ( $view == 'weekly' ) {
 
 	print '<P>';
 	stats_project_weekly( $group_id, $span );
 
-} elseif ( $view == 'month' ) {
+} elseif ( $view == 'monthly' ) {
 
 	print '<P>';
 	stats_project_monthly( $group_id, $span );
@@ -76,10 +76,10 @@ View the Last <SELECT NAME="span">
 <OPTION VALUE="52" <?php if ($span == 52) {echo 'SELECTED';} ?>>52</OPTION>
 </SELECT>
 &nbsp;
-<SELECT NAME="period">
-<OPTION VALUE="month" <?php if ($view == "month") {echo 'SELECTED';} ?>>Months</OPTION>
-<OPTION VALUE="week" <?php if ($view == "week") {echo 'SELECTED';} ?>>Weeks</OPTION>
-<OPTION VALUE="day" <?php if ($view == "day" || !isset($view) ) {echo 'SELECTED';} ?>>Days</OPTION>
+<SELECT NAME="view">
+<OPTION VALUE="monthly" <?php if ($view == "monthly") {echo 'SELECTED';} ?>>Months</OPTION>
+<OPTION VALUE="weekly" <?php if ($view == "weekly") {echo 'SELECTED';} ?>>Weeks</OPTION>
+<OPTION VALUE="daily" <?php if ($view == "daily" || !isset($view) ) {echo 'SELECTED';} ?>>Days</OPTION>
 </SELECT>
 &nbsp; 
 <INPUT type="submit" value="Change Stats View">
@@ -89,22 +89,9 @@ View the Last <SELECT NAME="span">
 
 
 <?php
-if ($group_id && user_ismember($group_id)) {
-	print "
-<p>
-Detailed statistics for:
-<ul>
-<li><a href=\"/bugs/reporting/?group_id=$group_id&period=$view&span=$span\">Bugs</a>
-<li><a href=\"/patch/reporting/?group_id=$group_id&period=$view&span=$span\">Patches</a>
-<li><a href=\"/support/reporting/?group_id=$group_id&period=$view&span=$span\">Support Requests</a>
-<li><a href=\"/pm/reporting/?group_id=$group_id&period=$view&span=$span\">Tasks</a>
-</ul>
-</p>
-";
-}
-//// END PAGE CONTENT CODE
 //
-
+// END PAGE CONTENT CODE
+//
 
 site_project_footer( array() );
 ?>

@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: browse_task.php,v 1.42 2000/11/04 16:54:31 tperdue Exp $
+// $Id: browse_task.php,v 1.38 2000/08/31 06:26:00 gherteg Exp $
 
 if (!$offset || $offset < 0) {
 	$offset=0;
@@ -126,11 +126,12 @@ $sql="SELECT project_task.priority,project_task.group_project_id,project_task.pr
 	"FROM project_task $assigned_str2 ".
 	"WHERE $assigned_str3 project_task.group_project_id='$group_project_id' ".
 	" $assigned_str $status_str ".
-	$order_by; 
+	$order_by .
+	" LIMIT $offset,50";
 
 $message="Browsing Custom Task List";
 
-$result=db_query($sql,51,$offset);
+$result=db_query($sql);
 
 /*
         creating a custom technician box which includes "any" and "unassigned"
@@ -167,6 +168,9 @@ if (db_numrows($result) < 1) {
 		<P>
 		<B>Add tasks using the link above</B>';
 	echo db_error();
+	echo '
+
+<!-- '. $sql .' -->';
 } else {
 
 	//create a new $set string to be used for next/prev button

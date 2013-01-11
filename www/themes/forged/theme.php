@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: theme.php,v 1.90 2000/12/13 23:00:43 dbrogdon Exp $
+// $Id: theme.php,v 1.89 2000/08/31 06:11:36 gherteg Exp $
 
 // Make sure '/etc/local.inc' is required in pre.php!
 
@@ -265,7 +265,7 @@ echo html_blankimage(5,100) . '<br>';
 			<td width="141" background="<?php echo $GLOBALS['sys_themeimgroot']; ?>steel3.jpg" bgcolor="#cfd1d4" align="left" valign="top">
 
 	<CENTER>
-	<a href="/"><?php echo html_image($GLOBALS['sys_themeimgroot'] . "sflogo-hammer1.jpg","136","79",array("alt"=>" SourceForge ","border"=>"0")); ?></A>
+	<a href="/"><IMG src="<?php echo $GLOBALS['sys_themeimgroot']; ?>sflogo-hammer1.jpg" alt=" Source Forge " border="0" width="136" height="79"></A>
 	</CENTER>
 	<P>
 	<!-- menus -->

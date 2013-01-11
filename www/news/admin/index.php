@@ -4,14 +4,14 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: index.php,v 1.34 2000/11/16 23:16:01 tperdue Exp $
+// $Id: index.php,v 1.32 2000/08/31 23:40:17 kingdon Exp $
 
 require('pre.php');
 
 //common forum tools which are used during the creation/editing of news items
 require($DOCUMENT_ROOT.'/forum/forum_utils.php');
 
-if ($group_id && $group_id != $sys_news_group && user_ismember($group_id,'A')) {
+if ($group_id && $group_id != 714 && user_ismember($group_id,'A')) {
 	/*
 
 		Per-project admin pages.
@@ -34,13 +34,6 @@ if ($group_id && $group_id != $sys_news_group && user_ismember($group_id,'A')) {
 
 			//foundry stuff - remove this news from the foundry so it has to be re-approved by the admin
 			db_query("DELETE FROM foundry_news WHERE news_id='$id'");
-
-			if (!$summary) {
-				$summary='(none)';
-			}
-			if (!$details) {
-				$details='(none)';
-			}
 
 			$sql="UPDATE news_bytes SET is_approved='$status', summary='".htmlspecialchars($summary)."', ".
 				"details='".htmlspecialchars($details)."' WHERE id='$id' AND group_id='$group_id'";
@@ -121,14 +114,14 @@ if ($group_id && $group_id != $sys_news_group && user_ismember($group_id,'A')) {
 	}
 	news_footer(array());
 
-} else if (user_ismember($sys_news_group,'A')) {
+} else if (user_ismember(714,'A')) {
 	/*
 
 		News uber-user admin pages
 
 		Show all waiting news items except those already rejected.
 
-		Admin members of $sys_news_group (news project) can edit/change/approve news items
+		Admin members of project #714 (news project) can edit/change/approve news items
 
 	*/
 	if ($post_changes) {

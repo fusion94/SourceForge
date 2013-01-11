@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: user_changepw.php,v 1.13 2000/11/06 21:14:18 pfalcon Exp $
+// $Id: user_changepw.php,v 1.11 2000/08/31 06:07:52 gherteg Exp $
 
 require "pre.php";    
 require "account.php";
@@ -21,7 +21,7 @@ function register_valid()	{
 	}
 	
 	// check against old pw
-	db_query("SELECT user_pw FROM users WHERE user_id=$form_user");
+	db_query("SELECT user_pw FROM user WHERE user_id=$form_user");
 
 	if (!$GLOBALS['form_pw']) {
 		$GLOBALS['register_error'] = "You must supply a password.";
@@ -36,11 +36,9 @@ function register_valid()	{
 	}
 	
 	// if we got this far, it must be good
-        $user=user_get_object(user_getid());
-	if (!$user->setPasswd($GLOBALS[form_pw]) {
-		$GLOBALS['register_error'] = $user->getErrorMessage();
-		return 0;
-	}
+	db_query("UPDATE user SET user_pw='" . md5($GLOBALS['form_pw']) . "',"
+		. "unix_pw='" . account_genunixpw($GLOBALS['form_pw']) . "' WHERE "
+		. "user_id=" . $form_user);
 	return 1;
 }
 

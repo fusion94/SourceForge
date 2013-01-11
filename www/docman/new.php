@@ -34,9 +34,9 @@ if($group_id) {
 		}
 
 		if (!user_isloggedin()) {
-			$user_id=100;
+			$user=100;
 		} else {
-			$user_id=user_getid();
+			$user=user_getid();
 		}
 
 		if ($upload_instead) {
@@ -52,25 +52,24 @@ if($group_id) {
 		}
 
 		
-		docman_header('Documentation - Add Information - Processing','Documentation - New submission');
 
-		$query = "insert into doc_data(stateid,title,data,createdate,updatedate,created_by,doc_group,description,language_id) "
+		docman_header('Documentation - Add Information - Processing','Documentation - New submission');
+		
+		$query = "insert into doc_data(stateid,title,data,createdate,updatedate,created_by,doc_group,description) "
 		."values('3',"
 		// state = 3 == pending
 		."'".htmlspecialchars($title)."',"
 		."'".htmlspecialchars($data)."',"
 		."'".time()."',"
 		."'".time()."',"
-		."'".$user_id."',"
+		."'".$user."',"
 		."'".$doc_group."',"			
-		."'".htmlspecialchars($description)."',"
-		."'".$language_id."')";
+		."'".htmlspecialchars($description)."')";
 	
 		db_query($query); 
 		//PROBLEM check the query
 
 		print "<p><b>Thank You!  Your submission has been placed in the database for review before posting.</b> \n\n<p>\n <a href=\"/docman/index.php?group_id=".$group_id."\">Back</a>"; 
-
 		docman_footer($params);
 	} else {
 		docman_header('Add documentation','Add documentation');
@@ -102,15 +101,6 @@ if($group_id) {
 			<tr>
 			<th> <input type="checkbox" name="upload_instead" value="1"> <B>Upload Text File:</B></th>
 			<td> <input type="file" name="uploaded_data" size="30"></td>
-			</tr>
-
-			<tr>
-			<th> Language:</th>
-			<td>';
-			
-		echo html_get_language_popup($Language,'language_id',1);
-			
-		echo	'</td>
 			</tr>
 
 			<tr>

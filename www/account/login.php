@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: login.php,v 1.65 2000/12/06 22:25:24 dbrogdon Exp $
+// $Id: login.php,v 1.54 2000/08/31 06:07:52 gherteg Exp $
 
 Header( "Expires: Wed, 11 Nov 1998 11:11:11 GMT"); 
 Header( "Cache-Control: no-cache"); 
@@ -24,7 +24,7 @@ if (!session_issecure()) {
 // ###### first check for valid login, if so, redirect
 
 if ($login) {
-	$success=session_login_valid(strtolower($form_loginname),$form_pw);
+	$success=session_login_valid($form_loginname,$form_pw);
 	if ($success) {
 		/*
 			You can now optionally stay in SSL mode
@@ -35,24 +35,19 @@ if ($login) {
 			$ssl_='';
 		}
 		if ($return_to) {
-			header ("Location: http".$ssl_."://". $HTTP_HOST . $return_to);
+			header ("Location: http".$ssl_."://". $sys_default_domain . $return_to);
 			exit;
 		} else {
-			header ("Location: http".$ssl_."://". $HTTP_HOST ."/my/");
+			header ("Location: http".$ssl_."://". $sys_default_domain ."/my/");
 			exit;
 		}
 	}
 }
-
 if ($session_hash) {
 	//nuke their old session
 	session_cookie('session_hash','');
 	db_query("DELETE FROM session WHERE session_hash='$session_hash'");
 }
-
-//echo "\n\n$session_hash";
-//echo "\n\nlogged in: ".user_isloggedin();
-
 $HTML->header(array('title'=>'Login'));
 
 if ($login && !$success) {
@@ -82,7 +77,7 @@ if ($login && !$success) {
 
 }
 
-if (browser_is_windows() && browser_is_ie() && browser_get_version() < '5.6') {
+if (browser_is_windows() && browser_is_ie() && browser_get_version() < '5.1') {
 	echo '<H2><FONT COLOR="RED">Internet Explorer users need to
 	upgrade to IE 5.01 or higher, preferably with 128-bit SSL or use Netscape 4.7 or higher</FONT></H2>';
 }
@@ -100,7 +95,7 @@ if (browser_is_ie() && browser_is_mac()) {
 <p>
 <font color="red"><B>Cookies must be enabled past this point.</B></font>
 <P>
-<form action="https://<?php echo $HTTP_HOST; ?>/account/login.php" method="post">
+<form action="https://<?php echo $sys_default_domain; ?>/account/login.php" method="post">
 <INPUT TYPE="HIDDEN" NAME="return_to" VALUE="<?php echo $return_to; ?>">
 <p>
 Login Name:
@@ -111,19 +106,13 @@ Password:
 <P>
 <INPUT TYPE="CHECKBOX" NAME="stay_in_ssl" VALUE="1" <?php echo ((browser_is_ie() && browser_get_version() < '5.5')?'':'CHECKED') ?>> Stay in SSL mode after login
 <p>
-<B><FONT COLOR="RED">You will be connected with an SSL server when you submit this form and your password will not be visible to other users.
-</FONT></B> 
-<small style="font-size: x-small">
-(If you wonder why very this page is not loaded via SSL, please read
-next paragraph. Thank you.)
-</small>
-
+You will be connected with an SSL server and your password will not be visible to other users. 
 <P>
 <B>Internet Explorer</B> users will have intermittent SSL problems, so they should leave SSL 
 after login. Netscape users should stay in SSL mode permanently for maximum security.
 Visit <A HREF="http://www.microsoft.com/">Microsoft</A> for more information about this known problem.
 <P>
-<input type="submit" name="login" value="Login With SSL">
+<input type="submit" name="login" value="Login">
 </form>
 <P>
 <A href="lostpw.php">[Lost your password?]</A>

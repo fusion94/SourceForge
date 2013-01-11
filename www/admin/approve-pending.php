@@ -4,105 +4,78 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: approve-pending.php,v 1.23 2000/11/07 20:11:58 dbrogdon Exp $
+// $Id: approve-pending.php,v 1.15 2000/09/01 23:39:50 tperdue Exp $
 
-require ('pre.php');	 
+require ('pre.php');    
 require ('vars.php');
 require ('account.php');
 require ('proj_email.php');
-require ('canned_responses.php');
 require($DOCUMENT_ROOT.'/admin/admin_utils.php');
 require($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
-global $feedback;
 
 session_require(array('group'=>'1','admin_flags'=>'A'));
-
-function activate_group($group_id) {
-	global $feedback;
-echo("activate_group($group_id)<br>");	
-
-	if (sf_ldap_create_group($group_id,0)) {
-		db_query("UPDATE groups ".
-		"SET status='A' ".
-		"WHERE group_id=$group_id");
-
-		/*
-			Make founding admin be an active member of the project
-		*/
-		 
-		$admin_res=db_query("SELECT * ".
-			"FROM users,user_group ".
-			"WHERE user_group.group_id=$group_id ".
-			"AND user_group.admin_flags='A' ".
-			"AND users.user_id=user_group.user_id ");
-
-		if (db_numrows($admin_res) > 0) {
-			$group=&group_get_object($group_id);
-
-//
-//	user_get_object should really have a valid user_id passed in
-//	or you are defeating the purpose of the object pooling
-//
-			$admin=&user_get_object(db_result($admin_res,0,'user_id'),$admin_res);
-
-			if ($group->addUser($admin->getUnixName())) {
-				/*
-					Now send the project approval emails
-				*/
-				group_add_history ('approved','x',$group_id);
-				send_new_project_email($group_id);
-				usleep(250000); // TODO: This is dirty. If sendmail required pause, let send_new... handle it
-			} else {
-				$feedback=$group->getErrorMessage();
-			}
-		} else {
-			echo db_error();
-		}
-	} else {
-		/* There was error creating LDAP entry */
-		group_add_history ('ldap:',sf_ldap_get_error_msg(),$group_id);
-	}
-}
 
 // group public choice
 if ($action=='activate') {
 	/*
 		update the project flag to active
 	*/
+	db_query("UPDATE groups SET status='A'"
+		. " WHERE group_id IN ($list_of_groups)");
 
+
+	/*
+		now activate the admin's unix account if it isn't already
+	*/
+	//list of user_id's for these admins
+	$admin_res=db_query("SELECT DISTINCT user.user_id FROM user,user_group ".
+		"WHERE user_group.group_id IN ($list_of_groups) ".
+		"AND user_group.admin_flags='A' ".
+		"AND user.unix_status='N' ".
+		"AND user.user_id=user_group.user_id ".
+		"AND user.unix_uid='0'");
+
+	if (db_numrows($admin_res) > 0) {
+
+		$admin_list=result_column_to_array($admin_res,0);
+		$count=count($admin_list);
+
+		for ($i=0; $i<$count; $i++) {
+			$res_user=db_query("UPDATE user SET unix_uid='" . account_nextuid() . "',unix_status='A' WHERE user_id='$admin_list[$i]'");
+			if (!$res_user || db_affected_rows($res_user) < 1) {
+				echo db_error();
+			}
+		}
+	} else {
+		echo db_error();
+	}
+
+	/*
+		Now send the project approval emails
+	*/
 	$groups=explode(',',$list_of_groups);
-	array_walk($groups,'activate_group');
+	$count=count($groups);
+	for ($i=0; $i<$count; $i++) {
+		group_add_history ('approved','x',$groups[$i]);
+		send_new_project_email($groups[$i]);
+		usleep(250000);
+	}
 
 } else if ($action=='delete') {
 	group_add_history ('deleted','x',$group_id);
-	db_query("UPDATE groups ".
-		 "SET status='D' ".
-		 "WHERE group_id='$group_id'");
-
-	// Determine whether to send a canned or custom rejection letter and send it
-	if( $response_id == 100 ) {
-		send_project_rejection($group_id, 0, $response_text);
-
-		if( $add_to_can ) {
-			add_canned_response($response_title, $response_text);
-		}
-	} else {
-		send_project_rejection($group_id, $response_id);
-	}
+	db_query("UPDATE groups SET status='D'"
+		. " WHERE group_id='$group_id'");
 }
 
-
-site_admin_header(array('title'=>'Approving Pending Projects'));
 
 // get current information
 $res_grp = db_query("SELECT * FROM groups WHERE status='P'");
 
 if (db_numrows($res_grp) < 1) {
-	print "<h1>None Found</h1>";
-	print "<p>No Pending Projects to Approve</p>";
-	site_admin_footer(array());
-	exit;
+	exit_error("None Found","No Pending Projects to Approve");
 }
+
+site_admin_header(array('title'=>'Approving Pending Projects'));
 
 while ($row_grp = db_fetch_array($res_grp)) {
 
@@ -119,29 +92,11 @@ while ($row_grp = db_fetch_array($res_grp)) {
 	<A href="userlist.php?group_id=<?php print $row_grp['group_id']; ?>"><H3>[View/Edit Project Members]</H3></A>
 
 	<p>
-	<table><tr><td>
-	<FORM action="<?php echo $PHP_SELF; ?>" method="POST">
-	<INPUT TYPE="HIDDEN" NAME="action" VALUE="activate">
-	<INPUT TYPE="HIDDEN" NAME="list_of_groups" VALUE="<?php print $row_grp['group_id']; ?>">
-	<INPUT type="submit" name="submit" value="Approve">
-	</FORM>
-	</td></tr>
-	<tr><td>
 	<FORM action="<?php echo $PHP_SELF; ?>" method="POST">
 	<INPUT TYPE="HIDDEN" NAME="action" VALUE="delete">
 	<INPUT TYPE="HIDDEN" NAME="group_id" VALUE="<?php print $row_grp['group_id']; ?>">
-	Canned responses<br>
-<?php print get_canned_responses(); ?>
-	<br><br>
-	Custom response tilte and text<br>
-	<input type="text" name="response_title" size="30" max="25"><br>
-	<textarea name="response_text" rows="10" cols="50"></textarea>
-	<input type="checkbox" name="add_to_can" value="yes">Add this custom response to to canned responses
-	<br>
-	<INPUT type="submit" name="submit" value="Delete">
+	<INPUT type="submit" name="submit" value="Delete Project">
 	</FORM>
-	</td></tr>
-	</table>
 
 	<P>
 	<B>License: <?php echo $row_grp['license']; ?></B>
@@ -167,15 +122,9 @@ while ($row_grp = db_fetch_array($res_grp)) {
 	print "<P><B>Other Information</B>";
 	print "<P>Unix Group Name: $row_grp[unix_group_name]";
 
-	print "<P>Submitted Description:<blockquote>$row_grp[register_purpose]</blockquote>";
+	print "<P>Submitted Description:<P> $row_grp[register_purpose]";
 
-	if ($row_grp[license]=="other") {
-		print "<P>License Other: <blockquote>$row_grp[license_other]</blockquote>";
-	}
-	
-	if ($row_grp[status_comment]) {
-		print "<P>Pending reason: <font color=red>$row_grp[status_comment]</font>";
-	}
+	print "<P>License Other: <P> $row_grp[license_other]";
 
 	echo "<P><HR><P>";
 

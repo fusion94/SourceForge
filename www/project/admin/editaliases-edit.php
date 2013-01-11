@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editaliases-edit.php,v 1.15 2000/12/06 22:31:31 dbrogdon Exp $
+// $Id: editaliases-edit.php,v 1.14 2000/05/17 21:54:41 tperdue Exp $
 
 require "pre.php";    
 require "account.php";
@@ -20,8 +20,8 @@ if ($Submit) {
 			alias. This attempt has been logged.');
 	}
 
-	if (account_namevalid(strtolower($form_username))) {
-		db_query("UPDATE mailaliases SET user_name='" . strtolower($form_username) . "',"
+	if (account_namevalid($form_username)) {
+		db_query("UPDATE mailaliases SET user_name='$form_username',"
 			. "email_forward='$form_email' WHERE mailaliases_id=$form_mailid");	
 		session_redirect("/project/admin/editaliases.php?group_id=$group_id");
 	}

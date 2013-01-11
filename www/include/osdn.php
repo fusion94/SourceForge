@@ -12,38 +12,34 @@ $osdn_sites[8] = array('Thinkgeek' => 'http://www.thinkgeek.com/');
 function osdn_nav_dropdown() {
 	GLOBAL $osdn_sites;
 ?>
-
 	<!-- OSDN navdropdown -->
-
-
-	<script language="JavaScript">
-	<!--
-	document.write('<form name=form1>'+
-	'<font size=-1>'+
-	'<a href="http://www.osdn.com"><?php echo html_image("images/osdn_logo_grey.png","135","33",array("hspace"=>"10","alt"=>" OSDN - Open Source Development Network ","border"=>"0")); ?></A><br>'+
-	'<select name=navbar onChange="window.location=this.options[selectedIndex].value">'+
-	'<option value="http://www.osdn.com/gallery.html">Network Gallery</option>'+
-	'<option>------------</option>'+<?php
-	reset ($osdn_sites);
-	while (list ($key, $val) = each ($osdn_sites)) {
-		list ($key, $val) = each ($val);
-		print "\n	'<option value=\"$val\">$key</option>'+";
-	}
+        <script language="JavaScript">
+        <!--
+        document.write('<form name=form1>\n'+
+        '<font size=-1>\n'+
+        '<a href=\"http://www.osdn.com\"><img src=\"/images/osdn_logo_grey.png\" width=\"135\" height=\"33\" hspace=\"10\" alt=\" OSDN - Open Source Development Network \" border=\"0\"></A><br>\n'+
+        '<select name=navbar onChange=\"window.location=this.options[selectedIndex].value\">\n'+
+        '<option value=\"http://www.osdn.com/gallery.html\">Network Gallery</option>\n'+
+        '<option>------------</option>\n'+
+<?php
+        reset ($osdn_sites);
+        while (list ($key, $val) = each ($osdn_sites)) {
+        	list ($key, $val) = each ($val);
+		print "\t";
+		print "'<option value=\"$val\">$key</option>\\n'+";
+		print "\n";
+        }
 ?>
-	'</select>'+
-	'</form>');
-	//-->
-	</script>
+        '</select>\n'+
+        '</form>\n')
+        //-->
+        </script>
 
-	<noscript>
-	<a href="http://www.osdn.com"><?php echo html_image("images/osdn_logo_grey.png","135","33",array("hspace"=>"10","alt"=>" OSDN - Open Source Development Network ","border"=>"0")); ?></A><br>
-	<a href="http://www.osdn.com/gallery.html"><font size="2" color="#fefefe" face="arial, helvetica">Network Gallery</font></a>
-	</noscript>
-
-
+        <noscript>
+        <a href="http://www.osdn.com"><img src="/images/osdn_logo_grey.png" width="135" height="33" hspace="10" alt=" OSDN - Open Source Development Network " border="0"></A><br>
+        <a href="http://www.osdn.com/gallery.html"><font size="2" color="#fefefe" face="arial, helvetica">Network Gallery</font></a>
+        </noscript>
 	<!-- end OSDN navdropdown -->
-
-
 <?php
 }
 
@@ -53,7 +49,7 @@ function osdn_nav_dropdown() {
 function osdn_print_randpick($sitear, $num_sites = 1) {
 	shuffle($sitear);
 	reset($sitear);
-	while ( ( $i < $num_sites ) && (list($key,$val) = each($sitear)) ) {
+        while ( ( $i < $num_sites ) && (list($key,$val) = each($sitear)) ) {
 		list($key,$val) = each($val);
 		print "\t\t&nbsp;&middot;&nbsp;<a href='$val'style='text-decoration:none'><font color='#ffffff'>$key</font></a>\n";
 		$i++;
@@ -62,13 +58,8 @@ function osdn_print_randpick($sitear, $num_sites = 1) {
 }
 
 function osdn_print_navbar() {
-
-
-	print '<!-- 
-
-OSDN navbar 
-
--->
+	print '
+<!-- OSDN navbar -->
 <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#CCCCCC">
 	<tr> 
 		<td valign="middle" align="left" bgcolor="#6C7198">
@@ -95,61 +86,26 @@ OSDN navbar
 </table>
 
 <table width="100%" cellpadding="0" cellspacing="0" border="0">
+	<tbody> 
 	<tr> 
-		<td bgcolor="#d5d7d9" background="/images/steel3.jpg" WIDTH="20%">';
-	echo html_blankimage(1,100). '</TD><TD bgcolor="#d5d7d9" background="/images/steel3.jpg" WIDTH="60%">';
-
-	srand((double)microtime()*1000000);
-	$random_num=rand(0,100000);
-
-	if (session_issecure()) {
-
-		//secure pages use James Byer's Ad server
-
-		print '<a href="https://www2.valinux.com/adbouncer.phtml?f_s=468x60&f_p=1&f_RzXx='.$random_num.'">'.
-		'<img src="https://www2.valinux.com/adserver.phtml?f_s=468x60&f_p=1&f_RzXx='.$random_num.
-		'" width="468" height="60" border="0" alt=" Advertisement "></a>';
-	} else {
-
-		//insecure pages use osdn ad server
-echo '
-<ilayer id="adlayer" visibility="hide" width=468 height=60></ilayer>
-
-<NOLAYER>
-  <IFRAME SRC="http://sfads.osdn.com/1.html" width="468" height="60" '.
-'frameborder="no" border="0" MARGINWIDTH="0" MARGINHEIGHT="0" SCROLLING="no">'.
-'<A HREF="http://sfads.osdn.com/cgi-bin/ad_default.pl?click">'.
-'<IMG SRC="http://sfads.osdn.com/cgi-bin/ad_default.pl?display" border=0 height="60" width="468"></A>
-  </IFRAME>
-</NOLAYER>';
-
-	}
-	print '</td>
-		<td valign="center" align="left" bgcolor="#d5d7d9" background="/images/steel3.jpg" WIDTH="20%"><a href="http://www.osdn.com">' . html_image("images/OSDN-lc.gif","100","40",array("hspace"=>"10","border"=>"0","alt"=>" OSDN - Open Source Development Network ")) . '</a>
-	</td>
-	</tr>
-</table>
+		<td valign="center" align="center" width="100%" bgcolor="#d5d7d9" background="/images/steel3.jpg">
 ';
 
-//
-//  Actual layer call must be outside of table for some reason
-//
-/*
-if (!session_issecure()) {
+	srand((double)microtime()*1000000);
+        $random_num=rand(0,100000);
 
-	echo '
-<LAYER SRC="http://sfads.osdn.com/1.html" width=468 height=60 visibility=\'hide\' '.
-'onLoad="moveToAbsolute(adlayer.pageX,adlayer.pageY); clip.height=60; clip.width=468; visibility=\'show\';"></LAYER>';
-
+	if (session_issecure()) {
+		$_SSL='s';
+	} else {
+		$_SSL='';
+	}
+	print '<a href="http'.$_SSL.'://www2.valinux.com/adbouncer.phtml?f_s=468x60&f_p=1&f_RzXx='.$random_num.'"><img src="http'.$_SSL.'://www2.valinux.com/adserver.phtml?f_s=468x60&f_p=1&f_RzXx='.$random_num.'" width="468" height="60" border="0" alt=" Advertisement "></a></td>
+		<td valign="center" align="left" bgcolor="#d5d7d9" background="/images/steel3.jpg"><a href="http://www.osdn.com"><img src="/images/OSDN-lc.gif" width="100" height="40" hspace="10" border="0" alt=" OSDN - Open Source Development Network "></a>
+	</td>
+	</tr>
+	</tbody> 
+</table>
+<!-- End OSDN NavBar -->
+';
 }
-*/
-echo '<!-- 
-
-
-End OSDN NavBar 
-
-
--->';
-}
-
 ?>

@@ -14,25 +14,22 @@ if (user_isloggedin()) {
 		for ($i=1; $i<=$count; $i++) {
 			$resp="Q_$i";
 			$rating=$$resp;
-			if ($rating==100) {
-				//unrated on this criteria
+
+			//ratings can only be between +3 and -3
+			if ($rating > 3 || $rating < '-3') {
+				$feedback .= ' ERROR - invalid rating value ';
 			} else {
-				//ratings can only be between +3 and -3
-				if ($rating > 3 || $rating < '-3') {
-					$feedback .= ' ERROR - invalid rating value ';
-				} else {
-					if ($rating) {
-						//user did answer this question, so insert into db
-						$res=db_query("SELECT * FROM user_ratings ".
-							"WHERE rated_by='$user' AND user_id='$rated_user' AND rate_field='$i'");
-						if ($res && db_numrows($res) > 0) {
-							$res=db_query("DELETE FROM user_ratings ".
-								"WHERE rated_by='$user' AND user_id='$rated_user' AND rate_field='$i'");
-						}
-						$res=db_query("INSERT INTO user_ratings (rated_by,user_id,rate_field,rating) ".
-							"VALUES ('$user','$rated_user','$i','$rating')");
-						echo db_error();
+				if ($rating) {
+					//user did answer this question, so insert into db
+					$res=db_query("SELECT * FROM user_ratings ".
+						"WHERE rated_by='$user' AND user_id='$rated_user' rate_field='$i'");
+					if ($res && db_numrows($res) > 0) {
+						$res=db_query("DELETE FROM user_ratings ".
+							"WHERE rated_by='$user' AND user_id='$rated_user' rate_field='$i'");
 					}
+					$res=db_query("INSERT INTO user_ratings (rated_by,user_id,rate_field,rating) ".
+						"VALUES ('$user','$rated_user','$i','$rating')");
+					echo db_error();
 				}
 			}
 		}

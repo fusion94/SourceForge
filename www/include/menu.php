@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: menu.php,v 1.186 2000/11/30 05:33:42 tperdue Exp $
+// $Id: menu.php,v 1.158 2000/08/31 06:11:35 gherteg Exp $
 
 /* The correct theme.php must be included by this point -- Geoffrey */
 
@@ -64,86 +64,93 @@ function menuhtml_bottom() {
 }
 
 function menu_software() {
-	GLOBAL $HTML, $Language;
+	GLOBAL $HTML;
 	$HTML->menuhtml_top('Software'); 
-		$HTML->menu_entry('/softwaremap/',$Language->SOFTWARE_MAP);
-		$HTML->menu_entry('/new/',$Language->NEW_RELEASES);
-		$HTML->menu_entry('/mirrors/',$Language->OTHER_SITE_MIRRORS);
-		$HTML->menu_entry('/snippet/',$Language->CODE_SNIPPET_LIBRARY);
+		$HTML->menu_entry('/softwaremap/','Software Map');
+		$HTML->menu_entry('/new/','New Releases');
+		$HTML->menu_entry('/mirrors/','Other Site Mirrors');
+		$HTML->menu_entry('/snippet/','Code Snippet Library');
 	$HTML->menuhtml_bottom();
 }
 
 function menu_sourceforge() {
-	GLOBAL $HTML, $Language;
+	GLOBAL $HTML;
 	$HTML->menuhtml_top('SourceForge');
-		$HTML->menu_entry('/docman/?group_id=1','<b>'.$Language->DOCUMENTATION.'</b>');
-		$HTML->menu_entry('/forum/?group_id=1',$Language->DISCUSSION_FORUMS);
-		$HTML->menu_entry('/people/',$Language->PROJECT_HELP_WANTED);
-		$HTML->menu_entry('/top/',$Language->TOP_PROJECTS);
+		$HTML->menu_entry('/docs/site/','Site Documentation');
+		$HTML->menu_entry('/forum/?group_id=1','Discussion Forums');
+		$HTML->menu_entry('/people/','Project Help Wanted');
 		print '<P>';
-		$HTML->menu_entry('/compilefarm/',$Language->COMPILE_FARM);
+		$HTML->menu_entry('/compilefarm/','Compile Farm');
 		print '<P>';
-		$HTML->menu_entry('/contact.php',$Language->CONTACT_US);
-		$HTML->menu_entry('/about.php',$Language->ABOUT_SOURCEFORGE);
+		$HTML->menu_entry('/contact.php','Contact Us');
 	$HTML->menuhtml_bottom();
 }
 
 function menu_foundry_links() {
-	GLOBAL $HTML, $Language;
-	$HTML->menuhtml_top('SourceForge Foundries');
-		$HTML->menu_entry('/about_foundries.php', $Language->ABOUT_FOUNDRIES);
+	GLOBAL $HTML;
+	$HTML->menuhtml_top('Sourceforge Foundries');
+		$HTML->menu_entry('/about_foundries.php', 'About Foundries');
 		echo '<P>
 ';
-		$HTML->menu_entry('/foundry/3d/', '3D');
-		$HTML->menu_entry('/foundry/games/', 'Games');
-		$HTML->menu_entry('/foundry/java/', 'Java');
-		$HTML->menu_entry('/foundry/printing/', 'Printing');
-		$HTML->menu_entry('/foundry/storage/', 'Storage');
+		$HTML->menu_entry('/foundry/'. strtolower(group_getunixname(6771)), '3D');
+		$HTML->menu_entry('/foundry/'. strtolower(group_getunixname(6772)), 'Games');
+		$HTML->menu_entry('/foundry/'. strtolower(group_getunixname(6770)), 'Java');
+		$HTML->menu_entry('/foundry/'. strtolower(group_getunixname(1872)), 'Printing');
 	$HTML->menuhtml_bottom();
 }
 
 function menu_search() {
-	GLOBAL $HTML, $Language;
-	$HTML->menuhtml_top($Language->SEARCH);
+	GLOBAL $HTML;
+	$HTML->menuhtml_top('Search');
 	menu_show_search_box();
 	$HTML->menuhtml_bottom();
 }
 
 function menu_project($grp) {
-	GLOBAL $HTML, $Language;
+	GLOBAL $HTML;
 	$HTML->menuhtml_top('Project: ' . group_getname($grp));
-		$HTML->menu_entry('/projects/'. group_getunixname($grp) .'/',$Language->PROJECT_SUMMARY);
+		$HTML->menu_entry('/projects/'. group_getunixname($grp) .'/','Project Summary');
 		print '<P>';
-		$HTML->menu_entry('/project/admin/?group_id='.$grp,$Language->PROJECT_ADMIN);
+		$HTML->menu_entry('/project/admin/?group_id='.$grp,'Project Admin');
 	$HTML->menuhtml_bottom();
 }
 
 function menu_foundry($grp) {
-	GLOBAL $HTML, $Language;
+	GLOBAL $HTML;
 	$unix_name=strtolower(group_getunixname($grp));
 	$HTML->menuhtml_top('Foundry: ' . group_getname($grp));
-		$HTML->menu_entry('/foundry/'. $unix_name .'/',$Language->FOUNDRY_SUMMARY);
+		$HTML->menu_entry('/foundry/'. $unix_name .'/','Summary Page');
 		print '<P>';
-		$HTML->menu_entry('/foundry/'. $unix_name .'/admin/', $Language->FOUNDRY_ADMIN);
+		$HTML->menu_entry('/foundry/'. $unix_name .'/admin/', 'Foundry Admin');
 	$HTML->menuhtml_bottom();
 }
 
 function menu_foundry_guides($grp) {
-	GLOBAL $HTML, $Language;
+	GLOBAL $HTML;
 	/*
 		Show list of projects in this portal
 	*/
-	$foundry=&group_get_object($grp);
-	if (!$foundry) {
-		return 'Foundry Error';
-	}
 	$HTML->menuhtml_top('Foundry Guides');
 
-	echo html_dbimage($foundry->getGuideImageID()).'<BR>';
+	$sql="SELECT db_images.width,db_images.height,db_images.id ".
+		"FROM db_images,foundry_data ".
+		"WHERE db_images.id=foundry_data.guide_image_id ".
+		"AND foundry_data.foundry_id='$grp'";
+	$result=db_query($sql);
+	$rows=db_numrows($result);
+	
+	if (!$result || $rows < 1) {
+//		echo 'No Projects';
+		echo db_error();
+	} else {
+		echo '<IMG SRC="/dbimage.php?id='.db_result($result,$i,'id').'" HEIGHT="'.db_result($result,$i,'height').'" WIDTH="'.db_result($result,$i,'width').'"><BR>';
+	}
 
-	$sql = "SELECT users.realname,users.user_id,users.user_name ".
-		"FROM users,user_group ".
-		"WHERE users.user_id=user_group.user_id ".
+	//echo html_image('foundry/'.$grp.'admin.png',array()).'<BR>';
+
+	$sql = "SELECT user.realname,user.user_id,user.user_name ".
+		"FROM user,user_group ".
+		"WHERE user.user_id=user_group.user_id ".
 		"AND user_group.admin_flags='A' ".
 		"AND user_group.group_id='$grp'";
 
@@ -163,71 +170,32 @@ function menu_foundry_guides($grp) {
 }
 
 function menu_loggedin($page_title) {
-	GLOBAL $HTML, $Language;
+	GLOBAL $HTML;
 	/*
 		Show links appropriate for someone logged in, like account maintenance, etc
 	*/
 	$HTML->menuhtml_top('Logged In: '.user_getname());
-		$HTML->menu_entry('/account/logout.php',$Language->LOGOUT);
-		$HTML->menu_entry('/register/',$Language->NEW_PROJECT);
-		$HTML->menu_entry('/account/',$Language->ACCOUNT_MAINTENANCE);
+		$HTML->menu_entry('/account/logout.php','Logout');
+		$HTML->menu_entry('/register/','Register New Project');
+		$HTML->menu_entry('/account/','Account Maintenance');
 		print '<P>';
-		$HTML->menu_entry('/themes/',$Language->CHANGE_MY_THEME);
-		$HTML->menu_entry('/my/',$Language->MY_PERSONAL_PAGE);
+		$HTML->menu_entry('/themes/','Change My Theme');
+		$HTML->menu_entry('/my/','My Personal Page');
 
 		if (!$GLOBALS['HTTP_POST_VARS']) {
 			$bookmark_title = urlencode( str_replace('SourceForge: ', '', $page_title));
 			print '<P>';
-			$HTML->menu_entry('/my/bookmark_add.php?bookmark_url='.urlencode($GLOBALS['REQUEST_URI']).'&bookmark_title='.$bookmark_title,$Language->BOOKMARK_PAGE);
+			$HTML->menu_entry('/my/bookmark_add.php?bookmark_url='.urlencode($GLOBALS['REQUEST_URI']).'&bookmark_title='.$bookmark_title,'Bookmark Page');
 		}
 	$HTML->menuhtml_bottom();
 }
 
 function menu_notloggedin() {
-	GLOBAL $HTML, $Language;
+	GLOBAL $HTML;
 	$HTML->menuhtml_top('Status:');
 		echo '<h4><FONT COLOR="#990000">NOT LOGGED IN</h4>';
-		$HTML->menu_entry('/account/login.php',$Language->LOGIN);
-		$HTML->menu_entry('/account/register.php',$Language->NEW_USER);
-	$HTML->menuhtml_bottom();
-}
-
-/**
- *
- *  Show a form with a language pop-up box
- *
- */
-function menu_language_box() {
-	GLOBAL $HTML, $Language,$cookie_language_id;
-	$HTML->menuhtml_top('Language:');
-
-	//which option should be checked 
-	//in the pop-up box
-	if ($cookie_language_id) {
-		$lang=$cookie_language_id;
-	} else {
-		$lang=$Language->getLanguageId();
-	}
-
-	echo '
-	<!--    
-
-		this document.write is necessary
-		to prevent the ads from screwing up
-		the rest of the site in netscape...
-
-		Thanks, netscape, for your cheesy browser
-
-	-->
-	<FONT SIZE="1">
-	<FORM ACTION="/account/setlang.php" METHOD="POST">
-	'. eregi_replace('<select ','<select onchange="submit()" ',html_get_language_popup ($Language,'language_id',$lang)) .'
-	<BR>
-	<NOSCRIPT>
-	<INPUT TYPE=SUBMIT NAME=SUBMIT VALUE="Change">
-	</NOSCRIPT>
-	</FORM></FONT>';
-
+		$HTML->menu_entry('/account/login.php','Login via SSL');
+		$HTML->menu_entry('/account/register.php','New User via SSL');
 	$HTML->menuhtml_bottom();
 }
 
@@ -236,26 +204,21 @@ function menu_print_sidebar($params) {
 		See if this is a project or a foundry
 		and show the correct nav menus
 	*/
-
 	if (!user_isloggedin()) {
 		echo menu_notloggedin();
 	} else {
 		echo menu_loggedin($params['title']);
 	}
 
-	//search menu
-	echo menu_search();
+	$grp=project_get_object($params['group']);
 
-	if ($params['group']) {
-		$grp=&group_get_object($params['group']);
-	}
-	if ($params['group'] && $grp && $grp->isProject()) {
+	if ($params['group'] && $grp->isProject()) {
 		//this is a project page
 		//sf global choices
 		echo menu_project ($params['group']);
 		echo menu_software();
 		echo menu_sourceforge();
-	} else if ($params['group'] && $grp) {
+	} else if ($params['group']) {
 		//this is a foundry page
 		echo menu_foundry_guides($params['group']);
 		echo menu_foundry($params['group']);
@@ -267,10 +230,13 @@ function menu_print_sidebar($params) {
 	//Foundry Links
 	echo menu_foundry_links();
 
-	if (!user_isloggedin()) {
-		echo menu_language_box();
-	}// else {
-	//echo osdn_nav_dropdown();
-	//}
+	//search menu
+	echo menu_search();
+
+	?>
+	<div align="center">
+	<?php osdn_nav_dropdown(); ?>
+	</div>
+<?php
 }
 ?>

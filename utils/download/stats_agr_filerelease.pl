@@ -1,6 +1,6 @@
 #!/usr/bin/perl 
 #
-# $Id: stats_agr_filerelease.pl,v 1.13 2000/09/21 03:44:12 msnelham Exp $
+# $Id: stats_agr_filerelease.pl,v 1.12 2000/08/26 00:07:58 msnelham Exp $
 #
 use DBI;
 require("../include.pl");  # Include all the predefined functions
@@ -31,9 +31,6 @@ while ( @tmp_ar = $rel->fetchrow_array() ) {
 ##
 $sql	= "DROP TABLE IF EXISTS frs_dlstats_grouptotal_agg_tmp";
 $rel = $dbh->do($sql) || die "SQL parse error: $!";
-
-   ## Flush the downloads cache.
-%downloads = {};
 
    ## create the temp table;
 $sql	= "CREATE TABLE frs_dlstats_grouptotal_agg_tmp ( "
@@ -78,9 +75,6 @@ $rel = $dbh->do($sql) || die "SQL parse error: $!";
 ##
 $sql	= "DROP TABLE IF EXISTS frs_dlstats_filetotal_agg_tmp";
 $rel = $dbh->do($sql) || die "SQL parse error: $!";
-
-   ## Flush the downloads cache.
-%downloads = {};
 
    ## create the temp table;
 $sql	= "CREATE TABLE frs_dlstats_filetotal_agg_tmp ( "

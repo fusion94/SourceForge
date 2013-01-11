@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: detail.php,v 1.34 2000/12/13 22:57:19 dbrogdon Exp $
+// $Id: detail.php,v 1.32 2000/08/13 04:37:55 tperdue Exp $
 
 require ('pre.php');
 require ('../snippet/snippet_utils.php');
@@ -33,9 +33,9 @@ if ($type=='snippet') {
 	/*
 		Get all the versions of this snippet
 	*/
-	$sql="SELECT users.user_name,snippet_version.snippet_version_id,snippet_version.version,snippet_version.date,snippet_version.changes ".
-		"FROM snippet_version,users ".
-		"WHERE users.user_id=snippet_version.submitted_by AND snippet_id='$id' ".
+	$sql="SELECT user.user_name,snippet_version.snippet_version_id,snippet_version.version,snippet_version.date,snippet_version.changes ".
+		"FROM snippet_version,user ".
+		"WHERE user.user_id=snippet_version.submitted_by AND snippet_id='$id' ".
 		"ORDER BY snippet_version.snippet_version_id DESC";
 
 	$result=db_query($sql);
@@ -69,7 +69,7 @@ if ($type=='snippet') {
 				date($sys_datefmt,db_result($result,$i,'date')).'</TD><TD>'.
 				db_result($result,$i,'user_name').'</TD><TD ALIGN="MIDDLE"><A HREF="/snippet/delete.php?type=snippet&snippet_version_id='.
 				db_result($result,$i,'snippet_version_id').
-				'">' . html_image("images/ic/trash.png","16","16",array("BORDER"=>"0")) . '</A></TD></TR>';
+				'"><IMG SRC="/images/ic/trash.png" HEIGHT="16" WIDTH="16" BORDER="0"></A></TD></TR>';
 
 				if ($i != ($rows - 1)) {
 					echo '
@@ -127,10 +127,10 @@ if ($type=='snippet') {
 	/*
 		Get all the versions of this package
 	*/
-	$sql="SELECT users.user_name,snippet_package_version.snippet_package_version_id,".
+	$sql="SELECT user.user_name,snippet_package_version.snippet_package_version_id,".
 		"snippet_package_version.version,snippet_package_version.date ".
-		"FROM snippet_package_version,users ".
-		"WHERE users.user_id=snippet_package_version.submitted_by AND snippet_package_id='$id' ".
+		"FROM snippet_package_version,user ".
+		"WHERE user.user_id=snippet_package_version.submitted_by AND snippet_package_id='$id' ".
 		"ORDER BY snippet_package_version.snippet_package_version_id DESC";
 
 	$result=db_query($sql);
@@ -164,10 +164,10 @@ if ($type=='snippet') {
 				db_result($result,$i,'user_name').
 				'</TD><TD ALIGN="MIDDLE"><A HREF="/snippet/add_snippet_to_package.php?snippet_package_version_id='.
 				db_result($result,$i,'snippet_package_version_id').
-				'">' . html_image("images/ic/pencil.png","20","25",array("BORDER"=>"0")) . 
-				'</A> &nbsp; &nbsp; &nbsp; <A HREF="/snippet/delete.php?type=package&snippet_package_version_id='.
+				'"><IMG SRC="/images/ic/pencil.png" HEIGHT="25" WIDTH="20" BORDER="0"></A>
+				&nbsp; &nbsp; &nbsp; <A HREF="/snippet/delete.php?type=package&snippet_package_version_id='.
 				db_result($result,$i,'snippet_package_version_id').
-				'">' . html_image("images/ic/trash.png","16","16",array("BORDER"=>"0")) . '</A></TD></TR>';
+				'"><IMG SRC="/images/ic/trash.png" HEIGHT="16" WIDTH="16" BORDER="0"></A></TD></TR>';
 		}
 		echo '</TABLE>';
 

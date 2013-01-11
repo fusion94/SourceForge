@@ -4,11 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: utils.php,v 1.125 2000/11/09 20:53:04 pfalcon Exp $
+// $Id: utils.php,v 1.121 2000/08/31 15:46:57 gherteg Exp $
 
 function util_prep_string_for_sendmail($body) {
-	//$body=str_replace("\\","\\\\",$body);
-	$body=str_replace("`","\\`",$body);
+	$body=str_replace("\\","\\\\",$body);
 	$body=str_replace("\"","\\\"",$body);
 	$body=str_replace("\$","\\\$",$body);
 	return $body;
@@ -25,24 +24,6 @@ function util_unconvert_htmlspecialchars($string) {
 		$string=str_replace('&amp;','&',$string);
 		return $string;
 	}
-}
-
-function util_result_columns_to_assoc($result, $col_key=0, $col_val=1) {
-	/*
-		Takes a result set and turns the column pair into
-		an associative array
-	*/
-	$rows=db_numrows($result);
-
-	if ($rows > 0) {
-		$arr=array();
-		for ($i=0; $i<$rows; $i++) {
-			$arr[db_result($result,$i,$col_key)]=db_result($result,$i,$col_val);
-		}
-	} else {
-		$arr=array();
-	}
-	return $arr;
 }
 
 function util_result_column_to_array($result, $col=0) {
@@ -160,16 +141,13 @@ function get_priority_color ($index) {
 	return $bgpri[$index];
 }
 
-function build_priority_select_box ($name='priority', $checked_val='5', $nochange=false) {
+function build_priority_select_box ($name='priority', $checked_val='5') {
 	/*
 		Return a select box of standard priorities.
 		The name of this select box is optional and so is the default checked value
 	*/
 	?>
 	<SELECT NAME="<?php echo $name; ?>">
-<?php if($nochange) { ?>
-	<OPTION VALUE="100"<?php if ($nochange) {echo " SELECTED";} ?>>No Change</OPTION>
-<?php }?>
 	<OPTION VALUE="1"<?php if ($checked_val=="1") {echo " SELECTED";} ?>>1 - Lowest</OPTION>
 	<OPTION VALUE="2"<?php if ($checked_val=="2") {echo " SELECTED";} ?>>2</OPTION>
 	<OPTION VALUE="3"<?php if ($checked_val=="3") {echo " SELECTED";} ?>>3</OPTION>
@@ -243,7 +221,6 @@ Function GraphResult($result,$title) {
 }
 
 Function GraphIt($name_string,$value_string,$title) {
-	GLOBAL $HTML;
 
 	/*
 		GraphIt by Tim Perdue, PHPBuilder.com
@@ -256,7 +233,7 @@ Function GraphIt($name_string,$value_string,$title) {
 	$bars=array();
 
 	for ($i = 0; $i < $counter; $i++) {
-		$bars[$i]=$HTML->COLOR_LTBACK1;
+		$bars[$i]=$GLOBALS['COLOR_LTBACK1'];
 	}
 
 	$counter=count($value_string);

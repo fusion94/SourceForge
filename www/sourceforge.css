@@ -1,8 +1,3 @@
-/* This file, sourceforge.css, is deprecated.  It is here because many
-   pages on the project web servers refer to it.  It has been replaced
-   by the theming stuff.  Project web pages are encouraged to not depend
-   on details of how the pages are organized on the sourceforge.net side.  */
-
 BODY { background-color: #FFFFFF; font-family: arial,helvetica,sans-serif; }
 
 A { text-decoration: none; color #6666FF; }

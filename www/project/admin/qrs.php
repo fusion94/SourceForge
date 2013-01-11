@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: qrs.php,v 1.4 2000/11/28 20:06:14 dbrogdon Exp $
+// $Id: qrs.php,v 1.1 2000/09/01 16:34:34 dbrogdon Exp $
 
 require ('pre.php');    
 require ($DOCUMENT_ROOT.'/project/admin/project_admin_utils.php');
@@ -40,7 +40,7 @@ if( $submit ) {
 				//insert failed - go back to definition screen
 			} else {
 				//release added - now show the detail page for this new release
-				$release_id=db_insertid($res,'frs_release','release_id');
+				$release_id=db_insertid($res);
 				$feedback .= ' Added Release <BR>';
 			}
 		}
@@ -189,7 +189,6 @@ if( $submit ) {
 			<H4>File Name:</H4>
 		</TD>
 		<TD>
-<font color="red"><b>NOTE: In some browsers you must select the file in the file-upload dialog and click "OK".  Double-clicking doesn't register the file.</b></font><br>
 <?php
 	$dirhandle = opendir($FTPINCOMING_DIR);
 
@@ -206,7 +205,7 @@ if( $submit ) {
 	if (!$atleastone) {
 		print '<h3>No available files</H3>
 			<P>
-			You can upload files using FTP to <B>upload.sourceforge.net</B> 
+			You can upload files using FTP to <B>download.sourceforge.net</B> 
 			in the <B>/incoming</B> directory, then hit <B>Refresh View</B>.';
 	}
 ?>

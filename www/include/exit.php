@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: exit.php,v 1.18 2000/11/17 14:52:36 pfalcon Exp $
+// $Id: exit.php,v 1.17 2000/08/31 06:11:35 gherteg Exp $
 
 function exit_error($title,$text) {
 	GLOBAL $HTML;
@@ -14,9 +14,8 @@ function exit_error($title,$text) {
 	exit;
 }
 
-function exit_permission_denied($reason_descr='') {
-	if (!$reason_descr) $reason_descr='This project\'s administrator will have to grant you permission to view this page.';
-	exit_error('Permission Denied',$reason_descr);
+function exit_permission_denied() {
+	exit_error('Permission Denied','This project\'s administrator will have to grant you permission to view this page.');
 }
 
 function exit_not_logged_in() {

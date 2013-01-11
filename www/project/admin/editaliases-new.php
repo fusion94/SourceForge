@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editaliases-new.php,v 1.11 2000/12/06 22:31:31 dbrogdon Exp $
+// $Id: editaliases-new.php,v 1.10 2000/07/12 21:01:41 tperdue Exp $
 
 require "pre.php";    
 require "account.php";
@@ -16,12 +16,12 @@ if ($GLOBALS[Submit]) {
 	/*
 		PROBLEM - no feedbacks or checks for success/failure
 	*/
-	if (account_namevalid(strtolower($form_username))) {
+	if (account_namevalid($form_username)) {
 		$res_domain = db_query("SELECT http_domain FROM groups WHERE group_id=$group_id");
 		$row_domain = db_fetch_array($res_domain);
 
 		$res = db_query("INSERT INTO mailaliases (group_id,domain,user_name,email_forward) VALUES "
-			. "($group_id,'$row_domain[http_domain]','" . strtolower($form_username) . "','$form_email')");	
+			. "($group_id,'$row_domain[http_domain]','$form_username','$form_email')");	
 		if (!$res) exit_error('Error in Query','This database query had an unknown failure. Please email
 admin@'.$GLOBALS['sys_default_domain'].' with details of the problem.');
 		session_redirect("/project/admin/editaliases.php?group_id=$group_id");

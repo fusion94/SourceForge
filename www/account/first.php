@@ -4,10 +4,10 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: first.php,v 1.7 2000/10/14 23:21:37 pfalcon Exp $
+// $Id: first.php,v 1.5 2000/08/31 06:07:52 gherteg Exp $
 
 require "pre.php";    
-site_user_header(array(title=>"Welcome to SourceForge"));
+$HTML->header(array(title=>"Welcome to SourceForge"));
 ?>
 
 <P><B>Welcome to SourceForge!</B>
@@ -22,7 +22,7 @@ for software in SourceForge, sign on as a project developer, or even
 start your own project.
 
 <P>You should take some time to read through the
-<A href="/docs/site/"><b>Site Documentation</b></A> so that you may take
+<A href="/docs/site/">site documentation</A> so that you may take
 full advantage of SourceForge.
 
 <P>Enjoy the site, and please provide us with feedback on ways
@@ -31,6 +31,6 @@ that we can improve SourceForge.
 <P>--the SourceForge staff
 
 <?php
-site_user_footer(array());
+$HTML->footer(array());
 
 ?>

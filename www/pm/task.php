@@ -4,16 +4,13 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: task.php,v 1.13 2000/11/06 21:14:04 tperdue Exp $
+// $Id: task.php,v 1.11 2000/08/26 05:13:04 tperdue Exp $
 
 require('pre.php');
 require('../pm/pm_utils.php');
 require('../pm/pm_data.php');
 
 if ($group_id && $group_project_id) {
-
-	$project=&group_get_object($group_id);
-
 	/*
 		Verify that this group_project_id falls under this group
 	*/
@@ -44,7 +41,7 @@ if ($group_id && $group_project_id) {
 	switch ($func) {
 
 		case 'addtask' : {
-			if ($project->userIsPMAdmin()) {
+			if (user_ismember($group_id,'P2')) {
 				include '../pm/add_task.php';
 			} else {
 				exit_permission_denied();
@@ -53,15 +50,11 @@ if ($group_id && $group_project_id) {
 		}
 
 		case 'postaddtask' : {
-			if ($project->userIsPMAdmin()) {
-				if (pm_data_create_task ($group_project_id,$start_month,$start_day,$start_year,
+			if (user_ismember($group_id,'P2')) {
+				echo pm_data_create_task ($group_project_id,$start_month,$start_day,$start_year,
 					$end_month,$end_day,$end_year,$summary,$details,$percent_complete,
-					$priority,$hours,$assigned_to,$dependent_on)) {
-					$feedback='Task Created Successfully';
-					include '../pm/browse_task.php';
-				} else {
-					exit_error('ERROR',$feedback);
-				}
+					$priority,$hours,$assigned_to,$dependent_on);
+				include '../pm/browse_task.php';
 			} else {
 				exit_permission_denied();
 			}
@@ -69,16 +62,12 @@ if ($group_id && $group_project_id) {
 		}
 
 		case 'postmodtask' : {
-			if ($project->userIsPMAdmin()) {
-				if (pm_data_update_task ($group_project_id,$project_task_id,$start_month,$start_day,
+			if (user_ismember($group_id,'P2')) {
+				echo pm_data_update_task ($group_project_id,$project_task_id,$start_month,$start_day,
 					$start_year,$end_month,$end_day,$end_year,$summary,$details,
 					$percent_complete,$priority,$hours,$status_id,$assigned_to,
-					$dependent_on,$new_group_project_id,$group_id)) {
-					$feedback='Task Updated Successfully';
-					include '../pm/browse_task.php';
-				} else {
-					exit_error('ERROR',$feedback);
-				}
+					$dependent_on,$new_group_project_id,$group_id);
+				include '../pm/browse_task.php';
 				break;;
 			} else {
 				exit_permission_denied();
@@ -91,7 +80,7 @@ if ($group_id && $group_project_id) {
 		}
 
 		case 'detailtask' : {
-			if ($project->userIsPMAdmin()) {
+			if (user_ismember($group_id,'P2')) {
 				include '../pm/mod_task.php';
 			} else {
 				include '../pm/detail_task.php';

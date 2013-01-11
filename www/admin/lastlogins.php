@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: lastlogins.php,v 1.11 2000/10/17 19:56:55 tperdue Exp $
+// $Id: lastlogins.php,v 1.9 2000/08/31 06:07:52 gherteg Exp $
 
 require "pre.php";    
 session_require(array('group'=>'1','admin_flags'=>'A'));
@@ -12,9 +12,9 @@ session_require(array('group'=>'1','admin_flags'=>'A'));
 $res_logins = db_query("SELECT session.user_id AS user_id,"
 	. "session.ip_addr AS ip_addr,"
 	. "session.time AS time,"
-	. "users.user_name AS user_name FROM session,users "
-	. "WHERE session.user_id=users.user_id AND "
-	. "session.user_id>0 AND session.time>0 ORDER BY session.time DESC",50);
+	. "user.user_name AS user_name FROM session,user "
+	. "WHERE session.user_id=user.user_id AND "
+	. "session.user_id>0 AND session.time>0 ORDER BY session.time DESC LIMIT 50");
 if (db_numrows($res_logins) < 1) exit_error("No records found","There must be an error somewhere.");
 
 $HTML->header(array('title'=>"Last Logins"));

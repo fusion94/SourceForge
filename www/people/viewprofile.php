@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: viewprofile.php,v 1.9 2000/10/11 19:55:39 tperdue Exp $
+// $Id: viewprofile.php,v 1.8 2000/04/28 08:57:21 tperdue Exp $
 
 require('pre.php');
 require('../people/people_utils.php');
@@ -17,7 +17,7 @@ if ($user_id) {
 	people_header(array('title'=>'View a User Profile'));
 
 	//for security, include group_id
-	$sql="SELECT * FROM users WHERE user_id='$user_id'";
+	$sql="SELECT * FROM user WHERE user_id='$user_id'";
 	$result=db_query($sql);
 	if (!$result || db_numrows($result) < 1) {
 		echo db_error();

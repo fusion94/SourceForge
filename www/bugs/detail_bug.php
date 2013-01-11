@@ -4,15 +4,13 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: detail_bug.php,v 1.41 2000/12/14 17:56:51 tperdue Exp $
+// $Id: detail_bug.php,v 1.35 2000/04/17 16:59:54 tperdue Exp $
 
 bug_header(array ('title'=>'Bug Detail: '.$bug_id));
 
-$project=&project_get_object($group_id);
-
-$sql="SELECT bug_group.group_name,bug_resolution.resolution_name,bug.details,bug.summary,users.user_name AS submitted_by,".
+$sql="SELECT bug_group.group_name,bug_resolution.resolution_name,bug.details,bug.summary,user.user_name AS submitted_by,".
 	"user2.user_name AS assigned_to,bug.priority,bug_status.status_name,bug.date,bug_category.category_name ".
-	"FROM bug,users,users user2,bug_group,bug_resolution,bug_category,bug_status WHERE bug.submitted_by=users.user_id AND bug.assigned_to=user2.user_id AND ".
+	"FROM bug,user,user user2,bug_group,bug_resolution,bug_category,bug_status WHERE bug.submitted_by=user.user_id AND bug.assigned_to=user2.user_id AND ".
 	"bug.status_id=bug_status.status_id AND bug.category_id=bug_category.bug_category_id AND bug.bug_id='$bug_id' ".
 	"AND bug.bug_group_id=bug_group.bug_group_id AND bug.resolution_id=bug_resolution.resolution_id";
 
@@ -52,7 +50,7 @@ if (db_numrows($result) > 0) {
 		<INPUT TYPE="HIDDEN" NAME="bug_id" VALUE="'.$bug_id.'">
 
 		<TR><TD COLSPAN="2"><B>Add A Comment:</B><BR>
-			<TEXTAREA NAME="details" ROWS="15" COLS="50" WRAP="SOFT"></TEXTAREA>
+			<TEXTAREA NAME="details" ROWS="10" COLS="60" WRAP="SOFT"></TEXTAREA>
 		</TD></TR>
 
 		<TR><TD COLSPAN="2">';
@@ -70,21 +68,19 @@ if (db_numrows($result) > 0) {
 		<TR><TD COLSPAN="2">';
 
 	echo show_bug_details($bug_id);
+
 	?>
 
 	<TR><TD VALIGN="TOP">
 	<?php
-	if ($project->usesBugDependencies()){
 		$result2=db_query("SELECT bug.summary ".
 			"FROM bug,bug_bug_dependencies ".
 			"WHERE bug.bug_id=bug_bug_dependencies.is_dependent_on_bug_id ".
 			"AND bug_bug_dependencies.bug_id='$bug_id'");
 		ShowResultSet($result2,'Dependent on Bug');
-	}
 	?>
 	</TD><TD VALIGN="TOP">
 	<?php
-	if ($project->usesPMDependencies()){
 		$result2=db_query("SELECT project_task.summary ".
 			"FROM project_task,bug_task_dependencies ".
 			"WHERE project_task.project_task_id=bug_task_dependencies.is_dependent_on_task_id ".
@@ -93,19 +89,9 @@ if (db_numrows($result) > 0) {
 	?>
 	</TD></TR>
 
-	<?php
-	}
-
-	if ($project->usesBugDependencies()){
-	?>
-
 	<TR><TD COLSPAN="2">
 		<?php echo show_dependent_bugs($bug_id,$group_id); ?>
 	</TD></TR>
-
-	<?php
-	}
-	?>
  
 	<TR><TD COLSPAN="2">
 	<?php

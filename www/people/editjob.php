@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: editjob.php,v 1.13 2000/11/03 02:17:32 tperdue Exp $
+// $Id: editjob.php,v 1.12 2000/08/28 23:59:44 tperdue Exp $
 
 require('pre.php');
 require('../people/people_utils.php');
@@ -26,7 +26,7 @@ if ($group_id && (user_ismember($group_id, 'A'))) {
 			$feedback .= ' JOB insert FAILED ';
 			echo db_error();
 		} else {
-			$job_id=db_insertid($result,'people_job','job_id');
+			$job_id=db_insertid($result);
 			$feedback .= ' JOB inserted successfully ';
 		}
 

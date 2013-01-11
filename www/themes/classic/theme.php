@@ -4,7 +4,7 @@
 // Copyright 1999-2000 (c) The SourceForge Crew
 // http://sourceforge.net
 //
-// $Id: theme.php,v 1.31 2000/12/13 23:00:22 dbrogdon Exp $
+// $Id: theme.php,v 1.27 2000/08/31 06:11:36 gherteg Exp $
 
 // Make sure '/etc/local.inc' is required in pre.php!
 
@@ -226,11 +226,11 @@ function theme_header($params) {
         <TR valign="top" bgcolor="<?php echo $GLOBALS['COLOR_LTBACK1']; ?>"><TD>
         <A href="/"><?php
 
-        html_image('/images/sflogo2-steel.png','143','70',array('vspace'=>'0'));
+        html_image('sflogo2-steel.png',array('vspace'=>'0'));
         ?></A>
         </TD>
         <TD width="99%"><!-- right of logo -->
-        <a href="http://www.valinux.com"><?php html_image("images/valogo3.png",'117','70',array('align'=>'right','alt'=>'VA Linux Systems','hspace'=>'5','vspace'=>'0')); ?></A>
+        <a href="http://www.valinux.com"><?php html_image("valogo3.png",array('align'=>'right','alt'=>'VA Linux Systems','hspace'=>'5','vspace'=>'0')); ?></A>
 
         <BR>
         <FONT SIZE="+1">Breaking Down The Barriers to Open Source Development</FONT>
@@ -313,14 +313,14 @@ function theme_menu_entry($link, $title) {
 	print "\t".'<font face="arial, helvetica" size="2"><A class="menus" href="'.$link.'">'.$title.'</A></font><br>';
 }
 
-function theme_tab_entry($url='http://localhost/', $icon='/images/ic/home16b.png', $title='Home', $selected=0) {
+function theme_tab_entry($url='http://localhost/', $icon='ic/home16b.png', $title='Home', $selected=0) {
         print '
                 <A ';
         if ($selected) {
                 print 'class=tabs ';
         }
         print 'href="'. $url .'">';
-	html_image($icon,'24','24',array('alt'=>"$title",'border'=>($selected?'1':'0')));
+	html_image($icon,array('alt'=>"$title",'border'=>($selected?'1':'0'),'width'=>24,'height'=>24));
 	print '</A>';
 }
 
